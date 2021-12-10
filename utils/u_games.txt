@@ -1,0 +1,596 @@
+@simplelobby
+wait();
+if(event == "living_pre_hurt") {
+	if(!isPlayer(living_entity)) {
+		goto("simplelobby");
+	}
+	player = living_entity;
+	if(!player.hasMinigameId(player, script_id)) {
+		goto("simplelobby");
+	}
+	cancel = true;
+	if(specific_lobby_handling != null && specific_lobby_handling) {
+		gosub("specificLobbyHandling");
+	}
+	goto("simplelobby");
+}
+if(event == "entity_mount") {
+	if(!isPlayer(rider)) {
+		goto("simplelobby");
+	}
+	player = rider;
+}
+if(!player.hasMinigameId(player, script_id)) {
+	goto("simplelobby");
+}
+if(specific_lobby_handling != null && specific_lobby_handling) {
+	gosub("specificLobbyHandling");
+}
+if(event == "player_join") {
+	gosub("lobbycore");
+}
+elseif(event == "block_break" || event == "block_place") {
+	cancel = true;
+}
+elseif(event == "player_logout" || event == "player_giveup") {
+	gosub("leavelobbycore");
+}
+elseif(event == "custom_command") {
+	if(player != null) {
+		if(command == "startgame") {
+			if(manual_start != null && manual_start) {
+				if(started) {
+					msg.prefix(player, gamename, "Already started.");
+					goto("simplelobby");
+				}
+				counterindex = 3;
+				goto("startcountdown");
+			} else {
+				if(perm.has(player, "startgame.jump")) {
+					gosub("jumpstart");
+				} else {
+					perm.no(player, "startgame.jump");
+				}
+			}
+		}
+	}
+}
+goto("simplelobby");
+
+@lobbycore
+minigame.speakAll(gamename, concat("§8", player.getNickName(player), "§r joined the game."));
+if(no_lobby_tp == null || !no_lobby_tp) {
+	modTimer.entityTeleport(player, lobbyspawnloc);
+}
+if(no_core_reset == null || !no_core_reset) {
+	resetplayer(player);
+}
+title.setTime(player, 20, 60, 0);
+title.setSub(player, mapname);
+title.send(player, gamename);
+if(manual_start != null && manual_start) {
+	return;
+}
+if(!started) {
+	scriptlist = minigame.getPlayers(script_id);
+	size = list.getSize(scriptlist);
+	if(size >= minplayers) {
+		goto("startcountdown");
+	}
+	@waiting
+	started = false;
+	counterindex = 0;
+	if(manual_start != null && manual_start) {
+		minigame.speakAll(gamename, "Start process stopped.");
+		return;
+	}
+	waitfor = minplayers - size;
+	if(waitfor == 1) {
+		minigame.speakAll(gamename, concat("Waiting for §b", text.number(waitfor), " §rplayer."));
+	} else {
+		minigame.speakAll(gamename, concat("Waiting for §b", text.number(waitfor), " §rplayers."));
+	}
+}
+return;
+
+@startcountdown
+scriptlist = minigame.getPlayers(script_id);
+size = list.getSize(scriptlist);
+if(size < minplayers) {
+	gosub("waiting");
+	goto("simplelobby");
+}
+if(!set.exists(indivstartchecks)) {
+	indivstartchecks = set.new();
+	set.add(indivstartchecks, "§3CTF");
+	set.add(indivstartchecks, "§6SnowGame");
+}
+if(set.contains(indivstartchecks, gamename)) {
+	if(!canStartGame()) {
+		counterindex = 0;
+		ignoreGoto("checklobby");
+		goto("simplelobby");
+	}
+}
+started = true;
+noticetime = list.getIndex(starttimes, counterindex);
+if(noticetime == 5) {
+	for(i = 0; i < size; i++) {
+		p = player.get(list.getIndex(scriptlist, i));
+		title.setSub(p, mapname);
+		title.send(p, gamename);
+	}
+}
+if(noticetime == 0) {
+	sign.started(gamesignloc);
+	goto("finalstart");
+}
+noticetime2 = list.getIndex(starttimes, ++counterindex);
+if(noticetime == 1) {
+	minigame.speakAll(gamename, concat("The game starts in §b", text.number(noticetime), " §rsecond."));
+} else {
+	minigame.speakAll(gamename, concat("The game starts in §b", text.number(noticetime), " §rseconds."));
+}
+stime = (noticetime - noticetime2) * 20;
+sgoto(stime, "startcountdown");
+for(i = 0; i < size; i++) {
+	p = player.get(list.getIndex(scriptlist, i));
+	sound.spawnForPlayer(p, join_sound, sound_category_ambient);
+}
+ignoreGoto("checklobby");
+goto("simplelobby");
+
+@leavelobbycore
+minigame.speakAll(gamename, concat("§8", player.getNickName(player), "§r left the game."));
+script = script.getFromId(script_id);
+if(player.isPartyLeader(player)) {
+	leader_uuid = player.getUuid(player);
+	scriptlist = minigame.getPlayers(script_id);
+	list = party.getList(player.getPartyId(player));
+	iter = list.iterator(list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		if(list.contains(scriptlist, p_uuid)) {
+			minigame.kickPlayer(script, p);
+		}
+	}
+} else {
+	minigame.kickPlayer(script, player);
+}
+size = list.getSize(minigame.getPlayers(script_id));
+if(size == 0) {
+	minigame.term(script, $gamesignloc);
+}
+if(size < minplayers) {
+	gosub("waiting");
+	goto("simplelobby");
+}
+return;
+
+@jumpstart
+if(started) {
+	if(counterindex < 5) {
+		counterindex = 5;
+		minigame.speakAll(gamename, "Left time reduced to §b5 §rseconds.");
+	} else {
+		msg.prefix(player, gamename, "Left time can't be reduced.");
+	}
+} else {
+	msg.prefix(player, gamename, "Game is not starting.");
+}
+return;
+
+@setstart
+minigame.loadLobbyEvents();
+minigame.setStarttimesList();
+minigame.setupMultiplayer();
+return;
+
+//--------------------------------------------------
+//Minigame-Utils
+//--------------------------------------------------
+
+function minigame.setTabName(player, game_tab, team_color) {
+	if(team_color == null) {
+		team_color = "§r";
+	}
+	player_name = player.getName(player);
+	display_name = concat(game_tab, " §7| ", team_color, player_name);
+	player.setDisplayName(player, display_name);
+}
+
+function minigame.loadLobbyEvents() {
+	event.load("player_join");
+	event.load("player_logout");
+	event.load("player_giveup");
+	event.load("block_break");
+	event.load("block_place");
+	event.load("block_click");
+	event.load("living_pre_hurt");
+	event.load("custom_command");
+}
+
+function minigame.setStarttimesList() {
+	$starttimes = list.new();
+	list.add($starttimes, 20);
+	list.add($starttimes, 15);
+	list.add($starttimes, 10);
+	list.add($starttimes, 5);
+	list.add($starttimes, 4);
+	list.add($starttimes, 3);
+	list.add($starttimes, 2);
+	list.add($starttimes, 1);
+	list.add($starttimes, 0);
+}
+
+function minigame.setupMultiplayer() {
+	$counterindex = 0;
+	$started = false;
+	$sound_category_ambient = sound.getCategory("ambient");
+	$sound_category_player = sound.getCategory("player");
+	$join_sound = sound.get("minecraft:block.note_block.bass");
+	$pling_sound = sound.get("minecraft:block.note_block.pling");
+	$gamesworldloc = world.getGamesSpawn();
+}
+
+function minigame.setLastPos(player) {
+	map.add(getScriptVar("lobbylastpos"), player.getUuid(player), entity.getLocation(player));
+}
+
+function minigame.getLastPos(player) {
+	return map.getOrDefault(getScriptVar("lobbylastpos"), player.getUuid(player), world.getGamesSpawn());
+}
+
+function minigame.isStarted(sign_loc) {
+	return block.getSign(sign_loc, 3) == "§bStarted";
+}
+
+function minigame.getSignLoc(sign_name) {
+	return map.get(getScriptVar("gamesigns"), sign_name);
+}
+
+function minigame.term(script, gamesignloc) {
+	setScriptVar("sign_loc", gamesignloc);
+	script.callEvent("term_script");
+	sign.ready(gamesignloc);
+	script.term(script);
+}
+
+function minigame.speakAll(prefix, message) {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		msg.prefix(p, prefix, message);
+	}
+}
+
+function minigame.msgAll(message) {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		msg(p, message);
+	}
+}
+
+function minigame.displayAll(line, message) {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		display.add(p, line, message);
+	}
+}
+
+function minigame.titleAll(title, subtitle, fadeIn, show, fadeOut) {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		title.setTime(p, fadeIn, show, fadeOut);
+		title.setSub(p, subtitle);
+		title.send(p, title);
+	}
+}
+
+function minigame.displayRemoveAll(line) {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		display.remove(p, line);
+	}
+}
+
+function minigame.displayResetAll() {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		display.reset(p);
+	}
+}
+
+function minigame.statsHeader(player, gamename, colorcode) {
+	msg(player, concat("[", gamename, "§r] §r---= ", colorcode, "Statistic §r=---"));
+}
+
+function minigame.statsLine(player, colorcode, string, value) {
+	msg(player, concat(colorcode, " -§r ", string, ": ", colorcode, value));
+}
+
+function getTeamWithLowestPeople(team_lists, numberofteams) {
+	teamlist = map.get(team_lists, 0);
+	lowest = list.getSize(teamlist);
+	lowestteam = 0;
+	for(i = 1; i < numberofteams; i++) {
+		teamlist = map.get(team_lists, i);
+		size = list.getSize(teamlist);
+		if(size < lowest) {
+			lowest = size;
+			lowestteam = i;
+		}
+	}
+	return lowestteam;
+}
+
+function minigame.kickPlayer(script, player) {
+	resetplayer(player);
+	player.tpGamesLobby(player);
+	script_id = script.getId(script);
+	list = minigame.getPlayers(script_id);
+	list.remove(list, player.getUuid(player));
+	sign.players($gamesignloc, list.getSize(list), $maxplayers);
+	set.remove(player.getMinigameIds(player), script_id);
+}
+
+function minigame.kickAllPlayers(script) {
+	player_list = minigame.getPlayers(script.getId(script));
+	list = list.new();
+	//Create copy
+	iter = list.iterator(player_list);
+	while(hasNext(iter)) {
+		list.add(list, next(iter));
+	}
+	iter = list.iterator(list);
+	while(hasNext(iter)) {
+		minigame.kickPlayer(script, player.get(next(iter)));
+	}
+}
+
+function minigame.getPlayers(script_id) {
+	map = getScriptVar("script_players");
+	list = map.get(map, script_id);
+	if(list == null) {
+		list = list.new();
+		map.add(map, script_id, list);
+	}
+	return list;
+}
+
+function minigame.setWon(player_or_id, game_short, amount) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, concat("won.", game_short), amount);
+	config.saveAsync(config);
+}
+
+function minigame.getWon(player_or_id, game_short) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, concat("won.", game_short), 0);
+}
+
+function minigame.setPlayed(player_or_id, game_short, amount) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, concat("played.", game_short), amount);
+	config.saveAsync(config);
+}
+
+function minigame.getPlayed(player_or_id, game_short) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, concat("played.", game_short), 0);
+}
+
+function minigame.addPlayed(player_or_id, game_short, amount) {
+	config = playerdata.getGames(player_or_id);
+	new_amount = config.getDouble(config, concat("played.", game_short), 0) + amount;
+	config.set(config, concat("played.", game_short), new_amount);
+	config.saveAsync(config);
+}
+
+//--------------------------------------------------
+//Player-Utils
+//--------------------------------------------------
+
+function player.tpGamesLobby(player) {
+	modTimer.entityTeleport(player, minigame.getLastPos(player));
+	inv = player.getInv(player);
+	inv.setItem(inv, 0, read.item("minecraft:compass"));
+}
+
+function player.resetMinigames(player) {
+	id_set = player.getMinigameIds(player);
+	set.clear(id_set);
+}
+
+function player.hasMinigameId(player, script_id) {
+	if(player == null) {
+		return false;
+	}
+	if(script_id == null) {
+		return false;
+	}
+	set = player.getMinigameIds(player);
+	return set.contains(set, script_id);
+}
+
+function resetplayer(player) {
+	entity.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	display.reset(player);
+	player.clearInventory(player);
+	player.showDefaultStacks(player);
+	status.reset(player);
+	entity.setName(player, player.getName(player));
+	boss.send(player, "REMOVE");
+	player.setSpeed(player, 1);
+	entity.setGravity(player, true);
+	inv.close(player);
+	displayMoney(player, getMoney(player));
+	player.setTabName(player);
+}
+
+//--------------------------------------------------
+//Ranking-Utils
+//--------------------------------------------------
+
+//Tabelle in Datenbank registrieren
+function ranking.register(rankingtable) {
+	databank.workerExecute(databank.prepare(concat("CREATE TABLE IF NOT EXISTS ", rankingtable, " (player_id INT NOT NULL PRIMARY KEY, points INT NOT NULL, sec_points INT);")));
+}
+
+//Setzt die Rekord-Punkte eines Spielers
+function ranking.setPoints(rankingtable, player_or_id, points) {
+	stmt = databank.prepare(concat("INSERT INTO ", rankingtable, " (points, player_id) VALUES (?,?) ON DUPLICATE KEY UPDATE points = ?;"), false);
+	databank.setInt(stmt, 1, points);
+	databank.setInt(stmt, 2, player.getValidId(player_or_id));
+	databank.setInt(stmt, 3, points);
+	databank.workerExecute(stmt);
+}
+
+//Setzt die primären und sekundären Rekord-Punkte eines Spielers
+function ranking.setSecPoints(rankingtable, player_or_id, points, sec_points) {
+	stmt = databank.prepare(concat("INSERT INTO ", rankingtable, " (points, sec_points, player_id) VALUES (?,?,?) ON DUPLICATE KEY UPDATE points = ?, sec_points = ?;"), false);
+	databank.setInt(stmt, 1, points);
+	databank.setInt(stmt, 2, sec_points);
+	databank.setInt(stmt, 3, player.getValidId(player_or_id));
+	databank.setInt(stmt, 4, points);
+	databank.setInt(stmt, 5, sec_points);
+	databank.workerExecute(stmt);
+}
+
+//Gibt die gesamte Rangtabelle zurück. Liste mit Arrays
+function ranking.getArray(rankingtable, order, order2) {
+	ranking_list = list.new();
+	if(order2 == null) {
+		stmt = databank.prepare(concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ";"));
+	} else {
+		stmt = databank.prepare(concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ", sec_points ", order2, ";"));
+	}
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		a = array.new(3);
+		a[0] = databank.getInt(result, 1); //player_id
+		a[1] = databank.getInt(result, 2); //points
+		a[2] = databank.getInt(result, 3); //sec_points
+		list.add(ranking_list, a);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return ranking_list;
+}
+
+//Gibt Daten des Spieler von Platz n als Array zurück
+function ranking.getArrayFromRank(rankingtable, rank, order, order2) {
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	index = rank - 1;
+	if(index >= list_size || index < 0) {
+		return null;
+	}
+	a = list.getIndex(ranking_list, index);
+	return a;
+}
+
+//Gibt den Spieler von Platz n zurück
+function ranking.getPlayerIdFromRank(rankingtable, rank, order, order2) {
+	a = ranking.getArrayFromRank(rankingtable, rank, order, order2);
+	if(a == null) {
+		return -1;
+	}
+	return a[0];
+}
+
+//Gibt die Punkte von Platz n zurück
+function ranking.getPointsFromRank(rankingtable, rank, order, order2) {
+	a = ranking.getArrayFromRank(rankingtable, rank, order, order2);
+	if(a == null) {
+		return -1;
+	}
+	return a[1];
+}
+
+//Gibt die Top 10 Spieler eines Spiels zurück
+function ranking.getTopTenList(rankingtable, order, order2) {
+	toptenlist = list.new();
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	for(i = 0; i < list_size; i++) {
+		list.add(toptenlist, list.getIndex(ranking_list, i));
+	}
+	return toptenlist;
+}
+
+//Gibt die Statistik eines Spiels zurück
+function ranking.getPlayerStats(player_id, rankingtable, order, order2) {
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	for(i = 0; i < list_size; i++) {
+		a = list.getIndex(ranking_list, i);
+		if(a[0] == player_id) {
+			return a;
+		}
+	}
+	return null;
+}
+
+//Gibt den Rang eines Spielers zurück
+function ranking.getPlayerRank(player_id, rankingtable, order, order2) {
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	for(i = 0; i < list_size; i++) {
+		a = list.getIndex(ranking_list, i);
+		if(a[0] == player_id) {
+			return i + 1;
+		}
+	}
+	return -1;
+}
+
+//Entfernt einen Spieler aus der Statistik
+function ranking.removePlayer(player_id, rankingtable, game_short) {
+	stmt = databank.prepare(concat("DELETE FROM ", rankingtable, " WHERE player_id = ?;"));
+	databank.setInt(stmt, 1, player_id);
+	databank.workerExecute(stmt);
+	if(game_short != null) {
+		if(minigame.getWon(player_id, game_short) != 0) {
+			minigame.setWon(player_id, game_short, 0);
+		}
+		if(minigame.getPlayed(player_id, game_short) != 0) {
+			minigame.setPlayed(player_id, game_short, 0);
+		}
+	}
+}
+
+//--------------------------------------------------
+//Sign-Utils
+//--------------------------------------------------
+
+function sign.players(sign_loc, amount, max) {
+	return block.setSign(sign_loc, 2, concat(text.number(amount), "/", text.number(max)));
+}
+
+function sign.ready(sign_loc) {
+	return block.setSign(sign_loc, 3, "§2Ready");
+}
+
+function sign.started(sign_loc) {
+	return block.setSign(sign_loc, 3, "§bStarted");
+}
+
+function sign.closed(sign_loc) {
+	return block.setSign(sign_loc, 3, "§cClosed");
+}

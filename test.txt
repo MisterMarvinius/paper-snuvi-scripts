@@ -1,0 +1,22 @@
+event.load("block_click");
+
+@wait
+wait();
+if(block == null) {
+	goto("wait");
+}
+if(hand == read.slot("OFF_HAND")) {
+	goto("wait");
+}
+msg("dev", text.new(string.blockEntity(block.getEntity(block))));
+//msg("dev", text.new(string.blockData(block.getData(block))));
+if(entity == null) {
+	entity = string.blockEntity(block.getEntity(block));
+	msg("dev", text.new("A"));
+} else {
+	block.setEntity(block, read.blockEntity(entity));
+	entity = null;
+	msg("dev", text.new("B"));
+}
+//msg(player, text.new(string.blockState(block.getState(block))));
+goto("wait");

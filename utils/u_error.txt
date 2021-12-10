@@ -1,0 +1,11 @@
+error_counter = 0;
+@on_error
+error_counter++;
+if(error_counter > 1) {
+	snuvi.debug("Error Handler activated");
+	snuvi.debug("Restarting script...");
+	if(error_counter >= 3) {
+		snuvi.debug("Script terminated. Endless loop.");
+		term();
+	}
+}

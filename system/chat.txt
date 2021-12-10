@@ -1,0 +1,293 @@
+event.load("chat");
+event.load("player_join");
+event.load("player_logout");
+//event.load("living_death");
+
+cookie_time = 0;
+cookie = item.new(material.get("minecraft:cookie"));
+//serverspawn = world.getServerSpawn();
+
+/*joinmessages = list.new();
+list.add(joinmessages, concat("joined Mundus Crassus."));
+list.add(joinmessages, concat("entered the sick world."));
+list.add(joinmessages, concat("is ready to discover new ores."));
+list.add(joinmessages, concat("turns everything upside down."));
+
+leavemeassages = list.new();
+list.add(leavemeassages, concat("has left Mundus Crassus."));
+list.add(leavemeassages, concat("has left the sick world."));
+list.add(leavemeassages, concat("came, saw and won."));
+list.add(leavemeassages, concat("faded in the face of copper."));
+
+colorcodedeath = "§9";
+
+death_prefix = "§0§lx §r";
+rank_playtime_list = list.new();
+
+defaultdeaths = list.new();
+list.add(defaultdeaths, concat(colorcodedeath, " bled out."));
+list.add(defaultdeaths, concat(colorcodedeath, " wanted to die."));
+list.add(defaultdeaths, concat(colorcodedeath, " isn't hungry anymore."));
+list.add(defaultdeaths, concat(colorcodedeath, " f***ing died."));
+list.add(defaultdeaths, concat(colorcodedeath, " now dines with ghosts."));
+list.add(defaultdeaths, concat(colorcodedeath, " visits kajetan in his heaven."));
+list.add(defaultdeaths, concat(colorcodedeath, " is judged by kajetan (god)."));
+
+drowndeaths = list.new();
+list.add(drowndeaths, concat(colorcodedeath, " drowned."));
+list.add(drowndeaths, concat(colorcodedeath, " drank too much water."));
+list.add(drowndeaths, concat(colorcodedeath, " didn't grow gills fast enough."));
+list.add(drowndeaths, concat(colorcodedeath, " wanted to visit cthulhu."));
+list.add(drowndeaths, concat(colorcodedeath, " forgot they were in survival."));
+list.add(drowndeaths, concat(colorcodedeath, " believed they can fly."));
+
+falldeaths = list.new();
+list.add(falldeaths, concat(colorcodedeath, " fell victim to gravitation."));
+list.add(falldeaths, concat(colorcodedeath, " tripped on a banana peal."));
+list.add(falldeaths, concat(colorcodedeath, " jumped into the depths."));
+list.add(falldeaths, concat(colorcodedeath, " jumped into death."));
+list.add(falldeaths, concat(colorcodedeath, " forgot their wings."));
+list.add(falldeaths, concat(colorcodedeath, " forgot their RedBull."));
+
+firedeaths = list.new();
+list.add(firedeaths, concat(colorcodedeath, " looks hot today."));
+
+flydeaths = list.new();
+list.add(flydeaths, concat(colorcodedeath, " wanted to be a pilot."));
+list.add(flydeaths, concat(colorcodedeath, " is now a mashed potato."));
+list.add(flydeaths, concat(colorcodedeath, " returns to their nest."));
+list.add(flydeaths, concat(colorcodedeath, " made a crash landing."));
+list.add(flydeaths, concat(colorcodedeath, " needs a flight training."));
+list.add(flydeaths, concat(colorcodedeath, " was cast from heaven."));
+
+//andere damagecauses: fall, outOfWorld, arrow, drown (ertrinken), player, inWall, mob, magic, starve
+causetolist = map.new();
+map.add(causetolist, "fall", falldeaths);
+map.add(causetolist, "drown", drowndeaths);
+map.add(causetolist, "inFire", firedeaths);
+map.add(causetolist, "onFire", firedeaths);
+map.add(causetolist, "lava", firedeaths);
+map.add(causetolist, "flyIntoWall", flydeaths);
+map.add(causetolist, "player", list.new());*/
+
+/*online_list = players.toList();
+iter = list.iterator(online_list);
+while(hasNext(iter)) {
+	rank.offerTimeScheduled(next(iter));
+}*/
+
+//sgoto(1200, "minute_loop");
+	
+msg.text("dev", "§bChat §rloaded");
+@wait
+wait();
+if(event == "living_death") {
+	if(!isPlayer(living_entity)) {
+		goto("wait");
+	}
+	player = living_entity;
+}
+player_name = player.getName(player);
+nickname = player.getNickname(player);
+player_id = player.getId(player);
+//Wenn der Spieler keinen Nicknamen hat, werden die personalisierten Nachrichten geschickt, falls solche vorhanden sind
+if(removeFormat(nickname) == player_name) {
+	send_personally_messages = true;
+} else {
+	send_personally_messages = false;
+}
+fullname = player.getFullName(player);
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+first_join = player.isFirstJoin(player_id);
+if(first_join) {
+	entity.teleport(player, serverspawn);
+	msg.text("online", concat(" §d§k# §eWelcome to our sick world §b", player_name, " §e!!! §d§k#"));
+	player.setFirstJoin(player_id, true);
+}
+player.setHeadName(player);
+silentjoin = player.getSilentJoin(player);
+if(!silentjoin) {
+	message = text.convert(player.getJoinMessage(player));
+	if(message == null || !send_personally_messages) {
+		message = concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1)));
+	} else {
+		message = concat("§a§l> §r", fullname, " §9", message);
+	}
+	msg.text("online", message);
+}
+
+player_loc = entity.getLocation(player);
+//Inventory
+inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
+//Keks geben, wenn man als einziger Spieler auf den Server joint und im Survival-Mode ist und der letzte Keks seit 5 Minuten vergeben wurde
+if(players.getAmount() == 1) {
+	if(!loc.isInGamesWorld(player_loc)) {
+		if(player.isSurvival(player)) {
+			now_time = time.getMillis();
+			if(now_time - cookie_time > 300000) {
+				cookie_time = now_time;
+				msg.text(player, "§dHere is a cookie for you :D");
+				player.safeGiveItem(player, cookie);
+			}
+		}
+	}
+}
+player.setTabName(player);
+player.greet(player);
+player.showDefaultStacks(player);
+stacks.setActive(player, true);
+rank.offerTimeScheduled(player);
+displayMoney(player, getMoney(player));
+//send marvinius and sirterence amount of errors
+if(player_id == 2 || player_id == 35) {
+	error_size = error.getSize();
+	if(error_size > 0) {
+		msg.prefix(player, "§cError", concat("There are ", text.number(error_size), " errors."));
+	}
+}
+goto("wait");
+
+@player_logout
+message = text.convert(player.getLeaveMessage(player));
+if(message == null || !send_personally_messages) {
+	message = concat("§c§l> §r", fullname, " §9", list.getIndex(leavemeassages, math.random(0, list.getSize(leavemeassages) - 1)));
+} else {
+	message = concat("§c§l> §r", fullname, " §9", message);
+}
+msg.text("online", message);
+inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
+player.clearBackPos(player);
+rank.removeTimeOffert(player);
+goto("wait");
+
+@chat
+if(text.startsWith(message, "%", 0)) {
+	cancel = true;
+	goto("wait");
+}
+if(text.startsWith(message, "7", 0)) {
+	length = text.length(message);
+	space_index = read.number(text.indexOf(message, " ", 1));
+	if(length > 1 && space_index == -1 || length > 1 && space_index > 1) {
+		cancel = true;
+		if(space_index == -1) {
+			word = text.subString(message, 1, length);
+		} else {
+			word = text.subString(message, 1, space_index);
+		}
+		msg.prefix(player, "§6Commands", concat("You meant /", word, "?"));
+		goto("wait");
+	}
+}
+cancel = true;
+if(player.isMuted(player)) {
+	msg.prefix(player, "§6Commands", "You are muted.");
+	goto("wait");
+}
+if(perm.has(player, "color")) {
+	message = text.replace(message, "&", "§");
+}
+if(text.startsWith(message, "https://", 0)) {
+	message = text.link(message, message);
+}
+msg.chat(player, message);
+goto("wait");
+
+@living_death
+world = loc.getWorld(entity.getLocation(player));
+world_name = world.getName(world);
+if(world.isCreativeName(world_name)) {
+	goto("wait");
+}
+if(world.isGamesName(world_name)) {
+	goto("wait");
+}
+damage_type = damage.getType(damage_source);
+list = map.getOrDefault(causetolist, damage_type, defaultdeaths);
+if(damage_type == "player") {
+	killer = player.getFromDamageSource(damage_source);
+	killer_name = player.getName(killer);
+	item = living.getEquip(killer, "hand");
+	if(item.hasName(item)) {
+		message1 = concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
+		message2 = item.getFullText(item);
+		message = text.concat2(message1, message2);
+	} else {
+		list.clear(list);
+		list.add(list, concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
+		list.add(list, concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
+		list.add(list, concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
+		list.add(list, concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
+		message = list.getIndex(list, math.random(0, list.getSize(list) - 1));
+	}
+} else {
+	message = concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1)));
+}
+msg.survival(message);
+msg.creative(message);
+msg.story(message);
+goto("wait");
+
+function player.greet(player) {
+	player_name = player.getName(player);
+	title.reset(player);
+	title.setSub(player, concat("§cNice to see you §6", player_name));
+	title.send(player, "");
+}
+
+function rank.removeTimeOffert(player) {
+	player_uuid = player.getUuid(player);
+	list = $rank_playtime_list;
+	for(i = 0; i < list.getSize(list); i++) {
+		a = list.getIndex(list, i);
+		if(player_uuid == a[0]) {
+			list.removeIndex(list, i);
+			return;
+		}
+	}
+}
+
+function rank.offerTimeScheduled(player) {
+	a = array.new(3);
+	a[0] = player.getUuid(player);
+	playtime = playtime.getPlayerTotal(player);
+	if(playtime < 1200) {
+		diff = 1200 - playtime;
+		a[1] = "rank.newcomer";
+	} elseif(playtime < 6000) {
+		diff = 6000 - playtime;
+		a[1] = "rank.frequenter";
+	} elseif(playtime < 42000) {
+		diff = 42000 - playtime;
+		a[1] = "rank.legend";
+	} else {
+		return;
+	}
+	if(diff > 1440) {
+		return;
+	}
+	a[2] = time.getMillis() * diff * 60 * 1000;
+	list.add($rank_playtime_list, a);
+}
+
+@minute_loop
+now_time = time.getMillis();
+iter = list.iterator($rank_playtime_list);
+while(hasNext(iter)) {
+	a = next(iter);
+	player_uuid = a[0];
+	tech_name = a[1];
+	time = a[2];
+	if(time < now_time) {
+		player = player.get(player_uuid);
+		if(player != null) {
+			offerRank(player, tech_name);
+		}
+		remove(iter);
+	}
+}
+sgoto(1200, "minute_loop");
+goto("wait");

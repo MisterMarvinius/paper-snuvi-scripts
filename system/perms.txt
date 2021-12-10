@@ -1,0 +1,405 @@
+permgroup_ids = list.new();
+grouplists = map.new();
+
+perm.addGroup(0, "user");
+perm.addGroup(1, "owner");
+perm.addGroup(2, "admin");
+perm.addGroup(3, "moderator");
+perm.addGroup(4, "supporter");
+perm.addGroup(5, "developer");
+perm.addGroup(6, "devmaster");
+perm.addGroup(7, "buider");
+perm.addGroup(8, "streamer");
+perm.addGroup(9, "yt");
+perm.addGroup(10, "vip");
+perm.addGroup(11, "sponsor");
+perm.addGroup(12, "creative");
+perm.addGroup(13, "worldedit");
+perm.addGroup(14, "simuser");
+
+perm.addToGroup(0, "isUser");
+perm.addToGroup(0, "afk");
+perm.addToGroup(0, "answer");
+perm.addToGroup(0, "back");
+perm.addToGroup(0, "bug");
+perm.addToGroup(0, "clan");
+perm.addToGroup(0, "creative");
+perm.addToGroup(0, "friend");
+perm.addToGroup(0, "giveup");
+perm.addToGroup(0, "hack");
+perm.addToGroup(0, "help");
+perm.addToGroup(0, "home");
+perm.addToGroup(0, "leave");
+perm.addToGroup(0, "list");
+perm.addToGroup(0, "mail");
+perm.addToGroup(0, "mailbox");
+perm.addToGroup(0, "msg");
+perm.addToGroup(0, "party");
+perm.addToGroup(0, "playtime");
+perm.addToGroup(0, "plot");
+perm.addToGroup(0, "pvp");
+perm.addToGroup(0, "questanswer");
+perm.addToGroup(0, "rank");
+perm.addToGroup(0, "setrank");
+perm.addToGroup(0, "shop");
+perm.addToGroup(0, "skills");
+perm.addToGroup(0, "spawn");
+perm.addToGroup(0, "stopadventure");
+perm.addToGroup(0, "story");
+perm.addToGroup(0, "suicide");
+perm.addToGroup(0, "teleportaccept");
+perm.addToGroup(0, "ticket");
+perm.addToGroup(0, "tpa");
+perm.addToGroup(0, "tpaccept");
+perm.addToGroup(0, "tpaccepthere");
+perm.addToGroup(0, "tpahere");
+perm.addToGroup(0, "user");
+perm.addToGroup(0, "vote");
+perm.addToGroup(0, "voteshop");
+perm.addToGroup(0, "warp");
+
+perm.addToGroup(1, "isOwner");
+perm.addToGroup(1, "isTeam");
+perm.addToGroup(1, "datapack");
+perm.addToGroup(1, "reload");
+perm.addToGroup(1, "worldborder");
+perm.addToGroup(1, "op");
+perm.addToGroup(1, "deop");
+
+perm.addToGroup(2, "isAdmin");
+perm.addToGroup(2, "isTeam");
+perm.addToGroup(2, "news");
+perm.addToGroup(2, "setmessage");
+perm.addToGroup(2, "setmessage.delete");
+perm.addToGroup(2, "bossbar");
+perm.addToGroup(2, "recipe");
+perm.addToGroup(2, "voxel");
+perm.addToGroup(2, "setrank.other");
+perm.addToGroup(2, "setservermessage");
+perm.addToGroup(2, "scoreboard");
+perm.addToGroup(2, "adminshop");
+perm.addToGroup(2, "entities");
+perm.addToGroup(2, "tag");
+perm.addToGroup(2, "team");
+perm.addToGroup(2, "mailbox.other");
+perm.addToGroup(2, "advancement");
+perm.addToGroup(2, "experience");
+perm.addToGroup(2, "particle");
+perm.addToGroup(2, "seed");
+perm.addToGroup(2, "playsound");
+perm.addToGroup(2, "allsounds");
+perm.addToGroup(2, "execute");
+perm.addToGroup(2, "playtime.year");
+perm.addToGroup(2, "playtime.month");
+perm.addToGroup(2, "playtime.other");
+perm.addToGroup(2, "startgame.jump");
+perm.addToGroup(2, "hawkeye");
+perm.addToGroup(2, "perm");
+perm.addToGroup(2, "perm.give");
+perm.addToGroup(2, "perm.remove");
+perm.addToGroup(2, "perm.removeall");
+perm.addToGroup(2, "perm.list");
+perm.addToGroup(2, "perm.toggle");
+perm.addToGroup(2, "copyisland");
+perm.addToGroup(2, "cli");
+perm.addToGroup(2, "plough");
+perm.addToGroup(2, "plant");
+perm.addToGroup(2, "grow");
+perm.addToGroup(2, "start");
+perm.addToGroup(2, "nowb");
+perm.addToGroup(2, "tip");
+perm.addToGroup(2, "senditem");
+perm.addToGroup(2, "setspawn");
+perm.addToGroup(2, "setworldspawn");
+perm.addToGroup(2, "gamerule");
+perm.addToGroup(2, "gamerule.write");
+perm.addToGroup(2, "weather");
+perm.addToGroup(2, "heal");
+perm.addToGroup(2, "speed");
+perm.addToGroup(2, "iteminfo");
+perm.addToGroup(2, "speed.other");
+perm.addToGroup(2, "home.other");
+perm.addToGroup(2, "tempfly");
+perm.addToGroup(2, "fly");
+perm.addToGroup(2, "fly.other");
+perm.addToGroup(2, "ass");
+perm.addToGroup(2, "gamemode");
+perm.addToGroup(2, "gamemode.other");
+perm.addToGroup(2, "enderchest");
+perm.addToGroup(2, "say");
+perm.addToGroup(2, "feed");
+perm.addToGroup(2, "plot.other");
+perm.addToGroup(2, "plot.moreinfo");
+perm.addToGroup(2, "boost");
+perm.addToGroup(2, "yeet");
+perm.addToGroup(2, "whitelist");
+perm.addToGroup(2, "color");
+perm.addToGroup(2, "time");
+perm.addToGroup(2, "world");
+perm.addToGroup(2, "datatools");
+perm.addToGroup(2, "lastseen");
+perm.addToGroup(2, "lightning");
+perm.addToGroup(2, "sign");
+perm.addToGroup(2, "human");
+perm.addToGroup(2, "silentjoin");
+perm.addToGroup(2, "effect");
+perm.addToGroup(2, "tempban");
+perm.addToGroup(2, "banlist");
+perm.addToGroup(2, "spawner");
+perm.addToGroup(2, "summon");
+perm.addToGroup(2, "skull");
+perm.addToGroup(2, "head");
+perm.addToGroup(2, "jail");
+perm.addToGroup(2, "unjail");
+perm.addToGroup(2, "more");
+perm.addToGroup(2, "more.other");
+perm.addToGroup(2, "kill");
+perm.addToGroup(2, "suicide.other");
+perm.addToGroup(2, "hat");
+perm.addToGroup(2, "repair");
+perm.addToGroup(2, "pvp.other");
+perm.addToGroup(2, "inv");
+perm.addToGroup(2, "inv.see");
+perm.addToGroup(2, "inv.reload");
+perm.addToGroup(2, "inv.ignore");
+perm.addToGroup(2, "inv.loadFrom");
+perm.addToGroup(2, "inv.saveFor");
+perm.addToGroup(2, "xp");
+perm.addToGroup(2, "vanish");
+perm.addToGroup(2, "mute");
+perm.addToGroup(2, "unmute");
+perm.addToGroup(2, "silentkick");
+perm.addToGroup(2, "kick");
+perm.addToGroup(2, "warn");
+perm.addToGroup(2, "ban");
+perm.addToGroup(2, "silentban");
+perm.addToGroup(2, "unban");
+perm.addToGroup(2, "pardon");
+perm.addToGroup(2, "memory");
+perm.addToGroup(2, "warp.create");
+perm.addToGroup(2, "grow");
+perm.addToGroup(2, "enchant");
+perm.addToGroup(2, "nickname");
+perm.addToGroup(2, "give");
+perm.addToGroup(2, "data");
+perm.addToGroup(2, "script");
+perm.addToGroup(2, "script.error");
+perm.addToGroup(2, "stop");
+perm.addToGroup(2, "remove");
+perm.addToGroup(2, "clear");
+perm.addToGroup(2, "locate");
+perm.addToGroup(2, "locatebiome");
+perm.addToGroup(2, "quest");
+perm.addToGroup(2, "debug");
+perm.addToGroup(2, "user.other");
+perm.addToGroup(2, "skills.other");
+
+perm.addToGroup(3, "isMod");
+perm.addToGroup(3, "isTeam");
+perm.addToGroup(3, "cli");
+perm.addToGroup(3, "speed");
+perm.addToGroup(3, "script.error");
+perm.addToGroup(3, "inv");
+perm.addToGroup(3, "inv.ignore");
+perm.addToGroup(3, "inv.see");
+perm.addToGroup(3, "inv.reload");
+perm.addToGroup(3, "feed");
+perm.addToGroup(3, "mailbox.other");
+perm.addToGroup(3, "mute");
+perm.addToGroup(3, "quest");
+perm.addToGroup(3, "unmute");
+perm.addToGroup(3, "heal");
+perm.addToGroup(3, "nickname");
+perm.addToGroup(3, "playtime.year");
+perm.addToGroup(3, "playtime.month");
+perm.addToGroup(3, "playtime.other");
+perm.addToGroup(3, "give");
+perm.addToGroup(3, "grow");
+perm.addToGroup(3, "home.other");
+perm.addToGroup(3, "setmessage");
+perm.addToGroup(3, "enchant");
+perm.addToGroup(3, "memory");
+perm.addToGroup(3, "silentkick");
+perm.addToGroup(3, "kill");
+perm.addToGroup(3, "suicide.other");
+perm.addToGroup(3, "kick");
+perm.addToGroup(3, "warn");
+perm.addToGroup(3, "ban");
+perm.addToGroup(3, "silentban");
+perm.addToGroup(3, "unban");
+perm.addToGroup(3, "pardon");
+perm.addToGroup(3, "tempban");
+perm.addToGroup(3, "silentjoin");
+perm.addToGroup(3, "human");
+perm.addToGroup(3, "sign");
+perm.addToGroup(3, "lastseen");
+perm.addToGroup(3, "datatools");
+perm.addToGroup(3, "playsound");
+perm.addToGroup(3, "gamemode");
+perm.addToGroup(3, "ass");
+perm.addToGroup(3, "perm");
+perm.addToGroup(3, "perm.give");
+perm.addToGroup(3, "perm.remove");
+perm.addToGroup(3, "perm.list");
+perm.addToGroup(3, "perm.toggle");
+perm.addToGroup(3, "adminshop");
+perm.addToGroup(3, "startgame.jump");
+perm.addToGroup(3, "user.other");
+perm.addToGroup(3, "gamerule");
+perm.addToGroup(3, "tempfly");
+perm.addToGroup(3, "hawkeye");
+perm.addToGroup(3, "fly");
+perm.addToGroup(3, "fly.other");
+perm.addToGroup(3, "plot.other");
+perm.addToGroup(3, "warp.create");
+perm.addToGroup(3, "boost");
+perm.addToGroup(3, "yeet");
+perm.addToGroup(3, "skills.other");
+
+perm.addToGroup(4, "isSupporter");
+perm.addToGroup(4, "isTeam");
+perm.addToGroup(4, "tip");
+perm.addToGroup(4, "setmessage");
+perm.addToGroup(4, "warn");
+perm.addToGroup(4, "kick");
+perm.addToGroup(4, "tempban");
+perm.addToGroup(4, "allsounds");
+perm.addToGroup(4, "perm");
+perm.addToGroup(4, "perm.toggle");
+perm.addToGroup(4, "skills.other");
+	
+perm.addToGroup(5, "isDev");
+perm.addToGroup(5, "isTeam");
+perm.addToGroup(5, "color");
+perm.addToGroup(5, "particle");
+perm.addToGroup(5, "setmessage");
+perm.addToGroup(5, "xp");
+perm.addToGroup(5, "quest");
+perm.addToGroup(5, "entities");
+perm.addToGroup(5, "var");
+perm.addToGroup(5, "tip");
+perm.addToGroup(5, "script");
+perm.addToGroup(5, "script.error");
+perm.addToGroup(5, "iteminfo");
+perm.addToGroup(5, "databank");
+perm.addToGroup(5, "start");
+perm.addToGroup(5, "effect");
+perm.addToGroup(5, "allsounds");
+perm.addToGroup(5, "perm");
+perm.addToGroup(5, "perm.toggle");
+perm.addToGroup(5, "error");
+perm.addToGroup(5, "errordebug");
+perm.addToGroup(5, "warp.create");
+perm.addToGroup(5, "skills.other");
+
+perm.addToGroup(6, "isSnuviMaster");
+perm.addToGroup(6, "game");
+perm.addToGroup(6, "stats.remove");
+perm.addToGroup(6, "removeinvstats");
+perm.addToGroup(6, "removesfstats");
+perm.addToGroup(6, "mail.reset");
+perm.addToGroup(6, "datapack");
+perm.addToGroup(6, "reload");
+perm.addToGroup(6, "hawkeye.entries");
+perm.addToGroup(6, "worldborder");
+perm.addToGroup(6, "op");
+perm.addToGroup(6, "deop");
+
+perm.addToGroup(7, "isBuilder");
+perm.addToGroup(7, "isTeam");
+perm.addToGroup(7, "setmessage");
+perm.addToGroup(7, "voxel");
+perm.addToGroup(7, "warp.create");
+perm.addToGroup(7, "perm");
+perm.addToGroup(7, "perm.toggle");
+perm.addToGroup(7, "tip");
+perm.addToGroup(7, "setblock");
+perm.addToGroup(7, "summon");
+perm.addToGroup(7, "human");
+perm.addToGroup(7, "fly");
+perm.addToGroup(7, "gamemode");
+perm.addToGroup(7, "skull");
+perm.addToGroup(7, "give");
+perm.addToGroup(7, "head");
+perm.addToGroup(7, "ass");
+perm.addToGroup(7, "sign");
+perm.addToGroup(7, "color");
+perm.addToGroup(7, "grow");
+perm.addToGroup(7, "datatools");
+perm.addToGroup(7, "speed");
+perm.addToGroup(7, "plough");
+perm.addToGroup(7, "plant");
+perm.addToGroup(7, "allsounds");
+
+perm.addToGroup(8, "isStreamer");
+perm.addToGroup(8, "live");
+perm.addToGroup(8, "setmessage");
+
+perm.addToGroup(9, "isYT");
+perm.addToGroup(9, "setmessage");
+
+perm.addToGroup(10, "isVIP");
+perm.addToGroup(10, "fly");
+perm.addToGroup(10, "hat");
+perm.addToGroup(10, "ride");
+perm.addToGroup(10, "playtime.year");
+perm.addToGroup(10, "playtime.month");
+perm.addToGroup(10, "playtime.other");
+perm.addToGroup(10, "lastseen");
+perm.addToGroup(10, "setmessage");
+perm.addToGroup(10, "color");
+perm.addToGroup(10, "allsounds");
+perm.addToGroup(10, "perm");
+perm.addToGroup(10, "perm.toggle");
+
+perm.addToGroup(11, "isSponsor");
+perm.addToGroup(11, "setmessage");
+perm.addToGroup(11, "color");
+perm.addToGroup(11, "hat");
+
+//Building perms for creative world
+perm.addToGroup(12, "creative");
+
+perm.addToGroup(13, "/pos1");
+
+//Perm-Group zur User-Simulation
+perm.addToGroup(14, "simuser");
+perm.addToGroup(14, "perm");
+perm.addToGroup(14, "perm.toggle");
+
+event.load("player_join");
+
+msg.text("dev", "§bPerms §rloaded.");
+@wait
+wait();
+if(event == "player_join") {
+	perm.initPlayer(player);
+}
+goto("wait");
+
+function perm.initPlayer(player) {
+	perm.addGroupToPlayer(0, player);
+	
+}
+
+function perm.addGroup(group_id, group_name) {
+	list.add($permgroup_ids, group_name);
+	map.add($grouplists, group_id, list.new());
+}
+
+function perm.getGroupList(group_id) {
+	return map.get($grouplists, group_id);
+}
+
+function perm.addToGroup(group_id, perm) {
+	list = perm.getGroupList(group_id);
+	list.add(list, perm);
+}
+
+function perm.addGroupToPlayer(group_id, player) {
+	list = perm.getGroupList(group_id);
+	while(hasNext(iter)) {
+		perm = next(iter);
+		perm.add(perm, player);
+	}
+}

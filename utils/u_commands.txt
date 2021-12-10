@@ -1,0 +1,69 @@
+function getRickRollSounds() {
+	RickRollSounds = list.new();
+	list.add(RickRollSounds, math.pow(2, -6 / 12));//6
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, -1 / 12));//11
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, 3 / 12));//15
+	list.add(RickRollSounds, math.pow(2, 3 / 12));//15
+	list.add(RickRollSounds, math.pow(2, 1 / 12));//13
+	list.add(RickRollSounds, math.pow(2, -6 / 12));//6
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, -1 / 12));//11
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, 1 / 12));//13
+	list.add(RickRollSounds, math.pow(2, 1 / 12));//13
+	list.add(RickRollSounds, math.pow(2, -1 / 12));//11
+	list.add(RickRollSounds, math.pow(2, -2 / 12));//10
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, -6 / 12));//6
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, -1 / 12));//11
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, -1 / 12));//11
+	list.add(RickRollSounds, math.pow(2, 1 / 12));//13
+	list.add(RickRollSounds, math.pow(2, -2 / 12));//10
+	list.add(RickRollSounds, math.pow(2, -4 / 12));//8
+	list.add(RickRollSounds, math.pow(2, -6 / 12));//6
+	list.add(RickRollSounds, math.pow(2, -6 / 12));//6
+	list.add(RickRollSounds, math.pow(2, -6 / 12));//6
+	list.add(RickRollSounds, math.pow(2, 1 / 12));//13
+	list.add(RickRollSounds, math.pow(2, -1 / 12));//11
+	//6,8,11,8,15,15,13,6,8,11,8,13,13,11,10,8,6,8,11,8,11,13,10,8,6,6,6,13,11
+	return RickRollSounds;
+}
+
+function getRickRollSoundDists() {
+	RickRollSoundDists = list.new();
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 12);//6
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 8);//4
+	list.add(RickRollSoundDists, 4);//2
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 2);//1
+	list.add(RickRollSoundDists, 4);//2
+	list.add(RickRollSoundDists, 4);//2
+	list.add(RickRollSoundDists, 6);//3
+	list.add(RickRollSoundDists, 8);//4
+	list.add(RickRollSoundDists, 2);//1
+	//2,2,2,2,2,6,6,12,2,2,2,2,6,6,6,2,6,2,2,2,2,8,4,6,2,4,4,6,8
+	return RickRollSoundDists;
+}

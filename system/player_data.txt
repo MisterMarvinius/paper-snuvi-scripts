@@ -1,0 +1,26 @@
+/*Schema
+Unter "scripts/configs/player_data/<name>_data/<player_id>" werden Spielerdaten in Configs gespeichert.
+Configs sind dauerhaft geladen und werden z.B. in der ScriptVar "survival_data" gespeichert. map: player_id -> config
+*/
+
+playerdata.loadAll("survival_data");
+//playerdata.loadAll("games_data");
+//playerdata.loadAll("story_data");
+msg.text("dev", "§bPlayerdata §rloaded");
+
+function playerdata.loadAll(name) {
+	player_data_map = map.new();
+	setScriptVar(name, player_data_map);
+	dir = file.new(concat("scripts/configs/player_data/", name));
+	list = file.getList(dir);
+	iter = list.iterator(list);
+	while(hasNext(iter)) {
+		file = next(iter);
+		if(file.isFile(file)) {
+			file_name = file.getName(file);
+			player_id = text.convert(text.replace(file_name, ".snuvic", ""));
+			playerdata.load(player_id, player_data_map, name);
+		}
+	}
+}
+term();
