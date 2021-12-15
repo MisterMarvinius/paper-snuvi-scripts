@@ -1,0 +1,17 @@
+test(read.player("marvinius"));
+test(read.player("kajetanjohannes"));
+
+function test(player) {
+	a = item.custom.getAll();
+	iter = iterator(a);
+	while(hasNext(iter)) {
+		player.safeGiveItem(player, item.custom.new(next(iter)));
+	}
+}
+
+function player.safeGiveItem(player, item) {
+	rest_item = player.giveItem(player, item);
+	if(item.getAmount(rest_item) > 0) {
+		item.drop(entity.getLocation(player), rest_item);
+	}
+}

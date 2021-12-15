@@ -2,12 +2,12 @@ function getServerConfig() {
 	return getScriptVar("server_config");
 }
 
-function snuvi.debug(message) {
-	msg.text("dev", concat("[§eDebug§r] ", message));
+function snuvi.debug(string) {
+	msg.string("dev", string.concat("[§eDebug§r] ", string));
 }
 
-function perm.no(player, perm) {
-	msg.prefix(player, "§6Perms", concat("You have no permission for §c", perm, "§r."));
+function perm.no(perm, player) {
+	msg.prefix(player, "§6Perms", string.concat("You have no permission for §c", perm, "§r."));
 }
 
 function checkIfEverOnline(player_name) {
@@ -104,10 +104,6 @@ function map.sort(map, ascending) {
 	return my_array;
 }
 
-function getSpacer() {
-	return("§0-------------------------------------------------");
-}
-
 function getDirection(yaw) {
 	while(yaw < 0) {
 		yaw += 360;
@@ -130,8 +126,8 @@ function getDirection(yaw) {
 }
 
 function correctTimeFormat(textnumber) {
-	if(text.length(textnumber) == 1) {
-		textnumber = concat("0", textnumber);
+	if(string.length(textnumber) == 1) {
+		textnumber = string.concat("0", textnumber);
 	}
 	return textnumber;
 }
@@ -145,7 +141,9 @@ function player.giveSingleItem(player, item, boolean) {
 
 function player.safeGiveItem(player, item) {
 	rest_item = player.giveItem(player, item);
-	item.drop(entity.getLocation(player), rest_item);
+	if(item.getAmount(rest_item) > 0) {
+		item.drop(entity.getLocation(player), rest_item);
+	}
 }
 
 function setBlockIfNotAir(location, block) {
@@ -195,11 +193,11 @@ function grow(center_loc, radius) {
 				if(length <= radius) {
 					mod_loc = loc.mod(center_loc, x, y, z);
 					block = block.get(mod_loc);
-					if(block.hasTag(crops_tag, block)) {
+					if(block.hasTag(block, crops_tag)) {
 						if(block.getType(mod_loc) == "minecraft:beetroots") {
-							block.set(mod_loc, concat(block.getType(mod_loc), "[age=3]"));
+							block.set(mod_loc, string.concat(block.getType(mod_loc), "[age=3]"));
 						} else {
-							block.set(mod_loc, concat(block.getType(mod_loc), "[age=7]"));
+							block.set(mod_loc, string.concat(block.getType(mod_loc), "[age=7]"));
 						}
 					}
 				}
@@ -218,11 +216,11 @@ function getBlockLocation(location) {
 
 function getDateString(time) {
 	calendar = time.new(time);
-	return concat(text.number(time.getDay(calendar)), ".", text.number(time.getMonth(calendar)), ".", text.number(time.getYear(calendar)));
+	return string.concat(string.number(time.getDay(calendar)), ".", string.number(time.getMonth(calendar)), ".", string.number(time.getYear(calendar)));
 }
 
 function time.getClockString(time) { //s
-	return concat(text.number(math.roundDown(time / 60)), " min ", text.number(math.round(time % 60)), " s");
+	return string.concat(string.number(math.roundDown(time / 60)), " min ", string.number(math.round(time % 60)), " s");
 }
 
 function getTimeString(millis) {
@@ -233,26 +231,26 @@ function getTimeString(millis) {
 	hour = time.getHour(calendar);
 	minute = time.getMinute(calendar);
 	if(month < 10) {
-		month = concat("0", text.number(month));
+		month = string.concat("0", string.number(month));
 	} else {
-		month = text.number(month);
+		month = string.number(month);
 	}
 	if(day < 10) {
-		day = concat("0", text.number(day));
+		day = string.concat("0", string.number(day));
 	} else {
-		day = text.number(day);
+		day = string.number(day);
 	}
 	if(hour < 10) {
-		hour = concat("0", text.number(hour));
+		hour = string.concat("0", string.number(hour));
 	} else {
-		hour = text.number(hour);
+		hour = string.number(hour);
 	}
 	if(minute < 10) {
-		minute = concat("0", text.number(minute));
+		minute = string.concat("0", string.number(minute));
 	} else {
-		minute = text.number(minute);
+		minute = string.number(minute);
 	}
-	timestring = concat(day, ".", month, ".", text.number(year), " ", hour, ":", minute);
+	timestring = string.concat(day, ".", month, ".", string.number(year), " ", hour, ":", minute);
 	return timestring;
 }
 
@@ -265,6 +263,7 @@ function isFollowingDay(timestamp_1, timestamp_2) {
 }
 
 function player.hasMinigame(player) {
+	return false;
 	id_set = player.getMinigameIds(player);
 	if(set.getSize(id_set) > 0)  {
 		return true;
@@ -291,7 +290,7 @@ function tjr.getWholeTime(player_or_id) {
 
 function ranking.getPoints(rankingtable, player_or_id) {
 	player_id = player.getValidId(player_or_id);
-	stmt = databank.prepare(concat("SELECT points FROM ", rankingtable, " WHERE player_id = ?;"));
+	stmt = databank.prepare(string.concat("SELECT points FROM ", rankingtable, " WHERE player_id = ?;"));
 	databank.setInt(stmt, 1, player_id);
 	result = databank.execute(stmt);
 	if(databank.next(result)) {
@@ -306,7 +305,7 @@ function ranking.getPoints(rankingtable, player_or_id) {
 
 function ranking.getSecPoints(rankingtable, player_or_id) {
 	player_id = player.getValidId(player_or_id);
-	stmt = databank.prepare(concat("SELECT sec_points FROM ", rankingtable, " WHERE player_id = ?;"));
+	stmt = databank.prepare(string.concat("SELECT sec_points FROM ", rankingtable, " WHERE player_id = ?;"));
 	databank.setInt(stmt, 1, player_id);
 	result = databank.execute(stmt);
 	if(databank.next(result)) {
@@ -346,55 +345,57 @@ function modTimer.entityTeleport(entity, location) {
 //--------------------------------------------------
 
 function read.location(string) {
-	msg.text("dev", "TODO read.location");
+	a = string.split(":", string);
+	w = world.get(a[0]);
+	x = read.number(a[1]);
+	y = read.number(a[2]);
+	z = read.number(a[3]);
+	if(array.getSize(a) > 4) {
+		yaw = read.number(a[4]);
+		pitch = read.number(a[5]);
+	} else {
+		yaw = 0;
+		pitch = 0;
+	}
+	return loc.new(w, x, y, z, yaw, pitch);
+}
+
+function string.location(location) {
+	w = world.getName(loc.getWorld(location));
+	x = loc.getX(location);
+	y = loc.getY(location);
+	z = loc.getZ(location);
+	yaw = loc.getYaw(location);
+	pitch = loc.getPitch(location);
+	return string.concat(w, ":", x, ":", y, ":", z, ":", yaw, ":", pitch);
 }
 
 function world.getServerSpawn() {
-	world = world.get(config.getString(getServerConfig(), "serverspawn_world", "overworld"));
-	x = config.getDouble(getServerConfig(), "serverspawn_x", 0);
-	y = config.getDouble(getServerConfig(), "serverspawn_y", 0);
-	z = config.getDouble(getServerConfig(), "serverspawn_z", 0);
-	yaw = config.getDouble(getServerConfig(), "serverspawn_yaw", 0);
-	return loc.new(world, x, y, z, yaw, 0);
+	return read.location(config.getString(getServerConfig(), "serverspawn", "world:0:0:0"));
 }
 
 function world.getGamesSpawn() {
-	world = world.get(config.getString(getServerConfig(), "gamesspawn_world", "overworld"));
-	x = config.getDouble(getServerConfig(), "gamesspawn_x", "0");
-	y = config.getDouble(getServerConfig(), "gamesspawn_y", "0");
-	z = config.getDouble(getServerConfig(), "gamesspawn_z", "0");
-	yaw = config.getDouble(getServerConfig(), "gamesspawn_yaw", "0");
-	return loc.new(world, x, y, z, yaw, 0);
+	return read.location(config.getString(getServerConfig(), "gamesspawn", "world:0:0:0"));
 }
 
 function world.getCreativeSpawn() {
-	world = world.get(config.getString(getServerConfig(), "creativespawn_world", "overworld"));
-	x = config.getDouble(getServerConfig(), "creativespawn_x", "0");
-	y = config.getDouble(getServerConfig(), "creativespawn_y", "0");
-	z = config.getDouble(getServerConfig(), "creativespawn_z", "0");
-	yaw = config.getDouble(getServerConfig(), "creativespawn_yaw", "0");
-	return loc.new(world, x, y, z, yaw, 0);
+	return read.location(config.getString(getServerConfig(), "creative", "world:0:0:0"));
 }
 
 function world.getStorySpawn() {
-	world = world.get(config.getString(getServerConfig(), "storyspawn_world", "overworld"));
-	x = config.getDouble(getServerConfig(), "storyspawn_x", "0");
-	y = config.getDouble(getServerConfig(), "storyspawn_y", "0");
-	z = config.getDouble(getServerConfig(), "storyspawn_z", "0");
-	yaw = config.getDouble(getServerConfig(), "storyspawn_yaw", "0");
-	return loc.new(world, x, y, z, yaw, 0);
+	return read.location(config.getString(getServerConfig(), "storyspawn", "world:0:0:0"));
 }
 
 function world.getOverWorld() {
-	return world.get("overworld");
+	return world.get("world");
 }
 
 function world.getTheEnd() {
-	return world.get("the_end");
+	return world.get("world_the_end");
 }
 
 function world.getTheNether() {
-	return world.get("the_nether");
+	return world.get("world_nether");
 }
 
 function world.getGames() {
@@ -422,11 +423,11 @@ function world.isStoryName(world_name) {
 }
 
 function world.isSurvName(world_name) {
-	if(world_name == "overworld") {
+	if(world_name == "world") {
 		return true;
-	} elseif(world_name == "the_end") {
+	} elseif(world_name == "world_the_end") {
 		return true;
-	} elseif(world_name == "the_nether") {
+	} elseif(world_name == "world_nether") {
 		return true;
 	}
 	return false;
@@ -444,6 +445,7 @@ function world.canUsePlots(world) {
 }
 
 function world.addTimedStatus(world, index, time, message) {
+	return;
 	world_name = world.getName(world);
 	if(world.isSurvName(world_name)) {
 		worldlist = players.toWorldList(world.getOverWorld());
@@ -504,8 +506,8 @@ function player.changeInv(player, from_world, to_world) {
 	//Inventory
 	inv.saveForPlayer(player, player, from_world);
 	inv.loadFromPlayer(player, player, to_world);
-	if(perm.has(player, "isTeam")) {
-		if(perm.has(player, "isSupporter") && !perm.has(player, "isAdmin") && !perm.has(player, "isMod")) {
+	if(perm.has("isTeam", player)) {
+		if(perm.has("isSupporter", player) && !perm.has("isAdmin", player) && !perm.has("isMod", player)) {
 			player.changeGamemode(player, to_world_name);
 		}
 	} else {
@@ -521,7 +523,7 @@ function player.changeInv(player, from_world, to_world) {
 function player.changeGamemode(player, to_world_name) {
 	if(!player.isSpectator(player)) {
 		if(to_world_name == "creative") {
-			if(perm.has(player, "creative")) {
+			if(perm.has("creative", player)) {
 				gm = "creative";
 			} else {
 				gm = "adventure";
@@ -545,7 +547,7 @@ function inv.saveForPlayer(sec_player, for_player_or_id, world) {
 	if(world.isSurvName(world_name)) {
 		pfad = "scripts/configs/inv_data/survival";
 	} else {
-		pfad = concat("scripts/configs/inv_data/", world_name);
+		pfad = string.concat("scripts/configs/inv_data/", world_name);
 	}
 	config = config.new(pfad, for_player_or_id);
 	
@@ -561,19 +563,19 @@ function inv.saveForPlayer(sec_player, for_player_or_id, world) {
 	//Inventare
 	inv = player.getInv(sec_player);
 	for(i = 0; i < 36; i++) {
-		item_string = text.item(inv.getItem(inv, i));
-		config.set(config, concat("slot-", i), item_string);
+		item_string = string.item(inv.getItem(inv, i));
+		config.set(config, string.concat("slot-", i), item_string);
 	}
 	ender_inv = player.getEnderInv(sec_player);
 	for(i = 0; i < 27; i++) {
-		item_string = text.item(inv.getItem(ender_inv, i));
-		config.set(config, concat("eslot-", i), item_string);
+		item_string = string.item(inv.getItem(ender_inv, i));
+		config.set(config, string.concat("eslot-", i), item_string);
 	}
-	config.set(config, "offhand", text.item(living.getEquip(sec_player, "offhand")));
-	config.set(config, "head", text.item(living.getEquip(sec_player, "head")));
-	config.set(config, "chest", text.item(living.getEquip(sec_player, "chest")));
-	config.set(config, "legs", text.item(living.getEquip(sec_player, "legs")));
-	config.set(config, "feet", text.item(living.getEquip(sec_player, "feet")));
+	config.set(config, "offhand", string.item(living.getEquip(sec_player, "offhand")));
+	config.set(config, "head", string.item(living.getEquip(sec_player, "head")));
+	config.set(config, "chest", string.item(living.getEquip(sec_player, "chest")));
+	config.set(config, "legs", string.item(living.getEquip(sec_player, "legs")));
+	config.set(config, "feet", string.item(living.getEquip(sec_player, "feet")));
 	config.saveAsync(config);
 }
 
@@ -585,7 +587,7 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 	if(world.isSurvName(world_name)) {
 		pfad = "scripts/configs/inv_data/survival";
 	} else {
-		pfad = concat("scripts/configs/inv_data/", world_name);
+		pfad = string.concat("scripts/configs/inv_data/", world_name);
 	}
 	config = config.new(pfad, from_player_or_id);
 	if(config.exists(config)) {
@@ -603,7 +605,7 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 	
 	//Inventare
 	for(i = 0; i <= 35; i++) {
-		item_string = config.getString(config, concat("slot-", i), "minecraft:air");
+		item_string = config.getString(config, string.concat("slot-", i), "minecraft:air");
 		item = read.item(item_string);
 		if(item != null) {
 			inv = player.getInv(sec_player);
@@ -611,7 +613,7 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 		}
 	}
 	for(i = 0; i < 27; i++) {
-		item_string = config.getString(config, concat("eslot-", i), "minecraft:air");
+		item_string = config.getString(config, string.concat("eslot-", i), "minecraft:air");
 		item = read.item(item_string);
 		if(item != null) {
 			ender_inv = player.getEnderInv(sec_player);
@@ -629,51 +631,105 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 //Text-Utils
 //--------------------------------------------------
 
-function text.upperFirstLetter(string) {
-	length = text.length(string);
-	first_letter = text.subString(string, 0, 1);
-	rest = text.substring(string, 1, length);
-	return concat(text.toUpperCase(first_letter), rest);
+function string.getPrefix(string) {
+	return string.concat("§r[", string, "§r]");
 }
 
-//connects all list elements as objects
-function text.concatList2(list, connector, fromIndex, toIndex) {
-	string = "";
-	iter = list.iterator(list);
-	for(i = fromIndex; i <= toIndex; i++) {
+function string.removeFormat(string) {
+	return string.replace(string, "§.", "");
+}
+
+function string.getLinkText(show_string, link_string) {
+	return text.link(text.new(show_string), link_string);
+}
+
+function string.getClickText(show_string, execute_string) {
+	return text.click(text.new(show_string), execute_string);
+}
+
+function string.getHoverText(show_string, execute_string) {
+	return text.hover(text.new(show_string), text.new(execute_string));
+}
+
+function string.getClipBoardText(show_string, copy_string) {
+	return text.clipBoard(text.new(show_string), text.new(copy_string));
+}
+
+function string.getSpacer() {
+	return("§0-------------------------------------------------");
+}
+
+function string.concatList(list, connector, from_index, to_index) {
+	for(i = from_index; i <= to_index; i++) {
 		element = list.getIndex(list, i);
-		if(string == "") {
+		if(i == from_index) {
 			string = element;
 		} else {
-			string = text.concat2(string, connector, element);
+			string = string.concat(string, connector, element);
 		}
 	}
 	return string;
 }
 
-function text.getLinkMessage(string) {
-	if(text.contains(string, "https://")) {
-		https_index = text.indexOf(string, "https://", 0);
-		space_index = text.indexOf(string, " ", https_index);
-		length = text.length(string);
+function string.onlyLetters(string) {
+	a_code = string.charcode("a");
+	z_code = string.charcode("z");
+	oe_code = string.charcode("ö");
+	ae_code = string.charcode("ä");
+	ue_code = string.charcode("ü");
+	cap_a_code = string.charcode("A");
+	cap_z_code = string.charcode("Z");
+	cap_oe_code = string.charcode("Ö");
+	cap_ae_code = string.charcode("Ä");
+	cap_ue_code = string.charcode("Ü");
+	
+	for(i = 0; i < string.length(string); i++) {
+		char_code = string.charcode(string, i);
+	}
+	if(char_code >= a_code && char_code <= z_code) {
+		return true;
+	}
+	if(char_code >= cap_a_code && char_code <= cap_z_code) {
+		return true;
+	}
+	if(char_code == ae_code || char_code == cap_ae_code) {
+		return true;
+	}
+	if(char_code == oe_code || char_code == cap_oe_code) {
+		return true;
+	}
+	if(char_code == ue_code || char_code == cap_ue_code) {
+		return true;
+	}
+	return false;
+}
+
+function string.upperFirstLetter(string) {
+	length = string.length(string);
+	first_letter = string.subString(string, 0, 1);
+	rest = string.substring(string, 1, length);
+	return string.concat(string.toUpperCase(first_letter), rest);
+}
+
+function string.getTextWithLink(string) {
+	if(string.contains(string, "https://")) {
+		https_index = string.indexOf(string, "https://", 0);
+		space_index = string.indexOf(string, " ", https_index);
+		length = string.length(string);
 		if(https_index == 0) {
 			msg_before = "";
 		} else {
-			msg_before = text.subString(string, 0, https_index);
+			msg_before = string.subString(string, 0, https_index);
 		}
 		if(space_index == -1) {
-			msg_link = text.subString(string, https_index, length);
+			string_link = string.subString(string, https_index, length);
 			msg_after = "";
 		} else {
-			msg_link = text.subString(string, https_index, space_index);
-			msg_after = text.subString(string, space_index, length);
+			string_link = string.subString(string, https_index, space_index);
+			msg_after = string.subString(string, space_index, length);
 		}
-		msg_link = text.link(msg_link, msg_link);
-		a = array.new(3);
-		a[0] = msg_before;
-		a[1] = msg_link;
-		a[2] = msg_after;
-		return a;
+		text_link = string.getLinkText(string_link, string_link);
+		return text.merge(text.new(msg_before), text_link, text.new(msg_after));
 	}
 }
 
@@ -682,7 +738,7 @@ function text.getLinkMessage(string) {
 //--------------------------------------------------
 
 function quest.display(player, quest_name, stage, all_stages) {
-	sb.add(player, 1, concat("§dQuest: ", quest_name, " [", text.number(stage), "/", text.number(all_stages), "]"));
+	sb.add(player, 1, string.concat("§dQuest: ", quest_name, " [", string.number(stage), "/", string.number(all_stages), "]"));
 }
 
 function quest.removeDisplay(player) {
@@ -1436,14 +1492,14 @@ function setTpWallFull(chest_loc, item_type) {
 }
 
 function removeAdventureDisplay(player) {
-	display.remove(player, 10);
+	//display.remove(player, 10);
 }
 
 function addAdventureDisplay(player, location) {
-	x = text.number(loc.getX(location));
-	y = text.number(loc.getY(location));
-	z = text.number(loc.getZ(location));
-	display.add(player, 10, concat("§2Adventure Target: §r", x, " ", y, " ", z));
+	x = string.number(loc.getX(location));
+	y = string.number(loc.getY(location));
+	z = string.number(loc.getZ(location));
+	//display.add(player, 10, string.concat("§2Adventure Target: §r", x, " ", y, " ", z));
 }
 
 //--------------------------------------------------
@@ -1453,7 +1509,7 @@ function addAdventureDisplay(player, location) {
 function player.teleport(player, location, setBackPos) {
 	player_uuid = player.getUuid(player);
 	if(player.isOnAdventure(player)) {
-		msg.text(player, "[§5Adventure§r] Teleport blocked. ", text.click("[§5Cancel Adventure?§r]", concat("/stopadventure ", player)));
+		msg.string(player, "[§5Adventure§r] Teleport blocked. ", string.getClickText("[§5Cancel Adventure?§r]", string.concat("/stopadventure ", player)));
 		return false;
 	}
 	if(player.hasMinigame(player)) {
@@ -1470,8 +1526,8 @@ function player.teleport(player, location, setBackPos) {
 	world_change = player.checkForWorldChange(player, location);
 	if(world_change) {
 		//Inventory
-		player.changeInv(player, from_world, to_world);
-		entity.clearEffects(player);
+		//player.changeInv(player, from_world, to_world);
+		//entity.clearEffects(player);
 		//Party
 		if(player.isInParty(player) && player.isPartyLeader(player)) {
 			party_id = player.getPartyId(player);
@@ -1484,23 +1540,23 @@ function player.teleport(player, location, setBackPos) {
 				}
 				p_name = player.getName(p);
 				if(!loc.isSameWorld(player_loc, entity.getLocation(p))) {
-					msg.prefix(player, "§5Party", concat(p_name, "§c is in another world."));
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is in another world."));
 					continue;
 				}
 				if(player.hasMinigame(p)) {
-					msg.prefix(player, "§5Party", concat(p_name, "§c is in a game."));
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is in a game."));
 					continue;
 				}
 				if(player.hasQuest2(p)) {
-					msg.prefix(player, "§5Party", concat(p_name, "§c is doing a quest."));
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is doing a quest."));
 					continue;
 				}
 				if(player.isOnAdventure(p)) {
-					msg.prefix(player, "§5Party", concat(p_name, "§c is on an adventure."));
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is on an adventure."));
 					continue;
 				}
 				if(player.isAfk(p)) {
-					msg.prefix(player, "§5Party", concat(p_name, "§c is afk."));
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is afk."));
 					continue;
 				}
 				player.teleport(p, location, setBackPos);
@@ -1521,7 +1577,6 @@ function player.teleport(player, location, setBackPos) {
 	modTimer(-50);
 	entity.teleport(player, location);
 	player.setHeadName(player);
-	player.showDefaultStacks(player);
 	
 	if(world.isGamesName(to_world_name)) {
 		player.clearInventory(player);
@@ -1535,7 +1590,7 @@ function player.teleport(player, location, setBackPos) {
 function playerdata.getSurvival(player_or_id) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(concat("invalid player_id ", player_id, " on playerdata.getSurvival"));
+		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.getSurvival"));
 		return;
 	}
 	map = getScriptVar("survival_data");
@@ -1550,7 +1605,7 @@ function playerdata.getSurvival(player_or_id) {
 function playerdata.getGames(player_or_id) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(concat("invalid player_id ", player_id, " on playerdata.getGames"));
+		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.getGames"));
 		return;
 	}
 	map = getScriptVar("games_data");
@@ -1565,7 +1620,7 @@ function playerdata.getGames(player_or_id) {
 function playerdata.getStory(player_or_id) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(concat("invalid player_id ", player_id, " on playerdata.getStory"));
+		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.getStory"));
 		return;
 	}
 	map = getScriptVar("story_data");
@@ -1580,12 +1635,12 @@ function playerdata.getStory(player_or_id) {
 function playerdata.load(player_or_id, map, name) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(concat("invalid player_id ", player_id, " on playerdata.load"));
+		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.load"));
 		return;
 	}
 	config = map.get(map, player_id);
 	if(config == null) {
-		config = config.new(concat("scripts/configs/player_data/", name), player_id);
+		config = config.new(string.concat("scripts/configs/player_data/", name), player_id);
 		if(config.exists(config)) {
 			config.load(config);
 		}
@@ -1620,18 +1675,18 @@ function player.getValid(player_or_id) {
 //Msg-Utils
 //--------------------------------------------------
 
-function msg.text(receiver, string) {
+function msg.string(receiver, string) {
 	msg(receiver, text.new(string));
 }
 
 function msg.quest(player, speaker, line_now, line_max, message) {
-	msg.text(player, concat("[§b", text.number(line_now), "§r/§b", text.number(line_max), "§r] §a", speaker, " §r| ", concat("§e", message)));
+	msg.string(player, string.concat("[§b", string.number(line_now), "§r/§b", string.number(line_max), "§r] §a", speaker, " §r| ", string.concat("§e", message)));
 }
 
 function msg.chat(player, message) {
 	nickname = player.getNickName(player);
 	rank = getRank(player);
-	colorcode = text.subString(rank, 0, 2);
+	colorcode = string.subString(rank, 0, 2);
 	if(player.isLive(player)) {
 		live_tag = "§f[§dLive§f]";
 	} else {
@@ -1644,7 +1699,7 @@ function msg.chat(player, message) {
 		if(player.hasMinigame(p) && player.isMuted(p)) {
 			continue;
 		}
-		msg.text(p, live_tag, "[", text.hover(concat(colorcode, nickname), rank), "§r] §r", message);
+		msg(p, text.merge(text.new(live_tag), text.new("["), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r] §r"), message));
 	}
 }
 
@@ -1660,11 +1715,11 @@ function msg.send(from_player, to_name, prefix, message, send_mail) {
 }
 
 function msg.prefix(player, prefix, message) {
-	msg.text(player, concat("§r[", prefix, "§r] ", message));
+	msg.string(player, string.concat(string.getPrefix(prefix), " ", message));
 }
 
 function msg.online(prefix, message) {
-	msg.text("online", concat("§r[", prefix, "§r] "), message);
+	msg.string("online", string.getPrefix(prefix), text.new(" "), message);
 }
 
 function msg.radius(prefix, message, location, radius) {
@@ -1675,16 +1730,11 @@ function msg.radius(prefix, message, location, radius) {
 	}
 }
 
-function msg.server(message) {
-	msg.text("online", text.hover("[§cServer§r]", "The center of Wusiness"), " ", text.replace(message, "&", "§"));
-	msg.text("SERVER", "[§cServer§r] ", text.replace(message, "&", "§"));
-}
-
 function msg.world(world, message) {
 	world_list = players.toWorldList(world);
 	iter = iterator(world_list);
 	while(hasNext(iter)) {
-		msg.text(next(iter), message);
+		msg.string(next(iter), message);
 	}
 }
 
@@ -1707,23 +1757,42 @@ function msg.games(message) {
 }
 
 //--------------------------------------------------
+//Material-Utils
+//--------------------------------------------------
+
+function material.getAir() {
+	return material.get("AIR");
+}
+
+//--------------------------------------------------
 //Item-Utils
 //--------------------------------------------------
+
+function item.create(type, amount, name, lore_list) {
+	item = item.new(material.get(type), amount);
+	if(name != null) {
+		item.setName(item, text.new(name));
+	}
+	if(lore_list != null) {
+		item.setLore(item, lore_list);
+	}
+	return item;
+}
 
 function item.getAir() {
 	return read.item("minecraft:air");
 }
 
 function item.isAmber(item) {
-	return text.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:13664802,display:{Name:'{\"text\":\"§fAmber\"}'}}}";
+	return string.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:13664802,display:{Name:'{\"text\":\"§fAmber\"}'}}}";
 }
 
 function item.isSapphire(item) {
-	return text.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:3289855,display:{Name:'{\"text\":\"§fSapphire\"}'}}}";
+	return string.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:3289855,display:{Name:'{\"text\":\"§fSapphire\"}'}}}";
 }
 
 function item.isRuby(item) {
-	return text.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:16724530,display:{Name:'{\"text\":\"§fRuby\"}'}}}";
+	return string.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:16724530,display:{Name:'{\"text\":\"§fRuby\"}'}}}";
 }
 
 function item.getAmber() {
@@ -1741,6 +1810,12 @@ function item.getRuby() {
 //--------------------------------------------------
 //Player-Utils
 //--------------------------------------------------
+
+function player.toggleFly(player) {
+	new_state = !player.hasFly(player);
+	player.setFly(player, new_state);
+	return new_state;
+}
 
 function player.canTeleport(player) {
 	if(player.hasMinigame(player)) {
@@ -1825,16 +1900,16 @@ function player.setLive(player, boolean) {
 
 function player.getFullName(player) {
 	player_name = player.getName(player);
-	nickname = removeFormat(player.getNickname(player));
+	nickname = string.removeFormat(player.getNickname(player));
 	if(nickname == player_name) {
 		personally_messages = true;
 	} else {
 		personally_messages = false;
 	}
 	if(personally_messages) {
-		full_name = concat("[", getRank(player), "§r] ", nickname);
+		full_name = string.concat("[", getRank(player), "§r] ", nickname);
 	} else {
-		full_name = concat("[§3User§r] ", nickname);
+		full_name = string.concat("[§3User§r] ", nickname);
 	}
 	return full_name;
 }
@@ -1842,19 +1917,19 @@ function player.getFullName(player) {
 function player.setTabName(player) {
 	nickname = player.getNickname(player);
 	rank = getRank(player);
-	if(text.startswith(rank, "§", 0)) {
-		colorcode = text.subString(rank, 0, 2);
-		tab_name = concat(colorcode, nickname);
+	if(string.startswith(rank, "§", 0)) {
+		colorcode = string.subString(rank, 0, 2);
+		tab_name = string.concat(colorcode, nickname);
 	} else {
 		tab_name = nickname;
 	}
 	if(player.isAfk(player)) {
-		tab_name = concat(tab_name, " §5§o[Afk]");
+		tab_name = string.concat(tab_name, " §5§o[Afk]");
 	}
 	if(player.isLive(player)) {
-		tab_name = concat(tab_name, " §f[§dLive§f]");
+		tab_name = string.concat(tab_name, " §f[§dLive§f]");
 	}
-	player.setDisplayName(player, tab_name);
+	player.setDisplayName(player, text.new(tab_name));
 }
 
 function player.removeItemNbt(player, itemstack) {
@@ -1911,25 +1986,6 @@ function player.showDebug(player, boolean) {
 	} else {
 		perm.unregisterPlayer(player_uuid, 16);
 	}
-}
-
-function player.showDefaultStacks(player) {
-	player_loc = entity.getLocation(player);
-	world_name = world.getName(loc.getWorld(player_loc));
-	stacks.clear(player);
-	if(world.isSurvName(world_name)) {
-		stacks.set(player, 0, "km:gear");
-		stacks.set(player, 1, "km:golden_scepter");
-		stacks.set(player, 2, "minecraft:red_bed");
-	} elseif(world_name == "games") {
-		stacks.set(player, 0, "km:gear");
-	} elseif(world_name == "story") {
-		stacks.set(player, 0, "km:gear");
-		stacks.set(player, 1, "km:golden_scepter");
-	} elseif(world_name == "creative") {
-		stacks.set(player, 0, "km:gear");
-	}
-	stacks.setActive(player, true);
 }
 
 function player.setSpeed(player, speed) {
@@ -2003,13 +2059,13 @@ function player.getBackPos(player) {
 
 function player.setBackPos(player) {
 	config = playerdata.getSurvival(player);
-	config.set(config, "backpos", text.location(entity.getLocation(player)));
+	config.set(config, "backpos", string.location(entity.getLocation(player)));
 	config.saveAsync(config);
 }
 
 function player.setBackPosLoc(player, location) {
 	config = playerdata.getSurvival(player);
-	config.set(config, "backpos", text.location(location));
+	config.set(config, "backpos", string.location(location));
 	config.saveAsync(config);
 }
 
@@ -2153,13 +2209,13 @@ function player.setHeadName(player) {
 	clan_string = "";
 	if(player.isInClan(player)) {
 		clan_id = player.getClanId(player);
-		clan_string = text.concat(" [§6", clan.getTag(clan_id), "§r]");
+		clan_string = string.concat(" [§6", clan.getTag(clan_id), "§r]");
 	}
 	live_string = "";
 	if(player.isLive(player)) {
 		live_string = "§f[§dLive§f] ";
 	}
-	entity.setName(player, text.concat(live_string, nickname, clan_string));
+	entity.setName(player, text.new(string.concat(live_string, nickname, clan_string)));
 }
 
 function player.setAdventureAmounts(player_or_id, amount) {
@@ -2195,7 +2251,7 @@ function player.getAdventureStart(player_or_id) {
 
 function player.setAdventureStart(player_or_id, location) {
 	config = playerdata.getSurvival(player_or_id);
-	config.set(config, "adventureloc", text.location(location));
+	config.set(config, "adventureloc", string.location(location));
 	config.saveAsync(config);
 }
 
@@ -2368,8 +2424,12 @@ function player.isCommandBlocked(player) {
 	return list.contains(list, player.getUuid(player));
 }
 
+function player.checkHandForType(player, item_type) {
+	return item.getType(living.getHand(player)) == item_type;
+}
+
 function player.checkHandsForItem(player, item_or_type) {
-	if(text.class(item_or_type) != "String") {
+	if(string.class(item_or_type) != "String") {
 		item_or_type = item.getType(item_or_type);
 	}
 	hand = living.getEquip(player, "hand");
@@ -2393,6 +2453,13 @@ function player.checkHandsForTag(player, tag) {
 //Block-Utils
 //--------------------------------------------------
 
+function block.isAir(block) {
+	if(block.getType(block) == "minecraft:air") {
+		return true;
+	}
+	return block.getType(block) == "minecraft:cave_air";
+}
+
 function block.gotWater(block, block_type, block_loc) {
 	if(block_type == "minecraft:water") {
 		return true;
@@ -2402,54 +2469,6 @@ function block.gotWater(block, block_type, block_loc) {
 		return false;
 	}
 	return value;
-}
-
-function block.getSecondDoor(door_loc_1) {
-	prop_h_facing = block.getProperty("horizontal_facing");
-	state_facing = block.property.getValue(door_loc_1, prop_h_facing);
-	prop_hinge = block.getProperty("hinge");
-	state_hinge = block.property.getValue(door_loc_1, prop_hinge);
-	if(state_facing == "north") {
-		if(state_hinge == "right") {
-			door_loc_2 = loc.mod(door_loc_1, -1, 0, 0);
-		} else {
-			door_loc_2 = loc.mod(door_loc_1, 1, 0, 0);
-		}
-	} elseif(state_facing == "east") {
-		if(state_hinge == "right") {
-			door_loc_2 = loc.mod(door_loc_1, 0, 0, -1);
-		} else {
-			door_loc_2 = loc.mod(door_loc_1, 0, 0, 1);
-		}
-	} elseif(state_facing == "south") {
-		if(state_hinge == "right") {
-			door_loc_2 = loc.mod(door_loc_1, 1, 0, 0);
-		} else {
-			door_loc_2 = loc.mod(door_loc_1, -1, 0, 0);
-		}
-	} else {
-		if(state_hinge == "right") {
-			door_loc_2 = loc.mod(door_loc_1, 0, 0, 1);
-		} else {
-			door_loc_2 = loc.mod(door_loc_1, 0, 0, -1);
-		}
-	}
-	if(block.hasTag(block.getTag("minecraft:wooden_doors"), block.get(door_loc_2))) {
-		if(block.isSameDoorHalf(door_loc_1, door_loc_2)) {
-			state_hinge_2 = block.property.getValue(door_loc_2, prop_hinge);
-			if(state_hinge == "left" && state_hinge_2 == "right" || state_hinge == "right" && state_hinge_2 == "left") {
-				return door_loc_2;
-			}
-		}
-	}
-	return null;
-}
-
-function block.isSameDoorHalf(door_loc_1, door_loc_2) {
-	prop_d_half = block.getProperty("double_block_half");
-	state_half = block.property.getValue(door_loc_1, prop_d_half);
-	state_half_2 = block.property.getValue(door_loc_2, prop_d_half);
-	return state_half == state_half_2;
 }
 
 //--------------------------------------------------
@@ -2552,14 +2571,14 @@ function money.popUp(player, money, boosted) {
 	} else {
 		post = "";
 	}
-	player.action(player, concat(pre, "§6", text.number(money), " §rsnuvi", post));
+	player.action(player, string.concat(pre, "§6", string.number(money), " §rsnuvi", post));
 }
 
 function displayMoney(player, money) {
 	a = money.split(money);
-	display.add(player, 0, concat("#23-1- ", text.number(a[0])));
-	display.add(player, 1, concat("#24-1- ", text.number(a[1])));
-	display.add(player, 2, concat("#25-1- ", text.number(a[2])));
+	//display.add(player, 0, string.concat("#23-1- ", string.number(a[0])));
+	//display.add(player, 1, string.concat("#24-1- ", string.number(a[1])));
+	//display.add(player, 2, string.concat("#25-1- ", string.number(a[2])));
 }
 
 function money.split(money) {
@@ -2656,7 +2675,7 @@ function plot.getOwnersString(plot) {
 	for(i = 0; i < list.getSize(list); i++) {
 		list.add(owners_list, player.getName(list.getIndex(list, i)));
 	}
-	return text.concatList(owners_list, " / ", 0, list.getSize(owners_list) - 1);
+	return string.concatList(owners_list, " / ", 0, list.getSize(owners_list) - 1);
 }
 
 function plot.isLeader(plot, player_or_id) {
@@ -2987,12 +3006,12 @@ function skill.addAmount(player_or_id, tech_name, amount) {
 
 function skill.isActivated(player_or_id, tech_name) {
 	config = playerdata.getSurvival(player_or_id);
-	return config.getBool(config, concat(tech_name, ".active"), true);
+	return config.getBool(config, string.concat(tech_name, ".active"), true);
 }
 
 function skill.setActivated(player_or_id, tech_name, bool) {
 	config = playerdata.getSurvival(player_or_id);
-	config.set(config, concat(tech_name, ".active"), bool);
+	config.set(config, string.concat(tech_name, ".active"), bool);
 }
 
 function skill.add(skill_name, tech_name, item, description, cost, permanent, active, toggleable) {
@@ -3028,12 +3047,12 @@ function skill.getShopItem(player_or_id, tech_name) {
 	permanent = skill[5];
 	if(permanent) {
 		if(amount == 0) {
-			text_property = concat("§fBought: §cNo §f(Permanent)");
+			text_property = string.concat("§fBought: §cNo §f(Permanent)");
 		} else {
-			text_property = concat("§fBought: §aYes §f(Permanent)");
+			text_property = string.concat("§fBought: §aYes §f(Permanent)");
 		}
 	} else {
-		text_property = concat("§fAmount you have: §e", text.number(amount));
+		text_property = string.concat("§fAmount you have: §e", string.number(amount));
 	}
 	active = skill[6];
 	if(active) {
@@ -3052,7 +3071,7 @@ function skill.getShopItem(player_or_id, tech_name) {
 		tog = "§fNot toggleable";
 	}
 	skill_name = skill.getName(tech_name);
-	item = read.item(skill[2], 1, concat("§e§o", skill_name), concat("§fCost: §e", text.number(skill[4])), skill[3], type, tog, text_property);
+	item = read.item(skill[2], 1, string.concat("§e§o", skill_name), string.concat("§fCost: §e", string.number(skill[4])), skill[3], type, tog, text_property);
 	return item;
 }
 
@@ -3179,7 +3198,7 @@ function skill.showAll(from_player_or_id, to_player) {
 	if(from_player_id == player.getValidId(to_player)) {
 		inv_name = "Skills";
 	} else {
-		inv_name = concat("Skills von ", player.getNameFromId(from_player_id));
+		inv_name = string.concat("Skills von ", player.getNameFromId(from_player_id));
 	}
 	inv.open(inv, to_player, inv_name);
 }
@@ -3190,18 +3209,18 @@ function skill.showAll(from_player_or_id, to_player) {
 
 function loc.getStringColon(loc) {
 	world_name = world.getName(loc.getWorld(loc));
-	x = text.number(loc.getX(loc));
-	y = text.number(loc.getY(loc));
-	z = text.number(loc.getZ(loc));
-	return concat(world_name, ":", x, ":", y, ":", z);
+	x = string.number(loc.getX(loc));
+	y = string.number(loc.getY(loc));
+	z = string.number(loc.getZ(loc));
+	return string.concat(world_name, ":", x, ":", y, ":", z);
 }
 
 function loc.getStringSpace(loc) {
 	world_name = world.getName(loc.getWorld(loc));
-	x = text.number(loc.getX(loc));
-	y = text.number(loc.getY(loc));
-	z = text.number(loc.getZ(loc));
-	return concat(world_name, " ", x, " ", y, " ", z);
+	x = string.number(loc.getX(loc));
+	y = string.number(loc.getY(loc));
+	z = string.number(loc.getZ(loc));
+	return string.concat(world_name, " ", x, " ", y, " ", z);
 }
 
 function loc.isSameWorld(loc1, loc2) {
@@ -3255,11 +3274,11 @@ function loc.isAir(location) {
 
 function loc.isInSurvWorld(location) {
 	world_name = world.getName(loc.getWorld(location));
-	if(world_name == "overworld") {
+	if(world_name == "world") {
 		return true;
-	} elseif(world_name == "the_end") {
+	} elseif(world_name == "world_the_end") {
 		return true;
-	} elseif(world_name == "the_nether") {
+	} elseif(world_name == "world_nether") {
 		return true;
 	}
 	return false;
@@ -3349,7 +3368,7 @@ function getRank(player_or_id) {
 }
 
 function setRank(player_or_id, rank) {
-	rank = text.replace(rank, "&", "§");
+	rank = string.replace(rank, "&", "§");
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "rank", rank);
 	config.saveAsync(config);
@@ -3357,14 +3376,14 @@ function setRank(player_or_id, rank) {
 
 function offerRank(player, tech_name) {
 	rank = rank.getFromTechName(tech_name);
-	msg.text(player, "§r[§6Commands§r] New rank available: ", text.hover(text.click(concat("[§", rank, "§r]"), concat("/setrank ", player.getName(player), " &", rank)), "Click to set"));
+	msg.string(player, "§r[§6Commands§r] New rank available: ", string.getHoverText(string.getClickText(string.concat("[§", rank, "§r]"), string.concat("/setrank ", player.getName(player), " &", rank)), "Click to set"));
 }
 
 function rank.offerClan(clan_id, tech_name) {
 	leader_uuid = clan.getLeader(clan_id);
 	leader = player.get(leader_uuid);
 	if(leader == null) {
-		mail.send("marvinius", player.getName(leader_uuid), concat("New rank available: ", tech_name));
+		mail.send("marvinius", player.getName(leader_uuid), string.concat("New rank available: ", tech_name));
 	} else {
 		offerRank(leader, tech_name);
 	}
@@ -3432,37 +3451,37 @@ function rank.checkCriteria(player, tech_name) {
 	}
 	//Team
 	if(tech_name == "rank.owner") {
-		return perm.has(player, "isOwner");
+		return perm.has("isOwner", player);
 	}
 	if(tech_name == "rank.admin") {
-		return perm.has(player, "isAdmin");
+		return perm.has("isAdmin", player);
 	}
 	if(tech_name == "rank.builder") {
-		return perm.has(player, "isBuilder");
+		return perm.has("isBuilder", player);
 	}
 	if(tech_name == "rank.dev") {
-		return perm.has(player, "isDev");
+		return perm.has("isDev", player);
 	}
 	if(tech_name == "rank.moderator") {
-		return perm.has(player, "isMod");
+		return perm.has("isMod", player);
 	}
 	if(tech_name == "rank.supporter") {
-		return perm.has(player, "isSupporter");
+		return perm.has("isSupporter", player);
 	}
 	//Other
 	if(tech_name == "rank.vip") {
-		return perm.has(player, "isVIP");
+		return perm.has("isVIP", player);
 	}
 	if(tech_name == "rank.influencer") {
-		return perm.has(player, "isYT") || perm.has(player, "isStreamer");
+		return perm.has("isYT", player) || perm.has("isStreamer", player);
 	}
 	if(tech_name == "rank.sponsor") {
-		return perm.has(player, "isSponsor");
+		return perm.has("isSponsor", player);
 	}
 	if(tech_name == "rank.user") {
 		return true;
 	}
-	return perm.has(player, "setrank.other");
+	return perm.has("setrank.other", player);
 }
 
 function rank.getRankArray() {
@@ -3492,7 +3511,7 @@ function rank.getTechName(rank) {
 
 function rank.choose(player, tech_name) {
 	rank = rank.getFromTechName(tech_name);
-	msg.text(player, text.click(concat(" [§", rank, "§r]"), concat("/setrank ", player.getName(player), " &", rank)));
+	msg(player, string.getClickText(string.concat(" [§", rank, "§r]"), string.concat("/setrank ", player.getName(player), " &", rank)));
 }
 
 function rank.showAll(player) {
@@ -3682,7 +3701,7 @@ function mail.send(from_name, to_name, message) {
 	//Wenn Spieler online, dann Pushmeldung veranlassen
 	p = read.player(to_name);
 	if(p != null) {
-		msg.prefix(p, "§bMail", concat("§rYou´ve got a new mail from §b", from_name, "."));
+		msg.prefix(p, "§bMail", string.concat("§rYou´ve got a new mail from §b", from_name, "."));
 	}
 }
 
@@ -3706,7 +3725,7 @@ function mail.checkForNew(player) {
 	databank.close(stmt);
 	if(newmails > 0) {
 		if(newmails > 1) {
-			msg.prefix(player, "§bMail", concat("§rYou´ve got §b", text.number(newmails), "§r new mails."));
+			msg.prefix(player, "§bMail", string.concat("§rYou´ve got §b", string.number(newmails), "§r new mails."));
 		} else {
 			msg.prefix(player, "§bMail", "§rYou´ve got §b1 §rnew mail.");
 		}
@@ -3718,7 +3737,7 @@ function mail.checkForNew(player) {
 //--------------------------------------------------
 
 function friend.check(player_id, friend_id) {
-	stmt = databank.prepare("SELECT friend_id FROM friends WHERE player_id = ? AND friend_id = ?;");
+	stmt = databank.prepare("SELECT friend_id FROM new_friends WHERE player_id = ? AND friend_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, friend_id);
 	result = databank.execute(stmt);
@@ -3734,13 +3753,13 @@ function friend.check(player_id, friend_id) {
 function friend.add(player_id, friend_id) {
 	nowtime = time.getMillis();
 	
-	stmt1 = databank.prepare("INSERT INTO friends (player_id, friend_id, time) VALUES (?, ?, ?);");
+	stmt1 = databank.prepare("INSERT INTO new_friends (player_id, friend_id, time) VALUES (?, ?, ?);");
 	databank.setInt(stmt1, 1, player_id);
 	databank.setInt(stmt1, 2, friend_id);
 	databank.setLong(stmt1, 3, nowtime);
 	databank.workerExecute(stmt1);
 	
-	stmt2 = databank.prepare("INSERT INTO friends (player_id, friend_id, time) VALUES (?, ?, ?);");
+	stmt2 = databank.prepare("INSERT INTO new_friends (player_id, friend_id, time) VALUES (?, ?, ?);");
 	databank.setInt(stmt2, 1, friend_id);
 	databank.setInt(stmt2, 2, player_id);
 	databank.setLong(stmt2, 3, nowtime);
@@ -3748,12 +3767,12 @@ function friend.add(player_id, friend_id) {
 }
 
 function friend.delete(player_id, friend_id) {
-	stmt1 = databank.prepare("DELETE FROM friends WHERE player_id = ? AND friend_id = ?;");
+	stmt1 = databank.prepare("DELETE FROM new_friends WHERE player_id = ? AND friend_id = ?;");
 	databank.setInt(stmt1, 1, player_id);
 	databank.setInt(stmt1, 2, friend_id);
 	databank.workerExecute(stmt1);
 	
-	stmt2 = databank.prepare("DELETE FROM friends WHERE player_id = ? AND friend_id = ?;");
+	stmt2 = databank.prepare("DELETE FROM new_friends WHERE player_id = ? AND friend_id = ?;");
 	databank.setInt(stmt2, 1, friend_id);
 	databank.setInt(stmt2, 2, player_id);
 	databank.workerExecute(stmt2);
@@ -3761,7 +3780,7 @@ function friend.delete(player_id, friend_id) {
 
 function friend.getList(player_id) {
 	list = list.new();
-	stmt = databank.prepare("SELECT friend_id FROM friends WHERE player_id = ?;");
+	stmt = databank.prepare("SELECT friend_id FROM new_friends WHERE player_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	result = databank.execute(stmt);
 	while(databank.next(result)) {
@@ -3787,7 +3806,7 @@ function clan.getIdList() {
 	while(hasNext(iter)) {
 		element = next(iter);
 		file_name = file.getName(element);
-		file_name = text.replace(file_name, ".0.snuvic", "");
+		file_name = string.replace(file_name, ".0.snuvic", "");
 		list.add(id_list, read.number(file_name));
 	}
 	return id_list;
@@ -3882,7 +3901,7 @@ function clan.subMoney(clan_id, money) {
 
 function clan.setSpawn(clan_id, location) {
 	config = clan.getData(clan_id);
-	config.set(config, "spawn", text.location(location));
+	config.set(config, "spawn", string.location(location));
 	config.saveAsync(config);
 }
 
@@ -3981,7 +4000,7 @@ function clan.addMember(clan_id, player_or_id, role) {
 		player_uuid = player.getUuidFromId(player_or_id);
 	}
 	config = clan.getData(clan_id);
-	config.set(config, text.concat("player_", new_amount), text(player_uuid));
+	config.set(config, string.concat("player_", new_amount), text(player_uuid));
 	config.set(config, "members", new_amount);
 	config.saveAsync(config);
 }
@@ -3999,14 +4018,14 @@ function clan.removeMember(clan_id, player_or_id) {
 	config = clan.getData(clan_id);
 	amount = config.getDouble(config, "members", 0);
 	for(i = 1; i <= amount; i++) {
-		if(config.getString(config, text.concat("player_", i), "null") == text(player_uuid)) {
+		if(config.getString(config, string.concat("player_", i), "null") == text(player_uuid)) {
 			break;
 		}
 	}
 	if(i != amount) {
-		config.set(config, text.concat("player_", i), config.getString(config, text.concat("player_", amount), "null"));
+		config.set(config, string.concat("player_", i), config.getString(config, string.concat("player_", amount), "null"));
 	}
-	config.set(config, text.concat("player_", amount), "null");
+	config.set(config, string.concat("player_", amount), "null");
 	config.set(config, "members", amount - 1);
 	config.saveAsync(config);
 }
@@ -4031,7 +4050,7 @@ function clan.getMembersList(clan_id) {
 	config = clan.getData(clan_id);
 	amount = config.getDouble(config, "members", 0);
 	for(i = 1; i <= amount; i++) {
-		player_uuid = read.uuid(config.getString(config, text.concat("player_", i), "null"));
+		player_uuid = read.uuid(config.getString(config, string.concat("player_", i), "null"));
 		list.add(list, player_uuid);
 	}
 	return list;
@@ -4048,7 +4067,7 @@ function clan.updateHeadNames(clan_id) {
 	}
 }
 
-function clan.msg.text(clan_id, message) {
+function clan.msg.string(clan_id, message) {
 	list = clan.getMembersList(clan_id);
 	iter = list.iterator(list);
 	while(hasNext(iter)) {
@@ -4154,7 +4173,7 @@ function scheduler.msgPrefix(ticks, player, prefix, message) {
 	scheduler.add(a);
 }
 
-function scheduler.msg.text(ticks, player, message) {
+function scheduler.msg.string(ticks, player, message) {
 	a = array.new(4);
 	a[0] = 2;
 	a[1] = ticks;
@@ -4245,31 +4264,31 @@ function hawkeye.getData(timeFrom, timeTo, location, radius, events, players, or
 	if(player_query == -1) {
 		return "False input at p:";
 	}
-	if(text.length(where_query) == 0) {
+	if(string.length(where_query) == 0) {
 		where_query = player_query;
-	} elseif(text.length(player_query) != 0) {
-		where_query = concat(where_query, and_query, player_query);
+	} elseif(string.length(player_query) != 0) {
+		where_query = string.concat(where_query, and_query, player_query);
 	}
 	//Location
 	location_query = hawkeye.getLocationQuery(location, radius);
-	if(text.length(where_query) == 0) {
+	if(string.length(where_query) == 0) {
 		where_query = location_query;
-	} elseif(text.length(location_query) != 0) {
-		where_query = concat(where_query, and_query, location_query);
+	} elseif(string.length(location_query) != 0) {
+		where_query = string.concat(where_query, and_query, location_query);
 	}
 	//Time
 	time_query = hawkeye.getTimeQuery(timeFrom, timeTo);
-	if(text.length(where_query) == 0) {
+	if(string.length(where_query) == 0) {
 		where_query = time_query;
-	} elseif(text.length(time_query) != 0) {
-		where_query = concat(where_query, and_query, time_query);
+	} elseif(string.length(time_query) != 0) {
+		where_query = string.concat(where_query, and_query, time_query);
 	}
 	//Safety check
-	if(text.length(where_query) == 0) {
+	if(string.length(where_query) == 0) {
 		return "No parameters found";
 	}
 	//Final Statement
-	stmt = databank.prepare(concat(base_query, where_query, " ORDER BY time ", order, ";"));
+	stmt = databank.prepare(string.concat(base_query, where_query, " ORDER BY time ", order, ";"));
 	index = 1;
 	if(events != null) {
 		iter = list.iterator(events);
@@ -4326,13 +4345,13 @@ function hawkeye.getEventQuery(events) {
 			return -1;
 		}
 		if(c == 0) {
-			query = concat(query, "?");
+			query = string.concat(query, "?");
 		} else {
-			query = concat(query, ",?");
+			query = string.concat(query, ",?");
 		}
 		c++;
 	}
-	return concat(query, ")");
+	return string.concat(query, ")");
 }
 
 function hawkeye.getPlayerQuery(players) {
@@ -4349,13 +4368,13 @@ function hawkeye.getPlayerQuery(players) {
 			return -1;
 		}
 		if(c == 0) {
-			query = concat(query, "?");
+			query = string.concat(query, "?");
 		} else {
-			query = concat(query, ",?");
+			query = string.concat(query, ",?");
 		}
 		c++;
 	}
-	return concat(query, ")");
+	return string.concat(query, ")");
 }
 
 function hawkeye.getLocationQuery(player_loc, radius) {	
@@ -4375,27 +4394,27 @@ function hawkeye.getTimeQuery(timeFrom, timeTo) {
 function hawkeye.print(player, list, side) {
 	amount = list.getSize(list);
 	a = list.getIndex(list, side - 1);
-	msg.prefix(player, "§cHawkeye", concat("§7----- Page (§c", text.number(side), "§7/§c", text.number(amount), "§7) -----"));
-	msg.text(player, concat("§7| ID:", text.number(a[0]), " ", getTimeString(a[4])));
-	msg.text(player, concat("§7| §c", hawkeye.getEventName(read.number(a[2])), " ", player.getNameFromId(a[1])));
-	msg.text(player, concat("§7| ", loc.getStringSpace(a[3])));
-	msg.text(player, concat("§7| ", a[5]));
+	msg.prefix(player, "§cHawkeye", string.concat("§7----- Page (§c", string.number(side), "§7/§c", string.number(amount), "§7) -----"));
+	msg.string(player, string.concat("§7| ID:", string.number(a[0]), " ", getTimeString(a[4])));
+	msg.string(player, string.concat("§7| §c", hawkeye.getEventName(read.number(a[2])), " ", player.getNameFromId(a[1])));
+	msg.string(player, string.concat("§7| ", loc.getStringSpace(a[3])));
+	msg.string(player, string.concat("§7| ", a[5]));
 	if(side == 1) {
 		backward = "§7<<<<";
 		if(amount == 1) {
 			forward = "§7>>>>";
 		} else {
-			forward = text.click("§c>>>>", concat("/hawkeye print ", side + 1));
+			forward = string.getClickText("§c>>>>", string.concat("/hawkeye print ", side + 1));
 		}
 	} elseif(side >= amount) {
-		backward = text.click("§c<<<<", concat("/hawkeye print ", side - 1));
+		backward = string.getClickText("§c<<<<", string.concat("/hawkeye print ", side - 1));
 		forward = "§7>>>>";
 	} else {
-		backward = text.click("§c<<<<", concat("/hawkeye print ", side - 1));
-		forward = text.click("§c>>>>", concat("/hawkeye print ", side + 1));
+		backward = string.getClickText("§c<<<<", string.concat("/hawkeye print ", side - 1));
+		forward = string.getClickText("§c>>>>", string.concat("/hawkeye print ", side + 1));
 	}
-	msg.text(player, backward, " ", forward);
-	msg.text(player, "§7-----------------------------");
+	msg.string(player, backward, " ", forward);
+	msg.string(player, "§7-----------------------------");
 }
 
 function hawkeye.setDataList(player, list) {

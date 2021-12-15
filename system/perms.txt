@@ -264,6 +264,7 @@ perm.addToGroup(4, "warn");
 perm.addToGroup(4, "kick");
 perm.addToGroup(4, "tempban");
 perm.addToGroup(4, "allsounds");
+perm.addToGroup(4, "color");
 perm.addToGroup(4, "perm");
 perm.addToGroup(4, "perm.toggle");
 perm.addToGroup(4, "skills.other");
@@ -369,7 +370,7 @@ perm.addToGroup(14, "perm.toggle");
 
 event.load("player_join");
 
-msg.text("dev", "§bPerms §rloaded.");
+msg.string("dev", "§bPerms §rloaded.");
 @wait
 wait();
 if(event == "player_join") {
@@ -398,6 +399,7 @@ function perm.addToGroup(group_id, perm) {
 
 function perm.addGroupToPlayer(group_id, player) {
 	list = perm.getGroupList(group_id);
+	iter = list.iterator(list);
 	while(hasNext(iter)) {
 		perm = next(iter);
 		perm.add(perm, player);

@@ -1,0 +1,197 @@
+event.load("custom_command");
+event.load("player_join");
+
+databank.workerExecute(databank.prepare("
+	CREATE TABLE IF NOT EXISTS mails 
+	(
+		mail_id INT NOT NULL PRIMARY KEY, 
+		from_id INT NOT NULL, 
+		to_id INT NOT NULL, 
+		readed TINYINT NOT NULL, 
+		time BIGINT NOT NULL, 
+		del_time BIGINT, 
+		message VARCHAR(255) NOT NULL
+	);
+"));
+
+sgoto(200, "timerloop");
+prefix_mail = "§bMail";
+prefix_commands = "§6Commands";
+
+msg.string("dev", "§bMailsystem §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@custom_command
+if(command == "mail") {
+	if(!isPlayer(sender)) {
+		goto("wait");
+	}
+	player = sender;
+	size = list.getSize(args);
+	if(size == 0) {
+		msg.prefix(player, prefix_mail, "/mail ...");
+		msg.string(player, "§b - <player> <message> §rSends a mail");
+		msg.string(player, "§b - new §rShows all new mails");
+		msg.string(player, "§b - inbox §rShows inbox");
+		msg.string(player, "§b - outbox §rShows outbox");
+		if(perm.has("mail.reset", player)) {
+			msg.string(player, "§b - reset §rDeletes ALL mails.");
+		}
+		goto("wait");
+	}
+	arg0 = list.getIndex(args, 0);
+	if(arg0 == "new") {
+		if(size != 1) {
+			msg.prefix(player, prefix_mail, "/mail new");
+			goto("wait");
+		}
+		mail.showNew(player);
+		goto("wait");
+	}
+	if(arg0 == "inbox" || arg0 == "outbox") {
+		if(size != 1) {
+			msg.prefix(player, prefix_mail, "/mail inbox/outbox");
+			goto("wait");
+		}
+		mail.showBox(player, arg0);
+		goto("wait");
+	}
+	if(arg0 == "reset") {
+		if(size != 1) {
+			msg.prefix(player, prefix_mail, "/mail reset");
+			goto("wait");
+		}
+		if(!perm.has("mail.reset", player)) {
+			msg.prefix(player, prefix_mail, "No permission.");
+			goto("wait");
+		}
+		mail.reset();
+		msg.prefix(player, prefix_mail, "All mails reset.");
+		goto("wait");
+	}
+	//send a mail
+	if(player.isMuted(player)) {
+		msg.prefix(player, prefix_commands, "You are muted.");
+		goto("wait");
+	}
+	p_uuid = player.getUuid(arg0);
+	if(p_uuid == null) {
+		msg.prefix(player, prefix_mail, "This player has never been online.");
+		goto("wait");
+	}
+	if(size == 1) {
+		msg.prefix(player, prefix_mail, "/mail <player> <message>");
+		goto("wait");
+	}
+	p_name = player.getName(p_uuid);
+	mail.send(player.getName(player), p_name, concatList(string_args, " ", 1, size - 1));
+	msg.prefix(player, prefix_mail, concat("Mail sent to ", p_name, "."));
+}
+goto("wait");
+
+@player_join
+mail.checkForNew(player);
+goto("wait");
+
+@timerloop
+mail.timedReset();
+sgoto(72000, "timerloop"); //Stundentakt
+goto("wait");
+
+function mail.showNew(player) {
+	stmt = databank.prepare("SELECT mail_id, from_id, time, message FROM mails WHERE to_id = ? AND readed = false;");
+	to_id = player.getId(player);
+	databank.setInt(stmt, 1, to_id);
+	result = databank.execute(stmt);
+	nextrow = databank.next(result);
+	if(!nextrow) {
+		msg.prefix(player, $prefix_mail, "You have no new mails.");
+		databank.close(result);
+		databank.close(stmt);
+		return;
+	}
+	msg.string(player, "[§bMail-New§r]");
+	while(nextrow) {
+		mail_id = databank.getInt(result, 1);
+		from = player.getNameFromId(databank.getInt(result, 2));
+		time = databank.getLong(result, 3);
+		message = databank.getString(result, 4);
+		
+		msg(player, text.merge(text.new(" - "), string.getHoverText(concat("§e", from), getTimeString(time)), text.new(text.concat(" §r§l", message))));
+		
+		nextrow = databank.next(result);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	mail.readedAll(to_id);
+}
+
+function mail.showBox(player, box) {
+	if(box == "inbox") {
+		header = "[§bMail-Inbox§r]";
+		stmt = databank.prepare("SELECT mail_id, from_id, to_id, readed, time, message FROM mails WHERE to_id = ?;");
+		to_id = player.getId(player);
+		databank.setInt(stmt, 1, to_id);
+	} else {
+		header = "[§bMail-Outbox§r]";
+		stmt = databank.prepare("SELECT mail_id, from_id, to_id, readed, time, message FROM mails WHERE from_id = ?;");
+		from_id = player.getId(player);
+		databank.setInt(stmt, 1, from_id);
+	}
+	result = databank.execute(stmt);
+	nextrow = databank.next(result);
+	if(!nextrow) {
+		msg.prefix(player, $prefix_mail, "You have no mails in this box.");
+		databank.close(result);
+		databank.close(stmt);
+		return;
+	}
+	msg.string(player, header);
+	while(nextrow) {
+		mail_id = databank.getInt(result, 1);
+		from = player.getNameFromId(databank.getInt(result, 2));
+		to = player.getNameFromId(databank.getInt(result, 3));
+		readed = databank.getBool(result, 4);
+		if(readed) {
+			colorcode = "§r";
+		} else {
+			colorcode = "§l";
+		}
+		time = databank.getLong(result, 5);
+		message = databank.getString(result, 6);
+		if(box == "inbox") {
+			msg(player, text.merge(text.new(" - "), string.getHoverText(concat("§e", from), getTimeString(time)), text.new(text.concat(" §r", colorcode, message))));
+		} else {
+			msg(player, text.merge(text.new(" - "), string.getHoverText(concat("§e", to), getTimeString(time)), text.new(text.concat(" §r", colorcode, message))));
+		}
+		nextrow = databank.next(result);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	if(box == "inbox") {
+		mail.readedAll(to_id);
+	}
+}
+
+function mail.readedAll(player_id) {
+	stmt = databank.prepare("UPDATE mails SET readed = true, del_time = ? WHERE to_id = ? AND readed = false;");
+	databank.setLong(stmt, 1, time.getMillis() + 1209600000); //+2 weeks
+	databank.setInt(stmt, 2, player_id);
+	databank.workerExecute(stmt);
+}
+
+function mail.timedReset() {
+	stmt = databank.prepare("DELETE FROM mails WHERE del_time < ?");
+	databank.setLong(stmt, 1, time.getMillis());
+	databank.workerExecute(stmt);
+}
+
+function mail.reset() {
+	databank.workerExecute(databank.prepare("DELETE FROM mails"));
+	server_config = getScriptVar("server_config");
+	config.set(server_config, "mail_id", 0);
+	config.saveAsync(server_config);
+}

@@ -1,0 +1,79 @@
+list = list.new();
+setScriptVar("scheduler_list", list);
+
+msg("dev", "§bScheduler §rloaded.");
+@loop
+iter = list.iterator(list);
+while(hasNext(iter)) {
+	a = next(iter);
+	ticks = --a[1];
+	if(ticks <= 0) {
+		action = a[0];
+		
+		//Fly verändern
+		if(action == 0) {
+			player = a[2];
+			bool = a[3];
+			player.setFly(player, bool);
+		}
+		//Msg Prefix
+		if(action == 1) {
+			player = a[2];
+			prefix = a[3];
+			message = a[4];
+			msg.prefix(player, prefix, message);
+		}
+		//Msg
+		if(action == 2) {
+			player = a[2];
+			message = a[3];
+			msg(player, message);
+		}
+		//SetBlock
+		if(action == 3) {
+			location = a[2];
+			item_string = a[3];
+			block_update = a[4];
+			block.set(location, item_string, block_update);
+		}
+		//QuestFinish
+		if(action == 4) {
+			script = a[2];
+			player = a[3];
+			quest.finish(script, player);
+		}
+		//setBurning
+		if(action == 5) {
+			entity = a[2];
+			seconds = a[3];
+			entity.setBurning(entity, seconds);
+		}
+		//spawnEntity
+		if(action == 6) {
+			type = a[2];
+			location = a[3];
+			entity.spawn(type, location);
+		}
+		//removeEntity
+		if(action == 7) {
+			entity = a[2];
+			entity.remove(entity);
+		}
+		//giveItem
+		if(action == 8) {
+			player = a[2];
+			item = a[3];
+			player.safeGiveItem(player, item);
+		}
+		//giveSingleItem
+		if(action == 9) {
+			player = a[2];
+			item = a[3];
+			boolean = a[4];
+			player.giveSingleItem(player, item, boolean);
+		}
+		remove(iter);
+	}
+}
+sgoto(2, "loop");
+wait();

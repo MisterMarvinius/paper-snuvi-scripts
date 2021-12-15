@@ -1,23 +1,23 @@
 event.load("chat");
 event.load("player_join");
-event.load("player_logout");
-//event.load("living_death");
+event.load("player_quit");
+event.load("living_death");
 
 cookie_time = 0;
 cookie = item.new(material.get("minecraft:cookie"));
-//serverspawn = world.getServerSpawn();
+serverspawn = world.getServerSpawn();
 
-/*joinmessages = list.new();
-list.add(joinmessages, concat("joined Mundus Crassus."));
-list.add(joinmessages, concat("entered the sick world."));
-list.add(joinmessages, concat("is ready to discover new ores."));
-list.add(joinmessages, concat("turns everything upside down."));
+joinmessages = list.new();
+list.add(joinmessages, string.concat("joined Mundus Crassus."));
+list.add(joinmessages, string.concat("entered the sick world."));
+list.add(joinmessages, string.concat("is ready to discover new ores."));
+list.add(joinmessages, string.concat("turns everything upside down."));
 
 leavemeassages = list.new();
-list.add(leavemeassages, concat("has left Mundus Crassus."));
-list.add(leavemeassages, concat("has left the sick world."));
-list.add(leavemeassages, concat("came, saw and won."));
-list.add(leavemeassages, concat("faded in the face of copper."));
+list.add(leavemeassages, string.concat("has left Mundus Crassus."));
+list.add(leavemeassages, string.concat("has left the sick world."));
+list.add(leavemeassages, string.concat("came, saw and won."));
+list.add(leavemeassages, string.concat("faded in the face of copper."));
 
 colorcodedeath = "§9";
 
@@ -25,40 +25,40 @@ death_prefix = "§0§lx §r";
 rank_playtime_list = list.new();
 
 defaultdeaths = list.new();
-list.add(defaultdeaths, concat(colorcodedeath, " bled out."));
-list.add(defaultdeaths, concat(colorcodedeath, " wanted to die."));
-list.add(defaultdeaths, concat(colorcodedeath, " isn't hungry anymore."));
-list.add(defaultdeaths, concat(colorcodedeath, " f***ing died."));
-list.add(defaultdeaths, concat(colorcodedeath, " now dines with ghosts."));
-list.add(defaultdeaths, concat(colorcodedeath, " visits kajetan in his heaven."));
-list.add(defaultdeaths, concat(colorcodedeath, " is judged by kajetan (god)."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " bled out."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " wanted to die."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " isn't hungry anymore."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " f***ing died."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " now dines with ghosts."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " visits kajetan in his heaven."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " is judged by kajetan (god)."));
 
 drowndeaths = list.new();
-list.add(drowndeaths, concat(colorcodedeath, " drowned."));
-list.add(drowndeaths, concat(colorcodedeath, " drank too much water."));
-list.add(drowndeaths, concat(colorcodedeath, " didn't grow gills fast enough."));
-list.add(drowndeaths, concat(colorcodedeath, " wanted to visit cthulhu."));
-list.add(drowndeaths, concat(colorcodedeath, " forgot they were in survival."));
-list.add(drowndeaths, concat(colorcodedeath, " believed they can fly."));
+list.add(drowndeaths, string.concat(colorcodedeath, " drowned."));
+list.add(drowndeaths, string.concat(colorcodedeath, " drank too much water."));
+list.add(drowndeaths, string.concat(colorcodedeath, " didn't grow gills fast enough."));
+list.add(drowndeaths, string.concat(colorcodedeath, " wanted to visit cthulhu."));
+list.add(drowndeaths, string.concat(colorcodedeath, " forgot they were in survival."));
+list.add(drowndeaths, string.concat(colorcodedeath, " believed they can fly."));
 
 falldeaths = list.new();
-list.add(falldeaths, concat(colorcodedeath, " fell victim to gravitation."));
-list.add(falldeaths, concat(colorcodedeath, " tripped on a banana peal."));
-list.add(falldeaths, concat(colorcodedeath, " jumped into the depths."));
-list.add(falldeaths, concat(colorcodedeath, " jumped into death."));
-list.add(falldeaths, concat(colorcodedeath, " forgot their wings."));
-list.add(falldeaths, concat(colorcodedeath, " forgot their RedBull."));
+list.add(falldeaths, string.concat(colorcodedeath, " fell victim to gravitation."));
+list.add(falldeaths, string.concat(colorcodedeath, " tripped on a banana peal."));
+list.add(falldeaths, string.concat(colorcodedeath, " jumped into the depths."));
+list.add(falldeaths, string.concat(colorcodedeath, " jumped into death."));
+list.add(falldeaths, string.concat(colorcodedeath, " forgot their wings."));
+list.add(falldeaths, string.concat(colorcodedeath, " forgot their RedBull."));
 
 firedeaths = list.new();
-list.add(firedeaths, concat(colorcodedeath, " looks hot today."));
+list.add(firedeaths, string.concat(colorcodedeath, " looks hot today."));
 
 flydeaths = list.new();
-list.add(flydeaths, concat(colorcodedeath, " wanted to be a pilot."));
-list.add(flydeaths, concat(colorcodedeath, " is now a mashed potato."));
-list.add(flydeaths, concat(colorcodedeath, " returns to their nest."));
-list.add(flydeaths, concat(colorcodedeath, " made a crash landing."));
-list.add(flydeaths, concat(colorcodedeath, " needs a flight training."));
-list.add(flydeaths, concat(colorcodedeath, " was cast from heaven."));
+list.add(flydeaths, string.concat(colorcodedeath, " wanted to be a pilot."));
+list.add(flydeaths, string.concat(colorcodedeath, " is now a mashed potato."));
+list.add(flydeaths, string.concat(colorcodedeath, " returns to their nest."));
+list.add(flydeaths, string.concat(colorcodedeath, " made a crash landing."));
+list.add(flydeaths, string.concat(colorcodedeath, " needs a flight training."));
+list.add(flydeaths, string.concat(colorcodedeath, " was cast from heaven."));
 
 //andere damagecauses: fall, outOfWorld, arrow, drown (ertrinken), player, inWall, mob, magic, starve
 causetolist = map.new();
@@ -68,17 +68,17 @@ map.add(causetolist, "inFire", firedeaths);
 map.add(causetolist, "onFire", firedeaths);
 map.add(causetolist, "lava", firedeaths);
 map.add(causetolist, "flyIntoWall", flydeaths);
-map.add(causetolist, "player", list.new());*/
+map.add(causetolist, "player", list.new());
 
-/*online_list = players.toList();
+online_list = players.toList();
 iter = list.iterator(online_list);
 while(hasNext(iter)) {
 	rank.offerTimeScheduled(next(iter));
-}*/
+}
 
-//sgoto(1200, "minute_loop");
+sgoto(1200, "minute_loop");
 	
-msg.text("dev", "§bChat §rloaded");
+msg.string("dev", "§bChat §rloaded");
 @wait
 wait();
 if(event == "living_death") {
@@ -91,7 +91,7 @@ player_name = player.getName(player);
 nickname = player.getNickname(player);
 player_id = player.getId(player);
 //Wenn der Spieler keinen Nicknamen hat, werden die personalisierten Nachrichten geschickt, falls solche vorhanden sind
-if(removeFormat(nickname) == player_name) {
+if(string.removeFormat(nickname) == player_name) {
 	send_personally_messages = true;
 } else {
 	send_personally_messages = false;
@@ -104,81 +104,77 @@ goto("wait");
 first_join = player.isFirstJoin(player_id);
 if(first_join) {
 	entity.teleport(player, serverspawn);
-	msg.text("online", concat(" §d§k# §eWelcome to our sick world §b", player_name, " §e!!! §d§k#"));
+	msg.string("online", string.getSpacer());
+	msg.string("online", string.concat(" §d§k# §eWelcome to our sick world §b", player_name, " §e!!! §d§k#"));
+	msg.string("online", string.getSpacer());
 	player.setFirstJoin(player_id, true);
 }
 player.setHeadName(player);
 silentjoin = player.getSilentJoin(player);
 if(!silentjoin) {
-	message = text.convert(player.getJoinMessage(player));
-	if(message == null || !send_personally_messages) {
-		message = concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1)));
+	own_message = player.getJoinMessage(player);
+	if(own_message == null || !send_personally_messages) {
+		message = text.new(string.concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1))));
 	} else {
-		message = concat("§a§l> §r", fullname, " §9", message);
+		message = text.new(string.concat("§a§l> §r", fullname, " §9", own_message));
 	}
-	msg.text("online", message);
 }
-
 player_loc = entity.getLocation(player);
 //Inventory
-inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
-//Keks geben, wenn man als einziger Spieler auf den Server joint und im Survival-Mode ist und der letzte Keks seit 5 Minuten vergeben wurde
+//inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
+//Keks geben, wenn man als einziger Spieler auf den Server joint und im Survival-Mode ist und der letzte Keks vor 5 Minuten vergeben wurde
 if(players.getAmount() == 1) {
 	if(!loc.isInGamesWorld(player_loc)) {
 		if(player.isSurvival(player)) {
 			now_time = time.getMillis();
 			if(now_time - cookie_time > 300000) {
 				cookie_time = now_time;
-				msg.text(player, "§dHere is a cookie for you :D");
+				msg.string(player, "§dHere is a cookie for you :D");
 				player.safeGiveItem(player, cookie);
 			}
 		}
 	}
 }
 player.setTabName(player);
-player.greet(player);
-player.showDefaultStacks(player);
-stacks.setActive(player, true);
+//player.greet(player);
 rank.offerTimeScheduled(player);
-displayMoney(player, getMoney(player));
-//send marvinius and sirterence amount of errors
-if(player_id == 2 || player_id == 35) {
+//displayMoney(player, getMoney(player));
+if(perm.has("isDev", player)) {
 	error_size = error.getSize();
 	if(error_size > 0) {
-		msg.prefix(player, "§cError", concat("There are ", text.number(error_size), " errors."));
+		msg.prefix(player, "§cError", string.concat("There are ", string.number(error_size), " errors."));
 	}
 }
 goto("wait");
 
-@player_logout
-message = text.convert(player.getLeaveMessage(player));
+@player_quit
+message = player.getLeaveMessage(player);
 if(message == null || !send_personally_messages) {
-	message = concat("§c§l> §r", fullname, " §9", list.getIndex(leavemeassages, math.random(0, list.getSize(leavemeassages) - 1)));
+	message = text.new(string.concat("§c§l> §r", fullname, " §9", list.getIndex(leavemeassages, math.random(0, list.getSize(leavemeassages) - 1))));
 } else {
-	message = concat("§c§l> §r", fullname, " §9", message);
+	message = text.new(string.concat("§c§l> §r", fullname, " §9", message));
 }
-msg.text("online", message);
-inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
+//inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
 player.clearBackPos(player);
 rank.removeTimeOffert(player);
 goto("wait");
 
 @chat
-if(text.startsWith(message, "%", 0)) {
+if(string.startsWith(message, "%", 0)) {
 	cancel = true;
 	goto("wait");
 }
-if(text.startsWith(message, "7", 0)) {
-	length = text.length(message);
-	space_index = read.number(text.indexOf(message, " ", 1));
+if(string.startsWith(message, "7", 0)) {
+	length = string.length(message);
+	space_index = read.number(string.indexOf(message, " ", 1));
 	if(length > 1 && space_index == -1 || length > 1 && space_index > 1) {
 		cancel = true;
 		if(space_index == -1) {
-			word = text.subString(message, 1, length);
+			word = string.subString(message, 1, length);
 		} else {
-			word = text.subString(message, 1, space_index);
+			word = string.subString(message, 1, space_index);
 		}
-		msg.prefix(player, "§6Commands", concat("You meant /", word, "?"));
+		msg.prefix(player, "§6Commands", string.concat("You meant /", word, "?"));
 		goto("wait");
 	}
 }
@@ -187,11 +183,11 @@ if(player.isMuted(player)) {
 	msg.prefix(player, "§6Commands", "You are muted.");
 	goto("wait");
 }
-if(perm.has(player, "color")) {
-	message = text.replace(message, "&", "§");
+if(perm.has("color", player)) {
+	//message = string.replace(message, "&", "§");
 }
-if(text.startsWith(message, "https://", 0)) {
-	message = text.link(message, message);
+if(string.startsWith(message, "https://", 0)) {
+	message = string.getLinkText(message, message);
 }
 msg.chat(player, message);
 goto("wait");
@@ -212,19 +208,19 @@ if(damage_type == "player") {
 	killer_name = player.getName(killer);
 	item = living.getEquip(killer, "hand");
 	if(item.hasName(item)) {
-		message1 = concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
+		message1 = string.concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
 		message2 = item.getFullText(item);
-		message = text.concat2(message1, message2);
+		//message = text.concat2(message1, message2);
 	} else {
 		list.clear(list);
-		list.add(list, concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
-		list.add(list, concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
-		list.add(list, concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
-		list.add(list, concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
 		message = list.getIndex(list, math.random(0, list.getSize(list) - 1));
 	}
 } else {
-	message = concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1)));
+	message = string.concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1)));
 }
 msg.survival(message);
 msg.creative(message);
@@ -234,7 +230,7 @@ goto("wait");
 function player.greet(player) {
 	player_name = player.getName(player);
 	title.reset(player);
-	title.setSub(player, concat("§cNice to see you §6", player_name));
+	title.setSub(player, string.concat("§cNice to see you §6", player_name));
 	title.send(player, "");
 }
 

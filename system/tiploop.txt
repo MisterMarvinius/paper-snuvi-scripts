@@ -1,0 +1,53 @@
+prefix_tips = "§eTips";
+index = 0;
+sgoto(100, "tip_loop");
+
+msg.string("dev", "§bTipLoop §rloaded.");
+@wait
+wait();
+goto("wait");
+
+@tip_loop
+//get next tip
+list = getLoopTipps();
+size = list.getSize(list);
+if(size == 0) {
+	goto("wait");
+}
+index++;
+if(index >= size) {
+	index = 0;
+}
+a = list.getIndex(list, index);
+tipp_value = a[1];
+if(string.contains(tipp_value, "https://")) {
+	tipp_value = string.getTextWithLink(tipp_value);
+} else {
+	tipp_value = text.new(tipp_value);
+}
+//loop online players
+online_list = players.toList();
+iter = iterator(online_list);
+while(hasNext(iter)) {
+	p = next(iter);
+	if(player.getTipLoop(p)) {
+		msg(p, text.merge(text.new(string.concat(string.getPrefix(prefix_tips), " ")), tipp_value));
+	}
+}
+sgoto(12000, "tip_loop");
+goto("wait");
+
+function getLoopTipps() {
+	list = list.new();
+	stmt = databank.prepare("SELECT tipp_key, tipp_value FROM tipps WHERE tipp_loop = TRUE");
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		a = array.new(2);
+		a[0] = databank.getString(result, 1);
+		a[1] = databank.getString(result, 2);
+		list.add(list, a);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return list;
+}

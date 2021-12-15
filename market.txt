@@ -1,0 +1,211 @@
+stock = config.new("scripts/configs", "market_prices");
+config.load(stock);
+mainHand = read.slot("HAND");
+openMarkets = set.new();
+
+// Miner
+miner = inv.new("222222222", text.new("Miner"));
+inv.setItem(miner, 0, newItem(material.get("DIAMOND")));
+inv.setItem(miner, 1, newItem(material.get("IRON_INGOT")));
+inv.setItem(miner, 2, newItem(material.get("GOLD_INGOT")));
+inv.setItem(miner, 3, newItem(material.get("COPPER_INGOT")));
+inv.setItem(miner, 4, newItem(material.get("NETHERITE_INGOT")));
+inv.setItem(miner, 5, newItem(material.get("LAPIS_LAZULI")));
+inv.setItem(miner, 6, newItem(material.get("REDSTONE")));
+inv.setItem(miner, 7, newItem(material.get("FLINT")));
+set.add(openMarkets, inv.getId(miner));
+// Farmer
+farmer = inv.new("222222222", text.new("Farmer"));
+inv.setItem(farmer, 0, newItem(material.get("WHEAT")));
+inv.setItem(farmer, 1, newItem(material.get("CARROT")));
+inv.setItem(farmer, 2, newItem(material.get("POTATO")));
+inv.setItem(farmer, 3, newItem(material.get("BEETROOT")));
+inv.setItem(farmer, 4, newItem(material.get("MELON")));
+inv.setItem(farmer, 5, newItem(material.get("PUMPKIN")));
+set.add(openMarkets, inv.getId(farmer));
+
+event.load("entity_click");
+event.load("snuvi_click");
+
+background = material.get("BLACK_STAINED_GLASS_PANE");
+
+onStock = 0;
+buyAmount = 0;
+buySnuviAmount = 0;
+sellAmount = 0;
+sellSnuviAmount = 0;
+save = false;
+
+function save() {
+    if($save) {
+        return;
+    }
+    $save = true;
+    sgoto(100, "save");
+}
+
+function giveSnuvis(player, amount) {
+    msg(player, text.new(string.concat("§eYou got §6", string.number(amount), "§e Snuvis.")));
+    // actually remove the players snuvis
+}
+
+function removeSnuvis(player, amount) {
+    // msg(player, text.new("§cYou don't have enough snuvis."));
+    // return true if the player does not have enough snuvis
+    return false;
+}
+
+function calculatePrices(material) {
+    max = 34560;
+
+    $onStock = config.getDouble($stock, material, 0);
+    
+    $buyAmount = ($onStock + 1);
+    $buySnuviAmount = 2176;
+    $sellAmount = ($onStock + 2);
+    $sellSnuviAmount = 2048;
+    
+    if($buyAmount > $buySnuviAmount) {
+        $buyAmount /= $buySnuviAmount;
+        $buySnuviAmount = 1;
+    } else {
+        $buySnuviAmount /= $buyAmount;
+        $buyAmount = 1;
+    }
+    
+    if($sellAmount > $sellSnuviAmount) {
+        $sellAmount /= $sellSnuviAmount;
+        $sellSnuviAmount = 1;
+    } else {
+        $sellSnuviAmount /= $sellAmount;
+        $sellAmount = 1;
+    }
+    
+    $buyAmount = math.round($buyAmount);
+    $buySnuviAmount = math.round($buySnuviAmount);
+    $sellAmount = math.round($sellAmount);
+    $sellSnuviAmount = math.round($sellSnuviAmount);
+}
+
+function newItem(material) {
+    item = item.new(material);
+    lore = item.getLore(item);
+    if(lore == null) {
+        lore = list.new();
+    }
+    calculatePrices(material);
+    s = "";
+    if($buySnuviAmount > 1) {
+        s = "s";
+    }
+    list.add(lore, text.new(string.concat("§eBuy §6", string.number($buyAmount), "§e for §6", string.number($buySnuviAmount), "§e Snuvi", s)));
+    s = "";
+    if($sellSnuviAmount > 1) {
+        s = "s";
+    }
+    list.add(lore, text.new(string.concat("§eSell §6", string.number($sellAmount), "§e for §6", string.number($sellSnuviAmount), "§e Snuvi", s)));
+    list.add(lore, text.new(string.concat("§6", string.number($onStock), "§e on stock")));
+    item.setLore(item, lore);
+    return item;
+}
+
+function updateItem(inv, slot, material) {
+    calculatePrices(material);
+    inv.setItem(inv, slot, newItem(material));
+}   
+
+@loop
+wait();
+ignoreGoto(event);
+goto("loop");
+
+@save
+config.saveAsync(stock);
+print("save");
+save = false;
+goto("loop");
+
+@entity_click
+if(hand == mainHand) {
+    goto("loop");
+}
+text_name = entity.getName(entity);
+if(text_name == null) {
+    goto("loop");
+}
+name = string.text(text_name);
+
+if(string.startsWith(name, "Miner", 0)) {
+    inv.open(miner, player);
+} elseif(string.startsWith(name, "Farmer", 0)) {
+    inv.open(farmer, player);
+}
+
+goto("loop");
+
+@snuvi_click
+if(inv == null || !set.contains(openMarkets, inv.getId(inv))) {
+    goto("loop");
+}
+item = inv.getItem(inv, inv_slot);
+material = item.getType(item);
+if(material == background) {
+    goto("loop");
+}
+clicks = 1;
+ignoreGoto(click);
+goto("loop");
+
+// buying
+@SHIFT_LEFT
+clicks = 64;
+@LEFT
+lostSnuvis = 0;
+for(i = 0; i < clicks; i++) {
+    calculatePrices(material);
+    if(onStock < buyAmount || buyAmount <= 0) {
+        msg(player, text.new("§cThis item is out of stock."));
+        break;
+    }
+    // buy
+    if(removeSnuvis(player, buySnuviAmount)) {
+        break;
+    }
+    lostSnuvis += buySnuviAmount;
+    buyItem = item.new(material);
+    item.setAmount(buyItem, buyAmount);
+    player.giveItem(player, buyItem); // do this safely
+    config.set(stock, material, onStock - buyAmount);
+}
+if(lostSnuvis > 0) {
+    msg(player, text.new(string.concat("§eYou lost §6", string.number(lostSnuvis), "§e Snuvis.")));
+    updateItem(inv, inv_slot, material);
+    save();
+}
+goto("loop");
+
+// selling
+@SHIFT_RIGHT
+clicks = 64;
+@RIGHT
+gotSnuvis = 0;
+for(i = 0; i < clicks; i++) {
+    calculatePrices(material);
+    sellItem = item.new(material);
+    amount = player.getItemAmount(player, true, sellItem);
+    if(amount < sellAmount) {
+        msg(player, text.new("§cYou don't have enough of this item."));
+        break;
+    }
+    gotSnuvis += sellSnuviAmount;
+    item.setAmount(sellItem, sellAmount);
+    player.removeItem(player, sellItem);
+    config.set(stock, material, onStock + sellAmount);
+}
+if(gotSnuvis > 0) {
+    giveSnuvis(player, gotSnuvis);
+    updateItem(inv, inv_slot, material);
+    save();
+}
+goto("loop");
+

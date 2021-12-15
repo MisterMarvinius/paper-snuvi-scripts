@@ -1,0 +1,230 @@
+event.load("block_click");
+event.load("block_break");
+event.load("custom_command");
+
+mark_item_type = "GOLDEN_SHOVEL";
+air_material = material.getAir();
+
+msg.string("dev", "§bCopyisland §rloaded.");
+@main
+wait();
+ignoreGoto(event);
+goto("main");
+
+@block_break
+if(player.checkHandForType(player, mark_item_type)) {
+	if(perm.has("copyisland", player)) {
+		if(!isTheCloningPlayer(player.getId(player))) {
+			goto("main");
+		}
+		cancel = true;
+	}
+}
+goto("main");
+
+@block_click
+if(block == null) {
+	goto("main");
+}
+if(player.checkHandForType(player, mark_item_type)) {
+	if(perm.has("copyisland", player)) {
+		player_id = player.getId(player);
+		if(!isTheCloningPlayer(player_id)) {
+			goto("main");
+		}
+		if(action == "LEFT_CLICK_BLOCK") {
+			setPos1(player_id, block_loc);
+		} elseif(action == "RIGHT_CLICK_BLOCK") {
+			setPos2(player_id, block_loc);
+		}
+	}
+}
+goto("main");
+
+@custom_command
+if(command == "copyisland" || command == "ci") {
+	if(!isPlayer(sender)) {
+		goto("main");
+	}
+	player = sender;
+	if(!perm.has("copyisland", player)) {
+		goto("main");
+	}
+	size = list.getSize(args);
+	if(size == 0) {
+		msg.prefix(player, "§3CopyIsland", "/copyisland");
+		msg.string(player, "§3 - copy §rSpeichert die Player-Location relativ zur Auswahl");
+		msg.string(player, "§3 - paste §rKopiert relativ zur Location, an der 'copy' ausgeführt wurde");
+		msg.string(player, "§3 - pos1 §rSetzt Pos1 auf deine aktuelle Position");
+		msg.string(player, "§3 - pos2 §rSetzt Pos2 auf deine aktuelle Position");
+		goto("main");
+	}
+	arg0 = list.getIndex(args, 0);
+	player_id = player.getId(player);
+	if(!isTheCloningPlayer(player_id)) {
+		msg.prefix(player, "§3CopyIsland", concat("Copyisland wird von ", player.getNameFromId(cloningplayer), " verwendet."));
+		goto("main");
+	}
+	if(arg0 == "pos1") {
+		location = entity.getLocation(player);
+		setPos1(player_id, location);
+		goto("main");
+	}
+	if(arg0 == "pos2") {
+		location = entity.getLocation(player);
+		setPos2(player_id, location);
+		goto("main");
+	}
+	if(arg0 == "air") {
+		if(world1 == null || world2 == null) {
+			msg.prefix(player, "§3CopyIsland", "Auswahl inkorrekt.");
+			goto("main");
+		}
+		loc.sort(location1, location2);
+		x1 = loc.getBlockX(location1);
+		y1 = loc.getBlockY(location1);
+		z1 = loc.getBlockZ(location1);
+		x2 = loc.getBlockX(location2);
+		y2 = loc.getBlockY(location2);
+		z2 = loc.getBlockZ(location2);
+		
+		loc = loc.new(world1, x1, y1, z1); //Start-Location
+		x_length = x2 - x1 + 1; //Kantenlänge x-Achse
+		y_length = y2 - y1 + 1; //Kantenlänge y-Achse
+		z_length = z2 - z1 + 1; //Kantenlänge z-Achse
+		
+		//Zeitberechnung
+		volume = x_length * y_length * z_length; //Volumen des ausgewählten Bereichs (oder Anzahl der Blöcke)
+		calc_time = math.round((volume / 30000) * 1.633);
+		msg.prefix(player, "§3CopyIsland", concat("§r", string.number(volume), " §eBlöcke werden gesetzt."));
+		msg.prefix(player, "§3CopyIsland", concat("§3Geschätzte Dauer: §r", string.number(calc_time), "§e Sekunden."));
+		start_time = time.getMillis();
+
+		x1 = math.roundDown(x1 / 16) * 16;
+		z1 = math.roundDown(z1 / 16) * 16;
+		x2 = math.roundDown(x2 / 16) * 16;
+		z2 = math.roundDown(z2 / 16) * 16;
+
+		counter = 0;
+		for(cx = x1; cx <= x2; cx += 16) {
+			for(cz = z1; cz <= z2; cz += 16) {
+				for(y = y2; y >= y1; y--) {
+					loc.setY(loc, y);
+					for(x = 0; x < 16; x++) {
+						loc.setX(loc, x + cx);
+						for(z = 0; z < 16; z++) {
+							loc.setZ(loc, z + cz);
+							block.setMaterial(loc, air_material);
+							counter++;
+						}
+					}
+				}
+			}
+		}
+
+		msg.prefix(player, "§3CopyIsland", concat("§3Done: §r", string.number(counter), "§e blocks affected."));
+		end_time = time.getMillis();
+		msg.prefix(player, "§3CopyIsland", concat("§3Benötigte Zeit: §r", string.number(math.round(((end_time - start_time) / 1000))), "§e Sekunden."));
+		cloningplayer = null;
+		world1 = null;
+		world2 = null;
+		goto("main");
+	}
+	if(arg0 == "copy") {
+		if(world1 == null || world2 == null) {
+			msg.prefix(player, "§3CopyIsland", "Auswahl inkorrekt.");
+			goto("main");
+		}
+		from_loc = entity.getLocation(player);
+		msg.prefix(player, "§3CopyIsland", "§rBereit zum Kopieren.");
+		goto("main");
+	}
+	if(arg0 == "paste") {
+		if(world1 == null || world2 == null) {
+			msg.prefix(player, "§3CopyIsland", "Auswahl inkorrekt.");
+			goto("main");
+		}
+		if(from_loc == null) {
+			msg.prefix(player, "§3CopyIsland", "Zuerst die Location relativ zur Auswahl setzen /ci copy.");
+			goto("main");
+		}
+		loc.sort(location1, location2);
+		x1 = loc.getBlockX(location1);
+		y1 = loc.getBlockY(location1);
+		z1 = loc.getBlockZ(location1);
+		x2 = loc.getBlockX(location2);
+		y2 = loc.getBlockY(location2);
+		z2 = loc.getBlockZ(location2);
+
+		copy_from = loc.new(world1, x1, y1, z1); //Von hier wird der 1.Block kopiert
+		x_length = x2 - x1 + 1; //Kantenlänge x-Achse
+		y_length = y2 - y1 + 1; //Kantenlänge y-Achse
+		z_length = z2 - z1 + 1; //Kantenlänge z-Achse
+		
+		//Zeitberechnung
+		volume = x_length * y_length * z_length; //Volumen des ausgewählten Bereichs (oder Anzahl der Blöcke)
+		calc_time = math.round((volume / 30000) * 1.633);
+		msg.prefix(player, "§3CopyIsland", concat("§r", string.number(volume), " §eBlöcke werden kopiert."));
+		msg.prefix(player, "§3CopyIsland", concat("§3Geschätzte Dauer: §r", string.number(calc_time), "§e Sekunden."));
+		start_time = time.getMillis();
+
+		//Distanzen zwischen Spieler-Loc von /copy und 1.Block der kopiert wird
+		x_distance1 = x1 - loc.getBlockX(from_loc);
+		y_distance1 = y1 - loc.getBlockY(from_loc);
+		z_distance1 = z1 - loc.getBlockZ(from_loc);
+
+		//Berechnung wohin der 1.Block gesetzt wird (Spieler-Loc von /paste + Distanzen s.o.)
+		player_loc = entity.getLocation(player); //Paste-Location des Spielers
+		world_copy_to = loc.getWorld(player_loc);
+		x_copy_to = x_distance1 + loc.getBlockX(player_loc);
+		y_copy_to = y_distance1 + loc.getBlockY(player_loc);
+		z_copy_to = z_distance1 + loc.getBlockZ(player_loc);
+		copy_to = loc.new(world_copy_to, x_copy_to, y_copy_to, z_copy_to); //Hier wird der 1.Block gesetzt
+		
+		counter = 0;
+		for(x = 0; x < x_length; x++) {
+			for(y = 0; y < y_length; y++) {
+				for(z = 0; z < z_length; z++) {
+					loc.add(copy_from, x, y, z);
+					loc.add(copy_to, x, y, z);
+					block.clone(block.get(copy_from), copy_to);
+					counter++;
+				}
+			}
+		}
+		
+		msg.prefix(player, "§3CopyIsland", concat("§3Done: §r", string.number(counter), "§e blocks affected."));
+		end_time = time.getMillis();
+		msg.prefix(player, "§3CopyIsland", concat("§3Benötigte Zeit: §r", string.number(math.round(((end_time - start_time) / 1000))), "§e Sekunden."));
+		cloningplayer = null;
+		world1 = null;
+		world2 = null;
+		from_loc = null;
+		goto("main");
+	}
+}
+goto("main");
+	
+function setPos1(player_id, location) {
+	x1 = string.number(loc.getBlockX(location));
+	y1 = string.number(loc.getBlockY(location));
+	z1 = string.number(loc.getBlockZ(location));
+	$world1 = loc.getWorld(location);
+	msg.prefix($player, "§3CopyIsland", concat("§3Pos1: ", $x1, ", ", y1, ", ", z1)); 
+}
+
+function setPos2(player_id, location) {
+	x1 = string.number(loc.getBlockX(location));
+	y1 = string.number(loc.getBlockY(location));
+	z1 = string.number(loc.getBlockZ(location));
+	$world2 = loc.getWorld(location);
+	msg.prefix($player, "§3CopyIsland", concat("§3Pos2: ", x2, ", ", y2, ", ", z2)); 
+}
+
+function isTheCloningPlayer(player_id) {
+	if($cloningplayer == null) {
+		$cloningplayer = player_id;
+		return true;
+	}
+	return player_id == $cloningplayer;
+}

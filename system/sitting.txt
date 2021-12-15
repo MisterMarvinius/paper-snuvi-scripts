@@ -1,0 +1,54 @@
+event.load("entity_mount");
+event.load("block_click");
+
+sitting = map.new();
+stairs_tag = block.getTag("minecraft:stairs");
+half_property = block.getProperty("half");
+
+msg("dev", "§bSitting §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@entity_mount
+if(isPlayer(rider)) {
+	player = rider;
+	if(map.contains(sitting, player)) {
+		entity.remove(map.get(sitting, player));
+		map.remove(sitting, player);
+	}
+}
+goto("wait");
+
+@block_click
+if(hand == "OFF_HAND") {
+	goto("wait");
+}
+if(block.hasTag(stairs_tag, block)) {
+	if(action == "left") {
+		goto("wait");
+	}
+	if(block.property.getValue(block_loc, half_property) != "bottom") {
+		goto("wait");
+	}
+	if(item.getType(living.getEquip(player, "hand")) != "minecraft:air") {
+		goto("wait");
+	}
+	if(!loc.isAir(loc.mod(block_loc, 0, 1, 0))) {
+		goto("wait");
+	}
+	if(map.contains(sitting, player)) {
+		goto("wait");
+	}
+	if(player.hasMinigame(player)) {
+		goto("wait");
+	}
+	if(!player.hasSittingActivated(player)) {
+		goto("wait");
+	}
+	entity = entity.spawn("km:nobody", loc.mod(block_loc, 0.5, 0, 0.5), "{NoGravity:true}");
+	map.add(sitting, player, entity);
+	entity.mount(player, entity);
+}
+goto("wait");

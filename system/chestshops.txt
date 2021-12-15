@@ -1,0 +1,488 @@
+event.load("custom_command");
+event.load("inv_click");
+event.load("inv_close");
+event.load("block_click");
+
+prefix_shop = "§6Shop";
+wall_signs_tag = block.getTag("minecraft:wall_signs");
+invid_to_sign_loc = map.new();
+
+msg.text("dev", "§bChestShops §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@inv_click
+if(inv_slot == 10) {
+	map.remove(invid_to_sign_loc, inv_id);
+	inv.close(player);
+	goto("wait");
+}
+sign_loc = map.get(invid_to_sign_loc, inv_id);
+if(sign_loc == null) {
+	inv.close(player);
+	msg.prefix(player, prefix_shop, "Defect shop.");
+	goto("wait");
+}
+if(!isAWallSign(sign_loc)) {
+	map.remove(invid_to_sign_loc, inv_id);
+	inv.close(player);
+	msg.prefix(player, prefix_shop, "No longer a shop.");
+	goto("wait");
+}
+factor = 1;
+if(click_type == "QUICK_MOVE") {
+	factor = 8;
+}
+adminshop = isAdminShop(sign_loc);
+buy_price = shop.getBuyPrice(inv) * factor;
+sell_price = shop.getSellPrice(inv) * factor;
+chestloc1 = loc.mod(sign_loc, 0, -1, 0);
+chestloc2 = block.getSecChest(chestloc1);
+if(!isAChest(chestloc1)) {
+	map.remove(invid_to_sign_loc, inv_id);
+	inv.close(player);
+	msg.prefix(player, prefix_shop, "No longer a shop.");
+	goto("wait");
+}
+if(inv_slot == 3) { //Buy
+	itemstack = inv.getItem(inv, 4);
+	itemstack_2 = item.clone(itemstack);
+	if(click_type == "QUICK_MOVE") {
+		item.setAmount(itemstack_2, item.getAmount(itemstack_2) * factor);
+	}
+	//Check players money
+	if(!hasEnoughMoney(player, buy_price)) {
+		msg.prefix(player, prefix_shop, "You do not have enough money.");
+		goto("wait");
+	}
+	if(!adminshop) {
+		itemamount2 = 0;
+		if(chestloc2 != null) {
+			itemamount2 = block.getItemAmount(chestloc2, true, itemstack);
+		}
+		itemamount1 = block.getItemAmount(chestloc1, true, itemstack);
+		if(itemamount1 + itemamount2 < item.getAmount(itemstack_2)) {
+			msg.prefix(player, prefix_shop, "Not enough items in chest.");
+			goto("wait");
+		}
+	}
+	//Items ins Inventar geben oder droppen
+	notgiven = player.giveItem(player, itemstack_2);
+	if(notgiven != null) {
+		item.drop(entity.getLocation(player), notgiven);
+	}
+	//In einem AdminShop werden keine Items abgelegt
+	if(!adminshop) {
+		itemstack_temp = item.clone(itemstack_2);
+		notremoved = block.subItem(chestloc1, itemstack_temp);
+		if(chestloc2 != null) {
+			block.subItem(chestloc2, notremoved);
+		}
+		owner_player_id = text.convert(block.getSign(sign_loc, 3));
+		if(!isDouble(owner_player_id)) {
+			msg.prefix(player, prefix_shop, "Invalid shop owner.");
+			goto("wait");
+		}
+		if(player.getNameFromId(owner_player_id) == null) {
+			msg.prefix(player, prefix_shop, "Invalid shop owner.");
+			goto("wait");
+		}
+		addMoney(owner_player_id, buy_price);
+	}
+	subMoney(player, buy_price);
+	inv.update(player);
+}  elseif(inv_slot == 6) { //Sell
+	itemstack = inv.getItem(inv, 5);
+	itemstack_2 = item.clone(itemstack);
+	if(click_type == "QUICK_MOVE") {
+		item.setAmount(itemstack_2, item.getAmount(itemstack_2) * factor);
+	}
+	if(!adminshop) {
+		owner_player_id = text.convert(block.getSign(sign_loc, 3));
+		if(!isDouble(owner_player_id)) {
+			msg.prefix(player, prefix_shop, "Invalid shop owner.");
+			goto("wait");
+		}
+		if(player.getNameFromId(owner_player_id) == null) {
+			msg.prefix(player, prefix_shop, "Invalid shop owner.");
+			goto("wait");
+		}
+		if(!hasEnoughMoney(owner_player_id, sell_price)) {
+			msg.prefix(player, prefix_shop, "Shop owner does not have enough money.");
+			goto("wait");
+		}
+	}
+	//Items des Spielers checken
+	if(player.getItemAmount(player, true, itemstack) < item.getAmount(itemstack_2)) {
+		msg.prefix(player, prefix_shop, "You do not have enough items.");
+		goto("wait");
+	}
+	//Platz in der Kiste checken
+	if(!adminshop) {
+		//Versuche den ganzen ItemStack in der 1.Kiste unterzubringen
+		itemstack_temp = item.clone(itemstack_2);
+		notinchest1 = block.addItem(chestloc1, itemstack_temp);
+		if(item.getType(notinchest1) != "minecraft:air") {
+			//Versuche den Rest des ItemStack in der 2.Kiste unterzubringen
+			notinchest2 = block.addItem(chestloc2, notinchest1);
+			if(item.getType(notinchest1) != "minecraft:air") {
+				//Entferne die ItemStacks wieder
+				msg.prefix(player, prefix_shop, "Not enough space in chest.");
+				block.subItem(chestloc1, itemstack_temp);
+				block.addItem(chestloc1, notinchest2);
+				goto("wait");
+			}
+		}
+		subMoney(owner_player_id, sell_price);
+	}
+	addMoney(player, sell_price);
+	player.removeItem(player, itemstack_2);
+	inv.update(player);
+}
+goto("wait");
+
+@inv_close
+map.remove(invid_to_sign_loc, inv_id);
+goto("wait");
+
+@custom_command
+if(!isPlayer(sender)) {
+	goto("wait");
+}
+player = sender;
+if(command == "shop") {
+	size = list.getSize(args);
+	if(size == 0) {
+		@syntax
+		msg.prefix(player, prefix_shop, "/shop ...");
+		msg.text(player, "§6 - create §rCreates a shop");
+		msg.text(player, "§6 - buy <amount> <price> §rSet buy settings");
+		msg.text(player, "§6 - sell <amount> <price> §rSet sell settings");
+		msg.text(player, "§6 - remove <buy/sell> §rRemove settings");
+		if(perm.has("adminshop", player)) {
+			msg.text(player, "§6 - admin §rSet to adminshop");
+		}
+		goto("wait");
+	}
+	arg0 = text.toLowerCase(list.getIndex(args, 0));
+	if(arg0 == "create") {
+		if(size != 1) {
+			msg.prefix(player, prefix_shop, "§6/shop create");
+			goto("wait");
+		}
+		sign_loc = player.getTarget(player, 5, false, false);
+		if(!isAWallSign(sign_loc)) {
+			msg.prefix(player, prefix_shop, "Look at a sign.");
+			goto("wait");
+		}
+		chest_loc = loc.mod(sign_loc, 0, -1, 0);
+		if(!isAChest(chest_loc)) {
+			msg.prefix(player, prefix_shop, "No chest under sign.");
+			goto("wait");
+		}
+		if(!plot.check(sign_loc, player, 0, false)) {
+			msg.prefix(player, prefix_shop, "Not your plot.");
+			goto("wait");
+		}
+		block.setSign(sign_loc, 0, "[Shop]");
+		block.setSign(sign_loc, 3, text.number(player.getId(player)));
+		msg.prefix(player, prefix_shop, "§rCreated Shop.");
+		goto("wait");
+	}
+	if(arg0 == "admin") {
+		if(!perm.has("adminshop", player)) {
+			msg.prefix(player, prefix_shop, "§6No Permission.");
+			goto("wait");
+		}
+		if(size != 1) {
+			msg.prefix(player, prefix_shop, "§6/shop admin");
+			goto("wait");
+		}
+		sign_loc = player.getTarget(player, 5, false, false);
+		if(!isAWallSign(sign_loc)) {
+			msg.prefix(player, prefix_shop, "Look at a sign.");
+			goto("wait");
+		}
+		chest_loc = loc.mod(sign_loc, 0, -1, 0);
+		if(!isAChest(chest_loc)) {
+			msg.prefix(player, prefix_shop, "No chest under sign.");
+			goto("wait");
+		}
+		block.setSign(sign_loc, 0, "[Admin Shop]");
+		block.setSign(sign_loc, 3, "");
+		msg.prefix(player, prefix_shop, "§rCreated Admin Shop.");
+		goto("wait");
+	}
+	if(arg0 == "buy" || arg0 == "sell") {
+		if(size != 3) {
+			msg.prefix(player, prefix_shop, concat("§6/shop ", arg0, " <amount> <price>"));
+			goto("wait");
+		}
+		amount = list.getIndex(args, 1);
+		price = list.getIndex(args, 2);
+		if(!isDouble(amount) || !isDouble(amount)) {
+			msg.prefix(player, prefix_shop, "§rNumber expected.");
+			goto("wait");
+		}
+		if(price < 0) {
+			msg.prefix(player, prefix_shop, "§rPositive number expected.");
+			goto("wait");
+		}
+		sign_loc = player.getTarget(player, 5, false, false);
+		if(!isAWallSign(sign_loc)) {
+			msg.prefix(player, prefix_shop, "Look at a sign.");
+			goto("wait");
+		}
+		chest_loc = loc.mod(sign_loc, 0, -1, 0);
+		if(!isAChest(chest_loc)) {
+			msg.prefix(player, prefix_shop, "No chest under sign.");
+			goto("wait");
+		}
+		if(!shop.isOwner(player, sign_loc)) {
+			msg.prefix(player, prefix_shop, "You are not the owner.");
+			goto("wait");
+		}
+		if(arg0 == "buy") {
+			block.setSign(sign_loc, 1, concat("Buy ", text.number(amount), " for ", text.number(price)));
+		} else {
+			block.setSign(sign_loc, 2, concat("Sell ", text.number(amount), " for ", text.number(price)));
+		}
+		msg.prefix(player, prefix_shop, "§rPrice set.");
+		goto("wait");
+	}
+	if(arg0 == "remove") {
+		if(size != 2) {
+			msg.prefix(player, prefix_shop, concat("§6/shop remove <buy/sell>"));
+			goto("wait");
+		}
+		sign_loc = player.getTarget(player, 5, false, false);
+		if(!isAWallSign(sign_loc)) {
+			msg.prefix(player, prefix_shop, "Look at a sign.");
+			goto("wait");
+		}
+		chest_loc = loc.mod(sign_loc, 0, -1, 0);
+		if(!isAChest(chest_loc)) {
+			msg.prefix(player, prefix_shop, "No chest under sign.");
+			goto("wait");
+		}
+		if(!shop.isOwner(player, sign_loc)) {
+			msg.prefix(player, prefix_shop, "You are not the owner.");
+			goto("wait");
+		}
+		arg1 = text.toLowerCase(list.getIndex(args, 1));
+		if(arg1 == "buy") {
+			block.setSign(sign_loc, 1, "");
+		} elseif(arg1 == "sell") {
+			block.setSign(sign_loc, 2, "");
+		} else {
+			msg.prefix(player, prefix_shop, concat("§6/shop remove <buy/sell>"));
+			goto("wait");
+		}
+		msg.prefix(player, prefix_shop, "§rPrice removed.");
+		goto("wait");
+	}
+	goto("syntax");
+}
+goto("wait");
+
+@block_click
+if(block == null) {
+	goto("wait");
+}
+if(isAChest(block_loc)) {
+	chest_loc = block_loc;
+	sign_loc = loc.mod(chest_loc, 0, 1, 0);
+	if(!isAWallSign(sign_loc)) {
+		chest_loc = block.getSecChest(chest_loc);
+		if(chest_loc == null) {
+			goto("wait");
+		}
+		sign_loc = loc.mod(chest_loc, 0, 1, 0);
+		if(!isAWallSign(sign_loc)) {
+			goto("wait");
+		}
+	}
+	line0 = block.getSign(sign_loc, 0);
+	if(line0 != "[Shop]" && line0 != "[Admin Shop]") {
+		goto("wait");
+	}
+	if(shop.isOwner(player, sign_loc)) {
+		goto("wait");
+	}
+	if(perm.has("plot.bypass", player)) {
+		goto("wait");
+	}
+	cancel = true;
+	goto("wait");
+}
+if(isAWallSign(block_loc)) {
+	sign_loc = block_loc;
+	chest_loc = loc.mod(sign_loc, 0, -1, 0);
+	if(!isAChest(chest_loc)) {
+		goto("wait");
+	}
+	line0 = block.getSign(sign_loc, 0);
+	if(line0 != "[Shop]" && line0 != "[Admin Shop]") {
+		goto("wait");
+	}
+	buy_line = block.getSign(sign_loc, 1);
+	sell_line = block.getSign(sign_loc, 2);
+	owner_player_id = text.convert(block.getSign(sign_loc, 3));
+	if(isDouble(owner_player_id)) {
+		owner_name = player.getNameFromId(owner_player_id);
+		if(owner_name == null) {
+			msg.prefix(player, prefix_shop, "Invalid shop owner.");
+			goto("wait");
+		}
+		inv_title = concat("§8Shop von ", owner_name);
+	} elseif(owner_player_id == "") {
+		inv_title = "Admin Shop";
+	} else {
+		msg.prefix(player, prefix_shop, "Invalid shop owner.");
+		goto("wait");
+	}
+	item_stack = shop.getItem(chest_loc);
+	if(item_stack == null) {
+		buy_line = "";
+		sell_line = "";
+	}
+	inv = inv.new("222320000002322203");
+	if(buy_line != "") {
+		split_list = text.split(" ", buy_line);
+		buy_amount = list.getIndex(split_list, 1);
+		if(!isDouble(buy_amount)) {
+			msg.prefix(player, prefix_shop, "Invalid buy amount.");
+			goto("wait");
+		}
+		buy_amount = read.number(buy_amount);
+		buy_price = list.getIndex(split_list, 3);
+		if(!isDouble(buy_price)) {
+			msg.prefix(player, prefix_shop, "Invalid buy price.");
+			goto("wait");
+		}
+		buy_price = read.number(buy_price);
+		buy_stack = item.clone(item_stack);
+		item.setAmount(buy_stack, buy_amount);
+		a = money.split(buy_price);
+		gold = a[0];
+		silver = a[1];
+		bronze = a[2];
+		index = 2;
+		if(bronze != 0) {
+			inv.setItem(inv, index--, read.item("km:coin_copper", bronze));
+		}
+		if(silver != 0) {
+			inv.setItem(inv, index--, read.item("km:coin_silver", silver));
+		}
+		if(gold != 0) {
+			inv.setItem(inv, index, read.item("km:coin_gold", gold));
+		}
+		inv.setItem(inv, 3, read.item("km:arrow_right", 1, "§rBuy"));
+		inv.setItem(inv, 4, buy_stack);
+	}
+	if(sell_line != "") {
+		split_list = text.split(" ", sell_line);
+		sell_amount = list.getIndex(split_list, 1);
+		if(!isDouble(sell_amount)) {
+			msg.prefix(player, prefix_shop, "Invalid buy amount.");
+			goto("wait");
+		}
+		sell_amount = read.number(sell_amount);
+		sell_price = list.getIndex(split_list, 3);
+		if(!isDouble(sell_price)) {
+			msg.prefix(player, prefix_shop, "Invalid buy price.");
+			goto("wait");
+		}
+		sell_price = read.number(sell_price);
+		sell_stack = item.clone(item_stack);
+		item.setAmount(sell_stack, sell_amount);
+		a = money.split(sell_price);
+		gold = a[0];
+		silver = a[1];
+		bronze = a[2];
+		inv.setItem(inv, 5, sell_stack);
+		inv.setItem(inv, 6, read.item("km:arrow_right", 1, "§rSell"));
+		index = 7;
+		if(bronze != 0) {
+			inv.setItem(inv, index++, read.item("km:coin_copper", bronze));
+		}
+		if(silver != 0) {
+			inv.setItem(inv, index++, read.item("km:coin_silver", silver));
+		}
+		if(gold != 0) {
+			inv.setItem(inv, index, read.item("km:coin_gold", gold));
+		}
+	}
+	inv.setItem(inv, 10, read.item("km:cross_red", 1, "§rCancel"));
+	inv.open(inv, player, inv_title);
+	map.add(invid_to_sign_loc, inv.getId(inv), sign_loc);
+}
+goto("wait");
+
+function shop.getItem(chest_loc) {
+	inv = block.getInv(chest_loc);
+	for(i = 0; i < inv.getSize(inv); i++) {
+		item_stack = item.clone(inv.getItem(inv, i));
+		if(item.getType(item_stack) != "minecraft:air") {
+			return item_stack;
+		}
+	}
+	return null;
+}
+
+function isAChest(location) {
+	return block.getType(location) == "minecraft:chest";
+}
+
+function isAWallSign(location) {
+	if(location == null) {
+		return false;
+	}
+	return block.hasTag($wall_signs_tag, block.get(location));
+}
+
+function shop.isOwner(player, sign_loc) {
+	owner_player_id = text.convert(block.getSign(sign_loc, 3));
+	if(owner_player_id == "") {
+		return perm.has("adminshop", player);
+	}
+	if(isDouble(owner_player_id)) {
+		owner_name = player.getNameFromId(owner_player_id);
+		if(owner_name == null) {
+			return false;
+		}
+		return owner_player_id == player.getId(player);
+	}
+	return false;
+}
+
+function shop.getItemAmount(item) {
+	if(item.getType(item) == "km:coin_gold") {
+		return item.getAmount(item) * 64 * 64;
+	}
+	if(item.getType(item) == "km:coin_silver") {
+		return item.getAmount(item) * 64;
+	}
+	if(item.getType(item) == "km:coin_copper") {
+		return item.getAmount(item);
+	}
+	return 0;
+}
+
+function shop.getBuyPrice(inv) {
+	snuvis = 0;
+	snuvis += shop.getItemAmount(inv.getItem(inv, 0));
+	snuvis += shop.getItemAmount(inv.getItem(inv, 1));
+	snuvis += shop.getItemAmount(inv.getItem(inv, 2));
+	return snuvis;
+}
+
+function shop.getSellPrice(inv) {
+	snuvis = 0;
+	snuvis += shop.getItemAmount(inv.getItem(inv, 7));
+	snuvis += shop.getItemAmount(inv.getItem(inv, 8));
+	snuvis += shop.getItemAmount(inv.getItem(inv, 9));
+	return snuvis;
+}

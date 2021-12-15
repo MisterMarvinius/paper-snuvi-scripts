@@ -1,0 +1,74 @@
+event.load("block_break");
+event.load("human_hurt");
+event.load("entity_join");
+herobrines = list.new();
+
+msg("dev", "§bHerobrine §rloaded.");
+@wait
+wait();
+if(event == "entity_join") {
+	if(entity.getType(entity) != "human") {
+		goto("wait");
+	}
+	if(entity.getName(entity) != "Herobrine") {
+		goto("wait");
+	}
+	if(list.contains(herobrines, entity)) {
+		goto("wait");
+	}
+	entity.remove(entity);
+	goto("wait");
+}
+if(event == "human_hurt") {
+	entity_name = entity.getName(human);
+	if(list.contains(herobrines, human)) {
+		if(entity == null) {
+			goto("wait");
+		}
+		if(!isLiving(entity)) {
+			goto("wait");
+		}
+		living.damage(entity, 10, damage.get("thorns", human));
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	player_loc = entity.getLocation(player);
+	world_name = world.getName(loc.getWorld(player_loc));
+	if(!world.isSurvName(world_name)) {
+		goto("wait");
+	}
+	r = math.random(1, 2000);
+	if(r == 1) {
+		spawnHerobrine(player);
+	}
+	goto("wait");
+}
+goto("wait");
+
+function spawnHerobrine(player) {
+	player_loc = entity.getLocation(player);
+	dist = math.random(4, 20);
+	alpha = math.random(0, 360);
+	alpha *= math.pi() / 180;
+	x = math.round(math.sin(alpha) * dist) + 0.5;
+	z = math.round(math.cos(alpha) * dist) + 0.5;
+	y = 255;
+	hero_loc = loc.mod(player_loc, x, y, z);
+	while(block.isAir(hero_loc)) {
+		loc.setY(hero_loc, y);
+		y--;
+	}					
+	loc.addY(hero_loc, 1);
+	ent = human.spawn(hero_loc);
+	list.add($herobrines, ent);
+	human.setSkin(ent, "herobrine");
+	entity.setName(ent, "Herobrine");
+	sgoto(400, "deleteHerobrine");
+}
+
+@deleteHerobrine
+ent = list.getIndex(herobrines, 0);
+list.removeIndex(herobrines, 0);
+entity.remove(ent);
+goto("wait");
