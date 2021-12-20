@@ -1,3 +1,15 @@
+function getItemFlags() {
+	list = list.new();
+	list.add(list, "HIDE_ATTRIBUTES");
+	list.add(list, "HIDE_UNBREAKABLE");
+	list.add(list, "HIDE_DESTROYS");
+	list.add(list, "HIDE_PLACED_ON");
+	list.add(list, "HIDE_POTION_EFFECTS");
+	list.add(list, "HIDE_DYE");
+	list.add(list, "HIDE_ENCHANTS");
+	return list;
+}
+
 function getRickRollSounds() {
 	RickRollSounds = list.new();
 	list.add(RickRollSounds, math.pow(2, -6 / 12));//6

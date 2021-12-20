@@ -111,7 +111,9 @@ if(first_join) {
 }
 player.setHeadName(player);
 silentjoin = player.getSilentJoin(player);
-if(!silentjoin) {
+if(silentjoin) {
+	message = null;
+} else {
 	own_message = player.getJoinMessage(player);
 	if(own_message == null || !send_personally_messages) {
 		message = text.new(string.concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1))));
@@ -206,7 +208,7 @@ list = map.getOrDefault(causetolist, damage_type, defaultdeaths);
 if(damage_type == "player") {
 	killer = player.getFromDamageSource(damage_source);
 	killer_name = player.getName(killer);
-	item = living.getEquip(killer, "hand");
+	item = living.getEquip(killer, read.slot("HAND"));
 	if(item.hasName(item)) {
 		message1 = string.concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
 		message2 = item.getFullText(item);

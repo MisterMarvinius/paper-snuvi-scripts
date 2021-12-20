@@ -1,0 +1,35 @@
+event.load("entity_join");
+
+x1 = 122;
+z1 = 215;
+x2 = 223;
+z2 = 314;
+
+msg("dev", "§bMobspawning §rloaded");
+@wait
+wait();
+if(event == "entity_join") {
+	if(!isLiving(entity)) {
+		goto("wait");
+	}
+	entity_type = entity.getType(entity);
+	if(entity_type == "player" || entity_type == "human" || entity_type == "nobody" || entity_type == "armor_stand") {
+		goto("wait");
+	}
+	ent_loc = entity.getLocation(entity);
+	world_name = world.getName(loc.getWorld(ent_loc));
+	if(world_name != "overworld") {
+		goto("wait");
+	}
+	x = loc.getX(ent_loc);
+	z = loc.getZ(ent_loc);
+	if(x < x1 || x > x2) {
+		goto("wait");
+	}
+	if(z < z1 || z > z2) {
+		goto("wait");
+	}
+	cancel = true;
+	goto("wait");
+}
+goto("wait");

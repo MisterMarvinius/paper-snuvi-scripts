@@ -44,7 +44,7 @@ if(player.checkHandsForTag(player, hoe_tag)) {
 goto("wait");
 
 @block_drop
-item = living.getEquip(player);
+item = living.getEquip(player, read.slot("HAND"));
 if(!block.hasTag(block, crops_tag)) {
 	goto("wait");
 }

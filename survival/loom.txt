@@ -1,0 +1,124 @@
+event.load("player_toss");
+
+wool_tag = item.getTag("minecraft:wool");
+par = particle.get("minecraft:witch");
+
+counter_map = map.new();
+loom_list = list.new();
+
+msg("dev", "§bLoom §rloaded.");
+@wait
+wait();
+loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(loc));
+if(world.isCreativeName(world_name)) {
+	goto("wait");
+}
+if(event == "player_toss") {
+	target_loc = player.getTarget(player, 5);
+	block_type = block.getType(target_loc);
+	if(block_type == "minecraft:loom") {
+		if(!item.hasTag(wool_tag, item) && item.getType(item) != "km:coarse_cloth") {
+			goto("wait");
+		}
+		cancel = true;
+		spawn_loc = loc.mod(target_loc, 0.5, 1.5, 0.5);
+		loom_loc = loc.mod(target_loc, 0.5, 1, 0.5);
+		item_entity = item.entity.new(spawn_loc, item);
+		item.entity.spawn(item_entity);
+		loom_id = map.getOrDefault(counter_map, loom_loc, 0) + 1;
+		map.add(counter_map, loom_loc, loom_id);
+		a = array.new(3);
+		a[0] = loom_id;
+		a[1] = player.getUuid(player);
+		a[2] = loom_loc;
+		list.add(loom_list, a);
+		sgoto(40, "loom");
+	}
+}
+goto("wait");
+
+@loom
+a = list.getIndex(loom_list, 0);
+list.removeIndex(loom_list, 0);
+loom_id = a[0];
+player_uuid = a[1];
+loom_loc = a[2];
+player = player.get(player_uuid);
+if(player == null) {
+	goto("wait");
+}
+loc_loom_id = map.get(counter_map, loom_loc);
+if(loc_loom_id != loom_id) {
+	goto("wait");
+}
+wool_amount = 0;
+wool_item = null;
+wool_item_entity = null;
+coarse_amount = 0;
+coarse_item = null;
+coarse_item_entity = null;
+list = entity.near(loom_loc, 0.05);
+iter = iterator(list);
+while(hasNext(iter)) {
+	item_entity = next(iter);
+	item = item.entity.get(item_entity);
+	type = item.getType(item);
+	amount = item.getAmount(item);
+	if(item.hasTag(wool_tag, item)) {
+		wool_amount = amount;
+		wool_item = item;
+		wool_item_entity = item_entity;
+		continue;
+	}
+	if(type == "km:coarse_cloth") {
+		coarse_amount = amount;
+		coarse_item = item;
+		coarse_item_entity = item_entity;
+		continue;
+	}
+}
+if(wool_amount == 0) {
+	goto("wait");
+}
+if(coarse_amount == 0) {
+	//only wool to coarse
+	amount = item.getAmount(wool_item);
+	output_item = read.item("km:coarse_cloth");
+	item.setAmount(output_item, amount);
+	item.entity.set(wool_item_entity, output_item);
+	entity.throw(wool_item_entity, 0, 0.3, 0);
+	particle.spawn(loc.mod(loom_loc, 0.5, 1.4, 0.5), par, 20, 0, 0.25, 0.25, 0.25);
+	loomEvent(player, loom_loc, wool_item_entity);
+	goto("wait");
+}
+//wool and coarse to cloth
+if(coarse_amount > wool_amount) {
+	amount = wool_amount;
+	wool_amount = 0;
+	coarse_amount -= amount;
+} else {
+	amount = coarse_amount;
+	coarse_amount = 0;
+	wool_amount -= amount;
+}
+item.setAmount(coarse_item, coarse_amount);
+item.setAmount(wool_item, wool_amount);
+item.entity.set(coarse_item_entity, coarse_item);
+item.entity.set(wool_item_entity, wool_item);
+
+output_item = read.item("km:cloth");
+item.setAmount(output_item, amount);
+output_item_entity = item.entity.new(loom_loc, output_item);
+item.entity.spawn(output_item_entity);
+entity.throw(output_item_entity, 0, 0.2, 0);
+particle.spawn(loc.mod(loom_loc, 0.5, 1.4, 0.5), par, 20, 0, 0.25, 0.25, 0.25);
+loomEvent(player, loom_loc, output_item_entity);
+goto("wait");
+
+function loomEvent(player, loom_loc, entity) {
+	setScriptVar("player", player);
+	setScriptVar("loom_loc", loom_loc);
+	setScriptVar("entity", entity);
+	script.callEvent("player_loom_finish");
+}

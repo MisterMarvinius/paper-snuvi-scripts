@@ -140,15 +140,16 @@ function player.giveSingleItem(player, item, boolean) {
 }
 
 function player.safeGiveItem(player, item) {
-	rest_item = player.giveItem(player, item);
-	if(item.getAmount(rest_item) > 0) {
-		item.drop(entity.getLocation(player), rest_item);
+	rest_amount = player.giveItem(player, item);
+	if(rest_amount > 0) {
+		item.setAmount(item, rest_amount);
+		item.drop(entity.getLocation(player), item);
 	}
 }
 
-function setBlockIfNotAir(location, block) {
-	if(block.getType(location) == "minecraft:air") {
-		block.set(location, block, true);
+function block.setIfAir(block, type) {
+	if(block.isAir(block)) {
+		block.setMaterial(block, material.get(type));
 		return true;
 	}
 	return false;
@@ -191,13 +192,12 @@ function grow(center_loc, radius) {
 			for(y = radius * -1; y <= radius; y++) {
 				length = math.hypot(x, math.hypot(y, z));
 				if(length <= radius) {
-					mod_loc = loc.mod(center_loc, x, y, z);
-					block = block.get(mod_loc);
+					block = block.get(loc.mod(center_loc, x, y, z));
 					if(block.hasTag(block, crops_tag)) {
-						if(block.getType(mod_loc) == "minecraft:beetroots") {
-							block.set(mod_loc, string.concat(block.getType(mod_loc), "[age=3]"));
+						if(block.isType(block, "minecraft:beetroots")) {
+							block.setMaterial(block, material.get(string.concat(block.getType(block), "[age=3]")));
 						} else {
-							block.set(mod_loc, string.concat(block.getType(mod_loc), "[age=7]"));
+							block.setMaterial(block, material.get(string.concat(block.getType(block), "[age=7]")));
 						}
 					}
 				}
@@ -207,10 +207,10 @@ function grow(center_loc, radius) {
 }
 
 function getBlockLocation(location) {
-	world = loc.getWorld(location, "w");
-	bx = loc.getCoord(location, "bx");
-	by = loc.getCoord(location, "by");
-	bz = loc.getCoord(location, "bz");
+	world = loc.getWorld(location);
+	bx = loc.getBlockX(location);
+	by = loc.getBlockY(location);
+	bz = loc.getBlockZ(location);
 	return loc.new(world, bx, by, bz);
 }
 
@@ -260,6 +260,16 @@ function isFollowingDay(timestamp_1, timestamp_2) {
 	mid_1 = time.from(cal_1);
 	diff = timestamp_2 - mid_1;
 	return diff > 0 && diff < 86400000;
+}
+
+function isSameDay(timestamp_1, timestamp_2) {
+	cal_1 = time.new(timestamp_1);
+	cal_2 = time.new(timestamp_2);
+	time.nextDay(cal_1);
+	time.nextDay(cal_2);
+	mid_1 = time.from(cal_1);
+	mid_2 = time.from(cal_2);
+	return mid_1 == mid_2;
 }
 
 function player.hasMinigame(player) {
@@ -524,13 +534,13 @@ function player.changeGamemode(player, to_world_name) {
 	if(!player.isSpectator(player)) {
 		if(to_world_name == "creative") {
 			if(perm.has("creative", player)) {
-				gm = "creative";
+				gm = "CREATIVE";
 			} else {
-				gm = "adventure";
+				gm = "ADVENTURE";
 				scheduler.addFly(5, player, true);
 			}
 		} else {
-			gm = "survival";
+			gm = "SURVIVAL";
 		}
 		player.setGamemode(player, gm);
 		duration = data.getTimer(player, "fly");
@@ -571,11 +581,11 @@ function inv.saveForPlayer(sec_player, for_player_or_id, world) {
 		item_string = string.item(inv.getItem(ender_inv, i));
 		config.set(config, string.concat("eslot-", i), item_string);
 	}
-	config.set(config, "offhand", string.item(living.getEquip(sec_player, "offhand")));
-	config.set(config, "head", string.item(living.getEquip(sec_player, "head")));
-	config.set(config, "chest", string.item(living.getEquip(sec_player, "chest")));
-	config.set(config, "legs", string.item(living.getEquip(sec_player, "legs")));
-	config.set(config, "feet", string.item(living.getEquip(sec_player, "feet")));
+	config.set(config, "offhand", string.item(living.getOffHand(sec_player)));
+	config.set(config, "head", string.item(living.getEquip(sec_player, read.slot("HEAD"))));
+	config.set(config, "chest", string.item(living.getEquip(sec_player, read.slot("CHEST"))));
+	config.set(config, "legs", string.item(living.getEquip(sec_player, read.slot("LEGS"))));
+	config.set(config, "feet", string.item(living.getEquip(sec_player, read.slot("FEET"))));
 	config.saveAsync(config);
 }
 
@@ -604,8 +614,9 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 	}
 	
 	//Inventare
+	air_string = item.getAirString();
 	for(i = 0; i <= 35; i++) {
-		item_string = config.getString(config, string.concat("slot-", i), "minecraft:air");
+		item_string = config.getString(config, string.concat("slot-", i), air_string);
 		item = read.item(item_string);
 		if(item != null) {
 			inv = player.getInv(sec_player);
@@ -613,18 +624,18 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 		}
 	}
 	for(i = 0; i < 27; i++) {
-		item_string = config.getString(config, string.concat("eslot-", i), "minecraft:air");
+		item_string = config.getString(config, string.concat("eslot-", i), air_string);
 		item = read.item(item_string);
 		if(item != null) {
 			ender_inv = player.getEnderInv(sec_player);
 			inv.setItem(ender_inv, i, item);
 		}
 	}
-	living.setEquip(sec_player, "offhand", read.item(config.getString(config, "offhand", "minecraft:air")));
-	living.setEquip(sec_player, "head", read.item(config.getString(config, "head", "minecraft:air")));
-	living.setEquip(sec_player, "chest", read.item(config.getString(config, "chest", "minecraft:air")));
-	living.setEquip(sec_player, "legs", read.item(config.getString(config, "legs", "minecraft:air")));
-	living.setEquip(sec_player, "feet", read.item(config.getString(config, "feet", "minecraft:air")));
+	living.setEquip(sec_player, read.slot("OFF_HAND"), read.item(config.getString(config, "offhand", air_string)));
+	living.setEquip(sec_player, read.slot("HEAD"), read.item(config.getString(config, "head", air_string)));
+	living.setEquip(sec_player, read.slot("CHEST"), read.item(config.getString(config, "chest", air_string)));
+	living.setEquip(sec_player, read.slot("LEGS"), read.item(config.getString(config, "legs", air_string)));
+	living.setEquip(sec_player, read.slot("FEET"), read.item(config.getString(config, "feet", air_string)));
 }
 
 //--------------------------------------------------
@@ -863,550 +874,189 @@ function script.isActiveName(script_name) {
 //Teleporter-Utils
 //--------------------------------------------------
 
-function isATpTransmitter(chest_loc) {
-	loc = loc.mod(chest_loc, 0, 0 ,0);
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, 2, 0, 0);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 2);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 2, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -2);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -2, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, 1, 1, 2);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 2);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, -1);
-	if(block.getType(loc) != "km:copper_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:copper_block") {
-		return false;
-	}
-	loc.add(loc, -2, -4, -2);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 4);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 4, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -4);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, -3, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, -2, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 2);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, 2, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "km:bronze_block") {
-		return false;
-	}
-	return true;
+function teleporter.initTransmitter() {
+	a = array.new(69);
+	a[0] = teleporter.getProp(0, 0, 0, "CHEST");
+	a[1] = teleporter.getProp(-1, 0, 0, "GLOWSTONE");
+	a[2] = teleporter.getProp(2, 0, 0, "GLOWSTONE");
+	a[3] = teleporter.getProp(-1, 0, -1, "GLOWSTONE");
+	a[4] = teleporter.getProp(0, 0, 2, "GLOWSTONE");
+	a[5] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[6] = teleporter.getProp(2, 0, 0, "km:bronze_block");
+	a[7] = teleporter.getProp(0, 0, -2, "km:bronze_block");
+	a[8] = teleporter.getProp(-2, 0, 0, "km:bronze_block");
+	a[9] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[10] = teleporter.getProp(0, 0, 1, "km:bronze_block");
+	a[11] = teleporter.getProp(0, 0, 1, "km:bronze_block");
+	a[12] = teleporter.getProp(0, 0, 1, "STONE_BRICK_SLAB");
+	a[13] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[14] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[15] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[16] = teleporter.getProp(1, 0, 0, "STONE_BRICK_SLAB");
+	a[17] = teleporter.getProp(0, 0, -1, "km:bronze_block");
+	a[18] = teleporter.getProp(0, 0, -1, "km:bronze_block");
+	a[19] = teleporter.getProp(0, 0, -1, "km:bronze_block");
+	a[20] = teleporter.getProp(0, 0, -1, "STONE_BRICK_SLAB");
+	a[21] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[22] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[23] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[24] = teleporter.getProp(-1, 0, 0, "STONE_BRICK_SLAB");
+	a[25] = teleporter.getProp(1, 1, 2, "km:bronze_block");
+	a[26] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[27] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[28] = teleporter.getProp(-1, 0, -1, "km:bronze_block");
+	a[29] = teleporter.getProp(0, 0, 2, "km:bronze_block");
+	a[30] = teleporter.getProp(0, 1, -1, "km:copper_block");
+	a[31] = teleporter.getProp(0, 1, 0, "km:copper_block");
+	a[32] = teleporter.getProp(-2, -4, -2, "km:bronze_block");
+	a[33] = teleporter.getProp(0, -1, 0, "km:bronze_block");
+	a[34] = teleporter.getProp(0, -1, 0, "km:bronze_block");
+	a[35] = teleporter.getProp(0, 0, 4, "km:bronze_block");
+	a[36] = teleporter.getProp(0, 1, 0, "km:bronze_block");
+	a[37] = teleporter.getProp(0, 1, 0, "km:bronze_block");
+	a[38] = teleporter.getProp(4, 0, 0, "km:bronze_block");
+	a[39] = teleporter.getProp(0, -1, 0, "km:bronze_block");
+	a[40] = teleporter.getProp(0, -1, 0, "km:bronze_block");
+	a[41] = teleporter.getProp(0, 0, -4, "km:bronze_block");
+	a[42] = teleporter.getProp(0, 1, 0, "km:bronze_block");
+	a[43] = teleporter.getProp(0, 1, 0, "km:bronze_block");
+	a[44] = teleporter.getProp(0, -3, 0, "km:bronze_block");
+	a[45] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[46] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[47] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[48] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[49] = teleporter.getProp(0, 0, 1, "km:bronze_block");
+	a[50] = teleporter.getProp(0, 0, 1, "km:bronze_block");
+	a[51] = teleporter.getProp(0, 0, 1, "km:bronze_block");
+	a[52] = teleporter.getProp(0, 0, 1, "km:bronze_block");
+	a[53] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[54] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[55] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[56] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[57] = teleporter.getProp(0, 0, -1, "km:bronze_block");
+	a[58] = teleporter.getProp(0, 0, -1, "km:bronze_block");
+	a[59] = teleporter.getProp(0, 0, -1, "km:bronze_block");
+	a[60] = teleporter.getProp(-1, 0, 0, "STONE_BRICKS");
+	a[61] = teleporter.getProp(-2, 0, 0, "STONE_BRICKS");
+	a[62] = teleporter.getProp(0, 0, 2, "STONE_BRICKS");
+	a[63] = teleporter.getProp(2, 0, 0, "STONE_BRICKS");
+	a[64] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
+	a[65] = teleporter.getProp(-1, 0, -1, "km:bronze_block");
+	a[66] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[67] = teleporter.getProp(1, 0, 0, "km:bronze_block");
+	a[68] = teleporter.getProp(-1, 0, -1, "km:bronze_block");
+	setScriptVar("transmitter", a);
 }
 
-function isATpReceiver(chest_loc) {
+function teleporter.initReceiver() {
+	a = array.new(69);
+	a[0] = teleporter.getProp(0, 0, 0, "CHEST");
+	a[1] = teleporter.getProp(-1, 0, 0, "GLOWSTONE");
+	a[2] = teleporter.getProp(2, 0, 0, "GLOWSTONE");
+	a[3] = teleporter.getProp(-1, 0, -1, "GLOWSTONE");
+	a[4] = teleporter.getProp(0, 0, 2, "GLOWSTONE");
+	a[5] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[6] = teleporter.getProp(2, 0, 0, "km:tin_block");
+	a[7] = teleporter.getProp(0, 0, -2, "km:tin_block");
+	a[8] = teleporter.getProp(-2, 0, 0, "km:tin_block");
+	a[9] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[10] = teleporter.getProp(0, 0, 1, "km:tin_block");
+	a[11] = teleporter.getProp(0, 0, 1, "km:tin_block");
+	a[12] = teleporter.getProp(0, 0, 1, "STONE_BRICK_SLAB");
+	a[13] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[14] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[15] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[16] = teleporter.getProp(1, 0, 0, "STONE_BRICK_SLAB");
+	a[17] = teleporter.getProp(0, 0, -1, "km:tin_block");
+	a[18] = teleporter.getProp(0, 0, -1, "km:tin_block");
+	a[19] = teleporter.getProp(0, 0, -1, "km:tin_block");
+	a[20] = teleporter.getProp(0, 0, -1, "STONE_BRICK_SLAB");
+	a[21] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[22] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[23] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[24] = teleporter.getProp(-1, 0, 0, "STONE_BRICK_SLAB");
+	a[25] = teleporter.getProp(1, 1, 2, "km:tin_block");
+	a[26] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[27] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[28] = teleporter.getProp(-1, 0, -1, "km:tin_block");
+	a[29] = teleporter.getProp(0, 0, 2, "km:tin_block");
+	a[30] = teleporter.getProp(-2, -2, -3, "km:tin_block");
+	a[31] = teleporter.getProp(0, -1, 0, "km:tin_block");
+	a[32] = teleporter.getProp(0, -1, 0, "km:tin_block");
+	a[33] = teleporter.getProp(0, 0, 4, "km:tin_block");
+	a[34] = teleporter.getProp(0, 1, 0, "km:tin_block");
+	a[35] = teleporter.getProp(0, 1, 0, "km:tin_block");
+	a[36] = teleporter.getProp(4, 0, 0, "km:tin_block");
+	a[37] = teleporter.getProp(0, -1, 0, "km:tin_block");
+	a[38] = teleporter.getProp(0, -1, 0, "km:tin_block");
+	a[39] = teleporter.getProp(0, 0, -4, "km:tin_block");
+	a[40] = teleporter.getProp(0, 1, 0, "km:tin_block");
+	a[41] = teleporter.getProp(0, 1, 0, "km:tin_block");
+	a[42] = teleporter.getProp(0, -3, 0, "km:tin_block");
+	a[43] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[44] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[45] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[46] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[47] = teleporter.getProp(0, 0, 1, "km:tin_block");
+	a[48] = teleporter.getProp(0, 0, 1, "km:tin_block");
+	a[49] = teleporter.getProp(0, 0, 1, "km:tin_block");
+	a[50] = teleporter.getProp(0, 0, 1, "km:tin_block");
+	a[51] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[52] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[53] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[54] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[55] = teleporter.getProp(0, 0, -1, "km:tin_block");
+	a[56] = teleporter.getProp(0, 0, -1, "km:tin_block");
+	a[57] = teleporter.getProp(0, 0, -1, "km:tin_block");
+	a[58] = teleporter.getProp(-1, 0, 0, "STONE_BRICKS");
+	a[59] = teleporter.getProp(-2, 0, 0, "STONE_BRICKS");
+	a[60] = teleporter.getProp(0, 0, 2, "STONE_BRICKS");
+	a[61] = teleporter.getProp(2, 0, 0, "STONE_BRICKS");
+	a[62] = teleporter.getProp(-1, 0, 0, "km:tin_block");
+	a[63] = teleporter.getProp(-1, 0, -1, "km:tin_block");
+	a[64] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[65] = teleporter.getProp(1, 0, 0, "km:tin_block");
+	a[66] = teleporter.getProp(-1, 0, -1, "km:tin_block");
+}
+
+function teleporter.getTransmitter() {
+	return getScriptVar("transmitter");
+}
+
+function teleporter.getReceiver() {
+	return getScriptVar("receiver");
+}
+
+
+function teleporter.getProp(x, y, z, type) {
+	a = array.new(4);
+	a[0, 0] = x;
+	a[0, 1] = y;
+	a[0, 2] = z;
+	a[0, 3] = material.get(type);
+	return a;
+}
+
+function teleporter.isTransmitter(chest_loc) {
+	a = teleporter.getTransmitter();
 	loc = loc.mod(chest_loc, 0, 0 ,0);
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
+	for(i = 0; i < array.getSize(a); i++) {
+		loc.add(loc, a[i, 0], a[i, 1], a[i, 2]);
+		if(!block.getType(block.get(loc) == a[i, 3])) {
+			return false;
+		}
+	}
+}
+
+function teleporter.isReceiver(chest_loc) {
+	a = teleporter.getReceiver();
+	loc = loc.mod(chest_loc, 0, 0 ,0);
+	for(i = 0; i < array.getSize(a); i++) {
+		loc.add(loc, a[i, 0], a[i, 1], a[i, 2]);
+		if(!block.getType(block.get(loc) == a[i, 3])) {
+			return false;
+		}
 	}
-	loc.add(loc, 2, 0, 0);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 2);
-	if(block.getType(loc) != "minecraft:glowstone") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 2, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -2);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -2, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_brick_slab") {
-		return false;
-	}
-	loc.add(loc, 1, 1, 2);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 2);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -2, -2, -3);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 4);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 4, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, -1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -4);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 1, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, -3, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 0, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, -2, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, 0, 0, 2);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, 2, 0, 0);
-	if(block.getType(loc) != "minecraft:stone_bricks") {
-		return false;
-	}
-	loc.add(loc, -1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, 1, 0, 0);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	loc.add(loc, -1, 0, -1);
-	if(block.getType(loc) != "km:tin_block") {
-		return false;
-	}
-	return true;
 }
 
 function setTpWallX(chest_loc, item_type) {
@@ -1714,12 +1364,12 @@ function msg.send(from_player, to_name, prefix, message, send_mail) {
 	}
 }
 
-function msg.prefix(player, prefix, message) {
-	msg.string(player, string.concat(string.getPrefix(prefix), " ", message));
+function msg.prefix(receiver, prefix, message) {
+	msg.string(receiver, string.concat(string.getPrefix(prefix), " ", message));
 }
 
 function msg.online(prefix, message) {
-	msg.string("online", string.getPrefix(prefix), text.new(" "), message);
+	msg.string("online", string.concat(string.getPrefix(prefix), " ", message));
 }
 
 function msg.radius(prefix, message, location, radius) {
@@ -1779,8 +1429,27 @@ function item.create(type, amount, name, lore_list) {
 	return item;
 }
 
+function item.createLore(string) {
+	lore = list.new();
+	list.add(lore, text.new(string));
+	return lore;
+}
+
+function item.addLore(item, string) {
+	lore = item.getLore(item);
+	if(lore == null) {
+		lore = list.new();
+	}
+	list.add(lore, text.new(string));
+	item.setLore(item, lore);
+}
+
 function item.getAir() {
-	return read.item("minecraft:air");
+	return item.new(material.get("AIR"));
+}
+
+function item.getAirString() {
+	return "{id:\"minecraft:air\",Count:1b}";
 }
 
 function item.isAmber(item) {
@@ -1808,8 +1477,28 @@ function item.getRuby() {
 }
 
 //--------------------------------------------------
+//Entity-Utils
+//--------------------------------------------------
+
+function entity.isHuman(entity) {
+	if(entity == null) {
+		return false;
+	}
+	return entity.getType(entity) == "human";
+}
+
+//--------------------------------------------------
 //Player-Utils
 //--------------------------------------------------
+
+function player.hasBypass(player) {
+	return perm.has("plot.bypass", player);
+}
+
+function player.clearInventory(player) {
+	inv = player.getInv(player);
+	inv.clear(inv);
+}
 
 function player.toggleFly(player) {
 	new_state = !player.hasFly(player);
@@ -1828,25 +1517,26 @@ function player.canTeleport(player) {
 }
 
 function player.hasClearInventory(player) {
+	air = item.getAir();
 	inv = player.getInv(player);
 	for(slot = 0; slot < 36; slot++) {
-		if(item.getType(inv.getItem(inv, slot)) != "minecraft:air") {
+		if(item.getType(inv.getItem(inv, slot)) != air) {
 			return false;
 		}
 	}
-	if(item.getType(living.getEquip(player, "head")) != "minecraft:air") {
+	if(item.getType(living.getEquip(player, read.slot("HEAD"))) != air) {
 		return false;
 	}
-	if(item.getType(living.getEquip(player, "chest")) != "minecraft:air") {
+	if(item.getType(living.getEquip(player, read.slot("CHEST"))) != air) {
 		return false;
 	}
-	if(item.getType(living.getEquip(player, "legs")) != "minecraft:air") {
+	if(item.getType(living.getEquip(player, read.slot("LEGS"))) != air) {
 		return false;
 	}
-	if(item.getType(living.getEquip(player, "feet")) != "minecraft:air") {
+	if(item.getType(living.getEquip(player, read.slot("FEET"))) != air) {
 		return false;
 	}
-	if(item.getType(living.getEquip(player, "offhand")) != "minecraft:air") {
+	if(item.getType(living.getOffHand(player)) != air) {
 		return false;
 	}
 	return true;
@@ -1989,8 +1679,9 @@ function player.showDebug(player, boolean) {
 }
 
 function player.setSpeed(player, speed) {
-	living.setPersistentMovementSpeed(player, speed / 10);
-	living.setPersistentFlyingSpeed(player, speed / 10 * 4);
+	speed = 4/5/9 * speed + 1/9;
+	player.setWalkSpeed(player, speed);
+	player.setFlySpeed(player, speed / 2);
 }
 
 function player.hasBigPlotCreated(player_or_id) {
@@ -2432,20 +2123,20 @@ function player.checkHandsForItem(player, item_or_type) {
 	if(string.class(item_or_type) != "String") {
 		item_or_type = item.getType(item_or_type);
 	}
-	hand = living.getEquip(player, "hand");
+	hand = living.getHand(player);
 	if(item.getType(hand) == item_or_type) {
 		return true;
 	}
-	offhand = living.getEquip(player, "offhand");
+	offhand = living.getOffHand(player);
 	return item.getType(offhand) == item_or_type;
 }
 
 function player.checkHandsForTag(player, tag) {
-	hand = living.getEquip(player, "hand");
+	hand = living.getHand(player);
 	if(item.hasTag(tag, hand)) {
 		return true;
 	}
-	offhand = living.getEquip(player, "offhand");
+	offhand = living.getOffHand(player);
 	return item.hasTag(tag, offhand);
 }
 
@@ -2453,15 +2144,21 @@ function player.checkHandsForTag(player, tag) {
 //Block-Utils
 //--------------------------------------------------
 
+function block.isType(block, type) {
+	return block.getType(block) == material.get(type);
+}
+
 function block.isAir(block) {
-	if(block.getType(block) == "minecraft:air") {
-		return true;
-	}
-	return block.getType(block) == "minecraft:cave_air";
+	type = block.getType(block);
+	return type == material.get("AIR") || type == material.get("CAVE_AIR");
+}
+
+function block.mod(block, x, y, z) {
+	return block.get(loc.mod(block.getLocation(block), x, y, z));
 }
 
 function block.gotWater(block, block_type, block_loc) {
-	if(block_type == "minecraft:water") {
+	if(block_type == "WATER") {
 		return true;
 	}
 	value = block.property.getValue(block_loc, block.getProperty("waterlogged"));
@@ -2512,10 +2209,11 @@ function money.addBoost(player_or_id, money) {
 	if(money.getBoostFactor() > 1) {
 		money.popUp(player, money, true);
 	}
-	addMoney(player, money);
+	money.add(player, money);
 }
 
-function addMoney(player_or_id, money) {
+
+function money.add(player_or_id, money) {
 	if(money == 0) {
 		return;
 	}
@@ -2531,7 +2229,7 @@ function addMoney(player_or_id, money) {
 	money.popUp(player, money, false);
 }
 
-function subMoney(player_or_id, money) {
+function money.sub(player_or_id, money) {
 	if(money == 0) {
 		return;
 	}
@@ -2545,6 +2243,14 @@ function subMoney(player_or_id, money) {
 	}
 	displayMoney(player, new_money);
 	money.popUp(player, money * -1, false);
+}
+
+function addMoney(player_or_id, money) { //Deprecated
+	money.add(player_or_id, money);
+}
+
+function subMoney(player_or_id, money) { //Deprecated
+	money.sub(player_or_id, money);
 }
 
 function money.popUp(player, money, boosted) {
@@ -2692,7 +2398,7 @@ function plot.getLeaderName(plot) {
 
 function plot.getLeaderId(plot) {
 	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT player_id FROM plotranks WHERE plot_id = ? AND rank = ?;");
+	stmt = databank.prepare("SELECT player_id FROM new_plotranks WHERE plot_id = ? AND rank = ?;");
 	databank.setInt(stmt, 1, plot_id);
 	databank.setString(stmt, 2, "leader");
 	result = databank.execute(stmt);
@@ -2715,7 +2421,7 @@ function plot.isMod(plot, player_or_id) {
 function plot.getMods(plot) {
 	list = list.new();
 	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT player_id FROM plotranks WHERE plot_id = ? AND rank = ?;");
+	stmt = databank.prepare("SELECT player_id FROM new_plotranks WHERE plot_id = ? AND rank = ?;");
 	databank.setInt(stmt, 1, plot_id);
 	databank.setString(stmt, 2, "mod");
 	result = databank.execute(stmt);
@@ -2742,7 +2448,7 @@ function plot.setChest(plot, player_or_id) {
 function plot.getChestRanks(plot) {
 	list = list.new();
 	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT player_id FROM plotranks WHERE plot_id = ? AND rank = ?;");
+	stmt = databank.prepare("SELECT player_id FROM new_plotranks WHERE plot_id = ? AND rank = ?;");
 	databank.setInt(stmt, 1, plot_id);
 	databank.setString(stmt, 2, "chest");
 	result = databank.execute(stmt);
@@ -2761,7 +2467,7 @@ function plot.getRank(plot, player_or_id) {
 		player_id = player_or_id;
 	}
 	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT rank FROM plotranks WHERE player_id = ? AND plot_id = ?;");
+	stmt = databank.prepare("SELECT rank FROM new_plotranks WHERE player_id = ? AND plot_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, plot_id);
 	result = databank.execute(stmt);
@@ -2780,7 +2486,7 @@ function plot.setRank(plot, player_or_id, rank) {
 		player_id = player_or_id;
 	}
 	plot_id = plot.getId(plot);
-	stmt = databank.prepare("INSERT INTO plotranks (plot_id, player_id, rank) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rank = ?");
+	stmt = databank.prepare("INSERT INTO new_plotranks (plot_id, player_id, rank) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rank = ?");
 	databank.setInt(stmt, 1, plot_id);
 	databank.setInt(stmt, 2, player_id);
 	databank.setString(stmt, 3, rank);
@@ -2795,14 +2501,14 @@ function plot.removeRank(plot, player_or_id) {
 		player_id = player_or_id;
 	}
 	plot_id = plot.getId(plot);
-	stmt = databank.prepare("DELETE FROM plotranks WHERE player_id = ? AND plot_id = ?;");
+	stmt = databank.prepare("DELETE FROM new_plotranks WHERE player_id = ? AND plot_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, plot_id);
 	databank.workerExecute(stmt);
 }
 
 function plot.transferRanks(old_plot_id, new_plot_id) {
-	stmt = databank.prepare("UPDATE plotranks SET plot_id = ? WHERE plot_id = ?;");
+	stmt = databank.prepare("UPDATE new_plotranks SET plot_id = ? WHERE plot_id = ?;");
 	databank.setInt(stmt, 1, new_plot_id);
 	databank.setInt(stmt, 2, old_plot_id);
 	databank.workerExecute(stmt);
@@ -3267,11 +2973,6 @@ function loc.hasPlotName(location, plot_name) {
 	return false;
 }
 
-function loc.isAir(location) {
-	type = block.getType(location);
-	return type == "minecraft:air" || type == "minecraft:cave_air";
-}
-
 function loc.isInSurvWorld(location) {
 	world_name = world.getName(loc.getWorld(location));
 	if(world_name == "world") {
@@ -3320,7 +3021,11 @@ function living.getAi() {
 }
 
 function living.getHand(living) {
-	return living.getEquip(living, "hand");
+	return living.getEquip(living, read.slot("HAND"));
+}
+
+function living.getOffHand(living) {
+	return living.getEquip(living, read.slot("OFF_HAND"));
 }
 
 //--------------------------------------------------
@@ -4461,16 +4166,4 @@ function hawkeye.undo(list) {
 			block.set(loc, a[5], true);
 		}
 	}
-}
-
-//--------------------------------------------------
-//
-//--------------------------------------------------
-
-function yeet (player, strength){
-	array = entity.getLook(player);
-	x = array[0] * (math.log(strength)+1);
-	y = math.abs(array[1]) * (math.log(strength)+1);
-	z = array[2] * (math.log(strength)+1);
-	entity.throw(player, x, y, z);
 }

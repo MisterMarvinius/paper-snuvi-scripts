@@ -1,44 +1,48 @@
-event.load("entity_mount");
+event.load("entity_dismount");
 event.load("block_click");
 
 sitting = map.new();
 stairs_tag = block.getTag("minecraft:stairs");
-half_property = block.getProperty("half");
 
-msg("dev", "§bSitting §rloaded.");
+msg.string("dev", "§bSitting §rloaded.");
 @wait
 wait();
 ignoreGoto(event);
 goto("wait");
 
-@entity_mount
-if(isPlayer(rider)) {
-	player = rider;
-	if(map.contains(sitting, player)) {
-		entity.remove(map.get(sitting, player));
-		map.remove(sitting, player);
+@entity_dismount
+if(isPlayer(entity)) {
+	player = entity;
+	player_uuid = player.getUuid(player);
+	if(map.contains(sitting, player_uuid)) {
+		entity.remove(map.get(sitting, player_uuid));
+		map.remove(sitting, player_uuid);
 	}
 }
 goto("wait");
 
 @block_click
-if(hand == "OFF_HAND") {
+if(block == null) {
 	goto("wait");
 }
-if(block.hasTag(stairs_tag, block)) {
-	if(action == "left") {
+if(hand == read.slot("OFF_HAND")) {
+	goto("wait");
+}
+if(block.hasTag(block, stairs_tag)) {
+	if(action != "RIGHT_CLICK_BLOCK") {
 		goto("wait");
 	}
-	if(block.property.getValue(block_loc, half_property) != "bottom") {
+	if(block.getBisectedHalf(block) != "BOTTOM") {
 		goto("wait");
 	}
-	if(item.getType(living.getEquip(player, "hand")) != "minecraft:air") {
+	if(item.getType(living.getHand(player)) != material.getAir()) {
 		goto("wait");
 	}
-	if(!loc.isAir(loc.mod(block_loc, 0, 1, 0))) {
+	if(!block.isAir(block.mod(block, 0, 1, 0))) {
 		goto("wait");
 	}
-	if(map.contains(sitting, player)) {
+	player_uuid = player.getUuid(player);
+	if(map.contains(sitting, player_uuid)) {
 		goto("wait");
 	}
 	if(player.hasMinigame(player)) {
@@ -47,8 +51,9 @@ if(block.hasTag(stairs_tag, block)) {
 	if(!player.hasSittingActivated(player)) {
 		goto("wait");
 	}
-	entity = entity.spawn("km:nobody", loc.mod(block_loc, 0.5, 0, 0.5), "{NoGravity:true}");
-	map.add(sitting, player, entity);
+	entity = read.spawnMob(block.getLocation(block), "{Facing:1b,Invisible:1b,Invulnerable:1b,OnGround:0b,Rotation:[0.0f,-90.0f],id:\"minecraft:item_frame\"}");
+	entity.frame.setfixed(entity, true);
+	map.add(sitting, player_uuid, entity);
 	entity.mount(player, entity);
 }
 goto("wait");

@@ -209,7 +209,7 @@ world = loc.getWorld(player_loc);
 if(world.getName(world) != "overworld") {
 	goto("wait");
 }
-item = living.getEquip(player, "hand");
+item = living.getEquip(player, read.slot("HAND"));
 if(item.getType(item) != "minecraft:clock") {
 	goto("wait");
 }

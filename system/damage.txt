@@ -1,7 +1,7 @@
-event.load("animal_tame");
-event.load("living_hurt");
-event.load("living_heal");
-event.load("entity_join");
+event.load("living_tame");
+event.load("entity_damage");
+event.load("entity_heal");
+event.load("entity_spawn");
 
 entities_list = list.new();
 
@@ -19,51 +19,45 @@ set.add(permanent_tamed_name, "skeleton_horse");
 set.add(permanent_tamed_name, "zombie_horse");
 set.add(permanent_tamed_name, "parrot");
 
-msg("dev", "§bDamage §rloaded.");
+msg.string("dev", "§bDamage §rloaded.");
 @wait
 wait();
 ignoreGoto(event);
 goto("wait");
 
-@animal_tame
-if(isLiving(animal) && !isPlayer(animal)) {
+@living_tame
+if(!isPlayer(living_entity)) {
 	if(list.getSize(entities_list) == 0) {
-		sgoto(1, "sgoto_updateEntityName");
+		sgoto(2, "sgoto_updateEntityName");
 	}
-	list.add(entities_list, animal);
+	list.add(entities_list, living_entity);
 }
 goto("wait");
 
-@entity_join
+@entity_spawn
 if(isLiving(entity) && !isPlayer(entity)) {
 	updateEntityName(entity);
 }
 goto("wait");
 
-@living_heal
-cancel = true;
-if(heal_amount <= 0) {
-	goto("wait");
-}
-health = living.getHealth(living_entity);
-if(health <= 0) {
-	goto("wait");
-}
-new_health = health + heal_amount;
-living.setHealth(living_entity, new_health);
-if(isLiving(living_entity) && !isPlayer(living_entity)) {
-	updateEntityName(living_entity);
-}
-goto("wait");
-
-@living_hurt
-if(isPlayer(living_entity) || !isLiving(living_entity)) {
+@entity_heal
+if(isPlayer(entity) || !isLiving(entity)) {
 	goto("wait");
 }
 if(list.getSize(entities_list) == 0) {
-	sgoto(1, "sgoto_updateEntityName");
+	sgoto(2, "sgoto_updateEntityName");
 }
-list.add(entities_list, living_entity);
+list.add(entities_list, entity);
+goto("wait");
+
+@entity_damage
+if(isPlayer(entity) || !isLiving(entity)) {
+	goto("wait");
+}
+if(list.getSize(entities_list) == 0) {
+	sgoto(2, "sgoto_updateEntityName");
+}
+list.add(entities_list, entity);
 goto("wait");
 
 @sgoto_updateEntityName
@@ -74,38 +68,43 @@ while(hasNext(iter)) {
 list.clear(entities_list);
 goto("wait");
 
-function updateEntityName(living_entity) {
-	if(!isLiving(living_entity)) {
+function updateEntityName(entity) {
+	if(!isLiving(entity)) {
 		return;
 	}
+	living_entity = entity;
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "nobody" || entity_type == "armor_stand" || entity_type == "human") {
+	if(entity_type == "armor_stand" || entity_type == "human") {
 		return;
 	}
 
 	entity_name = entity.getName(living_entity);
+	if(entity_name == null) {
+		string_name = null;
+	} else {
+		string_name = string.text(entity_name);
+	}
 	max_health = living.getMaxHealth(living_entity);
-	health = text.number(math.round(living.getHealth(living_entity)));
-	max_health = text.number(math.roundComma(max_health, 1));
+	health = string.number(math.round(living.getHealth(living_entity)));
+	max_health = string.number(math.roundComma(max_health, 1));
 	
-	heart_index = text.indexOf(entity_name, "❤", 0);
+	heart_index = string.indexOf(string_name, "❤", 0);
 	if(heart_index == -1) {
 		//Kein Herz gefunden
-		setEntityName(living_entity, health, max_health, entity_name);
+		setEntityName(living_entity, health, max_health, string_name);
 		return;
 	}
-		
-	next_new_line = text.indexOf(entity_name, "\n", heart_index);
-	if(next_new_line == -1) {
-		//Rechts vom Herz keine New-Line gefunden
+	
+	if(heart_index == 2) {
+		//Links vom Herz kein Name
 		setEntityName(living_entity, health, max_health, null);
 		return;
 	}
-	entity_name = text.subString(entity_name, next_new_line + 1, text.length(entity_name));
-	setEntityName(living_entity, health, max_health, entity_name);
+	string_name = string.subString(string_name, 0, heart_index - 2);
+	setEntityName(living_entity, health, max_health, string_name);
 }
 
-function setEntityName(living_entity, health, max_health, entity_name) {
+function setEntityName(living_entity, health, max_health, string_name) {
 	entity_type = entity.getType(living_entity);
 	permanent = false;
 	if(set.contains($permanent_name, entity_type)) {
@@ -115,9 +114,9 @@ function setEntityName(living_entity, health, max_health, entity_name) {
 			permanent = true;
 		}
 	}
-	if(entity_name == null) {
-		entity.setName(living_entity, concat(health, "/", max_health, " §c❤"), permanent);
+	if(string_name == null) {
+		entity.setName(living_entity, text.new(string.concat("§c❤§r", health)), permanent);
 		return;
 	}
-	entity.setName(living_entity, concat(health, "/", max_health, " §c❤\n", entity_name), permanent);
+	entity.setName(living_entity, text.merge(text.new(string.trim(string_name)), text.new(string.concat(" §c❤§r", health))), permanent);
 }

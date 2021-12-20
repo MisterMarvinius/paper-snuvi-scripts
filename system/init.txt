@@ -32,4 +32,7 @@ table.setsize(".", 2);
 table.setsize("i", 2);
 table.setsize(":", 2);
 
+table.setEmpty1(string.concat(string.fromCode(63502), " "));
+table.setEmpty2(string.concat(string.fromCode(63501), " "));
+
 term();

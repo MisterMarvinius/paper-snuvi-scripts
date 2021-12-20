@@ -1,0 +1,320 @@
+event.load("player_toss");
+event.load("block_click");
+
+par = particle.get("minecraft:witch");
+prefix_money = "§2Money";
+prefix_commands = "§6Commands";
+
+max_ench_lvl = map.new();
+map.add(max_ench_lvl, enchantment.get("efficiency"), 10);
+map.add(max_ench_lvl, enchantment.get("smite"), 10);
+map.add(max_ench_lvl, enchantment.get("bane_of_arthropods"), 10);
+map.add(max_ench_lvl, enchantment.get("loyalty"), 5);
+map.add(max_ench_lvl, enchantment.get("piercing"), 5);
+map.add(max_ench_lvl, enchantment.get("lure"), 5);
+map.add(max_ench_lvl, enchantment.get("luck_of_the_sea"), 5);
+map.add(max_ench_lvl, enchantment.get("riptide"), 5);
+map.add(max_ench_lvl, enchantment.get("unbreaking"), 5);
+map.add(max_ench_lvl, enchantment.get("quick_charge"), 5);
+map.add(max_ench_lvl, enchantment.get("protection"), 5);
+map.add(max_ench_lvl, enchantment.get("fire_protection"), 5);
+map.add(max_ench_lvl, enchantment.get("blast_protection"), 5);
+map.add(max_ench_lvl, enchantment.get("projectile_protection"), 5);
+map.add(max_ench_lvl, enchantment.get("feather_falling"), 5);
+map.add(max_ench_lvl, enchantment.get("respiration"), 5);
+map.add(max_ench_lvl, enchantment.get("thorns"), 5);
+map.add(max_ench_lvl, enchantment.get("depth_strider"), 5);
+map.add(max_ench_lvl, enchantment.get("frost_walker"), 2);
+map.add(max_ench_lvl, enchantment.get("soul_speed"), 3);
+map.add(max_ench_lvl, enchantment.get("sharpness"), 10);
+map.add(max_ench_lvl, enchantment.get("knockback"), 5);
+map.add(max_ench_lvl, enchantment.get("fire_aspect"), 2);
+map.add(max_ench_lvl, enchantment.get("looting"), 5);
+map.add(max_ench_lvl, enchantment.get("sweeping"), 5);
+map.add(max_ench_lvl, enchantment.get("power"), 5);
+map.add(max_ench_lvl, enchantment.get("punch"), 5);
+map.add(max_ench_lvl, enchantment.get("impaling"), 5);
+map.add(max_ench_lvl, enchantment.get("fortune"), 5);
+
+msg("dev", "§bLectern §rloaded.");
+@wait
+wait();
+loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(loc));
+ignoreGoto(event);
+goto("wait");
+
+@player_toss
+target_loc = player.getTarget(player, 5);
+block_type = block.getType(target_loc);
+if(block_type == "minecraft:lectern") {
+	cancel = true;
+	item.entity.spawn(item.entity.new(loc.mod(target_loc, 0.5, 1.5, 0.5), item));
+}
+goto("wait");
+
+@block_click
+if(hand == "OFF_HAND") {
+	goto("wait");
+}
+if(action == "left") {
+	goto("wait");
+}
+if(block_type != "minecraft:lectern") {
+	goto("wait");
+}
+itementity = entity.get(loc.mod(block_loc, 0.5, 0.9, 0.5), 0.2, "net.minecraft.entity.item.ItemEntity");
+if(itementity == null) {
+	goto("wait");
+}
+list = entity.near(itementity, 0.2);
+list.add(list, itementity);
+temp_list = list.new();
+for(i = 0; i < list.getSize(list); i++) {
+	entity = list.getIndex(list, i);
+	if(entity.getType(entity) != "item") {
+		list.add(temp_list, entity);
+	}
+}
+for(i = 0; i < list.getSize(temp_list); i++) {
+	entity = list.getIndex(temp_list, i);
+	list.remove(list, entity);
+}
+if(list.getSize(list) < 2) {
+	msg.prefix(player, prefix_commands, "Too few items on lectern.");
+	goto("wait");
+}
+a = array.new(2, 6); //0 = item, 1 = itementity, 2 = enchantments, 3 = enchanted, 4 = enchanted_book, 5 = book
+size = 0;
+for(i = 0; i < list.getSize(list); i++) {
+	entity = list.getIndex(list, i);
+	item = item.entity.get(entity);
+	size += item.getAmount(item);
+	if(size > 2) {
+		msg.prefix(player, prefix_commands, "Too many items on lectern.");
+		goto("wait");
+	}
+	map = enchantment.readFromItem(item);
+	a[i, 0] = item;
+	a[i, 1] = entity;
+	a[i, 2] = map;
+	a[i, 4] = false;
+	a[i, 5] = false;
+	if(map.getSize(map) > 0) {
+		//Verzauberte Items
+		a[i, 3] = true;
+		if(item.getType(item) == "minecraft:enchanted_book") {
+			a[i, 4] = true;
+		}
+	} else {
+		//Nicht verzauberte Items
+		a[i, 3] = false;
+		if(item.getType(item) == "minecraft:book") {
+			a[i, 5] = true;
+		}
+	}
+}
+lectern_action = null;
+if(a[0, 4] == true && a[1, 4] == true) {
+	//Beide Items sind verzauberte Bücher
+	lectern_action = 0;
+}
+elseif(a[0, 5] == true || a[1, 5] == true) {
+	//Eines der beiden Items ist ein normales Buch
+	if(a[0, 4] == true || a[1, 4] == true) {
+		//Eines der beiden Items ist ein verzaubertes Buch
+		lectern_action = 1;
+	} elseif(a[0, 3] == true || a[1, 3] == true) {
+		//Eines der beiden Items ist ein verzaubertes Item
+		lectern_action = 2;
+	}
+}
+elseif(a[0, 4] == true || a[1, 4] == true) {
+	lectern_action = 3;
+}
+if(lectern_action == null) {
+	goto("wait");
+}
+
+if(lectern_action == 0) {
+	//Verzauberungsbücher mergen
+	item1 = a[0, 0];
+	item_entity1 = a[0, 1];
+	item_entity2 = a[1, 1];
+	map1 = a[0, 2];
+	map2 = a[1, 2];
+	map_size1 = map.getSize(map1);
+	map_size2 = map.getSize(map2);
+	iter = map.iterator(map2);
+	betrag = 0;
+	extra = 0;
+	while(hasNext(iter)) {
+		element = next(iter);
+		key = map.getKey(element);
+		level1 = map.getValue(element);
+		level2 = map.getOrDefault(map1, key, 0);
+		if(level1 == level2) {
+			max_lvl = map.get(max_ench_lvl, key);
+			//max_lvl = map.getOrDefault(max_ench_lvl, key, enchantment.getMaxLevel(key));
+			if(max_lvl == null) {
+				msg.prefix(player, prefix_commands, "Unknown enchantment.");
+				goto("wait");
+			}
+			if(level1 >= max_lvl) {
+				msg.prefix(player, prefix_commands, "Maximum level already reached.");
+				goto("wait");
+			}
+			extra += 200;
+			level1++;
+		}
+		if(level2 > level1) {
+			level1 = level2;
+		}
+		map.add(map1, key, level1);
+	}
+	if(map_size1 > map_size2) {
+		map = map1;
+	} else {
+		map = map2;
+	}
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		level = map.getValue(element);
+		betrag += level * 100 + extra;
+	}
+	
+	if(!world.isCreativeName(world_name)) {
+		if(!hasEnoughMoney(player.getId(player), betrag)) {
+			msg.prefix(player, prefix_money, concat("Not enough snuvis in inventory. This action costs ", text.number(betrag), " snuvis."));
+			goto("wait");
+		}
+		subMoney(player, betrag);
+	}
+	
+	enchantment.writeToItem(map1, item1);
+	item.entity.set(item_entity1, item.clone(item1));
+	entity.remove(item_entity2);
+} elseif(lectern_action == 1) {
+	//Verzauberungsbuch kopieren
+	if(a[0, 5]) {
+		book_index = 0;
+		other_index = 1;
+	} else {
+		book_index = 1;
+		other_index = 0;
+	}
+	item1 = a[book_index, 0];
+	item_entity1 = a[book_index, 1];
+	item2 = a[other_index, 0];
+	item_entity2 = a[other_index, 1];
+	map2 = a[other_index, 2];
+	
+	map_size = map.getSize(map2);
+	betrag = 100 * map_size;
+	if(!world.isCreativeName(world_name)) {
+		if(!hasEnoughMoney(player.getId(player), betrag)) {
+			msg.prefix(player, prefix_money, concat("Not enough snuvis on your account. This action costs ", text.number(betrag), " snuvis."));
+			goto("wait");
+		}
+		subMoney(player, betrag);
+	}
+	
+	item1 = read.item("minecraft:enchanted_book");
+	enchantment.writeToItem(map2, item1);
+	item.entity.set(item_entity1, item1);
+	item.entity.set(item_entity2, item.clone(item2));
+} elseif(lectern_action == 2) {
+	//Einzelne Verzauberung herunterziehen
+	if(a[0, 5]) {
+		book_index = 0;
+		other_index = 1;
+	} else {
+		book_index = 1;
+		other_index = 0;
+	}
+	item_entity1 = a[book_index, 1];
+	map1 = map.new();
+	item2 = a[other_index, 0];
+	item_entity2 = a[other_index, 1];
+	map2 = a[other_index, 2];
+
+	item1 = read.item("minecraft:enchanted_book");
+	element = next(map.iterator(map2));
+	key = map.getKey(element);
+	value = map.getValue(element);
+	map.add(map1, key, value);
+	map.remove(map2, key);
+	
+	betrag = 100 * value;
+	if(!world.isCreativeName(world_name)) {
+		if(!hasEnoughMoney(player.getId(player), betrag)) {
+			msg.prefix(player, prefix_money, concat("Not enough snuvis in your ccount. This action costs ", text.number(betrag), " snuvis."));
+			goto("wait");
+		}
+		subMoney(player, betrag);
+	}
+	
+	enchantment.writeToItem(map1, item1);
+	enchantment.writeToItem(map2, item2);
+	item.entity.set(item_entity1, item1);
+	item.entity.set(item_entity2, item.clone(item2));
+} elseif(lectern_action == 3) {
+	//Alle Verzauberungen vom Buch auf das Item übertragen
+	betrag = 0;
+	if(a[0, 4]) {
+		ench_book_index = 0;
+		other_index = 1;
+	} else {
+		ench_book_index = 1;
+		other_index = 0;
+	}
+	item1 = a[ench_book_index, 0];
+	item_entity1 = a[ench_book_index, 1];
+	map1 = a[ench_book_index, 2];
+	item2 = a[other_index, 0];
+	item_entity2 = a[other_index, 1];
+	map2 = a[other_index, 2];
+	map_size1 = map.getSize(map1);
+	map_size2 = map.getSize(map2);
+	
+	iter = map.iterator(map1);
+	while(hasNext(iter)) {
+		element = next(iter);
+		key = map.getKey(element);
+		value = map.getValue(element);
+		value2 = map.getOrDefault(map2, key, 0);
+		if(value2 > value) {
+			value = value2;
+		}
+		map.add(map2, key, value);
+	}
+	
+	if(map_size1 > map_size2) {
+		map = map1;
+	} else {
+		map = map2;
+	}
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		level = map.getValue(element);
+		betrag += level * 100;
+	}
+	if(!world.isCreativeName(world_name)) {
+		if(!hasEnoughMoney(player.getId(player), betrag)) {
+			msg.prefix(player, prefix_money, concat("Not enough snuvis on your account. This action costs ", text.number(betrag), " snuvis."));
+			goto("wait");
+		}
+		subMoney(player, betrag);
+	}
+	
+	enchantment.writeToItem(map2, item2);
+	item.entity.set(item_entity2, item.clone(item2));
+	entity.remove(item_entity1);
+}
+entity.throw(item_entity1, 0, 0.3, 0);
+entity.throw(item_entity2, 0, 0.3, 0);
+particle.spawn(loc.mod(block_loc, 0.5, 1.4, 0.5), par, 20, 0, 0.25, 0.25, 0.25);
+msg.prefix(player, prefix_money, concat("This cost " , text.number(betrag), " snuvis."));
+goto("wait");
