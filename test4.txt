@@ -1,35 +1,7 @@
 p = read.player("kajetanjohannes");
-
-e = player.getTargetEntity(p, 6);
-
-if(e == null) {
-    sb.clear(p);
-    text = "";
-    for(i = 1; i < 13; i++) {
-        text = string.concat(text, string.fromCode(63488 + i));
-    }
-    sb.add("online", 1, text);
-    
-    fh = string.fromCode(63488 + 10);
-    hh = string.fromCode(63488 + 11);
-    eh = string.fromCode(63488 + 12);
-    m1 = string.fromCode(63488 + 13);
-    sb.add("online", 2, string.concat(fh, m1, fh, m1, fh, m1, hh, m1, eh));
-    
-    fb = string.fromCode(63488 + 22);
-    hb = string.fromCode(63488 + 23);
-    eb = string.fromCode(63488 + 24);
-    sb.add("online", 3, string.concat("§0", string.fromCode(63488 + 13), "X", fb, m1, hb, m1, eb, "§1", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 4, string.concat("§2", string.fromCode(63488 + 14), "X", fb, m1, hb, m1, eb, "§3", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 5, string.concat("§4", string.fromCode(63488 + 15), "X", fb, m1, hb, m1, eb, "§5", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 6, string.concat("§6", string.fromCode(63488 + 16), "X", fb, m1, hb, m1, eb, "§7", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 7, string.concat("§8", string.fromCode(63488 + 17), "X", fb, m1, hb, m1, eb, "§9", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 8, string.concat("§a", string.fromCode(63488 + 18), "X", fb, m1, hb, m1, eb, "§b", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 9, string.concat("§c", string.fromCode(63488 + 19), "X", fb, m1, hb, m1, eb, "§d", "X", fb, m1, hb, m1, eb));
-    sb.add("online", 10, string.concat("§e", string.fromCode(63488 + 20), "X", fb, m1, hb, m1, eb, "§f", "X", fb, m1, hb, m1, eb));
-    
+block = player.getTargetBlock(p, 5);
+if(block == null) {
     term();
 }
-
-w = string.fromCode(63497);
-entity.setName(e, text.new(string.concat("Wusi", w, "Gusi2")));
+loc = block.getLocation(block);
+plot.addBlock(loc);

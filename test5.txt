@@ -1,0 +1,35 @@
+term();
+function getNewId(old_id) {
+	stmt = databank.prepare("SELECT id FROM forgeplayers WHERE old_id = ?");
+	databank.setInt(stmt, 1, old_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		new_id = databank.getInt(result, 1);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return new_id;
+}
+
+function updatePlaytime(old_id) {
+	new_id = getNewId(old_id);
+	if(new_id == null) {
+		return;
+	}
+	stmt1 = databank.prepare("UPDATE playtime SET player_id = ? WHERE player_id = ?");
+	databank.setInt(stmt1, 1, new_id);
+	databank.setInt(stmt1, 2, old_id);
+	databank.workerExecute(stmt1);
+}
+
+stmt = databank.prepare("SELECT player_id FROM playtime");
+result = databank.execute(stmt);
+while(databank.next(result)) {
+	id1 = databank.getInt(result, 1);
+	updatePlaytime(id1);
+}
+databank.close(result);
+databank.close(stmt);
+
+wait();
+msg("dev", text.new("Done"));

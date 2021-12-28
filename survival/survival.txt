@@ -1,22 +1,19 @@
-event.load("entity_click");
-event.load("container_click");
-event.load("inv_click");
+//event.load("entity_click");
+//event.load("inv_click");
+//event.load("snuvi_click");
 event.load("player_pre_respawn");
 event.load("player_post_respawn");
-event.load("player_login");
-event.load("player_move");
-event.load("block_break");
-event.load("block_click");
-event.load("living_death");
-event.load("living_pre_hurt");
-event.load("pre_explosion");
-event.load("mob_griefing");
-event.load("item_air_click");
-event.load("projectile_hit");
-event.load("ender_teleport");
+//event.load("player_join");
+//event.load("player_move");
+//event.load("block_break");
+//event.load("block_click");
+//event.load("living_death");
+event.load("entity_damage");
+event.load("explosion");
+//event.load("projectile_hit");
 
 setScriptVar("skills", list.new());
-skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true);
+/*skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true);
 skill.add("Comeback", "skill.comeback", "km:skill55", "Respawn at your death location", 100, false, false, true);
 skill.add("Head Hunter", "skill.head_human", "minecraft:player_head", "Drops a player's head with a 20% chance if you kill a player (5% if a staff member is killed)", 1000, true, false, false);
 skill.add("Mobheads", "skill.head_monster", "minecraft:zombie_head", "Drops a mobs's head with a 20% chance (zombie / skeleton / creeper)", 500, true, false, false);
@@ -32,7 +29,7 @@ skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees wit
 skill.add("Fire Arrow", "skill.fire_arrow", "minecraft:arrow", "For a minute with an flame enchanted bow your arrows ignite hit blocks", 50, false, true, false);
 skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 500, true, false, true);
 skill.add("Cobweb Miner", "skill.cobweb_miner", "minecraft:cobweb", "Swords increase the radius for destruction of cobwebs", 250, true, false, true);
-
+*/
 clan.loadData();
 
 tp_list = list.new();
@@ -69,45 +66,44 @@ gambler_loc = loc.new(overworld, 185, 68, 225);
 prefix_money = "§2Money";
 prefix_skill = "§2Skill";
 
-sword_tag = item.getTag("km:sword");
-dye_tag = item.getTag("km:dye");
+//sword_tag = item.getTag("km:sword");
+//dye_tag = item.getTag("km:dye");
 leaves_tag = block.getTag("minecraft:leaves");
 sign_tag = block.getTag("minecraft:signs");
-prop_persistent = block.getProperty("persistent");
+//prop_persistent = block.getProperty("persistent");
 
 ench_flame = enchantment.get("flame");
 ench_unbreaking = enchantment.get("unbreaking");
 ench_sharpness = enchantment.get("sharpness");
-piston_sound = sound.get("block.piston.extend");
-adv_tp_sound = sound.get("block.portal.travel");
-sound_category_ambient = sound.getCategory("ambient");
+piston_sound = sound.get("BLOCK_PISTON_EXTEND");
+adv_tp_sound = sound.get("BLOCK_PORTAL_TRAVEL");
+sound_category_ambient = sound.getCategory("AMBIENT");
 
-sound_category_master = sound.getCategory("master");
-sound_flute = sound.get("block.note_block.flute");
-sound_harp = sound.get("block.note_block.harp");
-sound_pling = sound.get("block.note_block.pling");
-sound_cat = sound.get("entity.cat.ambient");
-sound_stray_cat = sound.get("entity.cat.stray_ambient");
-sound_purreow = sound.get("entity.cat.purreow");
-sound_drink_milk = sound.get("entity.wandering_trader.drink_milk");
-sound_slime_place = sound.get("block.slime_block.place");
-sound_eating = sound.get("entity.generic.eat");
+sound_category_master = sound.getCategory("MASTER");
+sound_flute = sound.get("BLOCK_NOTE_BLOCK_FLUTE");
+sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
+sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
+sound_cat = sound.get("ENTITY_CAT_AMBIENT");
+sound_stray_cat = sound.get("ENTITY_CAT_STRAY_AMBIENT");
+sound_purreow = sound.get("ENTITY_CAT_PURREOW");
+sound_drink_milk = sound.get("ENTITY_WANDERING_TRADER_DRINK_MILK");
+sound_slime_place = sound.get("BLOCK_SLIME_BLOCK_PLACE");
+sound_eating = sound.get("ENTITY_GENERIC_EAT");
 
-music_chirp = sound.get("music_disc.chirp");
+music_chirp = sound.get("MUSIC_DISC_CHIRP");
 
 Sound_Pitch_List = list.new();
 for(a = -12; a <= 12; a++){
 	list.add(Sound_Pitch_List, math.pow(2, -a / 12));
 }
 
-gambler_inv = inv.new("020202020");
+/*gambler_inv = inv.new("020202020");
 gambler_inv_id = inv.getId(gambler_inv);
 inv.setItem(gambler_inv, 0, read.item("km:coin_copper", 1, "§f1 snuvi"));
 inv.setItem(gambler_inv, 1, read.item("km:coin_silver", 1, "§f64 snuvis"));
 inv.setItem(gambler_inv, 2, read.item("km:coin_gold", 1, "§f4096 snuvis"));
 inv.setItem(gambler_inv, 3, read.item("minecraft:netherite_block", 1, "§fAll in"));
 
-//bankmenu = inv.new("233302332233302332");
 bankmenu = inv.new("233330000233330000000000000233200000233200000");
 //bankmenu = inv.new("233330000 233330000 000000000 233200000 233200000");
 bankinvid = inv.getId(bankmenu);
@@ -136,9 +132,9 @@ inv.setItem(bankmenu, 13, read.item("km:coin_silver", 1, "§f64 snuvis"));
 inv.setItem(bankmenu, 14, read.item("km:coin_silver", 64, "§f4096 snuvis"));
 inv.setItem(bankmenu, 15, arrow_left);
 inv.setItem(bankmenu, 16, arrow_right);
-inv.setItem(bankmenu, 17, read.item("km:coin_gold", 1, "§f4096 snuvis"));
+inv.setItem(bankmenu, 17, read.item("km:coin_gold", 1, "§f4096 snuvis"));*/
 
-msg("dev", "§bSurvival §rloaded.");
+msg.string("dev", "§bSurvival §rloaded.");
 @wait
 wait();
 if(event == "player_move") {
@@ -165,16 +161,9 @@ if(event == "player_move") {
 	goto("wait");
 }
 //Wenn Event aus Survival-Welten, dann wird er verarbeitet
-if(event == "living_death" || event == "living_pre_hurt") {
+if(event == "living_death") {
 	loc = entity.getLocation(living_entity);
-} elseif(event == "ender_teleport") {
-	loc = location;
-} elseif(event == "pre_explosion") {
-	loc = location;
-} elseif(event == "mob_griefing") {
-	if(entity == null) {
-		goto("wait");
-	}
+} elseif(event == "explosion" || event == "entity_damage") {
 	loc = entity.getLocation(entity);
 } else {
 	loc = entity.getLocation(player);
@@ -185,80 +174,34 @@ if(world.isSurvName(world_name)) {
 }
 goto("wait");
 
-@ender_teleport
-if(!isPlayer(living_entity)) {
-	goto("wait");
-}
-player = living_entity;
-if(player.isOnAdventure(player)) {
-	cancel = true;
-	msg.prefix(player, "§5Adventure", "Using Enderpearls during adventures? Nope!");
-	goto("wait");
-}
-//Verhindert während eines (Abenteuer-)Teleports, die Benutzung der Enderperle
-player_uuid = player.getUuid(player);
-if(set.contains(tp_set, player_uuid)) {
-	cancel = true;
-	msg.prefix(player, "§5Adventure", "Using Enderpearls during adventures? Nope!");
-}
-goto("wait");
-
-@item_air_click
-player_loc = entity.getLocation(player);
-world = loc.getWorld(player_loc);
-if(world.getName(world) != "overworld") {
-	goto("wait");
-}
-item = living.getEquip(player, read.slot("HAND"));
-if(item.getType(item) != "minecraft:clock") {
-	goto("wait");
-}
-time = world.getTime(world);
-time_h = math.roundDown(time/1000) + 6;
-while(time_h >= 24) {
-	time_h -= 24;
-}
-//m min = t ticks * 60m / 1000 ticks
-time_m = time%1000;
-time_m = math.roundDown(time_m * 60 / 1000);
-if(time_m < 10) {
-	time_m = concat("0", text.number(time_m));
-} else {
-	time_m = text.number(time_m);
-}
-msg.prefix(player, "§eClock", concat(text.number(time_h), ":", time_m));
-goto("wait");
-
-@mob_griefing
-if(entity.getType(entity) == "enderman") {
-	cancel = true;
-}
-goto("wait");
-
-@pre_explosion
-plot_list = plot.get(location);
-for(i = 0; i < list.getSize(plot_list); i++) {
+@explosion
+plot_list = plot.get(loc);
+plot_amount = list.getSize(plot_list);
+for(i = 0; i < plot_amount; i++) {
 	plot = list.getIndex(plot_list, i);
 	if(plot.isExplosive(plot)) {
 		cancel = false;
+	} else {
+		cancel = true;
+		break;
 	}
 }
 //Kein Grundstück existiert
-if(i == 0) {
+if(plot_amount == 0) {
 	cancel = false;
 }
 goto("wait");
 
-@living_pre_hurt
-if(!isPlayer(living_entity)) {
+@entity_damage
+if(!isPlayer(entity)) {
 	damager = player.getFromDamageSource(damage_source);
 	if(!isPlayer(damager)) {
 		goto("wait");
 	}
-	pet_type = entity.getType(living_entity);
+	pet_type = entity.getType(entity);
 	if(pet_type == "wolf" || pet_type == "cat" || pet_type == "parrot" || pet_type == "horse") {
-		if(pet.isTamed(living_entity)) {
-			owner_uuid = pet.getOwner(living_entity);
+		if(pet.isTamed(entity)) {
+			owner_uuid = pet.getOwner(entity);
 			if(owner_uuid == player.getUuid(damager)) {
 				if(player.getNoPetDamage(damager)) {
 					cancel = true;
@@ -268,13 +211,9 @@ if(!isPlayer(living_entity)) {
 	}
 	goto("wait");
 }
-player = living_entity;
+player = entity;
 damager = player.getFromDamageSource(damage_source);
-if(!isPlayer(damager)) {
-	player_loc = entity.getLocation(player);
-	if(loc.hasPlotId(player_loc, 128) && damage.getType(damage_source) == "fall") {
-		cancel = true;
-	}
+if(damager == null) {
 	goto("wait");
 }
 if(player == damager) {
@@ -287,7 +226,7 @@ if(!hasPvpOn(damager)) {
 }
 if(!hasPvpOn(player)) {
 	cancel = true;
-	msg.prefix(damager, "§5PvP", concat(player.getName(player), " has PvP disabled."));
+	msg.prefix(damager, "§5PvP", string.concat(player.getName(player), " has PvP disabled."));
 	goto("wait");
 }
 goto("wait");
@@ -365,7 +304,7 @@ if(entity.getType(entity) == "human") {
 		item_name = item.getName(item);
 		if(removeFormat(item_name) == "Beer") {
 			msg.prefix(player, "§cMentorMentos", "Folg mir auf Twitch! ");
-			msg(player, text.link("Klick mich an :D","https://www.twitch.tv/Mentor_Mentos"));
+			msg(player, string.getLinkText("Klick mich an :D","https://www.twitch.tv/Mentor_Mentos"));
 		}
 		else{
 			msg.prefix(player, "§cMentorMentos", "Ich mag Kölsch.");
@@ -439,18 +378,18 @@ if(entity.getType(entity) == "human") {
 	
 	if(entity_name == "Info-Point") {
 		msg(player, string.getSpacer());
-		msg(player, text.click("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
-		msg(player, text.click("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
-		msg(player, text.click("§r [§cclick§r] [§ePlots§r]", "/infopoint3"));
-		msg(player, text.click("§r [§cclick§r] [§eClans§r]", "/infopoint4"));
-		msg(player, text.click("§r [§cclick§r] [§eCities§r]", "/infopoint5"));
-		msg(player, text.click("§r [§cclick§r] [§eShops§r]", "/infopoint6"));
-		msg(player, text.click("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), " ", text.click("§f[§bTeleport§f]", "/games"));
-		msg(player, text.click("§r [§cclick§r] [§eQuests§r]", "/infopoint8"), " ", text.click("§f[§bTeleport§f]", "/story"));
-		msg(player, text.click("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), " ", text.click("§f[§bTeleport§f]", "/creative"));
-		msg(player, text.click("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", text.link("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
-		msg(player, text.click("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", text.link("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
-		msg(player, text.click("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
+		msg(player, string.getClickText("§r [§cclick§r] [§ePlots§r]", "/infopoint3"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eClans§r]", "/infopoint4"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eCities§r]", "/infopoint5"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eShops§r]", "/infopoint6"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), " ", string.getClickText("§f[§bTeleport§f]", "/games"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"), " ", string.getClickText("§f[§bTeleport§f]", "/story"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), " ", string.getClickText("§f[§bTeleport§f]", "/creative"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", string.getLinkText("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", string.getLinkText("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
 		goto("wait");
 	}
 	if(entity_name == "Banker") {
@@ -484,13 +423,13 @@ if(entity.getType(entity) == "human") {
 }
 goto("wait");
 
-@player_login
+@player_join
 if(player.isOnAdventure(player)) {
 	addAdventureDisplay(player, adventure_aim_loc);
 }
 goto("wait");
 
-@container_click
+@inv_click
 //Verhindert während eines (Abenteuer-)Teleports, die Benutzung des Spielerinventars (inkl. Crafting-Bereich!)
 player_uuid = player.getUuid(player);
 if(set.contains(tp_set, player_uuid)) {
@@ -498,7 +437,7 @@ if(set.contains(tp_set, player_uuid)) {
 }
 goto("wait");
 
-@inv_click
+@snuvi_click
 if(inv_id == bankinvid) { //Bankmenü
 	factor = 1;
 	if(click_type == "QUICK_MOVE") {
@@ -664,9 +603,9 @@ if(inv_id == gambler_inv_id) {
 		temp = " lost ";
 	}
 	if(amount == 1) {
-		message = concat(player.getName(player), temp, text.number(amount), " snuvi.");
+		message = string.concat(player.getName(player), temp, text.number(amount), " snuvi.");
 	} else {
-		message = concat(player.getName(player), temp, text.number(amount), " snuvis.");
+		message = string.concat(player.getName(player), temp, text.number(amount), " snuvis.");
 	}
 	if(amount < 64) {
 		msg.prefix(player, "§2Gambler", message);
@@ -680,6 +619,9 @@ if(inv_id == gambler_inv_id) {
 goto("wait");
 
 @projectile_hit
+if(shooter == null) {
+	goto("wait");
+}
 if(!isPlayer(shooter)) {
 	goto("wait");
 }
@@ -858,7 +800,33 @@ function shear_cobweb(block_loc, original_block_type, player, unbreaking_level) 
 }
 
 @block_click
-if(action == "right" && player.checkHandsForTag(player, dye_tag)) {
+if(action == "RIGHT_CLICK_AIR") {
+	player_loc = entity.getLocation(player);
+	world = loc.getWorld(player_loc);
+	if(world.getName(world) != "overworld") {
+		goto("wait");
+	}
+	item = living.getEquip(player, read.slot("HAND"));
+	if(item.getType(item) != "minecraft:clock") {
+		goto("wait");
+	}
+	time = world.getTime(world);
+	time_h = math.roundDown(time/1000) + 6;
+	while(time_h >= 24) {
+		time_h -= 24;
+	}
+	//m min = t ticks * 60m / 1000 ticks
+	time_m = time%1000;
+	time_m = math.roundDown(time_m * 60 / 1000);
+	if(time_m < 10) {
+		time_m = string.concat("0", text.number(time_m));
+	} else {
+		time_m = text.number(time_m);
+	}
+	msg.prefix(player, "§eClock", string.concat(text.number(time_h), ":", time_m));
+	goto("wait");
+}
+if(action == "RIGHT_CLICK_BLOCK" && player.checkHandsForTag(player, dye_tag)) {
 	/*if(block.hasTag(sign_tag, block)) {
 		if(!perm.has(player, "plot.bypass")) {
 			if(!plot.check(block_loc, player, 3, true)) {
@@ -994,7 +962,7 @@ if(block_loc == lottery_loc_1 || block_loc == lottery_loc_2) {
 	if(win == 1) {
 		addMoney(player, amount);
 		lottery.set(block_loc, 0);
-		message = concat(player.getName(player), " has won ", text.number(amount), " snuvis.");
+		message = string.concat(player.getName(player), " has won ", text.number(amount), " snuvis.");
 		msg.radius(prefix_money, message, block_loc, 50);
 	}
 	goto("wait");
@@ -1010,7 +978,7 @@ if(isPlayer(living_entity)) {
 	if(skill.isActivated(player, "skill.subcu_inv") && amount > 0) {
 		new_amount = amount - 1;
 		skill.setAmount(player, "skill.subcu_inv", new_amount);
-		msg.prefix(player, prefix_skill, concat("Used Subcutaneous Inventory. New amount: ", text.number(new_amount)));
+		msg.prefix(player, prefix_skill, string.concat("Used Subcutaneous Inventory. New amount: ", text.number(new_amount)));
 	} else {
 		player.dropInventory(player, loc);
 	}
@@ -1073,7 +1041,7 @@ if(set.contains(survival_respawn, player_uuid)) {
 	if(skill.isActivated(player, "skill.comeback") && amount > 0) {
 		new_amount = amount - 1;
 		skill.setAmount(player, "skill.comeback", new_amount);
-		msg.prefix(player, prefix_skill, concat("Used Comeback. New amount: ", text.number(new_amount)));
+		msg.prefix(player, prefix_skill, string.concat("Used Comeback. New amount: ", text.number(new_amount)));
 		entity.teleport(player, getDeathLoc(player));
 		goto("wait");
 	}
@@ -1117,37 +1085,37 @@ if(adventure) {
 			p_name = player.getName(p);
 			p_loc = entity.getLocation(p);
 			if(!loc.isSameWorld(adventure_chest_loc, p_loc)) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c is in another world."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c is in another world."));
 				msg.prefix(p, "§5Party", "§cYou are in another world.");
 				continue;
 			}
 			if(loc.distance(adventure_chest_loc, p_loc) > 5) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c is too far away."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c is too far away."));
 				msg.prefix(p, "§5Party", "§cYou are too far away.");
 				continue;
 			}
 			if(player.hasMinigame(p)) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c is in a game."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c is in a game."));
 				msg.prefix(p, "§5Party", "§cYou are in a game.");
 				continue;
 			}
 			if(player.hasQuest2(p)) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c is doing a quest."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c is doing a quest."));
 				msg.prefix(p, "§5Party", "§cYou are doing a quest.");
 				continue;
 			}
 			if(player.isOnAdventure(p)) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c is already on an adventure."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c is already on an adventure."));
 				msg.prefix(p, "§5Party", "§cYou are already on an adventure.");
 				continue;
 			}
 			if(player.isAfk(p)) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c is afk."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c is afk."));
 				msg.prefix(p, "§5Party", "§cYou are afk.");
 				continue;
 			}
 			if(!player.hasClearInventory(p)) {
-				msg.prefix(player, "§5Party", concat(p_name, "§c has no clear inventory."));
+				msg.prefix(player, "§5Party", string.concat(p_name, "§c has no clear inventory."));
 				msg.prefix(p, "§5Party", "§cYou have no clear inventory.");
 				continue;
 			}
@@ -1188,7 +1156,7 @@ function lottery.set(location, amount) {
 		snuvi.debug("Lottery error");
 		return;
 	}
-	entity.setName(text_entity, concat("Snuvis to win: ", text.number(amount)), true);
+	entity.setName(text_entity, string.concat("Snuvis to win: ", text.number(amount)), true);
 }
 
 function lottery.add(location, amount) {
@@ -1201,7 +1169,7 @@ function lottery.add(location, amount) {
 		return null;
 	}
 	amount = text.convert(text.subString(name, 15, text.length(name))) + 1;
-	entity.setName(text_entity, concat("Snuvis to win: ", text.number(amount)), true);
+	entity.setName(text_entity, string.concat("Snuvis to win: ", text.number(amount)), true);
 	return amount;
 }
 

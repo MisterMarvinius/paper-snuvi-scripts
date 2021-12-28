@@ -39,7 +39,7 @@ factor = 1;
 if(click == "SHIFT_LEFT") {
 	factor = 8;
 }
-adminshop = isAdminShop(sign_loc);
+adminshop = isAdminShop(block.get(sign_loc));
 buy_price = shop.getBuyPrice(inv) * factor;
 sell_price = shop.getSellPrice(inv) * factor;
 chestloc1 = loc.mod(sign_loc, 0, -1, 0);

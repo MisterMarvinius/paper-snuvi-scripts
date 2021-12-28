@@ -1,7 +1,6 @@
-list = list.new();
-setScriptVar("scheduler_list", list);
+list = scheduler.getList();
 
-msg("dev", "§bScheduler §rloaded.");
+msg.string("dev", "§bScheduler §rloaded.");
 @loop
 iter = list.iterator(list);
 while(hasNext(iter)) {
@@ -29,12 +28,12 @@ while(hasNext(iter)) {
 			message = a[3];
 			msg(player, message);
 		}
-		//SetBlock
+		//SetBlockMaterial
 		if(action == 3) {
-			location = a[2];
-			item_string = a[3];
+			block = a[2];
+			material = a[3];
 			block_update = a[4];
-			block.set(location, item_string, block_update);
+			block.setMaterial(block, material, block_update);
 		}
 		//QuestFinish
 		if(action == 4) {
@@ -69,8 +68,7 @@ while(hasNext(iter)) {
 		if(action == 9) {
 			player = a[2];
 			item = a[3];
-			boolean = a[4];
-			player.giveSingleItem(player, item, boolean);
+			player.giveSingleItem(player, item);
 		}
 		remove(iter);
 	}

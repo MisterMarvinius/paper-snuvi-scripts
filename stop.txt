@@ -1,0 +1,36 @@
+event.load("player_join");
+
+sgoto(400, "announce");
+msg("online", text.new("§4The server will restart soon!!!"));
+
+@wait
+wait();
+if(event == "player_join") {
+	ban.kick(player, text.new("Serverneustart"));
+}
+goto("wait");
+
+@announce
+msg("online", text.new("§4The server will restart now and will be up again in 30 seconds!!!"));
+sgoto(200, "stop");
+goto("wait");
+
+@stop
+online_list = players.toList();
+if(list.getSize(online_list) == 0) {
+	sgoto(100, "final_stop");
+	goto("wait");
+}
+p = list.getIndex(online_list, 0);
+list.removeIndex(online_list, 0);
+ban.kick(p, text.new("Serverneustart"));
+sgoto(20, "stop");
+goto("wait");
+
+@final_stop
+//command("stop");
+goto("wait");
+
+@on_error
+msg("dev", text.new("stop script termed"));
+term();

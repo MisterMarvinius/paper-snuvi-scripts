@@ -89,25 +89,18 @@ if(event == "living_death") {
 }
 player_name = player.getName(player);
 nickname = player.getNickname(player);
-player_id = player.getId(player);
-//Wenn der Spieler keinen Nicknamen hat, werden die personalisierten Nachrichten geschickt, falls solche vorhanden sind
-if(string.removeFormat(nickname) == player_name) {
-	send_personally_messages = true;
-} else {
-	send_personally_messages = false;
-}
 fullname = player.getFullName(player);
 ignoreGoto(event);
 goto("wait");
 
 @player_join
-first_join = player.isFirstJoin(player_id);
+first_join = player.isFirstJoin(player);
 if(first_join) {
 	entity.teleport(player, serverspawn);
 	msg.string("online", string.getSpacer());
 	msg.string("online", string.concat(" §d§k# §eWelcome to our sick world §b", player_name, " §e!!! §d§k#"));
 	msg.string("online", string.getSpacer());
-	player.setFirstJoin(player_id, true);
+	player.setFirstJoin(player, true);
 }
 player.setHeadName(player);
 silentjoin = player.getSilentJoin(player);
@@ -115,7 +108,7 @@ if(silentjoin) {
 	message = null;
 } else {
 	own_message = player.getJoinMessage(player);
-	if(own_message == null || !send_personally_messages) {
+	if(own_message == null || player.isNicked(player)) {
 		message = text.new(string.concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1))));
 	} else {
 		message = text.new(string.concat("§a§l> §r", fullname, " §9", own_message));
@@ -123,24 +116,13 @@ if(silentjoin) {
 }
 player_loc = entity.getLocation(player);
 //Inventory
-//inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
-//Keks geben, wenn man als einziger Spieler auf den Server joint und im Survival-Mode ist und der letzte Keks vor 5 Minuten vergeben wurde
-if(players.getAmount() == 1) {
-	if(!loc.isInGamesWorld(player_loc)) {
-		if(player.isSurvival(player)) {
-			now_time = time.getMillis();
-			if(now_time - cookie_time > 300000) {
-				cookie_time = now_time;
-				msg.string(player, "§dHere is a cookie for you :D");
-				player.safeGiveItem(player, cookie);
-			}
-		}
-	}
-}
+inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
+giveCookie(player);
 player.setTabName(player);
-//player.greet(player);
+player.greet(player);
+sb.setTitle(player, text.new("§0~ §fMundus Crassus §0~"));
 rank.offerTimeScheduled(player);
-//displayMoney(player, getMoney(player));
+money.display(player, getMoney(player));
 if(perm.has("isDev", player)) {
 	error_size = error.getSize();
 	if(error_size > 0) {
@@ -149,14 +131,29 @@ if(perm.has("isDev", player)) {
 }
 goto("wait");
 
+function giveCookie(player) {
+	if(players.getAmount() != 1) {
+		return;
+	}
+	if(!player.isSurvival(player)) {
+		return;
+	}
+	now_time = time.getMillis();
+	if(now_time - $cookie_time > 300000) {
+		$cookie_time = now_time;
+		msg.string(player, "§dHere is a cookie for you :D");
+		player.safeGiveItem(player, $cookie);
+	}
+}
+
 @player_quit
-message = player.getLeaveMessage(player);
-if(message == null || !send_personally_messages) {
+own_message = player.getLeaveMessage(player);
+if(own_message == null || player.isNicked(player)) {
 	message = text.new(string.concat("§c§l> §r", fullname, " §9", list.getIndex(leavemeassages, math.random(0, list.getSize(leavemeassages) - 1))));
 } else {
-	message = text.new(string.concat("§c§l> §r", fullname, " §9", message));
+	message = text.new(string.concat("§c§l> §r", fullname, " §9", own_message));
 }
-//inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
+inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
 player.clearBackPos(player);
 rank.removeTimeOffert(player);
 goto("wait");
@@ -186,7 +183,7 @@ if(player.isMuted(player)) {
 	goto("wait");
 }
 if(perm.has("color", player)) {
-	//message = string.replace(message, "&", "§");
+	message = text.new(string.replace(string.text(message), "&", "§"));
 }
 if(string.startsWith(message, "https://", 0)) {
 	message = string.getLinkText(message, message);
@@ -209,31 +206,27 @@ if(damage_type == "player") {
 	killer = player.getFromDamageSource(damage_source);
 	killer_name = player.getName(killer);
 	item = living.getEquip(killer, read.slot("HAND"));
-	if(item.hasName(item)) {
-		message1 = string.concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
-		message2 = item.getFullText(item);
+	//if(item.hasName(item)) {
+	//	message1 = string.concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
+//		message2 = item.getFullText(item);
 		//message = text.concat2(message1, message2);
-	} else {
+	//} else {
 		list.clear(list);
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
-		message = list.getIndex(list, math.random(0, list.getSize(list) - 1));
-	}
+		message = text.new(list.getIndex(list, math.random(0, list.getSize(list) - 1)));
+	//}
 } else {
-	message = string.concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1)));
+	message = text.new(string.concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1))));
 }
 msg.survival(message);
 msg.creative(message);
-msg.story(message);
 goto("wait");
 
 function player.greet(player) {
-	player_name = player.getName(player);
-	title.reset(player);
-	title.setSub(player, string.concat("§cNice to see you §6", player_name));
-	title.send(player, "");
+	title.send(player, text.new("§cNice to see you §6"), text.new(player.getName(player)));
 }
 
 function rank.removeTimeOffert(player) {

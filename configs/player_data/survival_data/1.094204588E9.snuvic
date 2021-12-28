@@ -1,2 +1,7 @@
-backpos="null"
+backpos="world:123.27155327053966:77.5:-29.878165616597432:-4.46764612197876:18.50848960876465"
 firstjoin=false
+message.join="is now looking for chocolate"
+message.leave="has eaten all the chocolate"
+money=1402.0
+pvp=true
+rank="§9Moderator"

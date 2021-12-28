@@ -31,6 +31,9 @@ if(block == null) {
 	goto("main");
 }
 if(block.hasTag(block, auto_door_tag) && action == "RIGHT_CLICK_BLOCK") {
+	if(cancel) {
+		goto("main");
+	}
 	player_spec = player.getAutoCloseDoor(player);
 	open_value = block.isOpen(block);
 	if(block.hasTag(block, doors_tag)) {

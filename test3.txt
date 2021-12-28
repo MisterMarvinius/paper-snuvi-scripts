@@ -1,37 +1,11 @@
-error(true);
 p = read.player("kajetanjohannes");
 loc = entity.getLocation(p);
-
-/*event.load("human_damage");
-@loop
-wait();
-cancel = false;
-goto("loop");*/
-
-entity = player.getTargetEntity(p, 50);
-if(entity != null) {
-    human.setName(entity, "Wusler24");
-    //print("yes");
-    /*human.setSkin(entity, "ewogICJ0aW1lc3RhbXAiIDogMTYzOTY3MTc5ODEyNywKICAicHJvZmlsZUlkIiA6ICI3MzgyZGRmYmU0ODU0NTVjODI1ZjkwMGY4OGZkMzJmOCIsCiAgInByb2ZpbGVOYW1lIiA6ICJCdUlJZXQiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWZkOWFjZTM2MmMxYzFmOTg0ZTAxYmU2ZTZjNTRhYWY0MTI1ZDBmNTc5ZDQyNTgyOTdiZWUxMjcyMjI0NDNmNCIKICAgIH0KICB9Cn0", "qFMdFP0a8dLDQvlsUpGAo5fNgjmccphiE7HNdLPe12UKtZoA8xb7noxXjPyodseX/LddrRzz63KiEGphnjjl1p4TvbuIdngA4kCFKHhCG7gmWWO/mGPpv5q9nW0WtUgHwe/MeEyqyrLri4HPxsL6UMFuzXoAMdx61p1marLmsBcPb4bNtmFKMn6lt+cG++p9gYO74vL22RhNubH/PDjCvFqVZi8TZOj/pCq6/BG3n/M4PRnHQ36nOMN2cT2JM5d2As8wnepCaDV+KRjTtVg7Sws+Sl80iS/TWMzRsSUkZB5PQVCIdpfyD1JOuhV5NVo0+iqUGdEKmwY/VltlAJ/Mz/BNobGzxV640t9cutpXq6PVhMRxSXtaOT0mSzjJla71nc34KOQverNnOCsgj3AZ6HA+jJ2xK2fC1etGIF0Y/M7QZHM6jM3fE0htF9odQowue0S/9/ram7LhXrcWA7mzSDVpLN8jEjIGC25uEEG6StRhYQih0N/wyrYKR66OsMQTpXcnoacl9tiHwFz7XiknXHKY2SliCXVHKQSHy9aIBLnxZPeDYPj5N1xvK4f3788LAiXyFDbrQ1243WCgVuJwIrh1Tg1qSUDuJx1GEevWfiazySqOFhhw1MwmjJXFOp7dz+VKKt+rjEBjq+cTkvskDZqpEINxqcNP1hnImiszMY0=");
-    */
-    human.setSkin(entity, "ewogICJ0aW1lc3RhbXAiIDogMTYzODkyMDIxNTE1MSwKICAicHJvZmlsZUlkIiA6ICI0NWY3YTJlNjE3ODE0YjJjODAwODM5MmRmN2IzNWY0ZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJfSnVzdERvSXQiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTNkMDQ1Y2QzMDIxODRkMjlhMmEzNmZlM2YyYmVhYmI5MGU3MmIyYjA3NTJmNzgzMmU5MDkzMjRiYWQwMjY5ZiIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9", "NCRVEz6H/aJtN4Ni7Ec9GqXwEIOhaFpzWM8hfbLhrD3+X9TcADuHKt+R7rgVNfxXZB2X14IekBckJnMjAo0Ofhn4RGI2DUMnjiwQsd7raFjgmenuuoJRIvU5ylnoNxQqa2jy7ac1HMzeW+aYIlVo+viAtojmYs5tXByDfyGY2HOd6igjRL7iokoGfb9gOxlmQriDkNXhT0frMatwINT6bF3cBpyji1VoWVUOzPQFDeQWsW07FQCjIGd5sBUFUm7a9m9mjeZA9QFVS/y6v4Q3fAaRXBp3j1QT59fkkSnO3rAiWpqoz9VDrYgYlPRarMF6YzsbfURGZil4S6e8Z761FJnTgUXuBCO1E0JsMb53HPamSYdI6MlCQ1b+dGv4Ewm/MSWKMw5IopmM8a4FTwuojiZPdompBQJxObOljbYgKpTWnZ74WTHwpFp0/Ku2sB1M0joyllImhtukiwxYcETUHefyBx97KQXlEVbnzGYFmdNFSSoTpT+Mc27yCMjhgW5zT6Z5yTLiXJ+xaHw2lplwsEyC9KJt1cUeg7EwrAMEv0hjsQWOateLvJa3K2GJ58BKlQHKbojMhutM0sF+gM1KeSIV5+FWlnsdT10nxqUGzgAs8GAtIN9HtCiZQ8ffuc7tcdP7wqucjZWDA8egdyYRPAVduEk8Ncmh8yw05kN/HoA=");
-    
-    /*human.setSkin(entity, "ewogICJ0aW1lc3RhbXAiIDogMTYzODkyMDE1NzA3NSwKICAicHJvZmlsZUlkIiA6ICI2OTBkMDM2OGM2NTE0OGM5ODZjMzEwN2FjMmRjNjFlYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ5emZyXzciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmNjNTA0OWU1MTRiNTg5Y2I5NTc5YWJjZjU5ZDQxNDg0YWFlMTJmZjE3ZDc4ZmJkMGM3OWVjZmVmNjFlNzMwZCIKICAgIH0KICB9Cn0=", "mMo0/F0jlu7FLu3VCnGhlKaN1SAlX9LNhPOZak0e/2vtSPz/W4fV62qpEJkFokeuRVaL82f9YBVVJAsQAV5WhTgFEDsAmZuCqjsVIikmdzbkBwsVA6gJb3rPXUFnr0ZUiqc24yonHu4WLUcFv2HZDV/JVD8mTg9HLjnPZYTcWfGSaavARvIW+g4jgLGZcdWDV9KCFCp5eq9Sqch8bAHXI9T6AAIqKv14knzgKHcGiuq++ukrROKEsp8/p0FUFsey6IXI6/oTkhXTHk8AvwGMXu2NdAhbVqKrw6IQP8k827iyslqemdmnZstzabOs56VdtgZF3JMncPcnhBb7Vucr5IesocSTjDUn5t90jOyQXd3Nn7JeZRTovOnRDWyN+4IV/4QzId2cD9xS0JFVcksheGYfUnl+IiSobHBMAp9nfP/ZTB6arNN/1+HeDsrqAmYzwy0qzFooBKTXD/XtNbJPzVjwiQwWhea3Ggu9cENdElzS8HyMXli1RABrLoOlkFXBwvaoieTk4hduamop3RAfT1UHMflnpw1VwtjFGYaQNQrJ8t5JqREpz1PMz/k6aC6mWGQWgEsHSVRsa/m2ZRsnXSLvED2egAkWNnoPIxxnwcvduWC+bamaJW7GnJqayMd+NHr4xmiLiSvFrDmBTezOAno16wfPJ11k8Xva3C9Epnw=");*/
-} else {
-    for(i = 0; i < 1; i++) {
-        h = human.spawn(loc, "Default");
-    }
-}
-
-ents = world.getEntities(loc.getWorld(loc));
-iter = iterator(ents);
-
-counter = 0;
-while(hasNext(iter)) {
-    ent = next(iter);
-    text = class(ent);
-    if(string.contains(text, "Human")) {
-        counter++;
-    }
-}
-print(counter);
+h = human.spawn(loc, "Mareeeen");
+human.setAI(h, 2);
+human.canMove(h, true);
+human.setSkinUUID(h, read.uuid("88822148-d046-4345-a64a-da6bbfb684ca"));
+living.setEquip(h, read.slot("HAND"), item.new(material.get("STONE_SWORD")));
+living.setEquip(h, read.slot("HEAD"), item.new(material.get("IRON_HELMET")));
+living.setEquip(h, read.slot("CHEST"), item.new(material.get("IRON_CHESTPLATE")));
+living.setEquip(h, read.slot("LEGS"), item.new(material.get("IRON_LEGGINGS")));
+living.setEquip(h, read.slot("FEET"), item.new(material.get("IRON_BOOTS")));

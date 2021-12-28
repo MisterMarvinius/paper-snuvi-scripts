@@ -1,3 +1,7 @@
+function isString(anything) {
+	return string.class(anything) == "String";
+}
+
 function getServerConfig() {
 	return getScriptVar("server_config");
 }
@@ -26,7 +30,7 @@ function isOnline(player_name) {
 
 function list.copy(list) {
 	list_new = list.new();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		list.add(list_new, next(iter));
 	}
@@ -132,8 +136,8 @@ function correctTimeFormat(textnumber) {
 	return textnumber;
 }
 
-function player.giveSingleItem(player, item, boolean) {
-	amount = player.getItemAmount(player, boolean, item);
+function player.giveSingleItem(player, item) {
+	amount = player.getItemAmount(player, item);
 	if(amount == 0) {
 		player.safeGiveItem(player, item);
 	}
@@ -328,8 +332,8 @@ function ranking.getSecPoints(rankingtable, player_or_id) {
 	return sec_points;
 }
 
-function isAdminShop(sign_loc) {
-	return block.getSign(sign_loc, 0) == "[Admin Shop]";
+function isAdminShop(sign_block) {
+	return sign.getString(sign_block, 0) == "[Admin Shop]";
 }
 
 //--------------------------------------------------
@@ -392,10 +396,6 @@ function world.getCreativeSpawn() {
 	return read.location(config.getString(getServerConfig(), "creative", "world:0:0:0"));
 }
 
-function world.getStorySpawn() {
-	return read.location(config.getString(getServerConfig(), "storyspawn", "world:0:0:0"));
-}
-
 function world.getOverWorld() {
 	return world.get("world");
 }
@@ -416,20 +416,12 @@ function world.getCreative() {
 	return world.get("creative");
 }
 
-function world.getStory() {
-	return world.get("story");
-}
-
 function world.isCreativeName(world_name) {
 	return world_name == "creative";
 }
 
 function world.isGamesName(world_name) {
 	return world_name == "games";
-}
-
-function world.isStoryName(world_name) {
-	return world_name == "story";
 }
 
 function world.isSurvName(world_name) {
@@ -458,28 +450,28 @@ function world.addTimedStatus(world, index, time, message) {
 	return;
 	world_name = world.getName(world);
 	if(world.isSurvName(world_name)) {
-		worldlist = players.toWorldList(world.getOverWorld());
+		worldlist = world.getPlayers(world.getOverWorld());
 		for(i = 0; i < list.getSize(worldlist); i++) {
 			status.addTimed(list.getIndex(worldlist, i), index, time, message);
 		}
-		worldlist = players.toWorldList(world.getTheEnd());
+		worldlist = world.getPlayers(world.getTheEnd());
 		for(i = 0; i < list.getSize(worldlist); i++) {
 			status.addTimed(list.getIndex(worldlist, i), index, time, message);
 		}
-		worldlist = players.toWorldList(world.getTheNether());
+		worldlist = world.getPlayers(world.getTheNether());
 		for(i = 0; i < list.getSize(worldlist); i++) {
 			status.addTimed(list.getIndex(worldlist, i), index, time, message);
 		}
 		return;
 	}
-	worldlist = players.toWorldList(world);
+	worldlist = world.getPlayers(world);
 	for(i = 0; i < list.getSize(worldlist); i++) {
 		status.addTimed(list.getIndex(worldlist, i), index, time, message);
 	}
 }
 
 function world.giveItem(world, item) {
-	world_list = players.toWorldList(world);
+	world_list = woorld.getPlayers(world);
 	iter = iterator(world_list);
 	while(hasNext(iter)) {
 		player.safeGiveItem(next(iter), item);
@@ -658,8 +650,16 @@ function string.getClickText(show_string, execute_string) {
 	return text.click(text.new(show_string), execute_string);
 }
 
+function text.getClickText(show_text, execute_string) {
+	return text.click(show_text, execute_string);
+}
+
 function string.getHoverText(show_string, execute_string) {
 	return text.hover(text.new(show_string), text.new(execute_string));
+}
+
+function text.getHoverText(show_text, execute_string) {
+	return text.hover(show_text, text.new(execute_string));
 }
 
 function string.getClipBoardText(show_string, copy_string) {
@@ -683,16 +683,16 @@ function string.concatList(list, connector, from_index, to_index) {
 }
 
 function string.onlyLetters(string) {
-	a_code = string.charcode("a");
-	z_code = string.charcode("z");
-	oe_code = string.charcode("ö");
-	ae_code = string.charcode("ä");
-	ue_code = string.charcode("ü");
-	cap_a_code = string.charcode("A");
-	cap_z_code = string.charcode("Z");
-	cap_oe_code = string.charcode("Ö");
-	cap_ae_code = string.charcode("Ä");
-	cap_ue_code = string.charcode("Ü");
+	a_code = string.charcode("a", 0);
+	z_code = string.charcode("z", 0);
+	oe_code = string.charcode("ö", 0);
+	ae_code = string.charcode("ä", 0);
+	ue_code = string.charcode("ü", 0);
+	cap_a_code = string.charcode("A", 0);
+	cap_z_code = string.charcode("Z", 0);
+	cap_oe_code = string.charcode("Ö", 0);
+	cap_ae_code = string.charcode("Ä", 0);
+	cap_ue_code = string.charcode("Ü", 0);
 	
 	for(i = 0; i < string.length(string); i++) {
 		char_code = string.charcode(string, i);
@@ -1182,7 +1182,7 @@ function player.teleport(player, location, setBackPos) {
 		if(player.isInParty(player) && player.isPartyLeader(player)) {
 			party_id = player.getPartyId(player);
 			party_list = party.getList(party_id);
-			iter = list.iterator(party_list);
+			iter = iterator(party_list);
 			while(hasNext(iter)) {
 				p = player.get(next(iter));
 				if(player_uuid == player.getUuid(p)) {
@@ -1267,21 +1267,6 @@ function playerdata.getGames(player_or_id) {
 	return config;
 }
 
-function playerdata.getStory(player_or_id) {
-	player_id = player.getValidId(player_or_id);
-	if(player_id == null) {
-		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.getStory"));
-		return;
-	}
-	map = getScriptVar("story_data");
-	config = map.get(map, player_id);
-	if(config == null) {
-		playerdata.load(player_id, map, "story_data");
-		config = map.get(map, player_id);
-	}
-	return config;
-}
-
 function playerdata.load(player_or_id, map, name) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
@@ -1343,7 +1328,7 @@ function msg.chat(player, message) {
 		live_tag = "";
 	}
 	online_list = players.toList();
-	iter = list.iterator(online_list);
+	iter = iterator(online_list);
 	while(hasNext(iter)) {
 		p = next(iter);
 		if(player.hasMinigame(p) && player.isMuted(p)) {
@@ -1374,17 +1359,23 @@ function msg.online(prefix, message) {
 
 function msg.radius(prefix, message, location, radius) {
 	list = players.near(location, radius);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		msg.prefix(next(iter), prefix, message);
 	}
 }
 
 function msg.world(world, message) {
-	world_list = players.toWorldList(world);
+	if(world == null) {
+		return;
+	}
+	if(isString(message)) {
+		message = text.new(message);
+	}
+	world_list = world.getPlayers(world);
 	iter = iterator(world_list);
 	while(hasNext(iter)) {
-		msg.string(next(iter), message);
+		msg(next(iter), message);
 	}
 }
 
@@ -1392,10 +1383,6 @@ function msg.survival(message) {
 	msg.world(world.getOverWorld(), message);
 	msg.world(world.getTheEnd(), message);
 	msg.world(world.getTheNether(), message);
-}
-
-function msg.story(message) {
-	msg.world(world.getStory(), message);
 }
 
 function msg.creative(message) {
@@ -1417,6 +1404,17 @@ function material.getAir() {
 //--------------------------------------------------
 //Item-Utils
 //--------------------------------------------------
+
+function item.custom.create(type, amount, name, lore_list) {
+	item = item.custom.new(item.custom.get(type));
+	if(name != null) {
+		item.setName(item, text.new(name));
+	}
+	if(lore_list != null) {
+		item.setLore(item, lore_list);
+	}
+	return item;
+}
 
 function item.create(type, amount, name, lore_list) {
 	item = item.new(material.get(type), amount);
@@ -1589,17 +1587,11 @@ function player.setLive(player, boolean) {
 }
 
 function player.getFullName(player) {
-	player_name = player.getName(player);
-	nickname = string.removeFormat(player.getNickname(player));
-	if(nickname == player_name) {
-		personally_messages = true;
-	} else {
-		personally_messages = false;
-	}
-	if(personally_messages) {
-		full_name = string.concat("[", getRank(player), "§r] ", nickname);
-	} else {
+	nickname = player.getNickname(player);
+	if(player.isNicked(player)) {
 		full_name = string.concat("[§3User§r] ", nickname);
+	} else {
+		full_name = string.concat("[", getRank(player), "§r] ", nickname);
 	}
 	return full_name;
 }
@@ -1667,15 +1659,6 @@ function player.removeItemTag(player, tag, amount) {
 	}
 	item.setAmount(air, amount);
 	return air;
-}
-
-function player.showDebug(player, boolean) {
-	player_uuid = player.getUuid(player);
-	if(boolean) {
-		perm.registerPlayer(player_uuid, 16);
-	} else {
-		perm.unregisterPlayer(player_uuid, 16);
-	}
 }
 
 function player.setSpeed(player, speed) {
@@ -2144,6 +2127,10 @@ function player.checkHandsForTag(player, tag) {
 //Block-Utils
 //--------------------------------------------------
 
+function sign.getString(block, row) {
+	return string.text(block.getSign(block, row));
+}
+
 function block.isType(block, type) {
 	return block.getType(block) == material.get(type);
 }
@@ -2277,14 +2264,43 @@ function money.popUp(player, money, boosted) {
 	} else {
 		post = "";
 	}
-	player.action(player, string.concat(pre, "§6", string.number(money), " §rsnuvi", post));
+	//player.action(player, string.concat(pre, "§6", string.number(money), " §rsnuvi", post));
+	player.action(player, text.new(string.concat(pre, " ", money.getString(money), " ", post)));
+}
+
+function money.display(player, money)  {
+	a = money.split(money);
+	gold = string.number(a[0]);
+	silver = string.number(a[1]);
+	copper = string.number(a[2]);
+	sb.add(player, 1, string.concat(icon.getGoldCoin(), gold, " ", icon.getSilverCoin(), silver, " ", icon.getCopperCoin(), copper));
 }
 
 function displayMoney(player, money) {
+	money.display(player, money);
+}
+
+function money.getString(money) {
 	a = money.split(money);
-	//display.add(player, 0, string.concat("#23-1- ", string.number(a[0])));
-	//display.add(player, 1, string.concat("#24-1- ", string.number(a[1])));
-	//display.add(player, 2, string.concat("#25-1- ", string.number(a[2])));
+	gold = a[0];
+	silver = a[1];
+	copper = a[2];
+	if(gold == 0) {
+		gold_string = "";
+	} else {
+		gold_string = string.concat(icon.getGoldCoin(), string.number(gold));;
+	}
+	if(silver == 0) {
+		silver_string = "";
+	} else {
+		silver_string = string.concat(icon.getSilverCoin(), string.number(silver));;
+	}
+	if(copper == 0) {
+		copper_string = "";
+	} else {
+		copper_string = string.concat(icon.getCopperCoin(), string.number(copper));;
+	}
+	return string.concat(gold_string, silver_string, copper_string);
 }
 
 function money.split(money) {
@@ -2516,7 +2532,7 @@ function plot.transferRanks(old_plot_id, new_plot_id) {
 
 function plot.removeAllPlayers(plot) {
 	list = plot.getOwners(plot);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		plot.removeRank(plot, player.getId(next(iter)));
 	}
@@ -2935,7 +2951,7 @@ function loc.isSameWorld(loc1, loc2) {
 
 function loc.getSubPlot(location) {
 	list = plot.get(location);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		plot = next(iter);
 		if(plot.isSub(plot)) {
@@ -2947,7 +2963,7 @@ function loc.getSubPlot(location) {
 
 function loc.isCity(location) {
 	list = plot.get(location);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		plot = next(iter);
 		if(plot.isCity(plot)) {
@@ -2963,7 +2979,7 @@ function loc.hasPlotId(location, plot_id) {
 
 function loc.hasPlotName(location, plot_name) {
 	list = plot.get(location);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		plot = next(iter);
 		if(plot.getName(plot) == plot_name) {
@@ -2991,10 +3007,6 @@ function loc.isInGamesWorld(location) {
 
 function loc.isInCreativeWorld(location) {
 	return loc.getWorld(location) == world.getCreative();
-}
-
-function loc.isInStoryWorld(location) {
-	return loc.getWorld(location) == world.getStory();
 }
 
 function loc.round(location) {
@@ -3081,7 +3093,7 @@ function setRank(player_or_id, rank) {
 
 function offerRank(player, tech_name) {
 	rank = rank.getFromTechName(tech_name);
-	msg.string(player, "§r[§6Commands§r] New rank available: ", string.getHoverText(string.getClickText(string.concat("[§", rank, "§r]"), string.concat("/setrank ", player.getName(player), " &", rank)), "Click to set"));
+	msg(player, text.merge(text.new(string.getPrefix("§6Commands")), text.new(" "), text.new("New rank available: "), text.getHoverText(string.getClickText(string.concat("[§", rank, "§r]"), string.concat("/setrank ", player.getName(player), " &", rank)), "Click to set")));
 }
 
 function rank.offerClan(clan_id, tech_name) {
@@ -3234,51 +3246,62 @@ function rank.showAll(player) {
 //Perm-Utils
 //--------------------------------------------------
 
-function givePerm(player_id, perm_id) {
-	stmt = databank.prepare("INSERT INTO playerperms (player_id, perm_id) VALUES (?,?);");
+function perm.addGroupToPlayer(player_id, perm_id) {
+	stmt = databank.prepare("INSERT INTO new_playerperms (player_id, perm_id) VALUES (?,?);");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, perm_id);
 	databank.workerExecute(stmt);
-	perm.registerPlayer(player.getUuidFromID(player_id), perm_id);
+	
+	list = player.getPerms(player_id);
+	list.add(list, perm_id);
+
+	perm.initPlayer(player_id);
 }
 
-function removePerm(player_id, perm_id) {
-	stmt = databank.prepare("DELETE FROM playerperms WHERE player_id = ? AND perm_id = ?;");
+function perm.removeGroupFromPlayer(player_id, perm_id) {
+	stmt = databank.prepare("DELETE FROM new_playerperms WHERE player_id = ? AND perm_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, perm_id);
 	databank.workerExecute(stmt);
-	perm.unregisterPlayer(player.getUuidFromID(player_id), perm_id);
+	
+	list = player.getPerms(player_id);
+	list.remove(list, perm_id);
+	
+	perm.initPlayer(player_id);
 }
 
-function removeAllPermsTemporarly(player_id) {
-	perm.registerPlayer(player.getUuidFromID(player_id), 8);
-	permslist = getPermsFromPlayer(player_id);
-	for(i = 0; i < list.getSize(permslist); i++) {
-		perm_id = list.getIndex(permslist, i);
-		perm.unregisterPlayer(player.getUuidFromID(player_id), perm_id);
+function perm.simUser(player) {
+	perm.clear(player);
+	perm.loadGroupToPlayer(0, player);
+	perm.loadGroupToPlayer(14, player);
+}
+
+function player.removeAllPerms(player_id) {
+	stmt = databank.prepare("DELETE FROM new_playerperms WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	databank.workerExecute(stmt);
+	perm.initPlayer(player_id);
+}
+
+function perm.getAll() {
+	return getScriptVar("player_perms");
+}
+
+function player.getPerms(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	map = perm.getAll();
+	list = map.get(map, player_id);
+	if(list == null) {
+		list = list.new();
+		map.add(map, player_id, list);
 	}
+	return map.getOrDefault(perm.getAll(), player_id, list.new());
 }
 
-function reloadAllPerms(player_id) {
-	perm.unregisterPlayer(player.getUuidFromID(player_id), 8);
-	permslist = getPermsFromPlayer(player_id);
-	for(i = 0; i < list.getSize(permslist); i++) {
-		perm_id = list.getIndex(permslist, i);
-		perm.registerPlayer(player.getUuidFromID(player_id), perm_id);
-	}
-}
-
-function removeAllPerms(player_id) {
-	permslist = getPermsFromPlayer(player_id);
-	for(i = 0; i < list.getSize(permslist); i++) {
-		removePerm(player_id, list.getIndex(permslist, i));
-	}
-}
-
-
-function getPermsFromPlayer(player_id) {
+function player.getPermsFromDatabank(player_or_id) {
+	player_id = player.getValidId(player_or_id);
 	permslist = list.new();
-	stmt = databank.prepare("SELECT perm_id FROM playerperms WHERE player_id = ?;");
+	stmt = databank.prepare("SELECT perm_id FROM new_playerperms WHERE player_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	result = databank.execute(stmt);
 	while(databank.next(result)) {
@@ -3287,18 +3310,6 @@ function getPermsFromPlayer(player_id) {
 	databank.close(result);
 	databank.close(stmt);
 	return permslist;
-}
-
-function registerAllPerms() {
-	stmt = databank.prepare("SELECT * FROM playerperms;");
-	result = databank.execute(stmt);
-	while(databank.next(result)) {
-		player_id = databank.getInt(result, 1);
-		perm_id = databank.getInt(result, 2);
-		perm.registerPlayer(player.getUuidFromID(player_id), perm_id);
-	}
-	databank.close(result);
-	databank.close(stmt);
 }
 
 function perm.setGroups(permgroups) {
@@ -3312,8 +3323,8 @@ function perm.getGroups() {
 function perm.getNameFromId(permgroup_id) {
 	a = perm.getGroups();
 	for(i = 0; i < array.getSize(a); i++) {
-		if(a[i, 0] == permgroup_id) {
-			return a[i, 1];
+		if(i == permgroup_id) {
+			return a[i, 0];
 		}
 	}
 	return null;
@@ -3322,8 +3333,8 @@ function perm.getNameFromId(permgroup_id) {
 function perm.getRankFromId(permgroup_id) {
 	a = perm.getGroups();
 	for(i = 0; i < array.getSize(a); i++) {
-		if(a[i, 0] == permgroup_id) {
-			return a[i, 2];
+		if(i == permgroup_id) {
+			return a[i, 1];
 		}
 	}
 	return null;
@@ -3332,8 +3343,8 @@ function perm.getRankFromId(permgroup_id) {
 function perm.getIdFromGroupname(permgroup_name) {
 	a = perm.getGroups();
 	for(i = 0; i < array.getSize(a); i++) {
-		if(a[i, 1] == permgroup_name) {
-			return a[i, 0];
+		if(a[i, 0] == permgroup_name) {
+			return i;
 		}
 	}
 	return null;
@@ -3342,8 +3353,8 @@ function perm.getIdFromGroupname(permgroup_name) {
 function perm.getRankFromGroupname(permgroup_name) {
 	a = perm.getGroups();
 	for(i = 0; i < array.getSize(a); i++) {
-		if(a[i, 1] == permgroup_name) {
-			return a[i, 2];
+		if(a[i, 0] == permgroup_name) {
+			return a[i, 1];
 		}
 	}
 	return null;
@@ -3352,7 +3363,7 @@ function perm.getRankFromGroupname(permgroup_name) {
 function perm.isGroupName(permgroup_name) {
 	a = perm.getGroups();
 	for(i = 0; i < array.getSize(a); i++) {
-		if(a[i, 1] == permgroup_name) {
+		if(a[i, 0] == permgroup_name) {
 			return true;
 		}
 	}
@@ -3360,10 +3371,54 @@ function perm.isGroupName(permgroup_name) {
 }
 
 function player.hasPermGroup(player_id, perm_id) {
-	permslist = getPermsFromPlayer(player_id);
+	permslist = player.getPerms(player_id);
 	return list.contains(permslist, perm_id);
 }
 
+function perm.loadGroupToPlayer(group_id, player) {
+	list = perm.getGroupList(group_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		perm = next(iter);
+		perm.add(perm, player);
+	}
+}
+
+function perm.getGroupList(group_id) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(i == group_id) {
+			return a[i, 2];
+		}
+	}
+	return null;
+}
+
+function perm.isAwardable(group_id) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(i == group_id) {
+			return a[i, 3];
+		}
+	}
+	return null;
+}
+
+function perm.initPlayer(player_or_id) {
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	perm.clear(player);
+	perm.loadGroupToPlayer(0, player);
+	permslist = player.getPerms(player);
+	iter = iterator(permslist);
+	while(hasNext(iter)) {
+		perm.loadGroupToPlayer(next(iter), player);
+	}
+	perm.update(player);
+	command.sendHelp(player);
+}
 
 //--------------------------------------------------
 //Nickname-Utils
@@ -3379,6 +3434,10 @@ function player.getNickName(player) {
 
 function player.removeNickName(player) {
 	map.remove(getScriptVar("nicknames"), player.getUuid(player));
+}
+
+function player.isNicked(player) {
+	return map.contains(getScriptVar("nicknames"), player.getUuid(player));
 }
 
 //--------------------------------------------------
@@ -3442,13 +3501,16 @@ function mail.checkForNew(player) {
 //--------------------------------------------------
 
 function friend.check(player_id, friend_id) {
-	stmt = databank.prepare("SELECT friend_id FROM new_friends WHERE player_id = ? AND friend_id = ?;");
+	stmt = databank.prepare("SELECT friend_id FROM friends WHERE (player_id = ? AND friend_id = ?) OR (player_id = ? AND friend_id = ?);");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, friend_id);
+	databank.setInt(stmt, 3, friend_id);
+	databank.setInt(stmt, 4, player_id);
 	result = databank.execute(stmt);
-	temp = false;
-	while(databank.next(result)) {
+	if(databank.next(result)) {
 		temp = true;
+	} else {
+		temp = false;
 	}
 	databank.close(result);
 	databank.close(stmt);
@@ -3456,41 +3518,36 @@ function friend.check(player_id, friend_id) {
 }
 
 function friend.add(player_id, friend_id) {
-	nowtime = time.getMillis();
-	
-	stmt1 = databank.prepare("INSERT INTO new_friends (player_id, friend_id, time) VALUES (?, ?, ?);");
-	databank.setInt(stmt1, 1, player_id);
-	databank.setInt(stmt1, 2, friend_id);
-	databank.setLong(stmt1, 3, nowtime);
-	databank.workerExecute(stmt1);
-	
-	stmt2 = databank.prepare("INSERT INTO new_friends (player_id, friend_id, time) VALUES (?, ?, ?);");
-	databank.setInt(stmt2, 1, friend_id);
-	databank.setInt(stmt2, 2, player_id);
-	databank.setLong(stmt2, 3, nowtime);
-	databank.workerExecute(stmt2);
+	stmt = databank.prepare("INSERT INTO friends (player_id, friend_id, time) VALUES (?, ?, ?);");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, friend_id);
+	databank.setLong(stmt, 3, time.getMillis());
+	databank.workerExecute(stmt);
 }
 
 function friend.delete(player_id, friend_id) {
-	stmt1 = databank.prepare("DELETE FROM new_friends WHERE player_id = ? AND friend_id = ?;");
-	databank.setInt(stmt1, 1, player_id);
-	databank.setInt(stmt1, 2, friend_id);
-	databank.workerExecute(stmt1);
-	
-	stmt2 = databank.prepare("DELETE FROM new_friends WHERE player_id = ? AND friend_id = ?;");
-	databank.setInt(stmt2, 1, friend_id);
-	databank.setInt(stmt2, 2, player_id);
-	databank.workerExecute(stmt2);
+	stmt = databank.prepare("DELETE FROM friends WHERE (player_id = ? AND friend_id = ?) OR (player_id = ? AND friend_id = ?);");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, friend_id);
+	databank.workerExecute(stmt);
 }
 
 function friend.getList(player_id) {
 	list = list.new();
-	stmt = databank.prepare("SELECT friend_id FROM new_friends WHERE player_id = ?;");
+	stmt = databank.prepare("SELECT friend_id FROM friends WHERE player_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	result = databank.execute(stmt);
 	while(databank.next(result)) {
-		friend_id = databank.getInt(result, 1);
-		list.add(list, player.getNameFromId(friend_id));
+		list.add(list, databank.getInt(result, 1));
+	}
+	databank.close(result);
+	databank.close(stmt);
+	
+	stmt = databank.prepare("SELECT player_id FROM friends WHERE friend_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		list.add(list, databank.getInt(result, 1));
 	}
 	databank.close(result);
 	databank.close(stmt);
@@ -3505,9 +3562,11 @@ function clan.getIdList() {
 	file = file.new("scripts/configs/clan_data");
 	if(file.exists(file) && file.isDirectory(file)) {
 		list = file.getList(file);
+	} else {
+		list = list.new();
 	}
 	id_list = list.new();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		element = next(iter);
 		file_name = file.getName(element);
@@ -3519,7 +3578,7 @@ function clan.getIdList() {
 
 function clan.loadData() {
 	list = clan.getIdList();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	map = map.new();
 	while(hasNext(iter)) {
 		clan_id = next(iter);
@@ -3621,7 +3680,7 @@ function clan.getSpawn(clan_id) {
 
 function clan.getIdFromName(name) {
 	list = clan.getIdList();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		clan_id = next(iter);
 		if(clan.getName(clan_id) == name) {
@@ -3633,7 +3692,7 @@ function clan.getIdFromName(name) {
 
 function clan.getIdFromTag(clan_tag) {
 	list = clan.getIdList();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		clan_id = next(iter);
 		if(clan.getTag(clan_id) == clan_tag) {
@@ -3671,7 +3730,7 @@ function clan.create(name, tag) {
 
 function clan.getLeader(clan_id) {
 	list = clan.getMembersList(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		player_uuid = next(iter);
 		player_id = player.getId(player_uuid);
@@ -3738,7 +3797,7 @@ function clan.removeMember(clan_id, player_or_id) {
 function clan.delete(clan_id) {
 	//Members
 	list = clan.getMembersList(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		player_uuid = next(iter);
 		player_id = player.getId(player_uuid);
@@ -3763,7 +3822,7 @@ function clan.getMembersList(clan_id) {
 
 function clan.updateHeadNames(clan_id) {
 	list = clan.getMembersList(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != null) {
@@ -3774,7 +3833,7 @@ function clan.updateHeadNames(clan_id) {
 
 function clan.msg.string(clan_id, message) {
 	list = clan.getMembersList(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != null) {
@@ -3785,7 +3844,7 @@ function clan.msg.string(clan_id, message) {
 
 function clan.mail(clan_id, from_name, message) {
 	list = clan.getMembersList(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		to_name = player.getName(next(iter));
 		mail.send(from_name, to_name, message);
@@ -3856,7 +3915,11 @@ function party.addPlayer(party_id, player) {
 //--------------------------------------------------
 
 function scheduler.add(data_array) {
-	list.add(getScriptVar("scheduler_list"), data_array);
+	list.add(scheduler.getList(), data_array);
+}
+
+function scheduler.getList() {
+	return getScriptVar("scheduler_list");
 }
 
 function scheduler.addFly(ticks, player, bool) {
@@ -3887,12 +3950,12 @@ function scheduler.msg.string(ticks, player, message) {
 	scheduler.add(a);
 }
 
-function scheduler.setBlock(ticks, location, item_string, block_update) {
+function scheduler.setBlockMaterial(ticks, block, material, block_update) {
 	a = array.new(5);
 	a[0] = 3;
 	a[1] = ticks;
-	a[2] = location;
-	a[3] = item_string;
+	a[2] = block;
+	a[3] = material;
 	a[4] = block_update;
 	scheduler.add(a);
 }
@@ -3941,229 +4004,63 @@ function scheduler.giveItem(ticks, player, item) {
 	scheduler.add(a);
 }
 
-function scheduler.giveSingleItem(ticks, player, item, boolean) {
-	a = array.new(5);
+function scheduler.giveSingleItem(ticks, player, item) {
+	a = array.new(4);
 	a[0] = 9;
 	a[1] = ticks;
 	a[2] = player;
 	a[3] = item;
-	a[4] = boolean;
 	scheduler.add(a);
 }
 
-
 //--------------------------------------------------
-//Hawkeye-Utils
+//Icon-Utils
 //--------------------------------------------------
 
-function hawkeye.getData(timeFrom, timeTo, location, radius, events, players, order) {
-	base_query = "SELECT * FROM hawkeye WHERE ";
-	and_query = " AND ";
-	//Events
-	where_query = hawkeye.getEventQuery(events);
-	if(where_query == -1) {
-		return "False input at e:";
-	}
-	//Players
-	player_query = hawkeye.getPlayerQuery(players);
-	if(player_query == -1) {
-		return "False input at p:";
-	}
-	if(string.length(where_query) == 0) {
-		where_query = player_query;
-	} elseif(string.length(player_query) != 0) {
-		where_query = string.concat(where_query, and_query, player_query);
-	}
-	//Location
-	location_query = hawkeye.getLocationQuery(location, radius);
-	if(string.length(where_query) == 0) {
-		where_query = location_query;
-	} elseif(string.length(location_query) != 0) {
-		where_query = string.concat(where_query, and_query, location_query);
-	}
-	//Time
-	time_query = hawkeye.getTimeQuery(timeFrom, timeTo);
-	if(string.length(where_query) == 0) {
-		where_query = time_query;
-	} elseif(string.length(time_query) != 0) {
-		where_query = string.concat(where_query, and_query, time_query);
-	}
-	//Safety check
-	if(string.length(where_query) == 0) {
-		return "No parameters found";
-	}
-	//Final Statement
-	stmt = databank.prepare(string.concat(base_query, where_query, " ORDER BY time ", order, ";"));
-	index = 1;
-	if(events != null) {
-		iter = list.iterator(events);
-		while(hasNext(iter)) {
-			databank.setString(stmt, index, next(iter));
-			index++;
-		}
-	}
-	if(players != null) {
-		iter = list.iterator(players);
-		while(hasNext(iter)) {
-			databank.setInt(stmt, index, player.getId(player.getUuid(next(iter))));
-			index++;
-		}
-	}
-	if(location != null && radius != null) {
-		databank.setInt(stmt, index++, loc.getX(location));
-		databank.setInt(stmt, index++, loc.getY(location));
-		databank.setInt(stmt, index++, loc.getZ(location));
-		databank.setInt(stmt, index++, radius);
-	}
-	if(timeFrom != null && timeTo != null) {
-		databank.setLong(stmt, index++, timeFrom);
-		databank.setLong(stmt, index++, timeTo);
-	}
-	l = list.new();
-	result = databank.execute(stmt);
-	while(databank.next(result)) {
-		a = array.new(6);
-		id = databank.getInt(result, 1);
-		a[0] = id; //id
-		a[1] = databank.getInt(result, 2); //player_id
-		a[2] = databank.getString(result, 3); //event
-		a[3] = loc.new(world.get(databank.getString(result, 4)), databank.getInt(result, 5), databank.getInt(result, 6), databank.getInt(result, 7)); //location
-		a[4] = databank.getLong(result, 8); //time
-		a[5] = databank.getString(result, 9); //text
-		list.add(l, a);
-	}
-	databank.close(result);
-	databank.close(stmt);
-	return l;
+function icon.getGoldCoin() {
+	return string.fromCode(63489);
 }
 
-function hawkeye.getEventQuery(events) {
-	if(events == null) {
-		return "";
-	}
-	query = "event IN(";
-	c = 0;
-	iter = list.iterator(events);
-	while(hasNext(iter)) {
-		event = next(iter);
-		if(event != "block_break" && event != "block_place") {
-			return -1;
-		}
-		if(c == 0) {
-			query = string.concat(query, "?");
-		} else {
-			query = string.concat(query, ",?");
-		}
-		c++;
-	}
-	return string.concat(query, ")");
+function icon.getSilverCoin() {
+	return string.fromCode(63490);
 }
 
-function hawkeye.getPlayerQuery(players) {
-	if(players == null) {
-		return "";
-	}
-	query = "player_id IN(";
-	c = 0;
-	iter = list.iterator(players);
-	while(hasNext(iter)) {
-		player_name = next(iter);
-		player_uuid = player.getUuid(player_name);
-		if(player_uuid == null) {
-			return -1;
-		}
-		if(c == 0) {
-			query = string.concat(query, "?");
-		} else {
-			query = string.concat(query, ",?");
-		}
-		c++;
-	}
-	return string.concat(query, ")");
+function icon.getCopperCoin() {
+	return string.fromCode(63491);
 }
 
-function hawkeye.getLocationQuery(player_loc, radius) {	
-	if(player_loc == null || radius == null) {
-		return "";
-	}
-	return "POWER(x - ?, 2) + POWER(y - ?, 2) + POWER(z - ?, 2) < POWER(?, 2)";
+function icon.getExp() {
+	return string.fromCode(63492);
 }
 
-function hawkeye.getTimeQuery(timeFrom, timeTo) {
-	if(timeFrom == null || timeTo == null) {
-		return "";
-	}
-	return "time > ? AND time < ?";
+function icon.getBookshelf() {
+	return string.fromCode(63493);
 }
 
-function hawkeye.print(player, list, side) {
-	amount = list.getSize(list);
-	a = list.getIndex(list, side - 1);
-	msg.prefix(player, "§cHawkeye", string.concat("§7----- Page (§c", string.number(side), "§7/§c", string.number(amount), "§7) -----"));
-	msg.string(player, string.concat("§7| ID:", string.number(a[0]), " ", getTimeString(a[4])));
-	msg.string(player, string.concat("§7| §c", hawkeye.getEventName(read.number(a[2])), " ", player.getNameFromId(a[1])));
-	msg.string(player, string.concat("§7| ", loc.getStringSpace(a[3])));
-	msg.string(player, string.concat("§7| ", a[5]));
-	if(side == 1) {
-		backward = "§7<<<<";
-		if(amount == 1) {
-			forward = "§7>>>>";
-		} else {
-			forward = string.getClickText("§c>>>>", string.concat("/hawkeye print ", side + 1));
-		}
-	} elseif(side >= amount) {
-		backward = string.getClickText("§c<<<<", string.concat("/hawkeye print ", side - 1));
-		forward = "§7>>>>";
-	} else {
-		backward = string.getClickText("§c<<<<", string.concat("/hawkeye print ", side - 1));
-		forward = string.getClickText("§c>>>>", string.concat("/hawkeye print ", side + 1));
-	}
-	msg.string(player, backward, " ", forward);
-	msg.string(player, "§7-----------------------------");
+function icon.getCraftingTable() {
+	return string.fromCode(63494);
 }
 
-function hawkeye.setDataList(player, list) {
-	map.add(getScriptVar("ha_data_lists"), player.getUuid(player), list);
+function icon.getCompass() {
+	return string.fromCode(63495);
 }
 
-function hawkeye.getDataList(player) {
-	return map.get(getScriptVar("ha_data_lists"), player.getUuid(player));
+function icon.getCake() {
+	return string.fromCode(63496);
 }
 
-function hawkeye.setUndoList(player, list) {
-	map.add(getScriptVar("ha_undo_lists"), player.getUuid(player), list);
+function icon.getEnderpearl() {
+	return string.fromCode(63497);
 }
 
-function hawkeye.getUndoList(player) {
-	return map.get(getScriptVar("ha_undo_lists"), player.getUuid(player));
+function icon.getHeart() {
+	return string.fromCode(63498);
 }
 
-function hawkeye.rollback(list) {
-	counter = 0;
-	for(i = 0; i < list.getSize(list); i++) {
-		a = list.getIndex(list, i);
-		event = a[2];
-		loc = a[3];
-		if(event == "1") {
-			block.set(loc, a[5], true);
-			counter++;
-		} elseif(event == "2") {
-			block.set(loc, "minecraft:air", true);
-			counter++;
-		}
-	}
-	return counter;
+function icon.getHalfHeart() {
+	return string.fromCode(63499);
 }
 
-function hawkeye.undo(list) {
-	for(i = list.getSize(list) - 1; i >= 0; i--) {
-		a = list.getIndex(list, i);
-		event = a[2];
-		loc = a[3];
-		if(event == "1") {
-			block.set(loc, "minecraft:air", true);
-		} elseif(event == "2") {
-			block.set(loc, a[5], true);
-		}
-	}
+function icon.getEmptyHeart() {
+	return string.fromCode(63500);
 }

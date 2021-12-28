@@ -11,6 +11,7 @@ setScriptVar("nicknames", map.new());
 setScriptVar("rmInventories", map.new());
 setScriptVar("quest_ids", map.new());
 setScriptVar("lobbylastpos", map.new());
+setScriptVar("scheduler_list", list.new());
 
 //---------- Tables ----------
 

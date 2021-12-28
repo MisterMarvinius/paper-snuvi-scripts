@@ -1,10 +1,11 @@
-backpos="world:-281.2745413282124:1.804055289940565:-486.31546331433555:9.553924560546875:17.63433074951172"
+backpos="world:98.30000001192093:77.0:-3843.2570638137377:90.03167724609375:14.028316497802734"
 door_auto_close=true
 firstjoin=false
 message.join="goes hard or goes home."
 message.leave="goes home now."
+money=5999928.0
 pet_damage=true
-pvp=false
+pvp=true
 rank="§cAdmin"
 showcoords=true
 silentjoin=false
