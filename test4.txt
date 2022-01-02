@@ -1,7 +1,19 @@
 p = read.player("kajetanjohannes");
-block = player.getTargetBlock(p, 5);
-if(block == null) {
-    term();
+iter = iterator(item.custom.getAll());
+
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+next(iter);
+
+while(hasNext(iter)) {
+    item = item.custom.new(next(iter), 1);
+    player.giveItem(p, item);
 }
-loc = block.getLocation(block);
-plot.addBlock(loc);

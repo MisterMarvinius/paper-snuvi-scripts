@@ -1,0 +1,121 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_click");
+event.load("block_break");
+event.load("entity_click");
+
+stage = 0;
+all_stages = 4;
+quest_name = "Helfende Hand";
+
+wool = 0;
+iron = 0;
+coal = 0;
+wool_needed = 6;
+iron_needed = 3;
+coal_needed = 4;
+wool_tag = item.getTag("minecraft:wool");
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dGustav", "Ich habe so viel zu tun. Sei doch meine helfende Hand.");
+	scheduler.msgPrefix(30, player, "§dGustav", "Bring mir bitte 3 Eisenerz und 4 Kohle aus einer Höhle.");
+	scheduler.msgPrefix(60, player, "§dGustav", "Schere außerdem 6 Schafe und bring mir deren Wolle.");
+	player.giveSingleItem(player, read.item("minecraft:stone_pickaxe"), false);
+	player.giveSingleItem(player, read.item("minecraft:shears"), false);
+	goto("wait");
+}
+if(event == "block_break") {
+	if(block_type == "minecraft:coal_ore") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, "minecraft:coal_ore", false);
+		coal++;
+		if(coal == coal_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:iron_ore" && iron < 3) {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, "minecraft:iron_ore", false);
+		iron++;
+		if(iron == iron_needed) {
+			stage.increase(player);
+		}
+	}
+}
+if(event == "entity_click") {
+	entity_type = entity.getType(entity);
+	if(entity_type == "sheep") {
+		if(!sheep.isSheared(entity)) {
+			item = living.getEquip(player, "hand");
+			item_type = item.getType(item);
+			if(item_type == "minecraft:shears") {
+				wool++;
+				if(wool == wool_needed) {
+					stage.increase(player);
+				}
+			}
+		}
+	}
+}
+if(stage == 3) {
+	goto("stage3");
+}
+goto("wait");
+
+@stage3
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Gustav") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "minecraft:coal") {
+			if(coal_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, "minecraft:coal", coal_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dGustav", "Danke für die Kohle.");
+				}
+				coal_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:iron_ore") {
+			if(iron_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, "minecraft:iron_ore", iron_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dGustav", "Danke für das Eisenerz.");
+				}
+				iron_needed = rest_amount;
+			}
+		}
+		elseif(item.hasTag(wool_tag, item)) {
+			if(wool_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, wool_tag, wool_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dGustav", "Danke für die Wolle.");
+				}
+				wool_needed = rest_amount;
+			}
+		}
+		if(coal_needed == 0 && iron_needed == 0 && wool_needed == 0) {
+			money.addBoost(player, 20);
+			msg(player, "§dQuest abgeschlossen. Belohnung: 20 Snuvis!");
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

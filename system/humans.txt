@@ -1,0 +1,66 @@
+event.load("human_damage");
+event.load("entity_click");
+
+emerald = item.create("EMERALD", 1, "§fMarkt", null);
+quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
+
+farmer_inv = createMainMenu("Farmer", true, false);
+miner_inv = createMainMenu("Miner", true, false);
+baker_inv = createMainMenu("Baker", true, false);
+alena_inv = createMainMenu("Alena", true, false);
+mason_inv = createMainMenu("Mason", true, false);
+priest_inv = createMainMenu("Priest", true, false);
+mage_inv = createMainMenu("Mage", true, false);
+
+msg.string("dev", "§bHumans §rloaded.");
+@main
+wait();
+ignoreGoto(event);
+goto("main");
+
+@human_damage
+player = player.getFromDamageSource(damage_source);
+if(player == null) {
+	goto("main");
+}
+goto("human_core");
+
+@entity_click
+if(slot.isOffHand(hand)) {
+	goto("main");
+}
+if(!entity.isHuman(entity)) {
+	goto("main");
+}
+human = entity;
+goto("human_core");
+
+@human_core
+entity_name = human.getName(human);
+if(entity_name == "Farmer") {
+	inv.open(farmer_inv, player);
+} elseif(entity_name == "Miner") {
+	inv.open(miner_inv, player);
+} elseif(entity_name == "Baker") {
+	inv.open(baker_inv, player);
+} elseif(entity_name == "Alena") {
+	inv.open(alena_inv, player);
+} elseif(entity_name == "Mason") {
+	inv.open(mason_inv, player);
+} elseif(entity_name == "Priest") {
+	inv.open(priest_inv, player);
+} elseif(entity_name == "Mage") {
+	inv.open(mage_inv, player);
+}
+goto("main");
+
+function createMainMenu(inv_name, market, quests) {
+	inv = inv.new("222222222", text.new(inv_name));
+	if(market) {
+		inv.setItem(inv, 0, $emerald);
+	}
+	if(quests) {
+		inv.setItem(inv, 1, $quest_book);
+	}
+	return inv;
+}

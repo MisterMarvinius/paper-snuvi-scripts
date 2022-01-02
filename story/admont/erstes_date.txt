@@ -1,0 +1,117 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("block_break");
+event.load("custom_command");
+event.load("item_air_click");
+
+stage = 0;
+all_stages = 2;
+quest_name = "Erstes Date";
+tulips = 0;
+tulips_needed = 3;
+book_chest_loc = loc.new(world.getStory(), -1626, 57, 23);
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	if(stage == 1) {
+		rest_item = player.removeItemNbt(player, read.item("minecraft:writable_book"));
+		rest_amount = item.getAmount(rest_item);
+		if(rest_amount != 0) {
+			player.removeItemNbt(player, read.item("minecraft:written_book"));
+		}
+	}
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dPeter", "Hi du! Ich habe heute Abend ein Treffen mit Merle und ich bin super nervös...");
+	scheduler.msgPrefix(30, player, "§dPeter", "Äh, du siehst aus als hättest du Erfahrung oder so, was sollte ich als Geschenk mitnehmen?");
+	scheduler.msg(60, player, "§dAntwortmöglichkeiten:");
+	scheduler.msg(60, player, text.click("[§dA§r] §eBlumen sind nie verkehrt.", "/questanswer A"));
+	scheduler.msg(60, player, text.click("[§dB§r] §eEin paar nette Worte reichen.", "/questanswer B"));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dPeter", "Das ist eine super Idee! Ich zieh mich schon mal schick an!");
+		scheduler.msgPrefix(30, player, "§dPeter", "Hol mir doch in der Zwischenzeit vom Gartenhaus drei rosa Tulpen.");
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dPeter", "Das stimmt! Ich glaube ein Gedicht wäre ein passendes Geschenk für sie.");
+		scheduler.msgPrefix(30, player, "§dPeter", "Ich bin leider nicht so kreativ, übernimm du das doch bitte.");
+		scheduler.msgPrefix(60, player, "§dPeter", "Schreib mir ein Gedicht und signier das Buch dann.");
+		player.giveSingleItem(player, read.item("minecraft:writable_book", 1, "§fFür Merle"), true);
+	}
+}
+goto("wait");
+
+@stage1
+if(option == "A") {
+	if(event == "block_break") {
+		if(block_type == "minecraft:pink_tulip" && loc.hasPlotName(block_loc, "Gewächshaus")) {
+			cancel = false;
+			scheduler.setBlock(5, block_loc, "minecraft:pink_tulip", false);
+			tulips++;
+			if(tulips == 3) {
+				msg.prefix(player, "§dPeter", "Perfekt! Jetzt komm zurück zu mir und gib mir die Blumen.");
+				stage.increase(player);
+			}
+		}
+	}
+} else {
+	if(event == "item_air_click") {
+		cancel = true;
+		goto("wait");
+	}
+	if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+		entity_name = entity.getName(entity);
+		if(entity_name == "Peter") {
+			item = living.getEquip(player, "hand");
+			item_type = item.getType(item);
+			if(item_type == "minecraft:writable_book") {
+				msg.prefix(player, "§dPeter", "Bitte signier das Buch noch für mich!");
+				goto("wait");
+			}
+			if(item_type == "minecraft:written_book" && removeFormat(item.getName(item)) == "Für Merle") {
+				block.addItem(book_chest_loc, item.clone(item));
+				living.setEquip(player, "hand", read.item("minecraft:air"));
+				msg.prefix(player, "§dPeter", "Vielen Dank!");
+				msg(player, "§dQuest abgeschlossen. Belohnung: 18 Snuvis!");
+				money.addBoost(player, 18);
+				quest.finish(script, player);
+			}
+		}
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Peter") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:pink_tulip", tulips_needed);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dPeter", "Vielen Dank!");
+			msg(player, "§dQuest abgeschlossen. Belohnung: 22 Snuvis!");
+			money.addBoost(player, 22);
+			quest.finish(script, player);
+		} else {
+			tulips_needed = rest_amount;
+		}
+	}
+}
+goto("wait");

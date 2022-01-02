@@ -1,0 +1,330 @@
+/*
+Rückgabewerte:
+0 ...... skill executed
+1 ...... skill not existing
+2 ...... skill already active
+3 ...... not enough
+4 ...... cooldown not reached
+*/
+
+function executeSkill(player, tech_name) {
+	if(!skill.exists(tech_name)) {
+		return 1;
+	}
+	if(skill.isInUse(player, tech_name)) {
+		return 2;
+	}
+	if(skill.hasEnough(player, tech_name)) {
+		return 3;
+	}
+	if(skill.isTimed(tech_name)) {
+		skill_time = skill.getTime(tech_name) * 20;
+		skill_name = skill.getTime(tech_name);
+		id = 50 + skill.getIndex(tech_name);
+		status.addTimed(player, id, skill_time, skill_name);
+		data.setTimer(player, tech_name, skill_time);
+	}
+	skill.subAmount(player, tech_name, 1);
+	skill.msg(player, tech_name);
+	ignoreGoto(tech_name);
+	return 1;
+	
+	@skill.fly10min
+	player.setFly(player, true);
+	return 0;
+}
+
+function skill.isTimed(tech_name) {
+	return skill.getTime == null;
+}
+
+function skill.isInUse(player, tech_name) {
+	return data.getTimer(player, tech_name) > 0;
+}
+
+function skill.hasEnough(player, tech_name) {
+	return skill.getAmount(player, tech_name) > 0;
+}
+
+function skill.msg(player, tech_name) {
+	skill_name = skill.getName(tech_name);
+	msg.prefix(player, prefix_skill, concat("Used ", skill_name, ". New amount: ", text.number(skill.getAmount(player, tech_name))));
+}
+
+function skill.getAmount(player_or_id, tech_name) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, tech_name, 0);
+}
+
+function skill.setAmount(player_or_id, tech_name, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, tech_name, amount);
+	config.saveAsync(config);
+}
+
+function skill.addAmount(player_or_id, tech_name, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, tech_name, config.getDouble(config, tech_name, 0) + amount);
+	config.saveAsync(config);
+}
+
+function skill.subAmount(player_or_id, tech_name, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, tech_name, config.getDouble(config, tech_name, 0) - amount);
+	config.saveAsync(config);
+}
+
+function skill.isActivated(player_or_id, tech_name) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, concat(tech_name, ".active"), true);
+}
+
+function skill.setActivated(player_or_id, tech_name, bool) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, concat(tech_name, ".active"), bool);
+}
+
+function skill.add(skill_name, tech_name, item, description, cost, permanent, active, toggleable, cooldown, mana, time) {
+	skill = array.new(11);
+	skill[0] = skill_name;
+	skill[1] = tech_name;
+	skill[2] = item;
+	skill[3] = description;
+	skill[4] = cost;
+	skill[5] = permanent;
+	skill[6] = active;
+	skill[7] = toggleable;
+	skill[8] = cooldown; //s
+	skill[9] = mana;
+	skill[10] = time; //s
+	list.add(skill.getList(), skill);
+}
+
+function skill.getList() {
+	return getScriptVar("skills");
+}
+
+function skill.exists(tech_name) {
+	return skill.get(tech_name) == null;
+}
+
+function skill.get(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array;
+		}
+	}
+}
+
+function skill.getIndex(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+function skill.getShopItem(player_or_id, tech_name) {
+	if(tech_name == null) {
+		return item.getAir();
+	}
+	skill = skill.get(tech_name);
+	amount = skill.getAmount(player_or_id, tech_name);
+	permanent = skill[5];
+	if(permanent) {
+		if(amount == 0) {
+			text_property = concat("§fBought: §cNo §f(Permanent)");
+		} else {
+			text_property = concat("§fBought: §aYes §f(Permanent)");
+		}
+	} else {
+		text_property = concat("§fAmount you have: §e", text.number(amount));
+	}
+	active = skill[6];
+	if(active) {
+		type = "§fActive skill";
+	} else {
+		type = "§fPassive skill";
+	}
+	toggleable = skill[7];
+	if(toggleable) {
+		if(skill.isActivated(player_or_id, tech_name)) {
+			tog = "§fToggleable: §aActive";
+		} else {
+			tog = "§fToggleable: §cInactive";
+		}
+	} else {
+		tog = "§fNot toggleable";
+	}
+	skill_name = skill.getName(tech_name);
+	item = read.item(skill[2], 1, concat("§e§o", skill_name), concat("§fCost: §e", text.number(skill[4])), skill[3], type, tog, text_property);
+	return item;
+}
+
+function skill.getName(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[0];
+		}
+	}
+}
+
+function skill.getTechName(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[1];
+		}
+	}
+}
+
+function skill.getItem(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[2];
+		}
+	}
+}
+
+function skill.getDescription(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[3];
+		}
+	}
+}
+
+function skill.getCost(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[4];
+		}
+	}
+}
+
+function skill.isPermanent(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[5];
+		}
+	}
+}
+
+function skill.isActive(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[6];
+		}
+	}
+}
+
+function skill.isToggleable(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[7];
+		}
+	}
+}
+
+function skill.getCooldown(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[8];
+		}
+	}
+}
+
+function skill.getMana(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[9];
+		}
+	}
+}
+
+function skill.getTime(tech_name) {
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		array = list.getIndex(skill_list, i);
+		temp_tech_name = array[1];
+		if(temp_tech_name == tech_name) {
+			return array[10];
+		}
+	}
+}
+
+function skill.showShop(player, tech_name1, tech_name2, tech_name3, tech_name4, tech_name5, tech_name6, tech_name7, tech_name8, tech_name9, tech_name10, tech_name11, tech_name12, tech_name13, tech_name14, tech_name15, tech_name16, tech_name17, tech_name18) {
+	inv = inv.new("333333333333333333");
+	inv.setItem(inv, 0, skill.getShopItem(player, tech_name1));
+	inv.setItem(inv, 1, skill.getShopItem(player, tech_name2));
+	inv.setItem(inv, 2, skill.getShopItem(player, tech_name3));
+	inv.setItem(inv, 3, skill.getShopItem(player, tech_name4));
+	inv.setItem(inv, 4, skill.getShopItem(player, tech_name5));
+	inv.setItem(inv, 5, skill.getShopItem(player, tech_name6));
+	inv.setItem(inv, 6, skill.getShopItem(player, tech_name7));
+	inv.setItem(inv, 7, skill.getShopItem(player, tech_name8));
+	inv.setItem(inv, 8, skill.getShopItem(player, tech_name9));
+	inv.setItem(inv, 9, skill.getShopItem(player, tech_name10));
+	inv.setItem(inv, 10, skill.getShopItem(player, tech_name11));
+	inv.setItem(inv, 11, skill.getShopItem(player, tech_name12));
+	inv.setItem(inv, 12, skill.getShopItem(player, tech_name13));
+	inv.setItem(inv, 13, skill.getShopItem(player, tech_name14));
+	inv.setItem(inv, 14, skill.getShopItem(player, tech_name15));
+	inv.setItem(inv, 15, skill.getShopItem(player, tech_name16));
+	inv.setItem(inv, 16, skill.getShopItem(player, tech_name17));
+	inv.setItem(inv, 17, skill.getShopItem(player, tech_name18));
+	inv.open(inv, player, "Skillshop");
+}
+
+function skill.showAll(from_player_or_id, to_player) {
+	inv = inv.new("333333333333333333333333333");
+	skill_list  = skill.getList()
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		a = list.getIndex(skill_list, i);
+		tech_name = a[1];
+		inv.setItem(inv, i, skill.getShopItem(from_player_or_id, tech_name));
+	}
+	from_player_id = player.getValidId(from_player_or_id);
+	if(from_player_id == player.getValidId(to_player)) {
+		inv_name = "Skills";
+	} else {
+		inv_name = concat("Skills von ", player.getNameFromId(from_player_id));
+	}
+	inv.open(inv, to_player, inv_name);
+}

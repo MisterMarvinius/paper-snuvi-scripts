@@ -1,0 +1,47 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("living_death");
+
+stage = 0;
+all_stages = 1;
+quest_name = "Merle in Nöten";
+cave_spider_loc = loc.new(world.get("story"), -1625, 71, 37);
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dMerle", "HILFE!!! HIER IST IRGENDWO EINE SPINNE. ICH WERDE NIE WIEDER SCHLAFEN KÖNNEN!!!");
+	scheduler.msgPrefix(30, player, concat("§d", player.getName(player)), "Keine Panik ich kümmere mich darum.");
+	entity.spawn("spider", cave_spider_loc);
+	player.giveSingleItem(player, read.item("minecraft:stone_sword"), false);
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "living_death") {
+	entity_type = entity.getType(living_entity);
+	if(entity_type == "spider") {
+		mob_killed = true;
+		msg.prefix(player, "§dMerle", "Danke! Jetzt kann ich wieder beruhigt einschlafen.");
+		msg(player, "§dQuest abgeschlossen. Belohnung: 9 Snuvis!");
+		money.addBoost(player, 9);
+		quest.finish(script, player);
+	}
+}
+goto("wait");

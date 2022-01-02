@@ -1,0 +1,73 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("block_break");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 3;
+quest_name = "Hide and Seek";
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dBernd", "Pssst! Ich und ein Freund spielen gerade Verstecken und ich muss zählen.");
+	scheduler.msgPrefix(30, player, "§dBernd", "Es wäre natürlich cool, wenn du mir dabei hilfst. Mein Kumpel Robert muss immer übertreiben und sucht sich die schwersten Verstecke.");
+	scheduler.msgPrefix(60, player, "§dBernd", "Such ihn doch und sag mir dann, wo er ist.");
+	scheduler.msgPrefix(90, player, concat("§d", player.getName(player)), "Ich bin Profi im Suchen!");
+	scheduler.msgPrefix(120, player, "§dBernd", "Kleiner Tipp: Man darf sich nur in Gebäuden verstecken.");
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Robert") {
+		stage.increase(player);
+		msg.prefix(player, "§dRobert", "Pssst! Ich versteck mich hier...");
+		scheduler.msgPrefix(30, player, "§dRobert", "Sag Bernd bitte nicht, dass ich hier bin.");
+		goto("wait");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Bernd") {
+		stage.increase(player);
+		msg.prefix(player, "§dBernd", "Und wo ist Robert?");
+		scheduler.msg(30, player, "§dAntwortmöglichkeiten:");
+		scheduler.msg(30, player, text.click("[§dA§r] §eEr hat sich beim Schmied versteckt.", "/questanswer A"));
+		scheduler.msg(30, player, text.click("[§dB§r] §eEr versteckt sich in der Windmühle in der linken Ecke.", "/questanswer B"));
+		goto("wait");
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "custom_command" && command == "questanswer") {
+	msg.prefix(player, "§dBernd", "Ha! Der wird sich wundern, dass ich ihn so schnell finde. Danke!");
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		msg(player, "§dQuest abgeschlossen. Belohnung: 9 Snuvis!");
+		money.addBoost(player, 9);
+		quest.finish(script, player);
+	}
+	if(option == "B") {
+		msg(player, "§dQuest abgeschlossen. Belohnung: 18 Snuvis!");
+		money.addBoost(player, 18);
+		quest.finish(script, player);
+	}
+}
+goto("wait");

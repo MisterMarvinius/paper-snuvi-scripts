@@ -1,7 +1,10 @@
-backpos="world:123.27155327053966:77.5:-29.878165616597432:-4.46764612197876:18.50848960876465"
+backpos="null"
 firstjoin=false
+lastvotetime=1.640870590829E12
 message.join="is now looking for chocolate"
 message.leave="has eaten all the chocolate"
-money=1402.0
-pvp=true
+money=3364.0
+pvp=false
 rank="§9Moderator"
+votepoints=2.0
+votestreak=4.0

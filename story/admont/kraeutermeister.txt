@@ -1,0 +1,285 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_click");
+event.load("block_break");
+event.load("entity_click");
+event.load("item_air_click");
+
+stage = 0;
+all_stages = 9;
+quest_name = "Kräutermeister";
+age_prop_3 = block.getProperty("age_0_3");
+
+brown_mushroom = 0;
+red_mushroom = 0;
+nether_wart = 0;
+twisting_vines = 0;
+warped_fungus = 0;
+crimson_fungus = 0;
+warped_roots = 0;
+crimson_roots = 0;
+
+brown_mushroom_needed = 5;
+red_mushroom_needed = 5;
+nether_wart_needed = 10;
+twisting_vines_needed = 3;
+warped_fungus_needed = 1;
+crimson_fungus_needed = 1;
+warped_roots_needed = 2;
+crimson_roots_needed = 2;
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dKunibert", "Du kommst zum richtigen Zeitpunkt. Ich habe gehört, du suchst Tätigkeiten.");
+	scheduler.msgPrefix(30, player, "§dKunibert", "Im Sumpf nebenan gibt es einiges zu pflücken.");
+	scheduler.msgPrefix(60, player, "§dKunibert", "Hier meine Zutatenliste für mein geheimes Heilmittel.");
+	scheduler.msgPrefix(150, player, "§dKunibert", "Aber pssst, niemand darf von meiner Kunst der Heilkunde erfahren, sonst werde ich verfolgt. Ich vertrau dir.");
+	player.giveSingleItem(player, read.item("minecraft:shears"), false);
+	ingredients = read.item("minecraft:paper");
+	item.setName(ingredients, "Zutaten für Kunibert");
+	item.addLore(ingredients, 0, "5 braune Pilze");
+	item.addLore(ingredients, 1, "5 rote Pilze");
+	item.addLore(ingredients, 2, "10 Netherwarzen");
+	item.addLore(ingredients, 3, "2 Karmesinwurzeln");
+	item.addLore(ingredients, 4, "1 Wirrpilz");
+	item.addLore(ingredients, 5, "2 Wirrwurzeln");
+	item.addLore(ingredients, 6, "2 Wirbelranken");
+	item.addLore(ingredients, 7, "1 Karmesinpilz");
+	player.giveSingleItem(player, ingredients, true);
+	goto("wait");
+}
+if(event == "item_air_click") {
+	if(hand == "OFF_HAND") {
+		goto("wait");
+	}
+	item = living.getEquip(player, "hand");
+	item_type = item.getType(item);
+	if(item_type == "minecraft:paper") {
+		c = 0;
+		msg(player, "§5Noch zu sammelnde Zutaten für Kunibert:");
+		diff = brown_mushroom_needed - brown_mushroom;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " braune Pilze");
+		}
+		diff = red_mushroom_needed - red_mushroom;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " rote Pilze");
+		}
+		diff = nether_wart_needed - nether_wart;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " Netherwarzen");
+		}
+		diff = crimson_roots_needed - crimson_roots;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " Karmesinwurzeln");
+		}
+		diff = warped_fungus_needed - warped_fungus;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " Wirrpilz");
+		}
+		diff = warped_roots_needed - warped_roots;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " Wirrwurzeln");
+		}
+		diff = twisting_vines_needed - twisting_vines;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " Wirbelranken");
+		}
+		diff = crimson_fungus_needed - crimson_fungus;
+		if(diff > 0) {
+			c++;
+			msg(player, "§5 - §r", text.number(diff), " Karmesinpilz");
+		}
+		if(c == 0) {
+			msg(player, "§5 - §rAlles gesammelt.");
+		}
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	if(block_type == "minecraft:brown_mushroom") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, block_type, false);
+		brown_mushroom++;
+		if(brown_mushroom == brown_mushroom_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:red_mushroom") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, block_type, false);
+		red_mushroom++;
+		if(red_mushroom == red_mushroom_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:nether_wart") {
+		cancel = false;
+		age = block.property.getValue(block_loc, age_prop_3);
+		scheduler.setBlock(5, block_loc, concat(block_type, "[age=", text.number(age), "]"), false);
+		nether_wart++;
+		if(nether_wart == nether_wart_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:crimson_roots") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, block_type, false);
+		crimson_roots++;
+		if(crimson_roots == crimson_roots_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:crimson_fungus") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, block_type, false);
+		crimson_fungus++;
+		if(crimson_fungus == crimson_fungus_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:warped_roots") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, block_type, false);
+		warped_roots++;
+		if(warped_roots == warped_roots_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:warped_fungus") {
+		cancel = false;
+		scheduler.setBlock(5, block_loc, block_type, false);
+		warped_fungus++;
+		if(warped_fungus == warped_fungus_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "minecraft:twisting_vines") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "minecraft:shears") {
+			cancel = false;
+			scheduler.setBlock(5, block_loc, block_type, false);
+			twisting_vines++;
+			if(twisting_vines == twisting_vines_needed) {
+				stage.increase(player);
+			}
+		} else {
+			msg.prefix(player, "§dKunibert", "Wirbelranken müssen mit einer Schere abgebaut werden.");
+		}
+	}
+}
+if(stage == 8) {
+	goto("stage8");
+}
+goto("wait");
+
+@stage8
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Kunibert") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "minecraft:brown_mushroom") {
+			if(brown_mushroom_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, brown_mushroom_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für die braunen Pilze.");
+				}
+				brown_mushroom_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:red_mushroom") {
+			if(red_mushroom_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, red_mushroom_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für die roten Pilze.");
+				}
+				red_mushroom_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:nether_wart") {
+			if(nether_wart_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, nether_wart_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für die Netherwarzen.");
+				}
+				nether_wart_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:crimson_roots") {
+			if(crimson_roots_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, crimson_roots_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für die Karmesinwurzeln.");
+				}
+				crimson_roots_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:crimson_fungus") {
+			if(crimson_fungus_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, crimson_fungus_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für den Karmesinpilz.");
+				}
+				crimson_fungus_needed = rest_amount;
+			}
+		}
+		if(item_type == "minecraft:warped_roots") {
+			if(warped_roots_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, warped_roots_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für die Wirrwurzeln.");
+				}
+				warped_roots_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:warped_fungus") {
+			if(warped_fungus_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, warped_fungus_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für den Wirrpilz.");
+				}
+				warped_fungus_needed = rest_amount;
+			}
+		}
+		elseif(item_type == "minecraft:twisting_vines") {
+			if(twisting_vines_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, twisting_vines_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dKunibert", "Danke für die Zwirbelranken.");
+				}
+				twisting_vines_needed = rest_amount;
+			}
+		}
+		if(brown_mushroom_needed == 0 && red_mushroom_needed == 0 && nether_wart_needed == 0 && crimson_roots_needed == 0 && crimson_fungus_needed == 0 && warped_roots_needed == 0 && warped_fungus_needed == 0 && twisting_vines_needed == 0) {
+			msg.prefix(player, "§dKunibert", "Damit kann ich einiges anstellen. Vielen Dank!");
+			money.addBoost(player, 24);
+			msg(player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

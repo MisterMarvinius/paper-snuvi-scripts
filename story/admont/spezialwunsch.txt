@@ -1,0 +1,107 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_break");
+event.load("block_drop");
+event.load("entity_click");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 3;
+quest_name = "Spezialwunsch";
+
+hay_needed = 13;
+hay_harvestet = 0;
+
+@wait
+wait();
+if(event == "block_drop") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dBauer", "Schön, dass du hier bist an diesem sonnigen Tag! Es ist so heiß hier und ich habe schon 3 Stunden auf dem Feld verbracht… Ich bin komplett fertig.");
+	msg(player, "§dAntwortmöglichkeiten:");
+	msg(player, text.click("[§dA§r] §eWie kann ich helfen?", "/questanswer A"));
+	msg(player, text.click("[§dB§r] §eWie läuft die Ernte?", "/questanswer B"));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dBauer", "Da gäbe es tatsächlich etwas:");
+		scheduler.msgPrefix(40, player, "§dBauer", "Für ein spezielles Rezept brauche ich eine besondere Weizensorte, die für ein großartiges Aroma sorgt.");
+		scheduler.msgPrefix(80, player, "§dBauer", "Diese ist leider nur mit geringer Wahrscheinlichkeit zu finden, denn sie entseht nur unter bestimmten Bedingungen...");
+		scheduler.msgPrefix(120, player, "§dBauer", "Wenn du im Feld beim Ernten ein bisschen danach suchen könntest, wäre das eine große Hilfe! Ich brauche 13 Stück.");
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dBauer", "Die Weizenernte für heute ist eigentlich vollbracht! ");
+		scheduler.msgPrefix(40, player, "§dBauer", "Doch für ein spezielles Rezept brauche ich eine besondere Weizensorte, die für ein großartiges Aroma sorgt.");
+		scheduler.msgPrefix(80, player, "§dBauer", "Diese ist leider nur mit geringer Wahrscheinlichkeit zu finden, denn sie entseht nur unter bestimmten Bedingungen...");
+		scheduler.msgPrefix(120, player, "§dBauer", "Wenn du im Feld beim Ernten ein bisschen danach suchen könntest, wäre das eine große Hilfe! Ich brauche 13 Stück.");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "block_drop") {
+	if(block_type == "km:rwheat") {
+		r = math.random(0, 4);
+		list.clear(drops);
+		if(r == 0) {
+			list.add(drops, read.item("km:hay_bundle"));
+			hay_harvestet++;
+			if(hay_harvestet == hay_needed) {
+				stage.increase(player);
+			}
+		} else {
+			list.add(drops, read.item("minecraft:wheat"));
+		}
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	if(block_type == "km:rwheat") {
+		cancel = false;
+		scheduler.setBlock(60, block_loc, "km:rwheat[age=7]", false);
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Bauer") {
+		rest_amount = human.giveItem(entity_name, player, "km:hay_bundle", hay_needed);
+		if(rest_amount == 0) {
+			msg(player, "§dQuest abgeschlossen. Belohnung: 12 Snuvis!");
+			money.addBoost(player, 12);
+			quest.finish(script, player);
+		} else {
+			hay_needed = rest_amount;
+		}
+	}
+}
+goto("wait");

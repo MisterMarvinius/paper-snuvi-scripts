@@ -1,0 +1,107 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("craft");
+event.load("entity_click");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 5;
+quest_name = "Für die Wissenschaft!";
+paper_neded = 3;
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dIsabell", "Was soll ich nur tun? Ich habe so viele Ideen und ich muss sie unbedingt aufschreiben...");
+	msg(player, "§dAntwortmöglichkeiten:");
+	msg(player, text.click("[§dA§r] §eWas ist denn das Problem?", "/questanswer A"));
+	msg(player, text.click("[§dB§r] §eWelche Ideen denn?", "/questanswer B"));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dIsabell", "Ich arbeite gerade an einem wichtigen wissenschaftlichen Projekt, aber ich habe kein Papier mehr.");
+		scheduler.msgPrefix(40, player, "§dIsabell", "Bitte geh zu Kunibert, er hat sicher immer etwas Zuckerrohr übrig.");
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dIsabell", "Ich habe sie vergessen!!! Deshalb muss ich demnächst alles aufschreiben, bevor das wieder passiert. ");
+		scheduler.msgPrefix(40, player, "§dIsabell", "Ich arbeite gerade an einem wichtigen wissenschaftlichen Projekt, aber ich habe kein Papier mehr.");
+		scheduler.msgPrefix(80, player, "§dIsabell", "Bitte geh zu Kunibert, er hat sicher immer etwas Zuckerrohr übrig.");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Kunibert") {
+		stage.increase(player);
+		msg.prefix(player, "§dKunibert", "Hallo, was kann ich für dich tun?");
+		scheduler.msgPrefix(40, player, concat("§5", player.getName(player)), "Ich brauche Zuckerrohr.");
+		scheduler.msgPrefix(80, player, "§dKunibert", "Mh, lass mich nachsehen. Ich habe noch eins übrig, hier.");
+		scheduler.giveItem(80, player, read.item("minecraft:sugar_cane"));
+		scheduler.msgPrefix(120, player, concat("§5", player.getName(player)), "Das reicht leider nicht. Ich brauche 2 weitere.");
+		scheduler.msgPrefix(160, player, "§dKunibert", "Frag doch Rolf, er sammelt alles Mögliche.");
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Rolf") {
+		stage.increase(player);
+		msg.prefix(player, "§dRolf", "Ey, was störst du mich?");
+		scheduler.msgPrefix(40, player, concat("§5", player.getName(player)), "Entschuldigung, ich suche nach 2 Zuckerrohren.");
+		scheduler.msgPrefix(80, player, "§dRolf", "Hrmph, ja hier... Aber hau sofort wieder ab!");
+		scheduler.giveItem(80, player, read.item("minecraft:sugar_cane", 2));
+	}
+}
+goto("wait");
+
+@stage3
+if(event == "craft") {
+	if(item.getType(result) == "minecraft:paper") {
+		stage.increase(player);
+	}
+}
+goto("wait");
+
+@stage4
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Isabell") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:paper", paper_neded);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dIsabell", "DANKE! Du rettest mich und die Wissenschaft!");
+			msg(player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");
+			money.addBoost(player, 24);
+			quest.finish(script, player);
+		} else {
+			paper_neded = rest_amount;
+		}
+	}
+}
+goto("wait");

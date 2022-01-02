@@ -1,0 +1,122 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("player_loom_finish");
+
+stage = 0;
+all_stages = 5;
+quest_name = "Tücher";
+
+wool = 0;
+wool_tag = item.getTag("minecraft:wool");
+loom_list = list.new();
+loom_list_2 = list.new();
+par = particle.get("minecraft:witch");
+loom_coarse = 0;
+loom_cloth = 0;
+needed_amount = 4;
+
+@wait
+wait();
+if(event == "player_loom_finish") {
+	player = getScriptVar("player");
+	loom_loc = getScriptVar("loom_loc");
+	entity = getScriptVar("entity");
+}
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dRolf", "Mh… Hallo. Ich brauche Tücher. Schere doch 8 Schafe, aber zackig!");
+	player.giveSingleItem(player, read.item("minecraft:shears"), false);
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "entity_click") {
+	entity_type = entity.getType(entity);
+	if(entity_type == "sheep") {
+		if(!sheep.isSheared(entity)) {
+			item = living.getEquip(player, "hand");
+			item_type = item.getType(item);
+			if(item_type == "minecraft:shears") {
+				wool++;
+				if(wool == 8) {
+					stage.increase(player);
+				}
+			}
+		}
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Rolf") {
+		msg.prefix(player, "§dRolf", "Ich brauch doch keine Wolle, ich will Tücher!");
+		scheduler.msgPrefix(30, player, concat("§5", player.getName(player)), "Und wie geht das?");
+		scheduler.msgPrefix(60, player, "§dRolf", "Siehst du den Webstuhl da? Schmeiß 4 Stück Wolle darauf.");
+		scheduler.msgPrefix(90, player, "§dRolf", "Schaue ihn direkt an und drücke Q (Drop-Taste) um ihn zu benutzen.");
+		scheduler.msgPrefix(120, player, "§dRolf", "Danach wirfst du 4 Wollstücke und 4 raue Tücher auf den Webstuhl um 4 Tücher herzustellen.");
+		stage.increase(player);
+	}
+}
+goto("wait");
+
+@stage2
+@stage3
+if(event == "player_loom_finish") {
+	item = item.entity.get(entity);
+	if(loom_coarse < 4) {
+		if(item.getType(item) == "km:coarse_cloth") {
+			loom_coarse += item.getAmount(item);
+			if(loom_coarse >= 4) {
+				stage.increase(player);
+				msg.prefix(player, "§dRolf", "Stop! Ich will doch nicht noch mehr raue Tücher! Wirf nun jeweils ein Wollstück und ein raues Tuch auf den Webstuhl.");
+			}
+			goto("wait");
+		}
+	}
+	if(loom_cloth < 4) {
+		if(item.getType(item) == "km:cloth") {
+			loom_cloth += item.getAmount(item);
+			if(loom_cloth >= 4) {
+				stage.increase(player);
+				msg.prefix(player, "§dRolf", "Perfekt. Jetzt gib mir die Tücher.");
+			}
+			goto("wait");
+		}
+	}
+}
+goto("wait");
+
+@stage4
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Rolf") {
+		rest_amount = human.giveItem(entity_name, player, "km:cloth", needed_amount);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dRolf", "Vielen Dank!");
+			money.addBoost(player, 24);
+			msg(player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");
+			quest.finish(script, player);
+		} else {
+			needed_amount = rest_amount;
+		}
+	}
+}
+goto("wait");

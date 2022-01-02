@@ -1,4 +1,6 @@
-backpos="world:-279.0858232452789:68.0:-11.896051972460912:-87.81434631347656:30.609272003173828"
+backpos="null"
 firstjoin=false
-money=385.0
+money=1499.0
+plot.usedFree=true
 pvp=false
+rank="§3User"

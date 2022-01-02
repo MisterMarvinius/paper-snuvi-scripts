@@ -1,4 +1,6 @@
-backpos="world:118.99800445174121:81.82930389124868:-20.33100524811516:-82.6068344116211:35.7092399597168"
+backpos="null"
 firstjoin=false
-money=110.0
+money=89.0
+plot.usedFree=true
 pvp=false
+rank="§eSettler"

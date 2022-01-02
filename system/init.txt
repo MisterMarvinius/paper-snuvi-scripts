@@ -36,4 +36,9 @@ table.setsize(":", 2);
 table.setEmpty1(string.concat(string.fromCode(63502), " "));
 table.setEmpty2(string.concat(string.fromCode(63501), " "));
 
+msg("dev", text.new("A"));
+human.setPrefix("§d§oNPC §e| §7§o");
+human.setSuffix("");
+msg("dev", text.new("B"));
+
 term();

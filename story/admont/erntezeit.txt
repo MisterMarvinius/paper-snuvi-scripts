@@ -1,0 +1,106 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_drop");
+event.load("block_break");
+event.load("entity_click");
+
+stage = 0;
+all_stages = 3;
+quest_name = "Erntezeit";
+
+wheat_needed = 64;
+carrots_needed = 10;
+wheat_harvestet = 0;
+carrots_harvestet = 0;
+
+@wait
+wait();
+if(event == "block_drop") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dBauer", "Gut, dass du vorbeischaust. Hilf mir doch bei der Ernte und hole mir 64 Weizen vom Feld.");
+	scheduler.msgPrefix(30, player, "§dBauer", "Wenn du damit fertig bist, bräuchte ich noch 10 Karotten. Diese solltest du auf dem offenen Felde hinter der Mühle finden.");
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+@stage1
+@stage2
+if(event == "block_drop") {
+	if(block_type == "km:rwheat") {
+		list.clear(drops);
+		list.add(drops, read.item("minecraft:wheat"));
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	if(block_type == "km:rwheat") {
+		cancel = false;
+		scheduler.setBlock(60, block_loc, "km:rwheat[age=7]", false);
+		wheat_harvestet++;
+		if(t == wheat_needed) {
+			stage.increase(player);
+		}
+	}
+	if(block_type == "km:rcarrots") {
+		item.drop(block_loc, read.item("minecraft:carrot"));
+		cancel = true;
+		carrots_harvestet++;
+		if(carrots_harvestet == carrots_needed) {
+			stage.increase(player);
+		}
+	}
+	goto("wait");
+}
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Bauer") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "minecraft:wheat") {
+			if(wheat_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, wheat_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dBauer", "Danke für das Weizen.");
+				}
+				wheat_needed = rest_amount;
+			}
+		}
+		if(item_type == "minecraft:carrot") {
+			if(carrots_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, carrots_needed);
+				if(rest_amount == 0) {
+					msg.prefix(player, "§dBauer", "Danke für die Karotten.");
+				}
+				carrots_needed = rest_amount;
+			}
+		}
+		if(wheat_needed == 0 && carrots_needed == 0) {
+			msg.prefix(player, "§dBauer", "Vielen Dank für deine Hilfe!");
+			msg(player, "§dQuest abgeschlossen. Belohnung: 18 Snuvis!");
+			money.addBoost(player, 18);
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

@@ -1,0 +1,137 @@
+event.load("entity_click");
+event.load("quest_start");
+event.load("quest_term");
+event.load("custom_command");
+event.load("block_break");
+event.load("living_death");
+
+stage = 0;
+all_stages = 7;
+quest_name = "Gaumenschmauß...";
+coal_counter = 0;
+story = world.getStory();
+cow_loc = loc.new(story, -1561.5, 66, -80);
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dDieter", "Sieht aus als hätten wir Gesellschaft! Wenn du hergekommen bist, um mit uns zu essen, muss ich dich leider enttäuschen. Wir haben weder ein Gericht, noch Feuer. Man könnte sagen, wir brauchen jemanden zum Anfeuern.");
+	msg(player, "§dAntwortmöglichkeiten:");
+	msg(player, text.click("[§dA§r] §eIch feuer sehr gerne mit an!", "/questanswer A"));
+	msg(player, text.click("[§dB§r] §eCheerleading? Kann ich.", "/questanswer B"));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A" || option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dDieter", "Na das ist doch super. Hier in der Nähe ist die Odelsteinhöhle. Hol uns doch 6 Stück Kohle.");
+		player.giveSingleItem(player, read.item("minecraft:stone_pickaxe"), false);
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "block_break") {
+	if(block_type == "minecraft:coal_ore") {
+		cancel = true;
+		item.drop(entity.getLocation(player), read.item("minecraft:coal"));
+		coal_counter++;
+		if(coal_counter == 6) {
+			stage.increase(player);
+		}
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Dieter") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:coal", coal_counter);
+		if(rest_amount == 0) {
+			stage.increase(player);
+			msg.prefix(player, "§dDieter", "Vielen Dank! Jetzt fehlt uns nur noch ein ordentlicher Braten.");
+			scheduler.msgPrefix(30, player, "§dDieter", "Wir zünden schonmal das Holz an. Geh du derweil zum Metzger und besorg uns etwas Rindfleisch!");
+		} else {
+			coal_counter = rest_amount;
+		}
+	}
+}
+goto("wait");
+
+@stage3
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Metzger") {
+		stage.increase(player);
+		msg.prefix(player, "§dMetzger", "Hey, du gehörst hier eigentlich nicht hin! Ich will deinen jungen Augen diesen grausamen Anblick ersparen.");
+		msg(player, "§dAntwortmöglichkeiten:");
+		msg(player, text.click("[§dA§r] §eDas macht nichts. Ich hätte gerne etwas Rindfleisch, wenn das möglich ist.", "/questanswer A"));
+		msg(player, text.click("[§dB§r] §eIch kann das auf keinen Fall mit ansehen!", "/questanswer B"));
+	}
+}
+goto("wait");
+
+@stage4
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dMetzger", "Na dann such dir eins aus. Ich erlaube dir auch, selbst Hand anzulegen.");
+		entity.spawn("cow", cow_loc);
+		player.giveSingleItem(player, read.item("minecraft:stone_axe"), false);
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		stage.increase(player);
+		player.safeGiveItem(player, read.item("minecraft:beef", 1));
+		msg.prefix(player, "§dMetzger", "Kein Problem. Ich habe noch etwas gelagert.");
+		scheduler.msgPrefix(30, player, "§dDieter", "Komm zurück zu mir.");
+	}
+}
+goto("wait");
+
+@stage5
+if(event == "living_death") {
+	if(entity.getType(living_entity) == "cow") {
+		stage.increase(player);
+		msg.prefix(player, "§dDieter", "Komm zurück zu mir.");
+	}
+}
+goto("wait");
+
+@stage6
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Dieter") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:beef", 1);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dDieter", "Super! Das wird ein einzigartiger Gaumenschmaus.");
+			player.safeGiveItem(player, read.item("minecraft:cooked_beef"));
+			msg(player, "§dQuest abgeschlossen. Belohnung: 28 Snuvis!");
+			money.addBoost(player, 28);
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

@@ -3,7 +3,11 @@ error_counter = 0;
 error_counter++;
 if(error_counter > 1) {
 	snuvi.debug("Error Handler activated");
+	if(event == "inv_click") {
+		snuvi.debug(string.concat("slot: ", inv_slot, " size: ", inv_size));
+	}
 	if(event == "custom_command") {
+		snuvi.debug(string.concat("Command ", command, " failed."));
 		set.add(failed_cmds, command);
 		goto("wait");
 	}
@@ -51,44 +55,44 @@ alias_map = map.new();
 command_list = list.new();
 command_map = map.new();
 command.register("afk", "Toggles afk");
-	//command.register("allsounds", "Plays all sounds");
+command.register("allsounds", "Plays all sounds");
 command.register("answer", "Answers the last private message");
 //command.register("ass", "Armor Stand Signs");
 command.register("back", "Teleports to the last position");
 command.register("ban", "Bans a player");
 command.register("block", "Block commands");
-	//command.register("boost", "Boosts you up to the clouds");
-	//command.register("clan", "Clan-Commands");
+command.register("boost", "Boosts you up to the clouds");
+//command.register("clan", "Clan-Commands");
 command.register("color", "Shows all colors");
-command.register("coords", "Shows infos for the targeted block");
 command.register("copyisland", "Copyisland-Commands");
-	//command.register("creative", "Teleports to creative-spawn");
+//command.register("creative", "Teleports to creative-spawn");
 command.register("databank", "Databank-Commands");
 command.register("datatools", "Datatools-Commands");
-//command.register("enchant", "Enchants an item in your hand");
+command.register("enchant", "Enchants an item in your hand");
 command.register("enderchest", "Shows enderchests");
-	//command.register("entities", "Lists all entities in a world");
+command.register("entities", "Lists all entities in a world");
 command.register("error", "Error-Logger");
 command.register("errordebug", "Debug-Logger");
 command.register("feed", "Fills hunger bar");
 command.register("fly", "Toggles fly");
 command.register("friend", "Friend-Commands");
-	//command.register("game", "marvs minigame shit");
+//command.register("game", "marvs minigame shit");
 command.register("gamemode", "Change gamemode");
 command.register("gamerule", "Manage gamerules");
-	//command.register("games", "Teleports to games-spawn");
-	//command.register("giveup", "Giveup a quest");
-	//command.register("grow", "Grow seeds");
+//command.register("games", "Teleports to games-spawn");
+//command.register("giveup", "Giveup a quest");
+command.register("grow", "Grow seeds");
 command.register("hat", "Be fame with a new hat");
 command.register("head", "Gives you the head of a player");
 command.register("heal", "Heals, fills hunger bar and remove effects");
 command.register("help", "Shows this help");
 command.register("home", "Manage your homes");
+command.register("icon", "Shows all icons");
 command.register("live", "Toggles Live-Mode");
 command.register("lag", "Executes a lag test");
-	//command.register("leave", "Leave a minigame");
+//command.register("leave", "Leave a minigame");
 command.register("human", "Human-Commands");
-//command.register("inv", "Inv-Commands");
+command.register("inv", "Inv-Commands");
 command.register("iteminfo", "Returns information about an item");
 command.register("jail", "Sends a player to jail");
 command.register("jumpto", "Jumps to a block in sight");
@@ -110,33 +114,33 @@ command.register("perm", "Manage permissions");
 command.register("playtime", "Shows your playtime");
 command.register("plot", "Plot-Commands");
 command.register("pvp", "Toggles pvp");
-	//command.register("quest", "Quest-Commands");
+//command.register("quest", "Quest-Commands");
 command.register("rank", "Shows your available ranks");
-	//command.register("repair", "Repairs your item in mainhand");
+command.register("repair", "Repairs your item in mainhand");
 command.register("report", "Report whatever you want");
 command.register("ride", "Rides an entity");
 command.register("say", "[Server] chat message");
 command.register("script", "Script-Commands");
 command.register("settings", "Opens settings menu");
 command.register("seen", "Returns the last date the player was online");
-	//command.register("senditem", "Sends an itemstack to another player");
+//command.register("senditem", "Sends an itemstack to another player");
 command.register("setmessage", "Set your join/leave-message");
 command.register("setrank", "");
 command.register("setservermessage", "Sets the server-message in the serverlist");
 command.register("setspawn", "Changes a spawn");
-//command.register("shop", "Shop-Commands");
+command.register("shop", "Shop-Commands");
 command.register("sign", "Edit a sign");
 command.register("silentban", "Silently bans a player");
 command.register("silentjoin", "Toggles your silentjoins");
 command.register("silentkick", "Silently kicks a player");
-	//command.register("skills", "Shows all skills");
+//command.register("skills", "Shows all skills");
 command.register("skipnight", "Skips the night");
 command.register("spawn", "Teleports to spawn");
 command.register("speed", "Sets your speed");
 command.register("start", "Starts a script");
-	//command.register("startgame", "Reduces start-countdown for a minigame");
-	//command.register("stats", "Statistics-Commands");
-	//command.register("stopadventure", "Stops an adventure");
+//command.register("startgame", "Reduces start-countdown for a minigame");
+//command.register("stats", "Statistics-Commands");
+//command.register("stopadventure", "Stops an adventure");
 command.register("suicide", "Kill yourself");
 command.register("teleport", "Teleports a player to a player");
 command.register("tempban", "Bans a player temporarly");
@@ -191,6 +195,7 @@ beds_tag = block.getTag("minecraft:beds");
 chest_tag = block.getTag("forge:chests");
 sign_tag = block.getTag("minecraft:signs");
 dirt_tag = block.getTag("forge:dirt");
+prefix_shop = "§6Shop";
 prefix_clan = "§2Clan";
 prefix_tips = "§eTips";
 prefix_lock = "§eLock";
@@ -206,6 +211,8 @@ prefix_human = "§6Human";
 prefix_plot = "§dPlots";
 prefix_party = "§5Party";
 prefix_skill = "§2Skill";
+
+initPlotFlags();
 
 party_ids = getScriptVar("party_ids");
 if(party_ids == null) {
@@ -245,7 +252,7 @@ if(live_set == null) {
 	setScriptVar("live_set", live_set);
 } else {
 	//Register all Live-Players again
-	iter = set.iterator(live_set);
+	iter = iterator(live_set);
 	while(hasNext(iter)) {
 		player = player.get(next(iter));
 		if(player != null) {
@@ -279,6 +286,7 @@ setScriptVar("ha_data_lists", map.new());
 setScriptVar("ha_undo_lists", map.new());
 money.setBoostFactor(1);
 
+sgoto(200, "sb_title_loop");
 sgoto(100, "coordsloop");
 sgoto(1200, "afk_checker_loop");
 //sgoto(1200, "minute_loop");
@@ -498,6 +506,7 @@ sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
 
 //event.load("player_move");
 event.load("snuvi_click");
+event.load("inv_click");
 event.load("inv_close");
 event.load("missing_perm");
 event.load("missing_command");
@@ -553,6 +562,7 @@ if(event == "vote") {
 			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server-list.com", "https://minecraft-server-list.com/server/478200/vote/")));
 		}
 		now_time = time.getMillis();
+		last_vote_time = player.getLastVoteTime(player);
 		new_streak = player.getVoteStreak(p_id);
 		if(last_vote_time == 0) {
 			new_streak++;
@@ -608,15 +618,10 @@ if(event == "block_click") {
 		cancel = true;
 		goto("wait");
 	}
-	if(perm.has("plot.bypass", player)) {
+	if(player.hasBypass(player)) {
 		goto("wait");
 	}
 	if(block.hasTag(block, chest_tag)) {
-		sign_block = block.mod(block, 0, 1, 0);
-		if(block.hasTag(block, wall_signs_tag) && isAdminShop(sign_block)) {
-			cancel = true;
-			goto("wait");
-		}
 		block_loc = block.getLocation(block);
 		if(plot.check(block_loc, player, 16, true)) {
 			cancel = false;
@@ -626,7 +631,7 @@ if(event == "block_click") {
 		player_uuid = player.getUuid(player);
 		list = plot.get(block_loc);
 		if(list.getSize(list) > 0) {
-			iter = list.iterator(list);
+			iter = iterator(list);
 			access = false;
 			while(hasNext(iter)) {
 				plot = next(iter);
@@ -644,7 +649,6 @@ if(event == "block_click") {
 					access = true;
 					cancel = false;
 				}
-			
 			}
 			if(!access) {
 				msg.prefix(player, prefix_plot, "This chest is locked for you.");
@@ -677,7 +681,7 @@ if(event == "block_click") {
 		}
 		block_loc = block.getLocation(block);
 		plot_list = plot.get(block_loc);
-		iter = list.iterator(plot_list);
+		iter = iterator(plot_list);
 		while(hasNext(iter)) {
 			plot = next(iter);
 			if(plot.isFree(plot)) {
@@ -709,7 +713,7 @@ if(event == "player_quit") {
 	map.remove(afk_checker_map, uuid);
 	player.setAfk(player, false);
 	list.remove(jailed_list, player.getUuid(player));
-	/*if(player.hasQuest2(player)) {
+	/*if(player.hasQuest(player)) {
 		script_id = quest.getFromPlayer(player);
 		script = script.getFromId(script_id);
 		if(script == null) {
@@ -729,6 +733,42 @@ if(event == "player_quit") {
 if(event == "missing_perm") {
 	perm.no(command, sender);
 	msg.prefix(sender, prefix_perms, string.concat("Missing Perm: §c", perm));
+	goto("wait");
+}
+if(event == "inv_click") {
+	inv_size = inv.getSize(inv);
+	if(inv_slot >= inv_size || inv_slot < 0) {
+		goto("wait");
+	}
+	inv_id = inv.getId(inv);
+	item = inv.getItem(inv, inv_slot);
+	if(item == null) {
+		goto("wait");
+	}
+	title_string = string.text(inv_title);
+	//inv see
+	if(set.contains(invseeids, inv_id)) {
+		cancel = true;
+		//On snuvi_click in an invsee inventory
+		split_array = string.split(" ", title_string);
+		p_name = split_array[2];
+		p = read.player(p_name);
+		if(p == null) {
+			inv.close(player);
+			msg.prefix(player, prefix_commands, "This player is no longer online. Use /inv to load and overwrite an inventory of a offline player.");
+			goto("wait");
+		}
+		if(click == "SHIFT_LEFT") {
+			//Clone item
+			player.safeGiveItem(player, item);
+			goto("wait");
+		}
+		//Transmit item
+		player.removeItem(p, item);
+		player.safeGiveItem(player, item);
+		inv.setItem(inv, inv_slot, null);
+		goto("wait");
+	}
 	goto("wait");
 }
 if(event == "snuvi_click") {
@@ -769,12 +809,12 @@ if(event == "snuvi_click") {
 	//inv see
 	if(set.contains(invseeids, inv_id)) {
 		//On snuvi_click in an invsee inventory
-		split_array = string.split(" ", inv_title);
+		split_array = string.split(" ", title_string);
 		p_name = split_array[2];
 		p = read.player(p_name);
 		if(p == null) {
 			inv.close(player);
-			msg.prefix(sender_name, prefix_commands, "This player is no longer online. Use /inv to load and overwrite an inventory of a offline player.");
+			msg.prefix(player, prefix_commands, "This player is no longer online. Use /inv to load and overwrite an inventory of a offline player.");
 			goto("wait");
 		}
 		if(click == "SHIFT_LEFT") {
@@ -785,7 +825,7 @@ if(event == "snuvi_click") {
 		//Transmit item
 		player.removeItem(p, item);
 		player.safeGiveItem(player, item);
-		inv.setItem(inv, inv_slot, read.item("minecraft:air"));
+		//inv.setItem(inv, inv_slot, null);
 		goto("wait");
 	}
 	if(inv_id == vote_inv_id) {
@@ -1100,7 +1140,20 @@ if(size == 0) {
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "info") {
-	
+	block = player.getTargetBlock(player, 5);
+	if(block == null) {
+		msg.prefix(player, prefix_commands, "No block in sight.");
+		goto("wait");
+	}
+	target_loc = block.getLocation(block);
+	msg.string(player, string.getSpacer());
+	x = string.number(loc.getX(target_loc));
+	y = string.number(loc.getY(target_loc));
+	z = string.number(loc.getZ(target_loc));
+	msg.string(player, string.concat("§6W §r", world.getName(loc.getWorld(target_loc))));
+	msg.string(player, string.concat("§6X §r", x, " §6Y §r", y, " §6Z §r", z));
+	msg.string(player, string.concat("§6Type: §r", block.getType(block)));
+	msg.string(player, string.concat("§6Public: §r", plot.hasBlock(target_loc)));
 	goto("wait");
 }
 if(arg0 == "public") {
@@ -1109,6 +1162,10 @@ if(arg0 == "public") {
 		goto("wait");
 	}
 	block = player.getTargetBlock(player, 5);
+	if(block == null) {
+		msg.prefix(player, prefix_commands, "No block in sight.");
+		goto("wait");
+	}
 	location = block.getLocation(block);
 	plot.addBlock(location);
 	msg.prefix(player, prefix_commands, "Block whitelisted for interaction.");
@@ -1121,6 +1178,10 @@ if(arg0 == "remove") {
 		goto("wait");
 	}
 	block = player.getTargetBlock(player, 5);
+	if(block == null) {
+		msg.prefix(player, prefix_commands, "No block in sight.");
+		goto("wait");
+	}
 	location = block.getLocation(block);
 	plot.addBlock(location);
 	msg.prefix(player, prefix_commands, "Block no longer whitelisted for interaction.");
@@ -1144,6 +1205,116 @@ inv.setItem(inv, 5, item.create("minecraft:bone", 1, "§fNo Pet Damage", item.cr
 inv.setItem(inv, 6, item.create("minecraft:oak_sign", 1, "§fShow tip loop", item.createLore(player.getTipLoop(player))));
 inv.open(inv, player);
 goto("wait");
+
+@shop
+if(size == 0) {
+	@shop_help
+	msg.prefix(player, prefix_shop, "/shop ...");
+	msg.string(player, "§6 - create §rCreates a shop");
+	msg.string(player, "§6 - buy <amount> <price> §rSet buy settings");
+	msg.string(player, "§6 - sell <amount> <price> §rSet sell settings");
+	msg.string(player, "§6 - remove <buy/sell> §rRemove settings");
+	goto("wait");
+}
+arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "create") {
+	if(size != 1) {
+		msg.prefix(player, prefix_shop, "§6/shop create");
+		goto("wait");
+	}
+	sign_block = player.getTargetBlock(player, 5, false, false);
+	if(!block.isWallSign(sign_block)) {
+		msg.prefix(player, prefix_shop, "Look at a wall sign.");
+		goto("wait");
+	}
+	chest_block = block.mod(sign_block, 0, -1, 0);
+	if(!block.isChest(chest_block)) {
+		msg.prefix(player, prefix_shop, "No chest under sign.");
+		goto("wait");
+	}
+	sign_loc = block.getLocation(sign_block);
+	if(!plot.check(sign_loc, player, 0, false)) {
+		msg.prefix(player, prefix_shop, "Not your plot.");
+		goto("wait");
+	}
+	sign.setString(sign_block, 0, "[Shop]");
+	sign.setString(sign_block, 3, string.number(player.getId(player)));
+	msg.prefix(player, prefix_shop, "§rCreated Shop.");
+	goto("wait");
+}
+if(arg0 == "buy" || arg0 == "sell") {
+	if(size != 3) {
+		msg.prefix(player, prefix_shop, string.concat("§6/shop ", arg0, " <amount> <price>"));
+		goto("wait");
+	}
+	amount = list.getIndex(args, 1);
+	price = list.getIndex(args, 2);
+	if(!isDouble(amount) || !isDouble(amount)) {
+		msg.prefix(player, prefix_shop, "Number expected.");
+		goto("wait");
+	}
+	if(price < 0) {
+		msg.prefix(player, prefix_shop, "Positive number expected.");
+		goto("wait");
+	}
+	if(price > 266304) {
+		msg.prefix(player, prefix_shop, string.concat("Maximum ", money.getString(266304), " allowed."));
+		goto("wait");
+	}
+	sign_block = player.getTargetBlock(player, 5, false, false);
+	if(!block.isWallSign(sign_block)) {
+		msg.prefix(player, prefix_shop, "Look at a wall sign.");
+		goto("wait");
+	}
+	chest_block = block.mod(sign_block, 0, -1, 0);
+	if(!block.isChest(chest_block)) {
+		msg.prefix(player, prefix_shop, "No chest under sign.");
+		goto("wait");
+	}
+	if(!shop.isOwner(player, sign_block)) {
+		msg.prefix(player, prefix_shop, "You are not the owner.");
+		goto("wait");
+	}
+	if(arg0 == "buy") {
+		sign.setString(sign_block, 1, string.concat("Buy ", string.number(amount), " for ", string.number(price)));
+	} else {
+		sign.setString(sign_block, 2, string.concat("Sell ", string.number(amount), " for ", string.number(price)));
+	}
+	msg.prefix(player, prefix_shop, "§rPrice set.");
+	goto("wait");
+}
+if(arg0 == "remove") {
+	if(size != 2) {
+		msg.prefix(player, prefix_shop, "§6/shop remove <buy/sell>");
+		goto("wait");
+	}
+	sign_block = player.getTargetBlock(player, 5, false, false);
+	if(!block.isWallSign(sign_block)) {
+		msg.prefix(player, prefix_shop, "Look at a wall sign.");
+		goto("wait");
+	}
+	chest_block = block.mod(sign_block, 0, -1, 0);
+	if(!block.isChest(chest_block)) {
+		msg.prefix(player, prefix_shop, "No chest under sign.");
+		goto("wait");
+	}
+	if(!shop.isOwner(player, sign_block)) {
+		msg.prefix(player, prefix_shop, "You are not the owner.");
+		goto("wait");
+	}
+	arg1 = string.toLowerCase(list.getIndex(args, 1));
+	if(arg1 == "buy") {
+		sign.setString(sign_block, 1, "");
+	} elseif(arg1 == "sell") {
+		sign.setString(sign_block, 2, "");
+	} else {
+		msg.prefix(player, prefix_shop, "§6/shop remove <buy/sell>");
+		goto("wait");
+	}
+	msg.prefix(player, prefix_shop, "§rPrice removed.");
+	goto("wait");
+}
+goto("shop_help");
 
 @mailbox
 location = entity.getLocation(player);
@@ -1184,7 +1355,7 @@ if(arg0 == "send") {
 		msg.prefix(player, prefix_commands, "No free space in mailbox.");
 		goto("wait");
 	}
-	living.setEquip(player, "hand", item.getAir());
+	living.setEquip(player, read.slot("HAND"), null);
 	mailbox.setItem(to_player_id, index, item);
 	msg.send(player, to_name, prefix_commands, string.concat(player.getName(player), " sent you items to your mailbox."), true);
 	msg.prefix(player, prefix_commands, "Item sent to player.");
@@ -1236,7 +1407,6 @@ for(i = 0; i < size; i++) {
 	element = list.getIndex(list, i);
 	if(isLiving(element)) {
 		living++;
-		//living.removeAi(element);
 		entity_type = entity.getType(element); 
 		n = map.get(map, entity_type);
 		if(n == null) {
@@ -1247,7 +1417,7 @@ for(i = 0; i < size; i++) {
 	}
 }
 msg.string(player, "§0-------------------------------------------------");
-msg.string(player, "Living: ", living);
+msg.string(player, string.concat("Living: ", living));
 iter = map.iterator(map);
 table = table.new("§b", 14, 14);
 msg.string(player, table.getStart(table));
@@ -1274,7 +1444,7 @@ rickIndex++;
 goto("wait");
 
 function RickSound(pitch) {
-	iter = list.iterator(players.toList());
+	iter = iterator(players.toList());
 	while(hasNext(iter)) {
 		online_player = next(iter);
 		if(online_player == null) {
@@ -1431,7 +1601,7 @@ if(arg0 == "list") {
 		msg.string(player, table.getStart(table));
 		msg.string(player, table.get(table, "§d#", "§d§lName", "§d§lRole"));
 		msg.string(player, table.getMiddle(table));
-		iter = list.iterator(list);
+		iter = iterator(list);
 		c = 0;
 		while(hasNext(iter)) {
 			c++;
@@ -1710,6 +1880,7 @@ if(arg0 == "join") {
 		goto("setmessagehelp");
 	}
 	message = string.concatList(args, " ", 1, size - 1);
+	//string = string.replace(message, "&", "§");
 	player.setJoinMessage(player, message);
 	msg.prefix(player, prefix_commands, "Join-Message set.");
 	goto("wait");
@@ -1719,6 +1890,7 @@ if(arg0 == "leave") {
 		goto("setmessagehelp");
 	}
 	message = string.concatList(args, " ", 1, size - 1);
+	//string = string.replace(message, "&", "§");
 	player.setLeaveMessage(player, message);
 	msg.prefix(player, prefix_commands, "Leave-Message set.");
 	goto("wait");
@@ -1854,45 +2026,87 @@ goto("wait");
 
 @user
 if(size == 0) {
-	p_name = player.getName(player);
-	p_uuid = player.getUuid(p_name);
-} else {
-	if(!perm.has("user.other", player)) {
-		perm.no("user.other", player);
+	@user_help
+	msg.prefix(player, prefix_commands, "/user ...");
+	if(perm.has("user.other", player)) {
+		msg.string(player, "§6 - info [player] §rReturns info about a user");
+	} else {
+		msg.string(player, "§6 - info §rReturns info about you");
+	}
+	if(perm.has("user.money", player)) {
+		msg.string(player, "§6 - addmoney <player> <money> §rAdds money to a player");
+	}
+	goto("wait");
+}
+arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "info") {
+	if(size < 2) {
+		p_name = player.getName(player);
+		p_uuid = player.getUuid(p_name);
+	} else {
+		if(!perm.has("user.other", player)) {
+			perm.no("user.other", player);
+			goto("wait");
+		}
+		p_name = list.getIndex(args, 1);
+		if(!checkIfEverOnline(p_name)) {
+			msg.prefix(player, prefix_commands, "This player has never been online.");
+			goto("wait");
+		}
+		p_uuid = player.getUuid(p_name);
+		p_name = player.getName(p_uuid);
+	}
+	p = read.player(p_name);
+	p_id = player.getId(p_uuid);
+	if(p == null) {
+		p_or_id = p_id;
+	} else {
+		p_or_id = p;
+	}
+	table = table.new("§8", 7, 24);
+	msg.string(player, table.getStart(table));
+	msg.string(player, table.get(table, "Player", p_name));
+	msg.string(player, table.getMiddle(table));
+	msg.string(player, table.get(table, "Playtime", string.number(math.roundDown(player.getTotalPlaytime(p_or_id) / 60))));
+	msg.string(player, table.get(table, "Joins", string.number(player.getJoins(p_or_id))));
+	msg.string(player, table.get(table, "First Join", getDateString(player.getFirstJoin(p_or_id))));
+	msg.string(player, table.get(table, "Last Join", getDateString(player.getLastJoin(p_or_id))));
+	msg.string(player, table.get(table, "UUID", p_uuid));
+	msg.string(player, table.get(table, "ID", string.number(p_id)));
+	msg.string(player, table.get(table, "Rank", getRank(p_or_id)));
+	msg.string(player, table.get(table, "PvP", hasPvpOn(p_or_id)));
+	msg.string(player, table.get(table, "Quests", string.number(quest.getCounter(p_or_id))));
+	msg.string(player, table.get(table, "Money", string.number(getMoney(p_or_id))));
+	msg.string(player, table.get(table, "Adventures", string.number(player.getAdventureAmounts(p_or_id))));
+	msg.string(player, table.getEnd(table));
+	goto("wait");
+}
+if(arg0 == "addmoney") {
+	if(!perm.has("user.money", player)) {
+		perm.no("user.money", player);
 		goto("wait");
 	}
-	p_name = list.getIndex(args, 0);
+	if(size != 3) {
+		msg.prefix(player, prefix_commands, "/user addmoney <player> <money>");
+		goto("wait");
+	}
+	p_name = list.getIndex(args, 1);
 	if(!checkIfEverOnline(p_name)) {
 		msg.prefix(player, prefix_commands, "This player has never been online.");
 		goto("wait");
 	}
+	money = list.getIndex(args, 2);
+	if(!isDouble(money)) {
+		msg.prefix(player, prefix_commands, "Number expected.");
+		goto("wait");
+	}
 	p_uuid = player.getUuid(p_name);
-	p_name = player.getName(p_uuid);
+	p_id = player.getId(p_uuid);
+	addMoney(p_id, money);
+	msg.prefix(player, prefix_commands, string.concat("Added ", string.number(money), " snuvis to ", player.getName(p_uuid), "."));
+	goto("wait");
 }
-p = read.player(p_name);
-p_id = player.getId(p_uuid);
-if(p == null) {
-	p_or_id = p_id;
-} else {
-	p_or_id = p;
-}
-table = table.new("§8", 7, 24);
-msg.string(player, table.getStart(table));
-msg.string(player, table.get(table, "Player", p_name));
-msg.string(player, table.getMiddle(table));
-msg.string(player, table.get(table, "Playtime", string.number(math.roundDown(player.getTotalPlaytime(p_or_id) / 60))));
-msg.string(player, table.get(table, "Joins", string.number(player.getJoins(p_or_id))));
-msg.string(player, table.get(table, "First Join", getDateString(player.getFirstJoin(p_or_id))));
-msg.string(player, table.get(table, "Last Join", getDateString(player.getLastJoin(p_or_id))));
-msg.string(player, table.get(table, "UUID", p_uuid));
-msg.string(player, table.get(table, "ID", string.number(p_id)));
-msg.string(player, table.get(table, "Rank", getRank(p_or_id)));
-msg.string(player, table.get(table, "PvP", hasPvpOn(p_or_id)));
-msg.string(player, table.get(table, "Quests", string.number(quest.getCounter(p_or_id))));
-msg.string(player, table.get(table, "Money", string.number(getMoney(p_or_id))));
-msg.string(player, table.get(table, "Adventures", string.number(player.getAdventureAmounts(p_or_id))));
-msg.string(player, table.getEnd(table));
-goto("wait");
+goto("user_help");
 
 @quest
 if(size == 0) {
@@ -1999,9 +2213,8 @@ if(arg0 == "add") {
 	map.add(friend_requests, player_id, friend_id); //Einlader, Eingeladener
 	friend = read.player(friend_name);
 	msg.prefix(player, prefix_friends, string.concat("You sent an invitation to §7", friend_name, "§r."));
-	msg.send(player, friend_name, prefix_friends, string.concat("§7", player_name, "§r wants to be your friend."), true);
 	if(friend != null) {
-		msg.string(friend, string.getClickText("§r[§aAccept§r]", string.concat("/friend add ", player_name)));
+		msg(friend, text.merge(text.new(string.concat("§7", player_name, "§r wants to be your friend." )), string.getClickText("§r[§aAccept§r]", string.concat("/friend add ", player_name))));
 	}
 	goto("wait");
 }
@@ -2156,7 +2369,7 @@ if(item.getType(item) == material.getAir()) {
 	goto("wait");
 }
 living.setEquip(player, read.slot("HEAD"), item);
-living.setEquip(player, read.slot("HAND"), item.getAir());
+living.setEquip(player, read.slot("HAND"), null);
 goto("wait");
 
 @news
@@ -2360,6 +2573,26 @@ if(size > 0) {
 }
 goto("wait");
 
+@sb_title_loop
+list = players.toList();
+iter = iterator(list);
+if(title_a == null) {
+	while(hasNext(iter)) {
+	p = next(iter);
+		//sb.setTitle(p, text.new("minecraft.hammerle.me"));
+		sb.setTitle(p, text.new("§c§k# §6minecraft§0.§6hammerle§0.§6me §c§k#"));
+		title_a = true;
+	}
+} else {
+	while(hasNext(iter)) {
+	p = next(iter);
+		sb.setTitle(p, text.new(string.concat(icon.getHeart(), "§6Mundus §cCrassus§f", icon.getHeart())));
+		title_a = null;
+	}
+}
+sgoto(200, "sb_title_loop");
+goto("wait");
+
 @coordsloop
 list = players.toList();
 size = list.getSize(list);
@@ -2418,7 +2651,7 @@ goto("wait");
 
 @afk_checker_loop
 online_list = players.toList();
-iter = list.iterator(online_list);
+iter = iterator(online_list);
 while(hasNext(iter)) {	
 	uuid = next(iter);
 	p = player.get(uuid);
@@ -2569,9 +2802,11 @@ goto("wait");
 
 @iteminfo
 item = living.getHand(player);
-text = string.item(item);
-text = string.replace(text, "\"", "\\\"");
-msg.string(player, string.getClipBoardText(text, text));
+string = string.item(item);
+string = string.replace(string, "\"", "'");
+msg(player, string.getClipBoardText(string, string));
+item_type = string(item.getType(item));
+msg(player, string.getClipBoardText(item_type, item_type));
 goto("wait");
 
 @perm
@@ -3284,6 +3519,13 @@ elseif(arg0 == "herobrine") {
 	}
 	script.startNamed("Herobrine", "utils/u_error", "survival/herobrine", "utils/u_general");
 }
+elseif(arg0 == "humans") {
+	script = script.get("Humans");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("Humans", "utils/u_error", "system/humans", "utils/u_general");
+}
 elseif(arg0 == "lectern") {
 	script = script.get("Lectern");
 	if(script != null) {
@@ -3404,21 +3646,21 @@ elseif(arg0 == "trader") {
 	script.startNamed("Trader", "utils/u_error", "survival/trader", "utils/u_general");
 }
 elseif(arg0 == "story") {
-	script = script.get("Story");
+	/*script = script.get("Story");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Story", "utils/u_error", "story/story", "utils/u_general");
+	script.startNamed("Story", "utils/u_error", "story/story", "utils/u_general");*/
 	script = script.get("QuestsAdmont");
 	if(script != null) {
 		script.term(script);
 	}
 	script.startNamed("QuestsAdmont", "utils/u_error", "story/admont/core", "utils/u_general", "utils/u_quest");
-	script = script.get("QuestsSchiffbruch");
+	/*script = script.get("QuestsSchiffbruch");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("QuestsSchiffbruch", "utils/u_error", "story/schiffbruch/core", "utils/u_general", "utils/u_quest");
+	script.startNamed("QuestsSchiffbruch", "utils/u_error", "story/schiffbruch/core", "utils/u_general", "utils/u_quest");*/
 }
 elseif(arg0 == "sitting") {
 	script = script.get("Sitting");
@@ -3469,7 +3711,7 @@ player_loc = entity.getLocation(player);
 y = 319;
 loc.setY(player_loc, y);
 
-while(y > 0 && block.isAir(block.get(player_loc))) {
+while(y > -64 && block.isAir(block.get(player_loc))) {
 	loc.setY(player_loc, y);
 	y--;
 }
@@ -3586,6 +3828,7 @@ if(size == 0) {
 } else {
 	arg0 = string.toLowerCase(list.getIndex(args, 0));
 	if(arg0 == "year") {
+		modTimer(-20);
 		if(!perm.has("playtime.year", player)) {
 			perm.no("playtime.year", player);
 			goto("wait");
@@ -3663,6 +3906,7 @@ if(size == 0) {
 		goto("wait");
 	}
 	if(arg0 == "month") {
+		modTimer(-100);
 		if(!perm.has("playtime.month", player)) {
 			perm.no("playtime.month", player);
 			goto("wait");
@@ -3732,6 +3976,7 @@ if(size == 0) {
 		goto("wait");
 	}
 	if(arg0 == "all") {
+		modTimer(-10);
 		msg.string(player, string.getSpacer());
 		msg.prefix(player, prefix_commands, "Server-Playtime");
 		//Von allen Online-Spielern die Onlinezeit abrufen, summieren und zur Heute-Spielzeit addieren
@@ -3780,7 +4025,7 @@ if(isOnline(arg0)) {
 	mod_minutes = since_minutes % 60;
 	msg.string(player, string.concat("§aOnline since: §r", string.number(since_hours), " hours ", string.number(mod_minutes), " minutes"));
 } else {
-	msg.string(player, "§6Status: ", "§cOffline");
+	msg.string(player, "§6Status: §cOffline");
 }
 //Spielzeit heute
 calendar = time.new(now_time);
@@ -4072,6 +4317,12 @@ elseif(arg0 == "skin") {
 		    human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1MDcxNzUzMjgzMjksInByb2ZpbGVJZCI6IjcwOTU2NDU0NTJkOTRiYTI5YzcwZDFmYTY3YjhkYTQyIiwicHJvZmlsZU5hbWUiOiJIaWRkdXMiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzU4MzgxOTdkNzBhNmQ2ZmYzODk3NGExYmEyZTM1NTJiOTBjNjRjZmE0ZGFlMjI5NGNmMmRjMTgwMTY5YzVlOCJ9fX0=", "ryT6EeGTuOOtYW0XiBszxWTI+CxwfVrkBfB4YlnPwjGyPjHAXzOmnZh8HKsBMHD5APd7zOEkU829E8uL8wJLmRjiVHKldOphQee44ZgNN1Y/8RymneghYEs7HNLyB2g4hEzHl7HWOCq1R9sNUUlWRAkREpHo4LzzGSP6+hcBHjS7Y+SYm/QTnwmUoSnhakijBWi8/dA9Uf37g5hyXdRUKbLtySoD/bMWkZlUgkmcl2ErPYl3E87Zt+4VGCP9lfoWE9zhP+SrXgdilXFbGYECpkDMyXqcVx1VjFmqG1zpdalfimWeJ8gwRwWmJWxU3g97UGJ7g/Wg7Kn2Ar0rkwx660pf4syESRJKx1MmrAICUxoj1CpLlZOcDhoDvFTqvcGSmo7gdrTk1qEdTq0oHfMuaJRFjBwophK+z0YOO4vzyFadB6nvtmBvT8TDSfp0hxsIzzPpIQ7B0BBdpqwklavktDPMT7qcR1pXpbh/7EhN0OcJtOXjzNH9Bjmd10UWb5XZmtO65ICr7Q947Wd5JezabLMR3L3CNSXPerSCcvxFMdx5s0Io7SNjvk38rranOEHdsG7Z950DclmbftIr0JlySSZt+PmKVOlvMFulOo9oagHial6S807sd5tziQ9Y/tuNpAYpWbtyEYSBmp8+ydhUyTsbVW0qSS8uY4Mqr0aNaWk=");
 		} elseif(name == "alena") {
 		    human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU5NjIyODQ5NDI0NiwKICAicHJvZmlsZUlkIiA6ICJhMjk1ODZmYmU1ZDk0Nzk2OWZjOGQ4ZGE0NzlhNDNlZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJWaWVydGVsdG9hc3RpaWUiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWUwYjJmNzg5NDZkZThmZjg4YzFkYzI2OTkwMTgxNTEzMjE1NzQ3NDZmZjg1ZjQ1Y2U5Nzk1YzZmMjc4NDNiNyIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9", "kDLavxU1Et/E6Gak3MaUHsqrH91LcQyxNUy1hG8Vr/0CL4uqWXMYFT1SP9VDrkPbfnzpqQIDG7uTfEsIwrMS0fpsMugdEmlwXv4Omcc+4j6VYT1BNvchNrxyvc4otsY9fTjMHfyxvmTB2yjUQdlJEjHPKw17cbH2lpFgEiNi1SM+V+IVHfg/gXnEufjYaTek+3uNd6UUiukc6S6MTeGcstJ3qJh5DUk/PJKWqapgoVqBGFmFoyqPgb0Ns2LEqvKPJc+uGvB6FpUPLYkqC+8HokYnBTxAFOF0803Xh4y0E17I+GckFGJsa2EP40g0oj2aFnua+lchAU1d0B8RkN2u0yD4bqELQjjxLj26qnDvl6V3aJ00KD/BCIiaPMxfyYKI5BFceFRYU2qwNX83LorkFIzuFDhRtn1jyYn5fDGN3CtSdQ60q733N3jXA14sUntrKiIEUrwu+HN2Qo2765skEiXoBMc7blHfgh0RFt4g/S021xd1gyid7ZqftG5TXeyvGZQH3XuQcdZ6o1nB8g2mnT1w36wGaIcUdCV5VWD9YxI1zjbNKeAONpHOFmgZxgJpJGaaYqJeJe4KgtPlxM6WTQ6g6U60bG14IZ5ZRfbAggb3jOaTYAH0tIahOaKO9/2POR+hRVIQ2lpQE7iOsPWQOoBIV8fy8pQMhsvWuqKcrww=");
+		} elseif(name == "miner") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYyMzI1OTYzMDU1NiwKICAicHJvZmlsZUlkIiA6ICI0ZWQ4MjMzNzFhMmU0YmI3YTVlYWJmY2ZmZGE4NDk1NyIsCiAgInByb2ZpbGVOYW1lIiA6ICJGaXJlYnlyZDg4IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzJjMDM2OTdmOTdjMTliYjY5NGNmY2IwOWU3NTU4NDRmNzBhZjY5Y2E2ZTUzMGQ0MGUwNTYxNjgxM2M3MmEwYzAiCiAgICB9CiAgfQp9", "yfmzMagf0B2REVh/lfnDucVUCpIA9YCJn445pIdH2sr0NcAcDJnp4ibMr1Bg9Hq/qdVJ/rHBS7Mq2kWXb62iIiNmeZsdrqUq2PgN3eoNdBQ7yaBYN21e36IBF2gKtQO7VPBJB1WPYB1O0d01lW1WPsgto75UOV4rVxdViq8XfmOTquFXdWtsUXtWyPPqJLqqJ66/4AjfkkZkSkYPMgVjOUeAa2i0fHXTXtFWQimARB4pF7UVlCztI0YwlYgAzx+AuDa6/nQwWzqeahgRuLfopN0M6rFJV9Txk2JGbB6oCam1feIImu/SUZm23y9cdJ8oyHgw6Dhp/qVV/YHw8/xf+M5mtRskGBh8PdZCOUuU55b96zHbBRcxKQyuuca3wbs7nlX/XmtusM9gJwVSCj8tTOEC7UpO+PTmLFt08lpGy30f6lFv0sX9g0g4UX7dtqdVuACbaNh8CnX6clDIAMuytTlBG/mZUbd5fiNYOvC9TMlSKcsvpLn1+axaCKq6OExScHLSaJEbe6ZV93n/7OQZxy3wk8X5SJhibFSo++X83AMZuH5n9ALdrzFbCSCY9R8sod8j7QYBAZpKk8dAJctCOxTArOPmYiZJtHvzv6o1jXSIcw9teUicsG2YqQ0QydrBdJwNQp/eTNMOoBaT1ZLAIc3oHNpGqYOORVTsJrSTiME=");
+		} elseif(name == "mason") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwNDQ5MjYyMzQxOCwKICAicHJvZmlsZUlkIiA6ICJlNzkzYjJjYTdhMmY0MTI2YTA5ODA5MmQ3Yzk5NDE3YiIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVfSG9zdGVyX01hbiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS85ODI1ZTk3NTZjM2VhNjZjOGNjZmEyZmU4MDU4MzRmNGZhMDVhMGY0ODc0NTY3NTljMzY0MjcwODkwNTE0NzZlIgogICAgfQogIH0KfQ==", "RLLeCZVT2zj4DhvrVl4fTVy4BdjyK02tTX5u3PT0gNcbluSRDNUjwG+G/HttDVtPpyQuVOq/8aAFT/xdu+BZaiI3q3830BWqVe+CbSJuHorHPbPskJRV8+L+Ra6rJLA9LJQh5li5EZCwiAwqBSQwqycIU7032xjtoPjfOXio0gAnqKLffTEc2irDq4KzZGH9WZjYJrEfS9eCkQ1780jl96oEordJT940G/mgiB+XZdg1RQs+YuDprGvX1ILVZluoN+SFWji9l3aPmktwGoP9K5NDJr1Yjqqtr0QcXUvB3bqs4EDeYe7+NXCtE4eW1bupr22dKO9EERyrL4oOm8K1lgmFRupeSH66R0Ny5Io8NrscZSSH1XZncnj6SZfYskJWRNN//F9BxM86hL0MEPtloAB9o0oJWLyoaXszMb1iJC9RKbvK3c2nAdyjWtcWijRA5muEZszzOX5XngHlFPAYWDI33EuTvqbth3GqZ7kid24Zly6TQbSCrd30EiNTeXYTJ1T5Fx1GRIzEYW+60qf3f2e59SlcBf4D7eA4btIaCAvfx2bKxbZQsdsHKDphpxsr7nizA8iRroo37nBiJ97gYUF2GsL03bLuge4cFLROpb4oaKGyldPZ4cHq33b8sbFs0eQUiS9selDsyx8G8MrvKfhYACpjyBv+ZLlWa+QMF4s=");
+		} elseif(name == "mage") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYyMTY3NjM0NTk3MSwKICAicHJvZmlsZUlkIiA6ICJmMjc0YzRkNjI1MDQ0ZTQxOGVmYmYwNmM3NWIyMDIxMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJIeXBpZ3NlbCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9hNjc1ZTBjNTQyZDZiMWY4NWI3ZWMzYjJiYmFiNjZhYmVmZTAwNThlZTM1NDAzZWFkNjJjZjUyYjI4OGM2MThiIgogICAgfQogIH0KfQ==", "W/I2zmrU27t5g7RNrKWQqE6eg7qfabfkM0pWMM4fXHs06KZG+TsgpH7dJ8OovuM0qsf9ylgqhngSlZM0FxMLI5GOEfiKSn1es8e4iN0GfhYohNQJJdZxp8GSGD4wgjFZP2Y86uQ/ukyWvWVjftQgkZQXrPmbh3f4IWUyY2haHUoKzbdwrkGZ9WE2zEO+UrTBzD2ncArfbnCTYm3wT2zIkJGag8IHozMCkZuCkr2tHu8i5Fs45ApvuF7swa/3ZNl33RRIxv4Q8BsKVQU/PmMe56nTYDvETInv3mVkZt5CP7MJhkvuzMS/WsKSRsHRk57vX9JRU8jRjgif32XUamYRyo1nslvwCMlKDaPOK6Hqo+WbQiHlniSPgOfVSmp2cUdbUpl+Pcw9wcTpod4BPnZUxh4FoXz3W2GpY1hHh36ncqT+0tEDVVnsR3A6f0QwekYwGAY1bTq8rRsoC6/ujzNy27ttvlyfNUSSLerWN4cTvfqtwqaybKbmkH7psnfUHHQYPWAdOIDMnxfJWQnmunkPfstbaXh2VnqyykT60q28MmMkLwMfnULUdpS28cX1zBpjItxxnEPN5N537RweDnXogDuodyOgBB6flJ/7KG2EXD9HGioz1GwOp6zKuvhkX6+L2YsFEwdMwZXCSSmqYeiptRHaAWF4RLJlBI1uiE7kDp8=");
 		} else {
 		    msg.prefix(player, prefix_human, "Not supported name.");
 		}
@@ -4235,22 +4486,6 @@ if(arg0 == "remove") {
 	}
 	msg.prefix(player, prefix_commands, "§rKeinen Lufttext gefunden");
 }
-goto("wait");
-
-@coords
-block = player.getTargetBlock(player, 5);
-if(block == null) {
-	msg.prefix(player, prefix_commands, "No block in sight.");
-	goto("wait");
-}
-target_loc = block.getLocation(block);
-msg.string(player, string.getSpacer());
-x = string.number(loc.getX(target_loc));
-y = string.number(loc.getY(target_loc));
-z = string.number(loc.getZ(target_loc));
-msg.string(player, string.concat("§6World: §r", world.getName(loc.getWorld(target_loc))));
-msg.string(player, string.concat("§6Coords: §r", x, " / ", y, " / ", z));
-msg.string(player, string.concat("§6Block: §r", block.getType(block.get(target_loc))));
 goto("wait");
 
 @sign
@@ -4641,7 +4876,7 @@ if(arg0 == "sell") {
 	//Label Sign
 	block.setSign(sign_loc, 0, "§3[§bFree Plot§3]");
 	block.setSign(sign_loc, 1, string.concat("§2", string.number(snuvis)));
-	if(high == 256) {
+	if(high == 319) {
 		block.setSign(sign_loc, 2, string.concat(string.number(length), "x", string.number(width)));
 	} else {
 		block.setSign(sign_loc, 2, string.concat(string.number(length), "x", string.number(width), " (Y:", string.number(high), ")"));
@@ -4953,7 +5188,7 @@ if(arg0 == "remove") {
 	}
 	if(plot.isCity(plot)) {
 		plot_list = plot.intersecting(world, plot.getMinX(plot), plot.getMinY(plot), plot.getMinZ(plot), plot.getMaxX(plot), plot.getMaxY(plot), plot.getMaxZ(plot));
-		iter = list.iterator(plot_list);
+		iter = iterator(plot_list);
 		while(hasNext(iter)) {
 			sub_plot = next(iter);
 			plot.removeAllPlayers(sub_plot);
@@ -5307,14 +5542,17 @@ if(arg0 == "create" || arg0 == "create3d") {
 		goto("wait");
 	}
 	x1 = loc.getX(loc1);
-	y1 = loc.getY(loc1);
 	z1 = loc.getZ(loc1);
 	x2 = loc.getX(loc2);
-	y2 = loc.getY(loc2);
 	z2 = loc.getZ(loc2);
 	if(arg0 == "create") {
-		loc.setY(loc1, 0);
-		loc.setY(loc2, 255);
+		y1 = -64;
+		y2 = 319;
+		loc.setY(loc1, y1);
+		loc.setY(loc2, y2);
+	} else {
+		y1 = loc.getY(loc1);
+		y2 = loc.getY(loc2);
 	}
 	create_message = "Plot created.";
 	sub_plot = false;
@@ -5482,48 +5720,6 @@ if(arg0 == "flags") {
 			goto("wait");
 		}
 	}
-	flags_list = list.new();
-	temp_flags = 0;
-	if(flags >= 512) {
-		list.add(flags_list, "SUB_PLOT_FLAG");
-		temp_flags += 512;
-	}
-	if(flags >= 256) {
-		list.add(flags_list, "FREE_FLAG");
-		temp_flags += 256;
-	}
-	if(flags >= 128) {
-		list.add(flags_list, "CITY_FLAG");
-		temp_flags += 128;
-	}
-	if(flags >= 64) {
-		list.add(flags_list, "EXPLOSION_FLAG");
-		temp_flags += 64;
-	}
-	if(flags >= 32) {
-		list.add(flags_list, "ENTITY_INTERACT_FLAG");
-		temp_flags += 32;
-	}
-	if(flags >= 16) {
-		list.add(flags_list, "BLOCK_INTERACT_FLAG");
-		temp_flags += 16;
-	}
-	if(flags >= 8) {
-		list.add(flags_list, "HIT_AMBIENT_FLAG");
-		temp_flags += 8;
-	}
-	if(flags >= 4) {
-		list.add(flags_list, "BUCKET_FLAG");
-		temp_flags += 4;
-	}
-	if(flags >= 2) {
-		list.add(flags_list, "BREAK_FLAG");
-		temp_flags += 2;
-	}
-	if(flags >= 1) {
-		list.add(flags_list, "PLACE_FLAG");
-		temp_flags += 1;
-	}
 	plot.setFlags(plot, flags, boolean);
 	msg.prefix(player, prefix_plot, "Flags gesetzt.");
 	plot.savePlots(world);
@@ -5613,24 +5809,32 @@ if(arg0 == "moreinfo" || arg0 == "mi") {
 	owners_list = plot.getOwners(plot);
 	copy_list = list.copy(owners_list);
 	plot_id = plot.getId(plot);
-	msg.prefix(player, prefix_plot, string.concat("#", string.number(plot_id), " ", plot.getType(plot), " §6", plot.getName(plot)));
-	msg.string(player, string.concat("   §dWorld: §r", world.getName(world)));
-	msg.string(player, string.concat("   §dPos1: §r", plot.getMinX(plot), " / ", plot.getMinY(plot), " / ", plot.getMinZ(plot)));
-	msg.string(player, string.concat("   §dPos2: §r", plot.getMaxX(plot), " / ", plot.getMaxY(plot), " / ", plot.getMaxZ(plot)));
+	
+	x1 = plot.getMinX(plot);
+	y1 = plot.getMinY(plot);
+	z1 = plot.getMinZ(plot);
+	x2 = plot.getMaxX(plot);
+	y2 = plot.getMaxY(plot);
+	z2 = plot.getMaxZ(plot);
+	length = x2 - x1 + 1;
+	width = z2 - z1 + 1;
+	msg.string(player, string.concat(" - #", string.number(plot_id), " ", plot.getType(plot), " §6", plot.getName(plot), " §r", string.number(length), "x", string.number(width)));
+	owners_list = plot.getOwners(plot);
+	copy_list = list.copy(owners_list);
+	msg.string(player, string.concat("   §dW §r", world.getName(world)));
+	msg.string(player, string.concat("   §dX1 §r", string.number(x1), " §dY1 §r", string.number(y1), " §dZ1 §r", string.number(z1)));
+	msg.string(player, string.concat("   §dX2 §r", string.number(x2), " §dY2 §r", string.number(y2), " §dZ2 §r", string.number(z2)));
 	
 	leader_name = plot.getLeaderName(plot);
-	if(leader_name == "") {
-		leader_name = "-";
+	if(leader_name != "") {
+		msg.string(player, string.concat("   §dLeader: §r", leader_name));
+		list.remove(copy_list, player.getUuid(leader_name));
 	}
-	msg.string(player, string.concat("   §dLeader: §r", leader_name));
-	list.remove(copy_list, player.getUuid(leader_name));
 	
 	mods_list = plot.getMods(plot);
 	mods_amount = list.getSize(mods_list);
-	if(mods_amount == 0) {
-		mods_string = "-";
-	} else {
-		iter = list.iterator(mods_list);
+	if(mods_amount != 0) {
+		iter = iterator(mods_list);
 		mods_string = "";
 		while(hasNext(iter)) {
 			p_name = player.getNameFromId(next(iter));
@@ -5642,14 +5846,12 @@ if(arg0 == "moreinfo" || arg0 == "mi") {
 				mods_string = string.concat(mods_string, " / ", p_name);
 			}
 		}
+		msg.string(player, string.concat("   §dMods: §r", mods_string));
 	}
-	msg.string(player, string.concat("   §dMods: §r", mods_string));
 	
 	members_amount = list.getSize(copy_list);
-	if(members_amount == 0) {
-		members_string = "-";
-	} else {
-		iter = list.iterator(copy_list);
+	if(members_amount != 0) {
+		iter = iterator(copy_list);
 		members_string = "";
 		while(hasNext(iter)) {
 			p_name = player.getName(next(iter));
@@ -5659,15 +5861,13 @@ if(arg0 == "moreinfo" || arg0 == "mi") {
 				members_string = string.concat(members_string, " / ", p_name);
 			}
 		}
+		msg.string(player, string.concat("   §dMembers: §r", members_string));
 	}
-	msg.string(player, string.concat("   §dMembers: §r", members_string));
 	
 	chests_list = plot.getChestRanks(plot);
 	chests_amount = list.getSize(chests_list);
-	if(chests_amount == 0) {
-		chests_string = "-";
-	} else {
-		iter = list.iterator(chests_list);
+	if(chests_amount != 0) {
+		iter = iterator(chests_list);
 		chests_string = "";
 		while(hasNext(iter)) {
 			p_name = player.getNameFromId(next(iter));
@@ -5677,106 +5877,18 @@ if(arg0 == "moreinfo" || arg0 == "mi") {
 				chests_string = string.concat(chests_string, " / ", p_name);
 			}
 		}
+		msg.string(player, string.concat("   §dOnly chest: §r", chests_string));
 	}
-	msg.string(player, string.concat("   §dOnly chest: §r", chests_string));
 	
-	flags = plot.getFlags(plot);
-	flags_true = list.new();
-	flags_false = list.new();
-	array = array.new(2);
-	array[0] = 512;
-	array[1] = "SUB_PLOT_FLAG";
-	if(flags >= 512) {
-		list.add(flags_true, array);
-		flags -= 512;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 256;
-	array[1] = "FREE_FLAG";
-	if(flags >= 256) {
-		list.add(flags_true, array);
-		flags -= 256;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 128;
-	array[1] = "CITY_FLAG";
-	if(flags >= 128) {
-		list.add(flags_true, array);
-		flags -= 128;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 64;
-	array[1] = "EXPLOSION_FLAG";
-	if(flags >= 64) {
-		list.add(flags_true, array);
-		flags -= 64;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 32;
-	array[1] = "ENTITY_INTERACT_FLAG";
-	if(flags >= 32) {
-		list.add(flags_true, array);
-		flags -= 32;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 16;
-	array[1] = "BLOCK_INTERACT_FLAG";
-	if(flags >= 16) {
-		list.add(flags_true, array);
-		flags -= 16;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 8;
-	array[1] = "HIT_AMBIENT_FLAG";
-	if(flags >= 8) {
-		list.add(flags_true, array);
-		flags -= 8;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 4;
-	array[1] = "BUCKET_FLAG";
-	if(flags >= 4) {
-		list.add(flags_true, array);
-		flags -= 4;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 2;
-	array[1] = "BREAK_FLAG";
-	if(flags >= 2) {
-		list.add(flags_true, array);
-		flags -= 2;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 1;
-	array[1] = "PLACE_FLAG";
-	if(flags >= 1) {
-		list.add(flags_true, array);
-	} else {
-		list.add(flags_false, array);
-	}
+	a = getFlagLists(plot);
+	flags_true = a[0];
+	flags_false = a[1];
+	
 	x = loc.getX(location);
 	y = loc.getY(location);
 	z = loc.getZ(location);
 	msg.string(player, "   §dFlags true:");
-	iter = list.iterator(flags_true);
+	iter = iterator(flags_true);
 	while(hasNext(iter)) {
 		array = next(iter);
 		flag_number = array[0];
@@ -5784,7 +5896,7 @@ if(arg0 == "moreinfo" || arg0 == "mi") {
 		msg(player, text.merge(text.new("    "), string.getClickText(string.concat(" §d[§r", flag_name, "§d] "), string.concat("/plot flags ", flag_number, " false ", plot_id))));
 	}
 	msg.string(player, "   §dFlags false:");
-	iter = list.iterator(flags_false);
+	iter = iterator(flags_false);
 	while(hasNext(iter)) {
 		array = next(iter);
 		flag_number = array[0];
@@ -5810,27 +5922,31 @@ if(arg0 == "info" || arg0 == "i") {
 	for(i = 0; i < size; i++) {
 		plot = list.getIndex(list, i);
 		plot_id = plot.getId(plot);
-		msg.string(player, string.concat(" - #", string.number(plot_id), " ", plot.getType(plot), " §6", plot.getName(plot)));
+		x1 = plot.getMinX(plot);
+		y1 = plot.getMinY(plot);
+		z1 = plot.getMinZ(plot);
+		x2 = plot.getMaxX(plot);
+		y2 = plot.getMaxY(plot);
+		z2 = plot.getMaxZ(plot);
+		length = x2 - x1 + 1;
+		width = z2 - z1 + 1;
+		msg.string(player, string.concat(" - #", string.number(plot_id), " ", plot.getType(plot), " §6", plot.getName(plot), " §r", string.number(length), "x", string.number(width)));
 		owners_list = plot.getOwners(plot);
 		copy_list = list.copy(owners_list);
-		plot_id = plot.getId(plot);
-		msg.string(player, string.concat("   §dWorld: §r", world.getName(world)));
-		msg.string(player, string.concat("   §dPos1: §r", plot.getMinX(plot), " / ", plot.getMinY(plot), " / ", plot.getMinZ(plot)));
-		msg.string(player, string.concat("   §dPos2: §r", plot.getMaxX(plot), " / ", plot.getMaxY(plot), " / ", plot.getMaxZ(plot)));
+		msg.string(player, string.concat("   §dW §r", world.getName(world)));
+		msg.string(player, string.concat("   §dX1 §r", string.number(x1), " §dY1 §r", string.number(y1), " §dZ1 §r", string.number(z1)));
+		msg.string(player, string.concat("   §dX2 §r", string.number(x2), " §dY2 §r", string.number(y2), " §dZ2 §r", string.number(z2)));
 		
 		leader_name = plot.getLeaderName(plot);
-		if(leader_name == "") {
-			leader_name = "-";
+		if(leader_name != "") {
+			msg.string(player, string.concat("   §dLeader: §r", leader_name));
+			list.remove(copy_list, player.getUuid(leader_name));
 		}
-		msg.string(player, string.concat("   §dLeader: §r", leader_name));
-		list.remove(copy_list, player.getUuid(leader_name));
 		
 		mods_list = plot.getMods(plot);
 		mods_amount = list.getSize(mods_list);
-		if(mods_amount == 0) {
-			mods_string = "-";
-		} else {
-			iter = list.iterator(mods_list);
+		if(mods_amount != 0) {
+			iter = iterator(mods_list);
 			mods_string = "";
 			while(hasNext(iter)) {
 				p_name = player.getNameFromId(next(iter));
@@ -5842,14 +5958,12 @@ if(arg0 == "info" || arg0 == "i") {
 					mods_string = string.concat(mods_string, " / ", p_name);
 				}
 			}
+			msg.string(player, string.concat("   §dMods: §r", mods_string));
 		}
-		msg.string(player, string.concat("   §dMods: §r", mods_string));
 		
 		members_amount = list.getSize(copy_list);
-		if(members_amount == 0) {
-			members_string = "-";
-		} else {
-			iter = list.iterator(copy_list);
+		if(members_amount != 0) {
+			iter = iterator(copy_list);
 			members_string = "";
 			while(hasNext(iter)) {
 				p_name = player.getName(next(iter));
@@ -5859,15 +5973,13 @@ if(arg0 == "info" || arg0 == "i") {
 					members_string = string.concat(members_string, " / ", p_name);
 				}
 			}
+			msg.string(player, string.concat("   §dMembers: §r", members_string));
 		}
-		msg.string(player, string.concat("   §dMembers: §r", members_string));
 		
 		chests_list = plot.getChestRanks(plot);
 		chests_amount = list.getSize(chests_list);
-		if(chests_amount == 0) {
-			chests_string = "-";
-		} else {
-			iter = list.iterator(chests_list);
+		if(chests_amount != 0) {
+			iter = iterator(chests_list);
 			chests_string = "";
 			while(hasNext(iter)) {
 				p_name = player.getNameFromId(next(iter));
@@ -5877,8 +5989,8 @@ if(arg0 == "info" || arg0 == "i") {
 					chests_string = string.concat(chests_string, " / ", p_name);
 				}
 			}
+			msg.string(player, string.concat("   §dOnly chest: §r", chests_string));
 		}
-		msg.string(player, string.concat("   §dOnly chest: §r", chests_string));
 	}
 	goto("wait");
 }
@@ -6175,6 +6287,27 @@ if(location == null) {
 	goto("wait");
 }
 player.teleport(player, location, true);
+goto("wait");
+
+@icon
+msg.string(player, string.getSpacer());
+msg.string(player, "Icons - Click to Copy");
+msg(player, text.merge(
+	string.getClipBoardText(icon.getGoldCoin(), icon.getGoldCoin()), text.new(" "), 
+	string.getClipBoardText(icon.getSilverCoin(), icon.getSilverCoin()), text.new(" "), 
+	string.getClipBoardText(icon.getCopperCoin(), icon.getCopperCoin()), text.new(" "), 
+	string.getClipBoardText(icon.getExp(), icon.getExp()), text.new(" "), 
+	string.getClipBoardText(icon.getBookshelf(), icon.getBookshelf()), text.new(" "), 
+	string.getClipBoardText(icon.getCraftingTable(), icon.getCraftingTable())
+));
+msg(player, text.merge(
+	string.getClipBoardText(icon.getCompass(), icon.getCompass()), text.new(" "), 
+	string.getClipBoardText(icon.getCake(), icon.getCake()), text.new(" "), 
+	string.getClipBoardText(icon.getEnderpearl(), icon.getEnderpearl()), text.new(" "), 
+	string.getClipBoardText(icon.getHeart(), icon.getHeart()), text.new(" "), 
+	string.getClipBoardText(icon.getHalfHeart(), icon.getHalfHeart()), text.new(" "), 
+	string.getClipBoardText(icon.getEmptyHeart(), icon.getEmptyHeart())
+));
 goto("wait");
 
 @tpa
@@ -6569,7 +6702,7 @@ if(arg0 == "showfields") {
 	}
 	msg.string(player, string.getSpacer());
 	fields = databank.getTableFields(table);
-	iter = list.iterator(fields);
+	iter = iterator(fields);
 	while(hasNext(iter)) {
 		msg.string(player, next(iter));
 	}
@@ -6793,10 +6926,10 @@ if(x < -32000) {
 } elseif(x > 32000) {
 	x = 32000;
 }
-if(y < 0) {
-	y = 0;
-} elseif(y > 255) {
-	y = 255;
+if(y < -64) {
+	y = -64;
+} elseif(y > 319) {
+	y = 319;
 }
 if(z < -32000) {
 	z = -32000;
@@ -7070,7 +7203,7 @@ if(arg0 == "info") {
 	list = clan.getMembersList(clan_id);
 	mod_list = list.new();
 	members_list = list.new();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		player_uuid = next(iter);
 		player_name = player.getName(player_uuid);
@@ -7239,7 +7372,7 @@ if(arg0 == "party") {
 	counter = 0;
 	clan_id = player.getClanId(player);
 	list = clan.getMembersList(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != null) {
@@ -7439,7 +7572,7 @@ if(arg0 == "disband") {
 	clan.msg.string(clan_id, "Clan disbanded.");
 	list = clan.getMembersList(clan_id);
 	clan.delete(clan_id);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != null) {
@@ -7470,7 +7603,7 @@ if(arg0 == "list") {
 	msg.string(player, table.getMiddle(table));
 	
 	list = clan.getIdList();
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		clan_id = next(iter);
 		name = clan.getName(clan_id);
@@ -7694,7 +7827,7 @@ if(arg0 == "savefor") {
 		}
 		p = read.player(p_name);
 		if(p != null) {
-			msg.prefix(player, prefix_commands, "This player is online. Use /invsee");
+			msg.prefix(player, prefix_commands, "This player is online. Use /inv see to change this inventory.");
 			goto("wait");
 		}
 		for_player_or_id = player.getId(p_uuid);
@@ -7748,7 +7881,7 @@ if(arg0 == "loadfrom") {
 goto("wait");
 
 @boost
-entity.throw(player, 0, 5, 0);
+entity.setMotion(player, 0, 5, 0);
 goto("wait");
 
 @memory
@@ -7852,11 +7985,11 @@ if(arg0 == "diffi") {
 		goto("wait");
 	}
 	diffi_string = list.getIndex(args, 2);
-	if(diffi_string != "PEACEFUL" || diffi_string != "EASY" || diffi_string != "NORMAL" || diffi_string != "HARD") {
+	if(!(diffi_string == "PEACEFUL" || diffi_string == "EASY" || diffi_string == "NORMAL" || diffi_string == "HARD")) {
 		msg.prefix(player, prefix_world, "False input.");
 		goto("wait");
 	}
-	world.setDiffi(world, diffi_string);
+	world.setDifficulty(world, diffi_string);
 	msg.prefix(player, prefix_world, "Difficulty changed.");
 	goto("wait");
 }
@@ -7877,7 +8010,7 @@ function yeet(player, strength){
 	x = array[0] * (math.log(strength) + 1);
 	y = math.abs(array[1]) * (math.log(strength) + 1);
 	z = array[2] * (math.log(strength) + 1);
-	entity.throw(player, x, y, z);
+	entity.setMotion(player, x, y, z);
 }
 
 @giveup
@@ -7901,7 +8034,7 @@ goto("wait");
 
 @leave
 set = player.getMinigameIds(player);
-iter = set.iterator(set);
+iter = iterator(set);
 if(hasNext(iter)) {
 	script_id = next(iter);
 	script = script.getFromId(script_id);
@@ -7980,21 +8113,28 @@ goto("wait");
 
 function inv.show(from_player, to_player) {
 	player_inv = player.getInv(from_player);
-	//inv = inv.new("333303000 333333333 333333333 333333333 000000000 333333333");
-	inv = inv.new("333303000333333333333333333333333333000000000333333333");
+	//inv = inv.new("111111111 333333333 333333333 333333333 333333333");
+	inv = inv.new("111111111111111111111111111111111111111111111", text.new(string.concat("Inventory of ", player.getName(from_player))));
 	set.add($invseeids, inv.getId(inv));
-	inv.setItem(inv, 0, living.getEquip(from_player, read.slot("HEAD")));
-	inv.setItem(inv, 1, living.getEquip(from_player, read.slot("CHEST")));
-	inv.setItem(inv, 2, living.getEquip(from_player, read.slot("LEGS")));
-	inv.setItem(inv, 3, living.getEquip(from_player, read.slot("FEET")));
-	inv.setItem(inv, 4, living.getOffHand(from_player));
+	setInvItem(inv, 0, living.getEquip(from_player, read.slot("HEAD")));
+	setInvItem(inv, 1, living.getEquip(from_player, read.slot("CHEST")));
+	setInvItem(inv, 2, living.getEquip(from_player, read.slot("LEGS")));
+	setInvItem(inv, 3, living.getEquip(from_player, read.slot("FEET")));
+	setInvItem(inv, 4, living.getOffHand(from_player));
 	for(slot = 0; slot <= 8; slot++) {
-		inv.setItem(inv, slot + 32, inv.getItem(player_inv, slot));
+		setInvItem(inv, slot + 36, inv.getItem(player_inv, slot));
 	}
-	for(slot = 0; slot <= 26; slot++) {
-		inv.setItem(inv, slot + 5, inv.getItem(player_inv, slot + 9));
+	for(slot = 9; slot <= 35; slot++) {
+		setInvItem(inv, slot, inv.getItem(player_inv, slot));
 	}
-	inv.open(inv, to_player, string.concat("Inventory of ", player.getName(from_player)));
+	inv.open(inv, to_player);
+}
+
+function setInvItem(inv, slot, item) {
+	if(item == null) {
+		return;
+	}
+	inv.setItem(inv, slot, item);
 }
 
 function rank.add(index, tech_rank, chat_rank) {
@@ -8126,7 +8266,7 @@ function warp.getGroups() {
 	file = file.new("scripts/configs/warps");
 	file_list = file.getList(file);
 	groups_list = list.new();
-	iter = list.iterator(file_list);
+	iter = iterator(file_list);
 	while(hasNext(iter)) {
 		warp = file.getName(next(iter));
 		list.add(groups_list, warp);
@@ -8167,7 +8307,7 @@ function warp.getList(warp_group) {
 	warps_list = list.new();
 	if(file.exists(file)) {
 		file_list = file.getList(file);
-		iter = list.iterator(file_list);
+		iter = iterator(file_list);
 		while(hasNext(iter)) {
 			warp = file.getName(next(iter));
 			warp = string.replace(warp, ".snuvic", "");
@@ -8280,6 +8420,7 @@ function setCommandHelps() {
 	command.addIgnored("ban");
 	command.addIgnored("kick");
 	command.addIgnored("gamemode");
+	command.addIgnored("gamerule");
 	command.addIgnored("enchant");
 	command.addIgnored("jumpto");
 
@@ -8319,13 +8460,13 @@ function setCommandHelps() {
 	commandhelp.add("boost");
 	commandhelp.add("color");
 	commandhelp.add("colour");
-	commandhelp.add("coords");
 	commandhelp.add("fuckit");
 	commandhelp.add("giveup");
 	commandhelp.add("hack");
 	commandhelp.add("hat");
 	commandhelp.add("head");
 	commandhelp.add("hub");
+	commandhelp.add("icon");
 	commandhelp.add("iteminfo");
 	commandhelp.add("jumpto");
 	commandhelp.add("l");
@@ -8411,24 +8552,8 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("trader"));
 	command.addHelp(help);
 
-	help = command.newHelp("gamemode", "gamemode");
-	helpArg0 = command.newHelpLiteral("adventure");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("creative");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("spectator");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("survival");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpInt("0-3", 0, 3);
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("gm", "gamemode", helpArg0);
+	addGmHelp("gamemode");
+	addGmHelp("gm");
 	
 	help = command.newHelp("databank", "databank");
 	//databank showtables
@@ -8541,61 +8666,8 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("creative"));
 	command.addHelp(help);
 	
-	help = command.newHelp("datatools", "datatools");
-	//datatools item-flag <name>
-	helpArg0 = command.newHelpLiteral("item-flag");
-	item_flags = getItemFlags();
-	iter = iterator(item_flags);
-	while(hasNext(iter)) {
-		command.addHelpChild(helpArg0, command.newHelpLiteral(next(iter)));
-	}
-	command.addHelpChild(help, helpArg0);
-	//datatools item-attribute <attribute> <slot> <double> <op>
-	helpArg0 = command.newHelpLiteral("item-attribute");
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ARMOR"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ARMOR_TOUGHNESS"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_DAMAGE"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_KNOCKBACK"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_SPEED"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_FLYING_SPEED"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_FOLLOW_RANGE"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_KNOCKBACK_RESISTANCE"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_LUCK"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_MAX_HEALTH"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_MOVEMENT_SPEED"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("HORSE_JUMP_STRENGTH"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("ZOMBIE_SPAWN_REINFORCEMENTS"));
-	command.addHelpChild(help, helpArg0);
-	//datatools entity-hide
-	command.addHelpChild(help, command.newHelpLiteral("entity-hide"));
-	//datatools entity-show
-	command.addHelpChild(help, command.newHelpLiteral("entity-show"));
-	//datatools frame-hide
-	command.addHelpChild(help, command.newHelpLiteral("frame-hide"));
-	//datatools frame-show
-	command.addHelpChild(help, command.newHelpLiteral("frame-show"));
-	//datatools entity-name <name>
-	helpArg0 = command.newHelpLiteral("entity-name");
-	helpArg1 = command.newHelpString("name", true);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//datatools name-visibility <name>
-	helpArg0 = command.newHelpLiteral("name-visibility");
-	command.addHelpChild(helpArg0, command.newHelpBool("boolean"));
-	command.addHelpChild(help, helpArg0);
-	//datatools item-name <name>
-	helpArg0 = command.newHelpLiteral("item-name");
-	helpArg1 = command.newHelpString("name", true);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//datatools entity-print
-	command.addHelpChild(help, command.newHelpLiteral("entity-print"));
-	//datatools item-lore <line> <lore>
-	helpArg0 = command.newHelpLiteral("item-lore");
-	command.addHelpChild(helpArg0, command.newHelpString("lore", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("dt", "datatools", helpArg0);
+	addDtHelp("datatools");
+	addDtHelp("dt");
 	
 	help = command.newHelp("help", "help");
 	helpArg0 = command.newHelpInt("page", 1, 100);
@@ -8969,7 +9041,16 @@ function setCommandHelps() {
 	command.addHelp(help);
 	
 	help = command.newHelp("user", "user");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "user.other"));
+	//user info <player>
+	helpArg0 = command.newHelpLiteral("info");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "user.other"));
+	command.addHelpChild(help, helpArg0);
+	//user addmoney <player> <money>
+	helpArg0 = command.newHelpLiteral("addmoney", "user.money");
+	helpArg1 = command.newHelpSpecial("Player", "player", "user.money");
+	command.addHelpChild(helpArg1, command.newHelpInt("money", -1000000, 1000000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
 	help = command.newHelp("skills", "skills");
@@ -9164,6 +9245,10 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpString("message", true));
 	command.addHelp(help);
 	
+	help = command.newHelp("gamerule", "gamerule");
+	//TODO
+	command.addHelp(help);
+	
 	help = command.newHelp("clan", "clan");
 	//clan invite <name>
 	helpArg0 = command.newHelpLiteral("invite");
@@ -9246,8 +9331,6 @@ function setCommandHelps() {
 	help = command.newHelp("shop", "shop");
 	//shop create
 	command.addHelpChild(help, command.newHelpLiteral("create"));
-	//shop admin
-	command.addHelpChild(help, command.newHelpLiteral("admin"));
 	//shop remove
 	helpArg0 = command.newHelpLiteral("remove");
 	command.addHelpChild(helpArg0, command.newHelpLiteral("buy"));
@@ -9386,6 +9469,83 @@ function addStatsGameHelp(help, game) {
 	command.addHelpChild(help, helpArg0);
 }
 
+function addGmHelp(command) {
+	help = command.newHelp(command, "gamemode");
+	helpArg0 = command.newHelpLiteral("adventure");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.addHelpChild(help, helpArg0);
+	helpArg0 = command.newHelpLiteral("creative");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.addHelpChild(help, helpArg0);
+	helpArg0 = command.newHelpLiteral("spectator");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.addHelpChild(help, helpArg0);
+	helpArg0 = command.newHelpLiteral("survival");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.addHelpChild(help, helpArg0);
+	helpArg0 = command.newHelpInt("0-3", 0, 3);
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.addHelpChild(help, helpArg0);
+	command.addHelp(help);
+}
+
+function addDtHelp(command) {
+	help = command.newHelp(command, "datatools");
+	//datatools item-flag <name>
+	helpArg0 = command.newHelpLiteral("item-flag");
+	item_flags = getItemFlags();
+	iter = iterator(item_flags);
+	while(hasNext(iter)) {
+		command.addHelpChild(helpArg0, command.newHelpLiteral(next(iter)));
+	}
+	command.addHelpChild(help, helpArg0);
+	//datatools item-attribute <attribute> <slot> <double> <op>
+	helpArg0 = command.newHelpLiteral("item-attribute");
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ARMOR"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ARMOR_TOUGHNESS"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_DAMAGE"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_KNOCKBACK"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_SPEED"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_FLYING_SPEED"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_FOLLOW_RANGE"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_KNOCKBACK_RESISTANCE"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_LUCK"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_MAX_HEALTH"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_MOVEMENT_SPEED"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("HORSE_JUMP_STRENGTH"));
+	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("ZOMBIE_SPAWN_REINFORCEMENTS"));
+	command.addHelpChild(help, helpArg0);
+	//datatools entity-hide
+	command.addHelpChild(help, command.newHelpLiteral("entity-hide"));
+	//datatools entity-show
+	command.addHelpChild(help, command.newHelpLiteral("entity-show"));
+	//datatools frame-hide
+	command.addHelpChild(help, command.newHelpLiteral("frame-hide"));
+	//datatools frame-show
+	command.addHelpChild(help, command.newHelpLiteral("frame-show"));
+	//datatools entity-name <name>
+	helpArg0 = command.newHelpLiteral("entity-name");
+	helpArg1 = command.newHelpString("name", true);
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//datatools name-visibility <name>
+	helpArg0 = command.newHelpLiteral("name-visibility");
+	command.addHelpChild(helpArg0, command.newHelpBool("boolean"));
+	command.addHelpChild(help, helpArg0);
+	//datatools item-name <name>
+	helpArg0 = command.newHelpLiteral("item-name");
+	helpArg1 = command.newHelpString("name", true);
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//datatools entity-print
+	command.addHelpChild(help, command.newHelpLiteral("entity-print"));
+	//datatools item-lore <line> <lore>
+	helpArg0 = command.newHelpLiteral("item-lore");
+	command.addHelpChild(helpArg0, command.newHelpString("lore", true));
+	command.addHelpChild(help, helpArg0);
+	command.addHelp(help);
+}
+
 function addDtAttributeAttributHelp(attribut) {
 	helpArg1 = command.newHelpLiteral(attribut);
 	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("HAND"));
@@ -9435,7 +9595,7 @@ function command.registerAlias(alias, command) {
 //Spielzeit aller Online-Spieler
 function playtime.getTotalOnlineMinutes() {
 	minutes = 0;
-	iter = list.iterator(players.toList());
+	iter = iterator(players.toList());
 	while(hasNext(iter)) {
 		minutes += playtime.getPlayerOnlineMinutes(player.getId(next(iter)));
 	}
@@ -9583,7 +9743,7 @@ function player.hasClanInvitation(player_or_id, clan_id) {
 	} else {
 		player_id = player_or_id;
 	}
-	iter = list.iterator($clan_invitations);
+	iter = iterator($clan_invitations);
 	while(hasNext(iter)) {
 		invitation = next(iter);
 		p_id = invitation[0];
@@ -9694,7 +9854,7 @@ function party.kickPlayer(player, reason) {
 }
 
 function party.sendMessage(party_id, message) {
-	iter = list.iterator(party.getList(party_id));
+	iter = iterator(party.getList(party_id));
 	while(hasNext(iter)) {
 		msg.prefix(player.get(next(iter)), $prefix_party, message);
 	}
@@ -9702,7 +9862,7 @@ function party.sendMessage(party_id, message) {
 
 function party.delete(party_id) {
 	party.sendMessage(party_id, "Party disbanded.");
-	iter = list.iterator(party.getList(party_id));
+	iter = iterator(party.getList(party_id));
 	while(hasNext(iter)) {
 		player = player.get(next(iter));
 		player.delPartyRank(player);
@@ -9775,7 +9935,7 @@ function plot.setMoveEvent(plot, world) {
 }
 
 function plot.getPlotIdFromMoveId(move_id) {
-	iter = list.iterator($plot_move_ids_list);
+	iter = iterator($plot_move_ids_list);
 	while(hasNext(iter)) {
 		a = next(iter);
 		if(a[0] == move_id) {
@@ -9786,7 +9946,7 @@ function plot.getPlotIdFromMoveId(move_id) {
 }
 
 function plot.getMoveIdFromPlotId(plot_id) {
-	iter = list.iterator($plot_move_ids_list);
+	iter = iterator($plot_move_ids_list);
 	while(hasNext(iter)) {
 		a = next(iter);
 		if(a[1] == plot_id) {
@@ -9817,7 +9977,7 @@ goto("wait");
 function tpBottom(player) {
 	player_loc = entity.getLocation(player);
 	y = loc.getY(player_loc);
-	while(y > 0 && block.isAir(block.get(player_loc))) {
+	while(y > -64 && block.isAir(block.get(player_loc))) {
 		loc.setY(player_loc, y);
 		y--;
 	}

@@ -1,0 +1,152 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("player_loom_finish");
+event.load("item_air_click");
+
+stage = 0;
+all_stages = 7;
+quest_name = "Neue Hose";
+
+spruce_amount = 5;
+cloth_amount = 7;
+loom_coarse = 0;
+loom_cloth = 0;
+
+@wait
+wait();
+if(event == "player_loom_finish") {
+	player = getScriptVar("player");
+	loom_loc = getScriptVar("loom_loc");
+	entity = getScriptVar("entity");
+}
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dPeter", "Hallöle! Meine Hose ist gerissen… so kann ich das Haus nicht verlassen.");
+	scheduler.msgPrefix(30, player, "§dPeter", "Ich bräuchte dringend eine neue Hose.");
+	scheduler.msgPrefix(60, player, "§dPeter", "Schau doch bei Rolf, dem Weber, vorbei und besorg mir 7 Tücher.");
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Rolf") {
+		msg.prefix(player, "§dRolf", "Was gibt’s?");
+		scheduler.msgPrefix(30, player, concat("§d", player.getName(player)), "Ich bräuchte 7 Tücher.");
+		scheduler.msgPrefix(60, player, "§dRolf", "Du weißt, was zu tun ist. Sammle 14 Wolle. Gib die Häfte auf den Webstuhl und erhalte raue Tücher. Diese gibst du gemeinsam mit der restlichen Wolle wieder auf den Webstuhl, um Tücher zu erhalten.");
+		scheduler.giveSingleItem(60, player, read.item("minecraft:shears"), false);
+		stage.increase(player);
+	}
+}
+goto("wait");
+
+@stage1
+@stage2
+if(event == "player_loom_finish") {
+	item = item.entity.get(entity);
+	if(loom_coarse < 7) {
+		if(item.getType(item) == "km:coarse_cloth") {
+			loom_coarse += item.getAmount(item);
+			if(loom_coarse >= 7) {
+				stage.increase(player);
+			}
+			goto("wait");
+		}
+	}
+	if(loom_cloth < 7) {
+		if(item.getType(item) == "km:cloth") {
+			loom_cloth += item.getAmount(item);
+			if(loom_cloth >= 7) {
+				stage.increase(player);
+			}
+			goto("wait");
+		}
+	}
+}
+goto("wait");
+
+@stage3
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Peter") {
+		msg.prefix(player, "§dPeter", "Danke dir! Das ist zwar noch keine Hose, aber ich kenne da jemanden. Seppel ist Meister im Nähen! Wenn du ihm das hier von mir übergibst, wird er sicher eine Hose für mich beschaffen.");
+		player.safeGiveItem(player, read.item("minecraft:spruce_planks", spruce_amount));
+		stage.increase(player);
+	}
+}
+goto("wait");
+
+@stage4
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Seppel") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:spruce_planks", spruce_amount);
+		if(rest_amount == 0) {
+			stage.increase(player);
+			msg.prefix(player, "§dSeppel", "Ach, dich schickt der Peter! Das Holz kommt genau zum richtigen Zeitpunkt. Was möchte er denn?");
+			scheduler.msgPrefix(30, player, concat("§d", player.getName(player)), "Er braucht eine neue Hose, die Tücher habe ich schon dabei.");
+			scheduler.msgPrefix(60, player, "§dSeppel", "Das ist kein Problem. Gib mir die Tücher und dann warte einen Moment bitte.");
+		} else {
+			spruce_amount = rest_amount;
+		}
+	}
+}
+goto("wait");
+
+@stage5
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Seppel") {
+		rest_amount = human.giveItem(entity_name, player, "km:cloth", cloth_amount);
+		if(rest_amount == 0) {
+			waitfor(60);
+			msg.prefix(player, "§dSeppel", "Danke fürs Warten.");
+			player.safeGiveItem(player, read.item("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Damage:0,display:{color:3949738}}}"));
+			stage.increase(player);
+		} else {
+			cloth_amount = rest_amount;
+		}
+	}
+}
+goto("wait");
+
+@stage6
+if(event == "item_air_click") {
+	item = living.getEquip(player, "hand");
+	item_type = item.getType(item);
+	if(item_type == "minecraft:leather_leggings") {
+		cancel = true;
+		inv.update(player);
+	}
+	goto("wait");
+}
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Peter") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:leather_leggings", 1);
+		if(rest_amount == 0) {
+			inv.update(player);
+			msg.prefix(player, "§dPeter", "Vielen Dank!");
+			money.addBoost(player, 30);
+			msg(player, "§dQuest abgeschlossen. Belohnung: 30 Snuvis!");
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

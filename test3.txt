@@ -1,9 +1,9 @@
 p = read.player("kajetanjohannes");
 loc = entity.getLocation(p);
-h = human.spawn(loc, "Mareeeen");
-human.setAI(h, 2);
+h = human.spawn(loc, "Marvinius");
+human.setAI(h, 1);
 human.canMove(h, true);
-human.setSkinUUID(h, read.uuid("88822148-d046-4345-a64a-da6bbfb684ca"));
+human.setSkinUUID(h, read.uuid("e41b5335-3c74-46e9-a6c5-dafc6334a477"));
 living.setEquip(h, read.slot("HAND"), item.new(material.get("STONE_SWORD")));
 living.setEquip(h, read.slot("HEAD"), item.new(material.get("IRON_HELMET")));
 living.setEquip(h, read.slot("CHEST"), item.new(material.get("IRON_CHESTPLATE")));

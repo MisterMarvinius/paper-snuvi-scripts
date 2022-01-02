@@ -1,50 +1,50 @@
 event.load("block_break");
-event.load("human_hurt");
-event.load("entity_join");
-herobrines = list.new();
+//event.load("human_damage");
+event.load("entity_spawn");
+herobrines = set.new();
 
-msg("dev", "§bHerobrine §rloaded.");
-@wait
+msg.string("dev", "§bHerobrine §rloaded.");
+@main
 wait();
-if(event == "entity_join") {
-	if(entity.getType(entity) != "human") {
-		goto("wait");
+if(event == "entity_spawn") {
+	if(!entity.isHuman(entity)) {
+		goto("main");
 	}
-	if(entity.getName(entity) != "Herobrine") {
-		goto("wait");
+	if(human.getName(entity) != "Herobrine") {
+		goto("main");
 	}
-	if(list.contains(herobrines, entity)) {
-		goto("wait");
+	if(set.contains(herobrines, entity)) {
+		goto("main");
 	}
 	entity.remove(entity);
-	goto("wait");
+	goto("main");
 }
-if(event == "human_hurt") {
+if(event == "human_damage") {
 	entity_name = entity.getName(human);
-	if(list.contains(herobrines, human)) {
+	if(set.contains(herobrines, human)) {
 		if(entity == null) {
-			goto("wait");
+			goto("main");
 		}
 		if(!isLiving(entity)) {
-			goto("wait");
+			goto("main");
 		}
 		living.damage(entity, 10, damage.get("thorns", human));
 	}
-	goto("wait");
+	goto("main");
 }
 if(event == "block_break") {
 	player_loc = entity.getLocation(player);
 	world_name = world.getName(loc.getWorld(player_loc));
 	if(!world.isSurvName(world_name)) {
-		goto("wait");
+		goto("main");
 	}
 	r = math.random(1, 2000);
 	if(r == 1) {
 		spawnHerobrine(player);
 	}
-	goto("wait");
+	goto("main");
 }
-goto("wait");
+goto("main");
 
 function spawnHerobrine(player) {
 	player_loc = entity.getLocation(player);
@@ -53,22 +53,17 @@ function spawnHerobrine(player) {
 	alpha *= math.pi() / 180;
 	x = math.round(math.sin(alpha) * dist) + 0.5;
 	z = math.round(math.cos(alpha) * dist) + 0.5;
-	y = 255;
-	hero_loc = loc.mod(player_loc, x, y, z);
-	while(block.isAir(hero_loc)) {
+	hero_loc = loc.mod(player_loc, x, 0, z);
+	y = 319;
+	loc.setY(hero_loc, y);
+	while(y > -64 && block.isAir(block.get(hero_loc))) {
 		loc.setY(hero_loc, y);
 		y--;
-	}					
+	}
 	loc.addY(hero_loc, 1);
-	ent = human.spawn(hero_loc);
-	list.add($herobrines, ent);
-	human.setSkin(ent, "herobrine");
-	entity.setName(ent, "Herobrine");
-	sgoto(400, "deleteHerobrine");
+	ent = human.spawn(hero_loc, "Herobrine");
+	human.setSkin(ent, "ewogICJ0aW1lc3RhbXAiIDogMTYyMjMwNDY0MjU3MSwKICAicHJvZmlsZUlkIiA6ICI0NWY3YTJlNjE3ODE0YjJjODAwODM5MmRmN2IzNWY0ZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJfSnVzdERvSXQiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTUyM2UxZjA2ZDhlMTM5OWMwNjhhYTU3NjhmMDUzMDI1N2FhYjIxYTM0ZTk1NTY5MzNlNjM0NTUxODY0MjVhNiIKICAgIH0KICB9Cn0=", "PAL4UKYIgCe3RwmxfT6p05DDqc0kW2HTvlNNRuP3npXyuL68Hifjtiuu6OiJ/IQ/YGsjKf3Ni219teFFBJqEUJNEskC7CWnJxHWRq/WkSNDJXVKvBW6JjOYN607HSlBhifn4ZAxasol0bqVRURVG+0BwDUHXIGy4LRSu10/SLhsAmvwKhwYJiQ1xgnerqfzeWmPQSDZOo30Fxo6jNRnJ7v0VBGR8awImOfVsKE3SuEeys47U5AqXrHIp88s36aGOsIa0Bs6NHutW/L6Wbg9BHGUs93NGnjP9jxXizhGITF45KBXNl7gXPPjMnK7/CGOTuxuABc+MVAptB4cHCksnfaSMexryluQuwzWzOJTX1NCMGlYFREDq4c3GgVWJ7Yo2xWOwcy+XZxJXNchQ5/vzA3dv+XdU4zcD93OOhuv9PDoUTlmQgLFQLFbxM6Bq6cSQg3Wybi7wO6jQzBIVpZaswrOo/wgHuXbDkA9rv5uONjQQbKHJQjVjgIrbbUpX3+Kh4MkgBEUztxNvbgbt5RK0knwtYhscKDyrP5AAwp9CX6JnmbKXIRVWtx6b3JNPYC9I6FtBCoGxo6OfHl3f/okncszIh+40Sif3IdMrW+H5g3MxMkn5eHP4nOHRL24izlLUM52gS/TUgpG0dJrG6XMOR3w6KqTxcT/4vyxwlmJ+iDg=");
+	human.setAi(ent, 1);
+	human.canMove(ent, true);
+	set.add($herobrines, ent);
 }
-
-@deleteHerobrine
-ent = list.getIndex(herobrines, 0);
-list.removeIndex(herobrines, 0);
-entity.remove(ent);
-goto("wait");

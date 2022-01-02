@@ -1,0 +1,77 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_click");
+event.load("entity_click");
+
+world = world.get("story");
+arrow_chest_loc = loc.new(world, -1659, 76, 50);
+treasure_chest_loc = loc.new(world, -1662, 75, 46);
+mob_loc_1 = loc.new(world, -1666.5, 76, 53.5);
+mob_loc_2 = loc.new(world, -1661.5, 74, 48.5);
+
+stage = 0;
+all_stages = 2;
+quest_name = "Schatz von Admont";
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dHerbert", "Hier in Admont ist seit langem ein Schatz versteckt. Niemand hat ihn je gesehen...");
+	scheduler.msgPrefix(30, player, "§dHerbert", "Ich versuche es schon seit Ewigkeiten.");
+	scheduler.msgPrefix(60, player, "§dHerbert", "Schau doch mal auf die Karte. Vielleicht hast du ja mehr Erfolg.");
+	player.giveSingleItem(player, read.item("minecraft:iron_sword"), false);
+	entity.spawn("zombie", mob_loc_1);
+	entity.spawn("skeleton", mob_loc_1);
+	entity.spawn("zombie", mob_loc_2);
+	entity.spawn("skeleton", mob_loc_2);
+	block.addItem(arrow_chest_loc, read.item("minecraft:arrow", 64));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_click") {
+	if(block_loc == treasure_chest_loc) {
+		stage.increase(player);
+		msg.prefix(player, "§dHerbert", "Gut gemacht! Jetzt komm zu mir zurück.");
+		block.addItem(treasure_chest_loc, read.item("minecraft:gold_ingot", 8));
+		block.addItem(treasure_chest_loc, read.item("minecraft:diamond"));
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Herbert") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "minecraft:gold_ingot" || item_type == "minecraft:diamond") {
+			amount = player.getItemAmount(player, false, read.item("minecraft:diamond"));
+			if(amount == 0) {
+				msg.prefix(player, "§dHerbert", "Du hast keinen Diamand im Inventar.");
+				goto("wait");
+			}
+			event.unload("entity_click");
+			msg.prefix(player, "§dHerbert", "Du hast es tatsächlich geschafft.");
+			scheduler.msgPrefix(30, player, "§dHerbert", "Den Diamanten behalte ich.");
+			scheduler.msgPrefix(60, player, "§dHerbert", "Die Goldbarren hast du dir verdient.");
+			player.removeItem(player, read.item("minecraft:diamond"));
+			money.addBoost(player, 24);
+			scheduler.msg(65, player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");
+			scheduler.questFinish(65, script, player);
+		} else {
+			msg.prefix(player, "§dHerbert", "Gib mir bitte den Schatz.");
+		}
+	}
+}
+goto("wait");

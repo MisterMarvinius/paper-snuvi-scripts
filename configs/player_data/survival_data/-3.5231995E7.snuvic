@@ -1,5 +1,9 @@
-backpos="world:121.32906066575823:78.5:-25.395508122824847:63.79302978515625:5.559326171875"
+backpos="null"
 firstjoin=false
-money=11511.0
+lastvotetime=1.640870789579E12
+money=16194.0
+plot.usedFree=true
 pvp=false
 rank="§dSponsor"
+votepoints=2.0
+votestreak=1.0

@@ -1,3 +1,52 @@
+function initPlotFlags() {
+	list = list.new();
+	list.add(list, initPlotFlag(calcLeftShift(30), "SUB_PLOT_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(29), "FREE_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(28), "CITY_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(27), "EXPLOSION_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(5), "ENTITY_INTERACT_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(4), "BLOCK_INTERACT_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(3), "HIT_AMBIENT_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(2), "BUCKET_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(1), "BREAK_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(0), "PLACE_FLAG"));
+	setScriptVar("all_plot_flags", list);
+}
+
+function initPlotFlag(f, f_name) {
+	a = array.new(2);
+	a[0] = f;
+	a[1] = f_name;
+	return a;
+}
+
+function getAllPlotFlags() {
+	return getScriptVar("all_plot_flags");
+}
+
+function getFlagLists(plot) {
+	flags = plot.getFlags(plot);
+	all_flags = getAllPlotFlags();
+	flags_true = list.new();
+	flags_false = list.new();
+	
+	iter = iterator(all_flags);
+	while(hasNext(iter)) {
+		a = next(iter);
+		f = a[0];
+		if(flags >= f) {
+			list.add(flags_true, a);
+			flags -= f;
+		} else {
+			list.add(flags_false, a);
+		}
+	}
+	a = array.new(2);
+	a[0] = flags_true;
+	a[1] = flags_false;
+	return a;
+}
+
 function getItemFlags() {
 	list = list.new();
 	list.add(list, "HIDE_ATTRIBUTES");

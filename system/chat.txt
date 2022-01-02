@@ -1,3 +1,4 @@
+modTimer(-50);
 event.load("chat");
 event.load("player_join");
 event.load("player_quit");
@@ -111,6 +112,7 @@ if(silentjoin) {
 	if(own_message == null || player.isNicked(player)) {
 		message = text.new(string.concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1))));
 	} else {
+		own_message = string.replace(own_message, "&", "§");
 		message = text.new(string.concat("§a§l> §r", fullname, " §9", own_message));
 	}
 }
@@ -120,7 +122,7 @@ inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
 giveCookie(player);
 player.setTabName(player);
 player.greet(player);
-sb.setTitle(player, text.new("§0~ §fMundus Crassus §0~"));
+sb.setTitle(player, text.new(string.concat(icon.getHeart(), "§6Mundus §cCrassus§f", icon.getHeart())));
 rank.offerTimeScheduled(player);
 money.display(player, getMoney(player));
 if(perm.has("isDev", player)) {
@@ -151,6 +153,7 @@ own_message = player.getLeaveMessage(player);
 if(own_message == null || player.isNicked(player)) {
 	message = text.new(string.concat("§c§l> §r", fullname, " §9", list.getIndex(leavemeassages, math.random(0, list.getSize(leavemeassages) - 1))));
 } else {
+	own_message = string.replace(own_message, "&", "§");
 	message = text.new(string.concat("§c§l> §r", fullname, " §9", own_message));
 }
 inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
@@ -185,8 +188,9 @@ if(player.isMuted(player)) {
 if(perm.has("color", player)) {
 	message = text.new(string.replace(string.text(message), "&", "§"));
 }
-if(string.startsWith(message, "https://", 0)) {
-	message = string.getLinkText(message, message);
+string_message = string.text(message);
+if(string.startsWith(string_message, "https://", 0)) {
+	message = string.getLinkText(string_message, string_message);
 }
 msg.chat(player, message);
 goto("wait");

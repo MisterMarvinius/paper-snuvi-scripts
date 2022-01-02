@@ -1,0 +1,59 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("custom_command");
+event.load("player_move");
+
+stage = 0;
+all_stages = 2;
+quest_name = "Zauberlehrling";
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dGertrude", "Ich habe so viel zu tun. Sei doch meine helfende Hand. Ich bin am Boden zerstört! Wie gern würde ich meinen Enkel, den Zauberlehrling, am Berg besuchen. Leider bin ich nicht mehr die Jüngste und meine Knie machen da auch nicht mehr mit. Es wäre so lieb von dir, wenn du ihm sein Lieblingsbrot vorbeibringst und ihn von mir grüßt!");
+	msg(player, "§dAntwortmöglichkeiten:");
+	msg(player, text.click("[§dA§r] §eKein Problem, ich mache mich sofort auf den Weg.", "/questanswer A"));
+	msg(player, text.click("[§dB§r] §eIch habe auch Knieprobleme.", "/questanswer B"));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		player.giveItem(player, read.item("minecraft:bread", 15));
+		msg.prefix(player, "§dGertrude", "Folge dem Weg zum Felsmagier, dort oben zum Turm.");
+		story = world.get("story");
+		loc1 = loc.new(story, -1626, 85, 75);
+		loc2 = loc.new(story, -1625, 87, 76);
+		move_id = event.addMoveData(loc1, loc2, -1, -1, player);
+		goto("wait");
+	}
+	if(option == "B") {
+		msg.prefix(player, "§dGertrude", "Dann wird er wohl nie wieder von mir hören...");
+		msg.prefix(player, "§dQuest", "Quest termed.");
+		quest.term(script, player);
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "player_move") {
+	if(id == move_id) {
+		money.addBoost(player, 15);
+		msg(player, "§dQuest abgeschlossen. Belohnung: 15 Snuvis!");
+		quest.finish(script, player);
+	}
+}
+goto("wait");

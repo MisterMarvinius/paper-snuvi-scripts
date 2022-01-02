@@ -13,6 +13,7 @@ inv.setItem(miner, 4, newItem(material.get("NETHERITE_INGOT")));
 inv.setItem(miner, 5, newItem(material.get("LAPIS_LAZULI")));
 inv.setItem(miner, 6, newItem(material.get("REDSTONE")));
 inv.setItem(miner, 7, newItem(material.get("FLINT")));
+inv.setItem(miner, 8, newItem(material.get("EMERALD")));
 set.add(openMarkets, inv.getId(miner));
 // Farmer
 farmer = inv.new("222222222", text.new("Farmer"));
@@ -28,12 +29,74 @@ baker = inv.new("222222222", text.new("Baker"));
 inv.setItem(baker, 0, newItem(material.get("BREAD")));
 inv.setItem(baker, 1, newItem(material.get("CAKE")));
 inv.setItem(baker, 2, newItem(material.get("COOKIE")));
+mentos = item.new(material.get("COOKIE"));
+item.setName(mentos, text.new("§dMentos"));
+inv.setItem(baker, 3, newSellItem(mentos, 1, 32));
 set.add(openMarkets, inv.getId(baker));
 // Tavern
 tavern = inv.new("222222222", text.new("Tavern"));
+beer = read.item("{Count:1b,id:'minecraft:potion',tag:{Potion:'minecraft:strong_strength'}}");
+item.addPotion(beer, "CONFUSION", 400, 0);
+item.setName(beer, text.new("§fBeer"));
+item.addFlag(beer, "HIDE_POTION_EFFECTS");
+inv.setItem(tavern, 0, newSellItem(beer, 1, 20));
+sturm = read.item("{Count:1b,id:'minecraft:potion',tag:{Potion:'minecraft:water'}}");
+item.addPotion(sturm, "FAST_DIGGING", 20 * 2 * 60, 2);
+item.addPotion(sturm, "CONFUSION", 400, 0);
+item.setName(sturm, text.new("§fSturm"));
+item.addFlag(sturm, "HIDE_POTION_EFFECTS");
+inv.setItem(tavern, 1, newSellItem(sturm, 1, 64));
+red_bull = read.item("{Count:1b,id:'minecraft:potion',tag:{Potion:'minecraft:water'}}");
+item.addPotion(red_bull, "LEVITATION", 600, 0);
+item.setName(red_bull, text.new("§fRed Bull"));
+item.addFlag(red_bull, "HIDE_POTION_EFFECTS");
+inv.setItem(tavern, 2, newSellItem(red_bull, 1, 20));
 set.add(openMarkets, inv.getId(tavern));
+// Priest
+priest = inv.new("222222222", text.new("Priest"));
+inv.setItem(priest, 0, newItem(material.get("BONE")));
+inv.setItem(priest, 1, newItem(material.get("ROTTEN_FLESH")));
+inv.setItem(priest, 2, newItem(material.get("SLIME_BALL")));
+inv.setItem(priest, 3, newItem(material.get("SPIDER_EYE")));
+inv.setItem(priest, 4, newItem(material.get("PHANTOM_MEMBRANE")));
+inv.setItem(priest, 5, newItem(material.get("ENDER_PEARL")));
+inv.setItem(priest, 6, newItem(material.get("STRING")));
+inv.setItem(priest, 7, newItem(material.get("GUNPOWDER")));
+inv.setItem(priest, 8, newItem(material.get("BLAZE_ROD")));
+set.add(openMarkets, inv.getId(priest));
+// Mason
+mason = inv.new("222222222222222222", text.new("Mason"));
+inv.setItem(mason, 0, newItem(material.get("COBBLESTONE")));
+inv.setItem(mason, 1, newItem(material.get("STONE")));
+inv.setItem(mason, 2, newItem(material.get("GRANITE")));
+inv.setItem(mason, 3, newItem(material.get("POLISHED_GRANITE")));
+inv.setItem(mason, 4, newItem(material.get("DIORITE")));
+inv.setItem(mason, 5, newItem(material.get("POLISHED_DIORITE")));
+inv.setItem(mason, 6, newItem(material.get("ANDESITE")));
+inv.setItem(mason, 7, newItem(material.get("POLISHED_ANDESITE")));
+inv.setItem(mason, 8, newItem(material.get("DEEPSLATE")));
+inv.setItem(mason, 9, newItem(material.get("COBBLED_DEEPSLATE")));
+inv.setItem(mason, 10, newItem(material.get("POLISHED_DEEPSLATE")));
+inv.setItem(mason, 11, newItem(material.get("CALCITE")));
+inv.setItem(mason, 12, newItem(material.get("TUFF")));
+inv.setItem(mason, 13, newItem(material.get("DRIPSTONE_BLOCK")));
+inv.setItem(mason, 14, newItem(material.get("GRAVEL")));
+set.add(openMarkets, inv.getId(mason));
+// Mage
+mage = inv.new("222222222", text.new("Mage"));
+inv.setItem(mage, 0, newSellItem(item.new(material.get("WITHER_SKELETON_SPAWN_EGG")), 1, 512));
+inv.setItem(mage, 1, newSellItem(item.new(material.get("ENDERMITE_SPAWN_EGG")), 1, 64));
+inv.setItem(mage, 2, newSellItem(item.new(material.get("ELDER_GUARDIAN_SPAWN_EGG")), 1, 2048));
+inv.setItem(mage, 3, newSellItem(item.new(material.get("WITCH_SPAWN_EGG")), 1, 96));
+inv.setItem(mage, 4, newSellItem(item.new(material.get("AXOLOTL_SPAWN_EGG")), 1, 256));
+inv.setItem(mage, 5, newSellItem(item.new(material.get("FOX_SPAWN_EGG")), 1, 256));
+inv.setItem(mage, 6, newSellItem(item.new(material.get("HORSE_SPAWN_EGG")), 1, 256));
+inv.setItem(mage, 7, newSellItem(item.new(material.get("STRIDER_SPAWN_EGG")), 1, 256));
+set.add(openMarkets, inv.getId(mage));
 
-event.load("entity_click");
+emerald = material.get("EMERALD");
+
+//event.load("entity_click");
 event.load("snuvi_click");
 
 background = material.get("BLACK_STAINED_GLASS_PANE");
@@ -54,7 +117,7 @@ function save() {
 }
 
 function giveSnuvis(player, amount) {
-    msg(player, text.new(string.concat("§eYou got §6", string.number(amount), "§e Snuvis.")));
+    msg(player, text.new(string.concat("§eYou earned §6", string.number(amount), "§e Snuvis.")));
 	money.add(player, amount);
 }
 
@@ -96,6 +159,20 @@ function calculatePrices(material) {
     $buySnuviAmount = math.round($buySnuviAmount);
     $sellAmount = math.round($sellAmount);
     $sellSnuviAmount = math.round($sellSnuviAmount);
+}
+
+function newSellItem(item, amount, price) {
+    lore = item.getLore(item);
+    if(lore == null) {
+        lore = list.new();
+    }
+    s = "";
+    if(price > 1) {
+        s = "s";
+    }
+    list.add(lore, text.new(string.concat("§eBuy §6", string.number(amount), "§e for §6", string.number(price), "§e Snuvi", s)));
+    item.setLore(item, lore);
+    return item;
 }
 
 function newItem(material) {
@@ -153,15 +230,42 @@ if(string.contains(name, "Miner", 0)) {
     inv.open(baker, player);
 } elseif(string.contains(name, "Alena", 0)) {
     inv.open(tavern, player);
+} elseif(string.contains(name, "Priest", 0)) {
+    inv.open(priest, player);
+} elseif(string.contains(name, "Mason", 0)) {
+    inv.open(mason, player);
+} elseif(string.contains(name, "Mage", 0)) {
+    inv.open(mage, player);
 }
 
 goto("loop");
 
 @snuvi_click
-if(inv == null || !set.contains(openMarkets, inv.getId(inv))) {
+if(inv == null) {
     goto("loop");
 }
 item = inv.getItem(inv, inv_slot);
+if(item.getType(item) == emerald) {
+	title_string = string.text(inv_title);
+	if(title_string == "Miner") {
+		inv.open(miner, player);
+	} elseif(title_string == "Farmer") {
+		inv.open(farmer, player);
+	} elseif(title_string == "Baker") {
+		inv.open(baker, player);
+	} elseif(title_string == "Alena") {
+		inv.open(tavern, player);
+	} elseif(title_string == "Priest") {
+		inv.open(priest, player);
+	} elseif(title_string == "Mason") {
+		inv.open(mason, player);
+	} elseif(title_string == "Mage") {
+		inv.open(mage, player);
+	}
+}
+if(!set.contains(openMarkets, inv.getId(inv))) {
+	goto("loop");
+}
 material = item.getType(item);
 if(material == background) {
     goto("loop");
@@ -175,30 +279,59 @@ goto("loop");
 clicks = 64;
 @LEFT
 lostSnuvis = 0;
-for(i = 0; i < clicks; i++) {
-    calculatePrices(material);
-    if(onStock < buyAmount || buyAmount <= 0) {
-        msg(player, text.new("§cThis item is out of stock."));
-        break;
+lore = item.getLore(item);
+if(lore == null || list.getSize(lore) == 0) {
+    msg(player, text.new("§cYou cannot buy this."));
+} elseif(list.getSize(lore) == 1) {
+    base = string.text(list.get(lore, 0));
+    base = string.replace(base, "§.", "");
+    parts = string.split(" ", base);
+    amount = read.number(parts[1]);
+    price = read.number(parts[3]);
+    for(i = 0; i < clicks; i++) {
+        if(!hasSnuvis(player, price)) {
+            msg(player, text.new("§cYou don't have enough snuvis."));
+            break;
+        }
+        buyItem = item.clone(item);
+        item.setAmount(buyItem, amount);
+        item.setLore(buyItem, list.new());
+        if(player.addItem(player, buyItem) > 0) {
+            msg(player, text.new("§cYour inventory is too full."));
+            break;
+        }
+        removeSnuvis(player, price);    
+        lostSnuvis += price;
     }
-    if(!hasSnuvis(player, buySnuviAmount)) {
-        msg(player, text.new("§cYou don't have enough snuvis."));
-        break;
+    if(lostSnuvis > 0) {
+        msg(player, text.new(string.concat("§eYou spent §6", string.number(lostSnuvis), "§e Snuvis.")));
     }
-    buyItem = item.new(material);
-    item.setAmount(buyItem, buyAmount);
-    if(player.addItem(player, buyItem) > 0) {
-        msg(player, text.new("§cYour inventory is too full."));
-        break;
+} else {
+    for(i = 0; i < clicks; i++) {
+        calculatePrices(material);
+        if(onStock < buyAmount || buyAmount <= 0) {
+            msg(player, text.new("§cThis item is out of stock."));
+            break;
+        }
+        if(!hasSnuvis(player, buySnuviAmount)) {
+            msg(player, text.new("§cYou don't have enough snuvis."));
+            break;
+        }
+        buyItem = item.new(material);
+        item.setAmount(buyItem, buyAmount);
+        if(player.addItem(player, buyItem) > 0) {
+            msg(player, text.new("§cYour inventory is too full."));
+            break;
+        }
+        removeSnuvis(player, buySnuviAmount);    
+        lostSnuvis += buySnuviAmount;
+        config.set(stock, material, onStock - buyAmount);
     }
-    removeSnuvis(player, buySnuviAmount);    
-    lostSnuvis += buySnuviAmount;
-    config.set(stock, material, onStock - buyAmount);
-}
-if(lostSnuvis > 0) {
-    msg(player, text.new(string.concat("§eYou lost §6", string.number(lostSnuvis), "§e Snuvis.")));
-    updateItem(inv, inv_slot, material);
-    save();
+    if(lostSnuvis > 0) {
+        msg(player, text.new(string.concat("§eYou spent §6", string.number(lostSnuvis), "§e Snuvis.")));
+        updateItem(inv, inv_slot, material);
+        save();
+    }
 }
 goto("loop");
 
@@ -206,6 +339,11 @@ goto("loop");
 @SHIFT_RIGHT
 clicks = 64;
 @RIGHT
+lore = item.getLore(item);
+if(lore == null || list.getSize(lore) <= 1) {
+    msg(player, text.new("§cYou can only buy this item."));
+    goto("loop");
+}
 gotSnuvis = 0;
 for(i = 0; i < clicks; i++) {
     calculatePrices(material);

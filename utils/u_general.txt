@@ -1,3 +1,9 @@
+function calcLeftShift(bit) { //Deprecated, kaje soll << einbauen
+	a = 1;
+	a <<= bit;
+	return a;
+}
+
 function isString(anything) {
 	return string.class(anything) == "String";
 }
@@ -147,7 +153,7 @@ function player.safeGiveItem(player, item) {
 	rest_amount = player.giveItem(player, item);
 	if(rest_amount > 0) {
 		item.setAmount(item, rest_amount);
-		item.drop(entity.getLocation(player), item);
+		item.drop(item, entity.getLocation(player));
 	}
 }
 
@@ -199,9 +205,9 @@ function grow(center_loc, radius) {
 					block = block.get(loc.mod(center_loc, x, y, z));
 					if(block.hasTag(block, crops_tag)) {
 						if(block.isType(block, "minecraft:beetroots")) {
-							block.setMaterial(block, material.get(string.concat(block.getType(block), "[age=3]")));
+							block.setData(block, read.blockData(string.replace(string.blockData(block.getData(block)), "age=.", "age=3")));
 						} else {
-							block.setMaterial(block, material.get(string.concat(block.getType(block), "[age=7]")));
+							block.setData(block, read.blockData(string.replace(string.blockData(block.getData(block)), "age=.", "age=7")));
 						}
 					}
 				}
@@ -330,10 +336,6 @@ function ranking.getSecPoints(rankingtable, player_or_id) {
 	databank.close(result);
 	databank.close(stmt);
 	return sec_points;
-}
-
-function isAdminShop(sign_block) {
-	return sign.getString(sign_block, 0) == "[Admin Shop]";
 }
 
 //--------------------------------------------------
@@ -630,6 +632,162 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 	living.setEquip(sec_player, read.slot("FEET"), read.item(config.getString(config, "feet", air_string)));
 }
 
+function inv.getItemAmount(inv, wusi) {
+	//wusi: item_stack or item_type or item_tag
+	c = 0;
+	if(isMaterial(wusi)) {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.getType(item) == wusi) {
+				c += item.getAmount(item);
+			}
+		}
+	} elseif(isItemstack(wusi)) {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(isSameItem(item, wusi)) {
+				c += item.getAmount(item);
+			}
+		}
+	} else {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.hasTag(item, wusi)) {
+				c += item.getAmount(item);
+			}
+		}
+	}
+	return c;
+}
+
+function inv.addItem(inv, itemstack) {
+	//adds an item and returns the amount which could not be added
+	amount_to_add = item.getAmount(itemstack);
+	for(i = 0; i < inv.getSize(inv); i++) {
+		item = inv.getItem(inv, i);
+		if(item == null) {
+			space = item.getMaxAmount(itemstack);
+			item = item.clone(itemstack);
+			if(space <= amount_to_add) {
+				item.setAmount(item, space);
+				inv.setItem(inv, i, item);
+				amount_to_add -= space;
+				if(amount_to_add == 0) {
+					break;
+				}
+			} else {
+				item.setAmount(item, amount_to_add);
+				inv.setItem(inv, i, item);
+				amount_to_add = 0;
+				break;
+			}
+		}
+		elseif(isSameItem(item, itemstack)) {
+			a = item.getAmount(item);
+			max_a = item.getMaxAmount(item);
+			space = max_a - a;
+			if(space > 0) {
+				if(space <= amount_to_add) {
+					item.setAmount(item, max_a);
+					amount_to_add -= space;
+					if(amount_to_add == 0) {
+						break;
+					}
+				} else {
+					item.setAmount(item, a + amount_to_add);
+					amount_to_add = 0;
+					break;
+				}
+			}
+		}
+	}
+	return amount_to_add;
+}
+
+function inv.removeItem(inv, itemstack) {
+	//removes items and returns the amount which could not be removed
+	amount_to_remove = item.getAmount(itemstack);
+	for(i = 0; i < inv.getSize(inv); i++) {
+		item = inv.getItem(inv, i);
+		if(item == null) {
+			continue;
+		}
+		if(isSameItem(item, itemstack)) {
+			a = item.getAmount(item);
+			if(a <= amount_to_remove) {
+				inv.setItem(inv, i, null);
+				amount_to_remove -= a;
+				if(amount_to_remove == 0) {
+					break;
+				}
+			} else {
+				item.setAmount(item, a - amount_to_remove);
+				amount_to_remove = 0;
+				break;
+			}
+		}
+	}
+	return amount_to_remove;
+}
+
+function inv.removeItem2(inv, wusi, amount_to_remove) {
+	//wusi: item_type or item_tag
+	//removes items and returns the amount which could not be removed
+	if(isMaterial(wusi)) {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.getType(item) == wusi) {
+				a = item.getAmount(item);
+				if(a <= amount_to_remove) {
+					inv.setItem(inv, i, null);
+					amount_to_remove -= a;
+					if(amount_to_remove == 0) {
+						break;
+					}
+				} else {
+					item.setAmount(item, a - amount_to_remove);
+					amount_to_remove = 0;
+					break;
+				}
+			}
+		}
+	} else {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.hasTag(item, wusi)) {
+				a = item.getAmount(item);
+				if(a <= amount_to_remove) {
+					inv.setItem(inv, i, null);
+					amount_to_remove -= a;
+					if(amount_to_remove == 0) {
+						break;
+					}
+				} else {
+					item.setAmount(item, a - amount_to_remove);
+					amount_to_remove = 0;
+					break;
+				}
+			}
+		}
+	}
+	return c;
+}
+
 //--------------------------------------------------
 //Text-Utils
 //--------------------------------------------------
@@ -663,7 +821,7 @@ function text.getHoverText(show_text, execute_string) {
 }
 
 function string.getClipBoardText(show_string, copy_string) {
-	return text.clipBoard(text.new(show_string), text.new(copy_string));
+	return text.clipBoard(text.new(show_string), copy_string);
 }
 
 function string.getSpacer() {
@@ -770,7 +928,7 @@ function quest.removePlayer(player) {
 	map.remove(quest_ids, player.getUuid(player));
 }
 
-function player.hasQuest2(player) {
+function player.hasQuest(player) {
 	quest_ids = quest.getIds();
 	return map.contains(quest_ids, player.getUuid(player));
 }
@@ -833,13 +991,11 @@ function quest.setBlockList(list) {
 function quest.setCooldown(player) {
 	list = quest.getBlockList();
 	list.add(list, player.getUuid(player));
-	quest.setBlockList(list);
 }
 
 function quest.removeCooldown(player) {
 	list = quest.getBlockList();
 	list.remove(list, player.getUuid(player));
-	quest.setBlockList(list);
 }
 
 function quest.isPlayerBlocked(player) {
@@ -868,6 +1024,58 @@ function script.isActiveName(script_name) {
 		return false;
 	}
 	return true;
+}
+
+//--------------------------------------------------
+//Slot-Utils
+//--------------------------------------------------
+
+function slot.getHand() {
+	return read.slot("HAND");
+}
+
+function slot.getOffHand() {
+	return read.slot("OFF_HAND");
+}
+
+function slot.getHead() {
+	return read.slot("HEAD");
+}
+
+function slot.getChest() {
+	return read.slot("CHEST");
+}
+
+function slot.getLegs() {
+	return read.slot("LEGS");
+}
+
+function slot.getFeet() {
+	return read.slot("FEET");
+}
+
+function slot.isHand(slot) {
+	return slot == slot.getHand();
+}
+
+function slot.isOffHand(slot) {
+	return slot == slot.getOffHand();
+}
+
+function slot.isHead(slot) {
+	return slot == slot.getHead();
+}
+
+function slot.isChest(slot) {
+	return slot == slot.getChest();
+}
+
+function slot.isLegs(slot) {
+	return slot == slot.getLegs();
+}
+
+function slot.isFeet(slot) {
+	return slot == slot.getFeet();
 }
 
 //--------------------------------------------------
@@ -1197,7 +1405,7 @@ function player.teleport(player, location, setBackPos) {
 					msg.prefix(player, "§5Party", string.concat(p_name, "§c is in a game."));
 					continue;
 				}
-				if(player.hasQuest2(p)) {
+				if(player.hasQuest(p)) {
 					msg.prefix(player, "§5Party", string.concat(p_name, "§c is doing a quest."));
 					continue;
 				}
@@ -1323,7 +1531,7 @@ function msg.chat(player, message) {
 	rank = getRank(player);
 	colorcode = string.subString(rank, 0, 2);
 	if(player.isLive(player)) {
-		live_tag = "§f[§dLive§f]";
+		live_tag = "§dLive §f| ";
 	} else {
 		live_tag = "";
 	}
@@ -1334,7 +1542,7 @@ function msg.chat(player, message) {
 		if(player.hasMinigame(p) && player.isMuted(p)) {
 			continue;
 		}
-		msg(p, text.merge(text.new(live_tag), text.new("["), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r] §r"), message));
+		msg(p, text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), message));
 	}
 }
 
@@ -1397,6 +1605,10 @@ function msg.games(message) {
 //Material-Utils
 //--------------------------------------------------
 
+function isMaterial(anything) {
+	return string.class(anything) == "Material";
+}
+
 function material.getAir() {
 	return material.get("AIR");
 }
@@ -1405,8 +1617,28 @@ function material.getAir() {
 //Item-Utils
 //--------------------------------------------------
 
+function isSameItem(itemstack_1, itemstack_2) {
+	itemstack_1 = item.clone(itemstack_1);
+	itemstack_2 = item.clone(itemstack_2);
+	item.setAmount(itemstack_1, 1);
+	item.setAmount(itemstack_2, 1);
+	return itemstack_1 == itemstack_2;
+}
+
+function isItemstack(anything) {
+	type = string.class(anything);
+	return type == "ItemStack" || type == "CraftItemStack";
+}
+
+function item.isAir(itemstack) {
+	if(itemstack == null) {
+		return true;
+	}
+	return item.getType(itemstack) == material.getAir();
+}
+
 function item.custom.create(type, amount, name, lore_list) {
-	item = item.custom.new(item.custom.get(type));
+	item = item.custom.new(item.custom.get(type), amount);
 	if(name != null) {
 		item.setName(item, text.new(name));
 	}
@@ -1416,13 +1648,20 @@ function item.custom.create(type, amount, name, lore_list) {
 	return item;
 }
 
-function item.create(type, amount, name, lore_list) {
+function item.create(type, amount, name, wusi) {
+	//wusi: lore_list or lore_string
 	item = item.new(material.get(type), amount);
 	if(name != null) {
 		item.setName(item, text.new(name));
 	}
-	if(lore_list != null) {
-		item.setLore(item, lore_list);
+	if(wusi != null) {
+		if(isString(wusi)) {
+			lore_list = list.new();
+			list.add(lore_list, text.new(wusi));
+			item.setLore(item, lore_list);
+		} else {
+			item.setLore(item, wusi);
+		}
 	}
 	return item;
 }
@@ -1645,7 +1884,7 @@ function player.removeItemTag(player, tag, amount) {
 	inv = player.getInv(player);
 	for(slot = 0; slot < inv.getSize(inv); slot++) {
 		item = inv.getItem(inv, slot);
-		if(item.hasTag(tag, item)) {
+		if(item.hasTag(item, tag)) {
 			diff = amount - item.getAmount(item);
 			if(diff > 0) {
 				item.setAmount(item, 0);
@@ -2116,19 +2355,61 @@ function player.checkHandsForItem(player, item_or_type) {
 
 function player.checkHandsForTag(player, tag) {
 	hand = living.getHand(player);
-	if(item.hasTag(tag, hand)) {
+	if(item.hasTag(hand, tag)) {
 		return true;
 	}
 	offhand = living.getOffHand(player);
-	return item.hasTag(tag, offhand);
+	return item.hasTag(offhand, tag);
+}
+
+//--------------------------------------------------
+//Chestshop-Utils
+//--------------------------------------------------
+
+function shop.getOwner(sign_block) {
+	owner_id = read.number(sign.getString(sign_block, 3));
+	if(owner_id == null) {
+		return null;
+	}
+	return owner_id;
+}
+
+function shop.isOwner(player, sign_block) {
+	if(player.hasBypass(player)) {
+		return true;
+	}
+	owner_id = shop.getOwner(sign_block);
+	if(owner_id == null) {
+		return false;
+	}
+	owner_name = player.getNameFromId(owner_id);
+	if(owner_name == null) {
+		return false;
+	}
+	return owner_id == player.getId(player);
 }
 
 //--------------------------------------------------
 //Block-Utils
 //--------------------------------------------------
 
+function block.isChest(block) {
+	return block.isType(block, "minecraft:chest");
+}
+
+function block.isWallSign(block) {
+	if(block == null) {
+		return false;
+	}
+	return block.hasTag(block, block.getTag("minecraft:wall_signs"));
+}
+
 function sign.getString(block, row) {
 	return string.text(block.getSign(block, row));
+}
+
+function sign.setString(block, row, string) {
+	block.setSign(block, row, text.new(string));
 }
 
 function block.isType(block, type) {
@@ -2137,7 +2418,7 @@ function block.isType(block, type) {
 
 function block.isAir(block) {
 	type = block.getType(block);
-	return type == material.get("AIR") || type == material.get("CAVE_AIR");
+	return type == material.getAir() || type == material.get("CAVE_AIR");
 }
 
 function block.mod(block, x, y, z) {
@@ -2312,6 +2593,29 @@ function money.split(money) {
 	array[0] = gold;
 	array[1] = silver;
 	array[2] = bronze;
+	return array;
+}
+
+function money.splitCap(money) {
+	//cap liegt bei 266304 (64 gold + 64 silver + 64 bronze)
+	if(money > 266304) {
+		snuvi.debug("error on money.splitCap");
+		return null;
+	}
+	gold = math.roundDown(money / 4096);
+	if(gold > 64) {
+		gold = 64;
+	}
+	money -= gold * 4096;
+	silver = math.roundDown(money / 64);
+	if(silver > 64) {
+		silver = 64;
+	}
+	money -= silver * 64;
+	array = array.new(3);
+	array[0] = gold;
+	array[1] = silver;
+	array[2] = money;
 	return array;
 }
 
@@ -2523,13 +2827,6 @@ function plot.removeRank(plot, player_or_id) {
 	databank.workerExecute(stmt);
 }
 
-function plot.transferRanks(old_plot_id, new_plot_id) {
-	stmt = databank.prepare("UPDATE new_plotranks SET plot_id = ? WHERE plot_id = ?;");
-	databank.setInt(stmt, 1, new_plot_id);
-	databank.setInt(stmt, 2, old_plot_id);
-	databank.workerExecute(stmt);
-}
-
 function plot.removeAllPlayers(plot) {
 	list = plot.getOwners(plot);
 	iter = iterator(list);
@@ -2548,7 +2845,6 @@ function plot.setEdges(plot, location1, location2) {
 	plot.remove(plot, loc.getWorld(location1));
 	new_plot = plot.add(location1, location2, plot_id);
 	//Alte Daten auf neuem Plot setzen
-	plot.transferRanks(plot.getId(plot), plot.getId(new_plot));
 	plot.setName(new_plot, plot_name);
 	new_list = plot.getOwners(new_plot);
 	for(i = 0; i < list.getSize(list); i++) {
@@ -2556,106 +2852,6 @@ function plot.setEdges(plot, location1, location2) {
 	}
 	plot.setFlags(new_plot, flags, true);
 	return new_plot;
-}
-
-function getFlags(plot, getActive) { //getActive = true means getActiveFlags
-	flags = plot.getFlags(plot);
-	flags_true = list.new();
-	flags_false = list.new();
-	array = array.new(2);
-	array[0] = 512;
-	array[1] = "SUB_PLOT_FLAG";
-	if(flags >= 512) {
-		list.add(flags_true, array);
-		flags -= 512;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 256;
-	array[1] = "FREE_FLAG";
-	if(flags >= 256) {
-		list.add(flags_true, array);
-		flags -= 256;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 128;
-	array[1] = "CITY_FLAG";
-	if(flags >= 128) {
-		list.add(flags_true, array);
-		flags -= 128;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 64;
-	array[1] = "EXPLOSION_FLAG";
-	if(flags >= 64) {
-		list.add(flags_true, array);
-		flags -= 64;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 32;
-	array[1] = "ENTITY_INTERACT_FLAG";
-	if(flags >= 32) {
-		list.add(flags_true, array);
-		flags -= 32;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 16;
-	array[1] = "BLOCK_INTERACT_FLAG";
-	if(flags >= 16) {
-		list.add(flags_true, array);
-		flags -= 16;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 8;
-	array[1] = "HIT_AMBIENT_FLAG";
-	if(flags >= 8) {
-		list.add(flags_true, array);
-		flags -= 8;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 4;
-	array[1] = "BUCKET_FLAG";
-	if(flags >= 4) {
-		list.add(flags_true, array);
-		flags -= 4;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 2;
-	array[1] = "BREAK_FLAG";
-	if(flags >= 2) {
-		list.add(flags_true, array);
-		flags -= 2;
-	} else {
-		list.add(flags_false, array);
-	}
-	array = array.new(2);
-	array[0] = 1;
-	array[1] = "PLACE_FLAG";
-	if(flags >= 1) {
-		list.add(flags_true, array);
-	} else {
-		list.add(flags_false, array);
-	}
-	if(getActive) {
-		return flags_true;
-	} else {
-		return flags_false;
-	}
 }
 
 function plot.getType(plot) {
@@ -2676,33 +2872,33 @@ function plot.isPlot(plot) {
 }
 
 function plot.isExplosive(plot) {
-	return plot.hasFlags(plot, 64);
+	return plot.hasFlags(plot, calcLeftShift(27));
 }
 
 function plot.isCity(plot) {
-	return plot.hasFlags(plot, 128);
+	return plot.hasFlags(plot, calcLeftShift(28));
 }
 
 function plot.isFree(plot) {
-	return plot.hasFlags(plot, 256);
+	return plot.hasFlags(plot, calcLeftShift(29));
 }
 
 function plot.isSub(plot) {
-	return plot.hasFlags(plot, 512);
+	return plot.hasFlags(plot, calcLeftShift(30));
 }
 
 function plot.setCity(plot, boolean) {
-	plot.setFlags(plot, 128, boolean);
+	plot.setFlags(plot, calcLeftShift(28), boolean);
 }
 
 function plot.setFree(plot, boolean) {
-	plot.setFlags(plot, 256, boolean);
-	plot.setFlags(plot, 512, !boolean); //Sub-Plot entfernen
+	plot.setFlags(plot, calcLeftShift(29), boolean);
+	plot.setFlags(plot, calcLeftShift(30), !boolean); //Sub-Plot entfernen
 }
 
 function plot.setSub(plot, boolean) {
-	plot.setFlags(plot, 512, boolean);
-	plot.setFlags(plot, 256, !boolean); //Free-Plot entfernen
+	plot.setFlags(plot, calcLeftShift(30), boolean);
+	plot.setFlags(plot, calcLeftShift(29), !boolean); //Free-Plot entfernen
 }
 
 //--------------------------------------------------

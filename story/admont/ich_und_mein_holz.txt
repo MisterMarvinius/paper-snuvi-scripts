@@ -1,0 +1,70 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_break");
+event.load("entity_click");
+
+stage = 0;
+all_stages = 2;
+quest_name = "Ich und mein Holz";
+
+wood_given = 0;
+spruce_log = 0;
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dFörster", "Die neue Holzlieferung ist schon lange fällig...");
+	scheduler.msgPrefix(30, player, "§dFörster", "Ich hänge also ziemlich hinterher");
+	scheduler.msgPrefix(60, player, "§dFörster", "Ich brauche 32 Holz aus dem Wald nebenan, um dem Handwerker seine nötigen Ressourcen zu geben.");
+	player.giveSingleItem(player, read.item("minecraft:stone_axe"), false);
+	goto("wait");
+}
+
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_break") {
+	if(block_type == "minecraft:spruce_log" && loc.getx(block_loc)<= -1692) {
+		cancel = false;
+		scheduler.setBlock(25, block_loc, "minecraft:spruce_log", false);
+		spruce_log++;
+		if(spruce_log == 32) {
+			stage.increase(player);
+		}
+	}
+	goto("wait");
+}
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Förster") {
+		player.giveSingleItem(player, read.item("minecraft:stone_axe"), false);
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Förster") {
+		rest_amount = human.giveItem("Förster", player, "minecraft:spruce_log", spruce_log);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dFörster", "Danke, ich werde es zur Verarbeitung weiterreichen");
+			money.addBoost(player, 24);
+			msg(player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");
+			quest.callShowShop(player, "foerster");
+			quest.finish(script, player);
+		} else {
+			spruce_log = rest_amount;
+		}
+	}
+}
+goto("wait");

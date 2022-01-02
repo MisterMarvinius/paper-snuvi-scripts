@@ -1,3 +1,11 @@
-backpos="world_nether:335.80149453393466:67.0:76.99403363162483:96.13107299804688:-0.5884374976158142"
+backpos="world:100.893146834725:80.0:-4.3714018359718745:99.38784790039062:11.895636558532715"
+door_auto_close=true
 firstjoin=false
-rank="§6Frequenter"
+lastvotetime=1.641054027372E12
+message.join="&f"
+message.leave="&f"
+money=6567.0
+plot.usedFree=true
+rank="§bSupporter"
+votepoints=6.0
+votestreak=4.0

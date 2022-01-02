@@ -61,7 +61,7 @@ list.add(entities_list, entity);
 goto("wait");
 
 @sgoto_updateEntityName
-iter = list.iterator(entities_list);
+iter = iterator(entities_list);
 while(hasNext(iter)) {
 	updateEntityName(next(iter));
 }

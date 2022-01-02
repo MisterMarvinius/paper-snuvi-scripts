@@ -1,0 +1,95 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_click");
+event.load("entity_click");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 3;
+quest_name = "Reinigung";
+
+clean = 0;
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dOlaf", "Nach langen Reisen sieht das Schiff immer sehr mitgenommen aus… Ich brauche dringend eine Putzhilfe.");
+	scheduler.msgPrefix(30, player, concat("§5", player.getName(player)), "Gerne! Was soll ich machen?");
+	scheduler.msgPrefix(60, player, "§dOlaf", "Am Bug und Heck des Schiffes kleben viele Muscheln, entferne sie bitte.");
+	story_world = world.getStory();
+	block.set(loc.new(story_world, -1523, 63, -24), "minecraft:polished_blackstone_button[facing=north]");
+	block.set(loc.new(story_world, -1521, 63, -13), "minecraft:polished_blackstone_button[facing=east]");
+	block.set(loc.new(story_world, -1522, 63, -11), "minecraft:polished_blackstone_button[facing=east]");
+	block.set(loc.new(story_world, -1525, 63, -13), "minecraft:polished_blackstone_button[facing=west]");
+	block.set(loc.new(story_world, -1524, 63, -11), "minecraft:polished_blackstone_button[facing=west]");
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_click") {
+	if(block_type == "minecraft:polished_blackstone_button") {
+		cancel = true;
+		block.set(block_loc, "minecraft:air");
+		clean++;
+		if(clean == 5) {
+			stage.increase(player);
+			player.safeGiveItem(player, read.item("minecraft:nautilus_shell"));
+			msg.prefix(player, "§dOlaf", "Ist das etwa eine Nautilusschale?");
+			scheduler.msgPrefix(30, player, "§dOlaf", "Wow, sie glänzt und schimmert, wie wunderbar! Ich brauche sie unbedingt für meine Sammlung.");
+			scheduler.msgPrefix(60, player, "§dOlaf", "Würde es dir etwas ausmachen, sie mir zu überreichen? Ich werde sie gut aufbewahren!");
+			scheduler.msg(60, player, "§dAntwortmöglichkeiten:");
+			scheduler.msg(60, player, text.click("[§dA§r] §eKein Problem.", "/questanswer A"));
+			scheduler.msg(60, player, text.click("[§dB§r] §eNein, ich behalte sie.", "/questanswer B"));
+		} else {
+			player.safeGiveItem(player, read.item("km:shell"));
+		}
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dOlaf", "Danke, danke, danke!!!");
+		goto("wait");
+	}
+	if(option == "B") {
+		msg.prefix(player, "§dOlaf", "Das ist zwar schade, aber du hast sie ja auch gefunden. Viel Spaß damit.");
+		msg(player, "§dQuest abgeschlossen. Belohnung: 6 Snuvis!");
+		money.addBoost(player, 6);
+		quest.finish(script, player);
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Olaf") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:nautilus_shell", 1);
+		if(rest_amount == 0) {
+			msg(player, "§dQuest abgeschlossen. Belohnung: 12 Snuvis!");
+			money.addBoost(player, 12);
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

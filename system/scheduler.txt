@@ -2,7 +2,7 @@ list = scheduler.getList();
 
 msg.string("dev", "§bScheduler §rloaded.");
 @loop
-iter = list.iterator(list);
+iter = iterator(list);
 while(hasNext(iter)) {
 	a = next(iter);
 	ticks = --a[1];

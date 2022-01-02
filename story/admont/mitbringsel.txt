@@ -1,0 +1,168 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 3;
+quest_name = "Mitbringsel";
+
+herb_strong_needed = 10;
+herb_shadow_needed = 2;
+herb_xp_needed = 1;
+herb_sea_needed = 7;
+herb_gold_needed = 3;
+herb_breathing_needed = 1;
+herb_fire_needed = 1;
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dOlaf", "Du kennst doch meinen Mann, den Kräutermeister Kunibert?");
+	scheduler.msg(30, player, "§dAntwortmöglichkeiten:");
+	scheduler.msg(30, player, text.click("[§dA§r] §eJa, den kenne ich.", "/questanswer A"));
+	scheduler.msg(30, player, text.click("[§dB§r] §eNein, wer ist das?", "/questanswer B"));
+	goto("wait");
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dOlaf", "Nach meinen langen Reisen bringe ich ihm immer ein kleines Geschenk mit.");
+		scheduler.msgPrefix(30, player, "§dOlaf", "Da er Kräutermeister ist, habe ich etwas ganz Besonderes für ihn gesammelt.");
+		scheduler.msgPrefix(60, player, "§dOlaf", "Es wäre nett von dir, wenn du ihm diese Kräuter übergibst!");
+		scheduler.giveItem(60, player, read.item("km:herb_strong", herb_strong_needed));
+		scheduler.giveItem(60, player, read.item("km:herb_shadow", herb_shadow_needed));
+		scheduler.giveItem(60, player, read.item("km:herb_xp", herb_xp_needed));
+		scheduler.giveItem(60, player, read.item("km:herb_sea", herb_sea_needed));
+		scheduler.giveItem(60, player, read.item("km:herb_gold", herb_gold_needed));
+		scheduler.giveItem(60, player, read.item("km:herb_breathing", herb_breathing_needed));
+		scheduler.giveItem(60, player, read.item("km:herb_fire", herb_fire_needed));
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dOlaf", "Er wohnt mit mir in einem Haus, gleich vorne im Dorf.");
+		scheduler.msgPrefix(30, player, "§dOlaf", "Nach meinen langen Reisen bringe ich ihm immer ein kleines Geschenk mit.");
+		scheduler.msgPrefix(60, player, "§dOlaf", "Da er Kräutermeister ist, habe ich etwas ganz Besonderes für ihn gesammelt.");
+		scheduler.msgPrefix(90, player, "§dOlaf", "Es wäre nett von dir, wenn du ihm diese Kräuter übergibst!");
+		scheduler.giveItem(90, player, read.item("km:herb_strong", herb_strong_needed));
+		scheduler.giveItem(90, player, read.item("km:herb_shadow", herb_shadow_needed));
+		scheduler.giveItem(90, player, read.item("km:herb_xp", herb_xp_needed));
+		scheduler.giveItem(90, player, read.item("km:herb_sea", herb_sea_needed));
+		scheduler.giveItem(90, player, read.item("km:herb_gold", herb_gold_needed));
+		scheduler.giveItem(90, player, read.item("km:herb_breathing", herb_breathing_needed));
+		scheduler.giveItem(90, player, read.item("km:herb_fire", herb_fire_needed));
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Kunibert") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "km:herb_strong") {
+			if(herb_strong_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_strong_needed);
+				if(rest_amount != 0) {
+					herb_strong_needed = rest_amount;
+				}
+			}
+		}
+		elseif(item_type == "km:herb_shadow") {
+			if(herb_shadow_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_shadow_needed);
+				if(rest_amount != 0) {
+					herb_shadow_needed = rest_amount;
+				}
+			}
+		}
+		elseif(item_type == "km:herb_xp") {
+			if(herb_xp_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_xp_needed);
+				if(rest_amount != 0) {
+					herb_xp_needed = rest_amount;
+				}
+			}
+		}
+		elseif(item_type == "km:herb_sea") {
+			if(herb_sea_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_sea_needed);
+				if(rest_amount != 0) {
+					herb_sea_needed = rest_amount;
+				}
+			}
+		}
+		elseif(item_type == "km:herb_gold") {
+			if(herb_gold_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_gold_needed);
+				if(rest_amount != 0) {
+					herb_gold_needed = rest_amount;
+				}
+			}
+		}
+		elseif(item_type == "km:herb_breathing") {
+			if(herb_breathing_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_breathing_needed);
+				if(rest_amount != 0) {
+					herb_breathing_needed = rest_amount;
+				}
+			}
+		}
+		elseif(item_type == "km:herb_fire") {
+			if(herb_fire_needed > 0) {
+				rest_amount = human.giveItem(entity_name, player, item_type, herb_fire_needed);
+				if(rest_amount != 0) {
+					herb_fire_needed = rest_amount;
+				}
+			}
+		}
+		if(herb_strong_needed == 0 && herb_shadow_needed == 0 && herb_xp_needed == 0 && herb_sea_needed == 0 && herb_gold_needed == 0 && herb_breathing_needed == 0 && herb_fire_needed == 0) {
+			msg.prefix(player, "§dKunibert", "Ahhh.. dich hat der liebe Olaf geschickt! Ach, das ist doch pure Freude, wenn er mir etwas von seinen Reisen mitbringt.");
+			scheduler.msgPrefix(30, player, "§dKunibert", "Gib ihm doch dies als Dankeschön.");
+			scheduler.giveItem(30, player, read.item("minecraft:blue_orchid"));
+			stage.increase(player);
+		}
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Olaf") {
+		item = living.getEquip(player, "hand");
+		item_type = item.getType(item);
+		if(item_type == "minecraft:air") {
+			goto("wait");
+		}
+		elseif(item_type == "minecraft:blue_orchid") {
+			player.removeItem(player, read.item(item_type));
+			msg.prefix(player, "§dOlaf", "Wie lieb von ihm!");
+			money.addBoost(player, 15);
+			msg(player, "§dQuest abgeschlossen. Belohnung: 15 Snuvis!");
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

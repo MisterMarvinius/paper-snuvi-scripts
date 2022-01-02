@@ -1,0 +1,55 @@
+//event.load("block_click");
+//event.load("snuvi_click");
+
+quest.setBlockList(list.new());
+
+transit_loc = loc.new(story_world, -1522, 64, -18);
+schiff_spawn = loc.new(story_world, -1636, 63, -999, 50, 0.0001);
+
+transit_inv = inv.new("333333333", text.new("Überfahrt"));
+inv.setItem(transit_inv, 0, read.item("minecraft:cake", 1, "§fAdmont"));
+inv.setItem(transit_inv, 1, read.item("minecraft:sand", 1, "§fSchiffbruch"));
+
+msg("dev", "§bStory §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@block_click
+if(block == null) {
+	goto("wait");
+}
+world = loc.getWorld(block_loc);
+if(world.getName(world) != "story") {
+	goto("wait");
+}
+if(block_type == "minecraft:sweet_berry_bush") {
+	scheduler.setBlock(5, block_loc, concat("minecraft:sweet_berry_bush[age=3]"), false);
+	goto("wait");
+}
+if(slot.isOffHand(hand)) {
+	goto("wait");
+}
+if(action == "LEFT_CLICK_BLOCK") {
+	goto("wait");
+}
+if(block_loc == transit_loc) {
+	inv.open(transit_inv, player);
+	goto("wait");
+}
+goto("wait");
+
+@snuvi_click
+if(inv_name == "Überfahrt") {
+	if(item.getType(item) == "minecraft:air") {
+		goto("wait");
+	}
+	if(inv_slot == 0) {
+		entity.teleport(player, world.getStorySpawn());
+	} elseif(inv_slot == 1) {
+		entity.teleport(player, schiff_spawn);
+	}
+	inv.close(player);
+}
+goto("wait");

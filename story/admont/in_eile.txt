@@ -1,0 +1,87 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_break");
+event.load("entity_click");
+event.load("block_drop");
+
+stage = 0;
+all_stages = 2;
+quest_name = "In Eile";
+
+bread_needed = 21;
+wheat_needed = 63;
+wheat_harvestet = 0;
+
+@wait
+wait();
+if(event == "block_drop") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dUlf", concat("Hey ", player.getName(player), "! Ich erwarte ziemlich viel Kundschaft und ich bin nicht mal annähernd mit der Zubereitung fertig."));
+	scheduler.msgPrefix(30, player, "§dUlf", "50 Brote haben sie bestellt… Das ist unschaffbar! Ich habe erst 29 Brote gebacken.");
+	scheduler.msgPrefix(60, player, concat("§5", player.getName(player)), "Die letzten 21 Brote kann ich übernehmen!");
+	scheduler.msgPrefix(90, player, "§dUlf", "Super! Dann geh doch zum Weizenfeld, hol dir die nötigen Ressourcen und verarbeite sie zu Brot.");
+	goto("wait");
+}
+if(event == "block_drop") {
+	if(block_type == "km:rwheat") {
+		list.clear(drops);
+		list.add(drops, read.item("minecraft:wheat"));
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	if(block_type == "km:rwheat") {
+		cancel = false;
+		scheduler.setBlock(60, block_loc, "km:rwheat[age=7]", false);
+	}
+}
+label = concat("stage", text.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_break") {
+	if(block_type == "km:rwheat") {
+		wheat_harvestet++;
+		if(wheat_harvestet == wheat_needed) {
+			stage.increase(player);
+		}
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+	entity_name = entity.getName(entity);
+	if(entity_name == "Ulf") {
+		rest_amount = human.giveItem(entity_name, player, "minecraft:bread", bread_needed);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dBauer", "Du kommst gerade rechtzeitig, die Kunden sind eben eingetroffen! Hier eine Belohnung.");
+			player.giveItem(player, read.item("km:berry_work"));
+			msg(player, "§dQuest abgeschlossen. Belohnung: 15 Snuvis!");
+			money.addBoost(player, 15);
+			quest.finish(script, player);
+		} else {
+			bread_needed = rest_amount;
+		}
+	}
+}
+goto("wait");
