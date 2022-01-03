@@ -162,19 +162,20 @@ rank.removeTimeOffert(player);
 goto("wait");
 
 @chat
-if(string.startsWith(message, "%", 0)) {
+string_message = string.text(message);
+if(string.startsWith(string_message, "%", 0)) {
 	cancel = true;
 	goto("wait");
 }
-if(string.startsWith(message, "7", 0)) {
-	length = string.length(message);
-	space_index = read.number(string.indexOf(message, " ", 1));
+if(string.startsWith(string_message, "7", 0)) {
+	length = string.length(string_message);
+	space_index = read.number(string.indexOf(string_message, " ", 1));
 	if(length > 1 && space_index == -1 || length > 1 && space_index > 1) {
 		cancel = true;
 		if(space_index == -1) {
-			word = string.subString(message, 1, length);
+			word = string.subString(string_message, 1, length);
 		} else {
-			word = string.subString(message, 1, space_index);
+			word = string.subString(string_message, 1, space_index);
 		}
 		msg.prefix(player, "§6Commands", string.concat("You meant /", word, "?"));
 		goto("wait");
@@ -186,9 +187,8 @@ if(player.isMuted(player)) {
 	goto("wait");
 }
 if(perm.has("color", player)) {
-	message = text.new(string.replace(string.text(message), "&", "§"));
+	message = text.new(string.replace(string_message, "&", "§"));
 }
-string_message = string.text(message);
 if(string.startsWith(string_message, "https://", 0)) {
 	message = string.getLinkText(string_message, string_message);
 }

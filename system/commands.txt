@@ -13,7 +13,7 @@ if(error_counter > 1) {
 	}
 	snuvi.debug("Restarting script...");
 	error_counter++;
-	if(error_counter >= 100) {
+	if(error_counter >= 5) {
 		snuvi.debug("Script terminated. Endless loop.");
 		term();
 	}
@@ -90,7 +90,7 @@ command.register("home", "Manage your homes");
 command.register("icon", "Shows all icons");
 command.register("live", "Toggles Live-Mode");
 command.register("lag", "Executes a lag test");
-//command.register("leave", "Leave a minigame");
+//command.register("leave", "Leaves a minigame");
 command.register("human", "Human-Commands");
 command.register("inv", "Inv-Commands");
 command.register("iteminfo", "Returns information about an item");
@@ -104,6 +104,7 @@ command.register("logo", "Gives the Mundus Crassus logo on a banner");
 command.register("mail", "Mail-Commands");
 command.register("mailbox", "Mailbox-Commands");
 command.register("memory", "Returns RAM-usage");
+command.register("money", "Shows your bank account");
 command.register("msg", "Send a private message");
 command.register("mute", "Mutes a player");
 command.register("news", "Send Push-News to all players");
@@ -289,7 +290,7 @@ money.setBoostFactor(1);
 sgoto(200, "sb_title_loop");
 sgoto(100, "coordsloop");
 sgoto(1200, "afk_checker_loop");
-//sgoto(1200, "minute_loop");
+sgoto(1200, "minute_loop");
 
 logo = read.item("{id:\"minecraft:brown_banner\",Count:1b,tag:{BlockEntityTag:{Patterns:[{Pattern:\"bs\",Color:15},{Pattern:\"ts\",Color:15},{Pattern:\"bo\",Color:12},{Pattern:\"cs\",Color:12},{Pattern:\"mr\",Color:15},{Pattern:\"mc\",Color:14}]}}}");
 
@@ -429,8 +430,11 @@ skip_night_inv_id = inv.getId(skip_night_inv);
 
 vote_inv = inv.new("222222222", text.new("§8Voteshop"));
 //inv.setItem(vote_inv, 0, item.new(material.get("km:coin_gold"), 1, "§aMoney Booster", "§fCost: §e6 VP", "Doubles incoming money for 10 minutes."));
-inv.setItem(vote_inv, 1, item.new(material.get("minecraft:jukebox"), 1, "§aRick is in the house", "§fCost: §e2 VP", "Rickroles every player on the server."));
-//updateVoteInv();
+lore_list = list.new();
+list.add(lore_list, text.new("§fCost: §e2 VP"));
+list.add(lore_list, text.new("Rickroles every player on the server."));
+inv.setItem(vote_inv, 1, item.create("JUKEBOX", 1, "§aRick is in the house", lore_list));
+updateVoteInv();
 vote_inv_id = inv.getId(vote_inv);
 
 consoleCommands = set.new();
@@ -513,7 +517,6 @@ event.load("missing_command");
 event.load("custom_command");
 event.load("block_click");
 event.load("player_quit");
-event.load("player_data_tick");
 event.load("vote");
 
 msg("dev", text.new("§bCommands §rloaded."));
@@ -1120,13 +1123,6 @@ if(event == "inv_close") {
 	}
 	goto("wait");
 }
-if(event == "player_data_tick") {
-	if(var == "fly") {
-		tpBottom(player);
-		player.setFly(player, false);
-		msg.prefix(player, prefix_skill, "Fly time is over.");
-	}
-}
 goto("wait");
 
 @block
@@ -1386,6 +1382,90 @@ if(arg0 == "show") {
 	mailbox.show(player, from_player_id);
 	goto("wait");
 }
+goto("wait");
+
+@money
+money = getMoney(player);
+inv = inv.new("111111111111111111111111111", text.new("Money"));
+index = 0;
+//Fill first slot with bronze
+copper_coin = item.custom.create("COPPER_COIN", 1, null, null);
+if(money < 64) {
+	bronze = money;
+} else {
+	bronze = 64;
+}
+money -= bronze;
+item.setAmount(copper_coin, bronze);
+inv.setItem(inv, index++, copper_coin);
+//Fill second slot with silver
+silver_coin = item.custom.create("SILVER_COIN", 1, null, null);
+if(money < 4096) {
+	silver = math.roundDown(money / 64);
+} else {
+	silver = 64;
+}
+if(silver != 0) {
+	money -= silver * 64;
+	item.setAmount(silver_coin, silver);
+	inv.setItem(inv, index++, silver_coin);
+}
+//Fill from third slot with gold
+gold_coin = item.custom.create("GOLD_COIN", 64, null, null);
+while(money > 262144) {
+	money -= 262144;
+	inv.setItem(inv, index++, gold_coin);
+	if(index >= 26) {
+		if(money != 0) {
+			inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
+		}
+		inv.open(inv, player);
+		goto("wait");
+	}
+}
+//Fill the rest money
+if(index == 26) {
+	if(money != 0) {
+		inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
+	}
+	inv.open(inv, player);
+	goto("wait");
+}
+//gold
+gold = 0;
+while(money >= 4096) {
+	gold++;
+	money -= 4096;
+}
+if(gold != 0) {
+	item.setAmount(gold_coin, gold);
+	inv.setItem(inv, index++, gold_coin);
+}
+if(index == 26) {
+	if(money != 0) {
+		inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
+	}
+	inv.open(inv, player);
+	goto("wait");
+}
+//silver
+silver = math.roundDown(money / 64);
+if(silver != 0) {
+	money -= silver * 64;
+	item.setAmount(silver_coin, silver);
+	inv.setItem(inv, index++, silver_coin);
+}
+if(index == 26) {
+	if(money != 0) {
+		inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
+	}
+	inv.open(inv, player);
+	goto("wait");
+}
+//copper
+item.setAmount(copper_coin, money);
+inv.setItem(inv, index++, copper_coin);
+inv.open(inv, player);
 goto("wait");
 
 @entities
@@ -2035,6 +2115,7 @@ if(size == 0) {
 	}
 	if(perm.has("user.money", player)) {
 		msg.string(player, "§6 - addmoney <player> <money> §rAdds money to a player");
+		msg.string(player, "§6 - setmoney <player> <money> §rSets the money of a player");
 	}
 	goto("wait");
 }
@@ -2104,6 +2185,31 @@ if(arg0 == "addmoney") {
 	p_id = player.getId(p_uuid);
 	addMoney(p_id, money);
 	msg.prefix(player, prefix_commands, string.concat("Added ", string.number(money), " snuvis to ", player.getName(p_uuid), "."));
+	goto("wait");
+}
+if(arg0 == "setmoney") {
+	if(!perm.has("user.money", player)) {
+		perm.no("user.money", player);
+		goto("wait");
+	}
+	if(size != 3) {
+		msg.prefix(player, prefix_commands, "/user setmoney <player> <money>");
+		goto("wait");
+	}
+	p_name = list.getIndex(args, 1);
+	if(!checkIfEverOnline(p_name)) {
+		msg.prefix(player, prefix_commands, "This player has never been online.");
+		goto("wait");
+	}
+	money = list.getIndex(args, 2);
+	if(!isDouble(money)) {
+		msg.prefix(player, prefix_commands, "Number expected.");
+		goto("wait");
+	}
+	p_uuid = player.getUuid(p_name);
+	p_id = player.getId(p_uuid);
+	setMoney(p_id, money);
+	msg.prefix(player, prefix_commands, string.concat("Set ", string.number(money), " snuvis for ", player.getName(p_uuid), "."));
 	goto("wait");
 }
 goto("user_help");
@@ -2368,8 +2474,10 @@ if(item.getType(item) == material.getAir()) {
 	msg.prefix(player, prefix_commands, "You have to hold an item in hand.");
 	goto("wait");
 }
-living.setEquip(player, read.slot("HEAD"), item);
-living.setEquip(player, read.slot("HAND"), null);
+head_slot = slot.getHead();
+head_item = living.getEquip(player, head_slot);
+living.setEquip(player, head_slot, item);
+living.setEquip(player, slot.getHand(), head_item);
 goto("wait");
 
 @news
@@ -3410,6 +3518,7 @@ if(size != 1) {
 	msg.string(sender, " - gemstones");
 	msg.string(sender, " - harvest");
 	msg.string(sender, " - herobrine");
+	msg.string(sender, " - humans");
 	msg.string(sender, " - lectern");
 	msg.string(sender, " - loom");
 	msg.string(sender, " - mails");
@@ -3442,7 +3551,7 @@ if(arg0 == "ai") {
 	script.startNamed("Ai", "system/ai", "utils/u_general");
 }
 elseif(arg0 == "commands") {
-	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands");
+	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_skills");
 	if(script == null) {
 		snuvi.debug("Old commands script still active due to error in new script");
 		goto("wait");
@@ -8529,6 +8638,7 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("gemstones"));
 	command.addHelpChild(help, command.newHelpLiteral("harvest"));
 	command.addHelpChild(help, command.newHelpLiteral("herobrine"));
+	command.addHelpChild(help, command.newHelpLiteral("humans"));
 	command.addHelpChild(help, command.newHelpLiteral("lectern"));
 	command.addHelpChild(help, command.newHelpLiteral("loom"));
 	command.addHelpChild(help, command.newHelpLiteral("games"));
@@ -9048,7 +9158,13 @@ function setCommandHelps() {
 	//user addmoney <player> <money>
 	helpArg0 = command.newHelpLiteral("addmoney", "user.money");
 	helpArg1 = command.newHelpSpecial("Player", "player", "user.money");
-	command.addHelpChild(helpArg1, command.newHelpInt("money", -1000000, 1000000));
+	command.addHelpChild(helpArg1, command.newHelpInt("money", -10000000, 10000000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//user setmoney <player> <money>
+	helpArg0 = command.newHelpLiteral("setmoney", "user.money");
+	helpArg1 = command.newHelpSpecial("Player", "player", "user.money");
+	command.addHelpChild(helpArg1, command.newHelpInt("money", -10000000, 10000000));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
@@ -10040,7 +10156,12 @@ function mailbox.show(to_player, player_id) {
 }
 
 function updateVoteInv() {
-	//inv.setItem($vote_inv, 2, read.item("km:skill20", 1, "§aMore Homes", "§fCost: §e1 VP", string.concat("§fCounter: §e", string.number(getHomeBoost())), "Every 20 VP the possible homes increase by one. Counter automatically shrinks by one every day."));
+	lore_list = list.new();
+	list.add(lore_list, text.new("§fCost: §e1 VP"));
+	list.add(lore_list, text.new(string.concat("§fCounter: §e", string.number(getHomeBoost()))));
+	list.add(lore_list, text.new("Every 20 VP the possible homes increase by one."));
+	list.add(lore_list, text.new("Counter automatically shrinks by one every day."));
+	inv.setItem($vote_inv, 2, item.create("RED_BED", 1, "§aMore Homes", lore_list));
 }
 
 function getAdditionalVoteHomes() {

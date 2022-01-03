@@ -25,7 +25,9 @@ script.startNamed("Ticket", "utils/u_error", "system/tickets", "utils/u_general"
 script.startNamed("Mails", "utils/u_error", "system/mailsystem", "utils/u_general");
 script.startNamed("Market", "utils/u_error", "system/market", "utils/u_general");
 script.startNamed("Shops", "utils/u_error", "system/chestshops", "utils/u_general");
+script.startNamed("Humans", "utils/u_error", "system/humans", "utils/u_general");
 script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general");
+//script.startNamed("Skills", "utils/u_error", "survival/skills", "utils/u_general", "utils/u_skills");
 	//script.startNamed("Gamecenter", "utils/u_error", "system/gamecenter", "utils/u_general", "utils/u_games");
 	//script.startNamed("Ranklist", "utils/u_error", "system/ranklist", "utils/u_general", "utils/u_games");
 	//script.startNamed("Story", "utils/u_error", "story/story", "utils/u_general");

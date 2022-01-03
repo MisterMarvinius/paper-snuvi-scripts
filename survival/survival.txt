@@ -3,44 +3,22 @@
 //event.load("snuvi_click");
 event.load("player_pre_respawn");
 event.load("player_post_respawn");
+event.load("living_death");
 //event.load("player_join");
 //event.load("player_move");
-//event.load("block_break");
-//event.load("block_click");
-//event.load("living_death");
+event.load("block_click");
 event.load("entity_damage");
 event.load("explosion");
-//event.load("projectile_hit");
 
-setScriptVar("skills", list.new());
-/*skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true);
-skill.add("Comeback", "skill.comeback", "km:skill55", "Respawn at your death location", 100, false, false, true);
-skill.add("Head Hunter", "skill.head_human", "minecraft:player_head", "Drops a player's head with a 20% chance if you kill a player (5% if a staff member is killed)", 1000, true, false, false);
-skill.add("Mobheads", "skill.head_monster", "minecraft:zombie_head", "Drops a mobs's head with a 20% chance (zombie / skeleton / creeper)", 500, true, false, false);
-skill.add("Fly 10min", "skill.fly10min", "minecraft:elytra", "You can fly for 10 minutes", 4096, false, true, false);
-skill.add("Grow", "skill.grow", "minecraft:farmland", "Grow seeds in radius 5", 25, false, true, false);
-skill.add("Haste", "skill.haste", "minecraft:iron_pickaxe", "Haste for 2 minutes", 25, false, true, false);
-skill.add("Speed", "skill.speed", "minecraft:iron_boots", "Speed for 2 minutes", 25, false, true, false);
-skill.add("Jump Boost", "skill.jump_boost", "minecraft:rabbit_foot", "JumpBoost Lvl.2 for 2 minutes", 25, false, true, false);
-skill.add("Dolphin", "skill.dolphin", "minecraft:fire_coral", "Swim like a dolphin for a minute", 25, false, true, false);
-skill.add("Block Up", "skill.block_up", "minecraft:diamond_pickaxe", "Break a block and the block above for a minute", 25, false, true, false);
-skill.add("Block Down", "skill.block_down", "minecraft:diamond_pickaxe", "Break a block and the block below for a minute", 25, false, true, false);
-skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees with an axe for a minute", 128, false, true, false);
-skill.add("Fire Arrow", "skill.fire_arrow", "minecraft:arrow", "For a minute with an flame enchanted bow your arrows ignite hit blocks", 50, false, true, false);
-skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 500, true, false, true);
-skill.add("Cobweb Miner", "skill.cobweb_miner", "minecraft:cobweb", "Swords increase the radius for destruction of cobwebs", 250, true, false, true);
-*/
 clan.loadData();
 
 tp_list = list.new();
 tp_map = map.new();
 tp_set = set.new();
 afk_loop_map = map.new();
-death_loc_map = map.new();
 survival_respawn = set.new();
 
 overworld = world.getOverWorld();
-moveid_storyspawn = event.addMoveData(loc.new(overworld, 167, 70, 241), loc.new(overworld, 169, 72, 243), 5, -1);
 moveid_gamesspawn = event.addMoveData(loc.new(overworld, 219, 66, 253), loc.new(overworld, 223, 69, 258), 5, -1);
 
 move_id_afk_loop = event.addMoveData(loc.new(overworld, 208, 69, 226), loc.new(overworld, 209, 69.5, 227), 5, -1);
@@ -57,20 +35,13 @@ set.add(afk_loop_ids, move_id_afk_loop_4);
 set.add(afk_loop_ids, move_id_afk_loop_5);
 
 config = getScriptVar("server_config");
-survival_spawn = read.location(config.getString(config, "surv_spawn", "games:0:0:0"));
 adventure_chest_loc = loc.new(overworld, 177, 74, 237);
 adventure_aim_loc = loc.new(overworld, 180, 70, 241);
 lottery_loc_1 = loc.new(overworld, 186, 69, 227);
 lottery_loc_2 = loc.new(overworld, 186, 69, 223);
 gambler_loc = loc.new(overworld, 185, 68, 225);
 prefix_money = "§2Money";
-prefix_skill = "§2Skill";
-
-//sword_tag = item.getTag("km:sword");
-//dye_tag = item.getTag("km:dye");
-leaves_tag = block.getTag("minecraft:leaves");
-sign_tag = block.getTag("minecraft:signs");
-//prop_persistent = block.getProperty("persistent");
+death_loc_map = map.new();
 
 ench_flame = enchantment.get("flame");
 ench_unbreaking = enchantment.get("unbreaking");
@@ -138,11 +109,6 @@ msg.string("dev", "§bSurvival §rloaded.");
 @wait
 wait();
 if(event == "player_move") {
-	if(id == moveid_storyspawn) {
-		player.setBackPosLoc(player, world.getServerSpawn());
-		player.teleport(player, world.getStorySpawn(), false);
-		goto("wait");
-	}
 	if(id == moveid_gamesspawn) {
 		player.setBackPosLoc(player, world.getServerSpawn());
 		player.teleport(player, world.getGamesSpawn(), false);
@@ -171,6 +137,13 @@ if(event == "living_death") {
 world_name = world.getName(loc.getWorld(loc));
 if(world.isSurvName(world_name)) {
 	ignoreGoto(event);
+}
+goto("wait");
+
+@living_death
+if(isPlayer(living_entity)) {
+	player = living_entity;
+	setDeathLoc(player);
 }
 goto("wait");
 
@@ -385,7 +358,7 @@ if(entity.getType(entity) == "human") {
 		msg(player, string.getClickText("§r [§cclick§r] [§eCities§r]", "/infopoint5"));
 		msg(player, string.getClickText("§r [§cclick§r] [§eShops§r]", "/infopoint6"));
 		msg(player, string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), " ", string.getClickText("§f[§bTeleport§f]", "/games"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"), " ", string.getClickText("§f[§bTeleport§f]", "/story"));
+		msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"));
 		msg(player, string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), " ", string.getClickText("§f[§bTeleport§f]", "/creative"));
 		msg(player, string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", string.getLinkText("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
 		msg(player, string.getClickText("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", string.getLinkText("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
@@ -603,9 +576,9 @@ if(inv_id == gambler_inv_id) {
 		temp = " lost ";
 	}
 	if(amount == 1) {
-		message = string.concat(player.getName(player), temp, text.number(amount), " snuvi.");
+		message = string.concat(player.getName(player), temp, string.number(amount), " snuvi.");
 	} else {
-		message = string.concat(player.getName(player), temp, text.number(amount), " snuvis.");
+		message = string.concat(player.getName(player), temp, string.number(amount), " snuvis.");
 	}
 	if(amount < 64) {
 		msg.prefix(player, "§2Gambler", message);
@@ -615,35 +588,6 @@ if(inv_id == gambler_inv_id) {
 		msg.radius("§2Gambler", message, entity.getLocation(player), 10);
 	}
 	goto("wait");
-}
-goto("wait");
-
-@projectile_hit
-if(shooter == null) {
-	goto("wait");
-}
-if(!isPlayer(shooter)) {
-	goto("wait");
-}
-player = shooter;
-duration = data.getTimer(player, "skill.fire_arrow");
-if(duration > 0) {
-	if(loc_hit == null) {
-		goto("wait");
-	}
-	flame = enchantment.getLevel(ench_flame, living.getHand(player));
-	if(flame <= 0) {
-		goto("wait");
-	}
-	if(!plot.check(loc_hit, player, 3, true) && !perm.has(player, "plot.bypass")) {
-		msg.prefix(player, prefix_skill, "You have no permissions on this plot.");
-		goto("wait");
-	}
-	ent_loc = entity.getLocation(projectile);
-	if(block.isAir(ent_loc)){
-		block.set(ent_loc, "minecraft:fire");
-	}
-	fire_ring(ent_loc, "minecraft:fire", 0);
 }
 goto("wait");
 
@@ -665,149 +609,15 @@ function fire_ring(location, block_string, radius){
 	}
 }
 
-@block_break
-duration = data.getTimer(player, "block_down");
-if(duration > 0) {
-	do = true;
-	loc = loc.mod(block_loc, 0, -1, 0);
-	b_type = block.getType(loc);
-	if(b_type == "minecraft:bedrock" || b_type == "minecraft:end_portal_frame") {
-		do = false;
-	}
-	if(!plot.check(loc, player, 2, true)) {
-		do = false;
-	}
-	if(do) {
-		block.break(loc, player);
-	}
-}
-duration = data.getTimer(player, "block_up");
-if(duration > 0) {
-	do = true;
-	loc = loc.mod(block_loc, 0, 1, 0);
-	b_type = block.getType(loc);
-	if(b_type == "minecraft:bedrock" || b_type == "minecraft:end_portal_frame") {
-		do = false;
-	}
-	if(!plot.check(loc, player, 2, true)) {
-		do = false;
-	}
-	if(do) {
-		block.break(loc, player);
-	}
-}
-if(block_type == "minecraft:cobweb") {
-	if(cancel) {
-		goto("wait");
-	}
-	hand_item = living.getHand(player);
-	if(!item.hasTag(sword_tag, hand_item)) {
-		goto("wait");
-	}
-	amount = skill.getAmount(player, "skill.cobweb_miner");
-	if(amount <= 0) {
-		goto("wait");
-	}
-	if(!skill.isActivated(player, "skill.cobweb_miner")) {
-		goto("wait");
-	}
-	location = loc.mod(block_loc, 0, 0, 0);
-	cobweb_X = loc.getX(location);
-	cobweb_Y = loc.getY(location);
-	cobweb_Z = loc.getZ(location);
-	cobweb_radius = 1;
-	unbreaking_level = enchantment.getLevel(ench_unbreaking, hand_item);
-	for(a = -cobweb_radius; a < cobweb_radius + 1; a++) {
-		loc.setX(location, cobweb_X + a);
-		for(b = -cobweb_radius; b < cobweb_radius + 1; b++) {
-			loc.setY(location, cobweb_Y + b);
-			for(c = -cobweb_radius; c < cobweb_radius + 1; c++) {
-				loc.setZ(location, cobweb_Z + c);
-				if(math.abs(a) + math.abs(b) + math.abs(c) + math.random(0, 2) < cobweb_radius + 2) {
-					shear_cobweb(location, block_type, player, unbreaking_level);
-				}
-			}
-		}
-	}
-	goto("wait");
-}
-if(block.hasTag(leaves_tag, block)) {
-	if(cancel) {
-		goto("wait");
-	}
-	hand_item = living.getHand(player);
-	if(item.getType(hand_item) != "minecraft:shears") {
-		goto("wait");
-	}
-	if(block.property.getValue(block_loc, prop_persistent)){
-		goto("wait");
-	}
-	amount = skill.getAmount(player, "skill.better_shears");
-	if(amount <= 0) {
-		goto("wait");
-	}
-	if(!skill.isActivated(player, "skill.better_shears")) {
-		goto("wait");
-	}
-	location = loc.mod(block_loc, 0, 0, 0);
-	shears_X = loc.getX(location);
-	shears_Y = loc.getY(location);
-	shears_Z = loc.getZ(location);
-	unbreaking_level = enchantment.getLevel(ench_unbreaking, hand_item);
-	radius = enchantment.getLevel(ench_sharpness, hand_item);
-	if(radius > 0) {
-		cancel = true;
-	}
-	orig_item = block.toStack(location);
-	for(a = -radius; a < radius + 1; a++){
-		loc.setX(location, shears_X + a);
-		for(b = -radius; b < radius + 1; b++){
-			loc.setY(location, shears_Y + b);
-			for(c = -radius; c < radius + 1; c++){
-				loc.setZ(location, shears_Z + c);
-				if(math.abs(a) + math.abs(b) + math.abs(c) + math.random(0, 2) < radius + 2) {
-					shear_leave(location, block_type, orig_item, player, unbreaking_level);
-				}
-			}
-		}
-	}
-	goto("wait");
-}
-goto("wait");
-
-function shear_leave(block_loc, original_block_type, original_item, player, unbreaking_level){
-	if(block.getType(block_loc) != original_block_type) {
-		return;
-	}
-	if(block.property.getValue(block_loc, $prop_persistent)) {
-		return;
-	}
-	block.set(block_loc, "minecraft:air");
-	item.drop(block_loc, original_item);
-	if(player.isSurvival(player)) {
-		player.damageItem(player, 1);
-	}
-}
-
-function shear_cobweb(block_loc, original_block_type, player, unbreaking_level) {
-	if(block.getType(block_loc) != original_block_type) {
-		return;
-	}
-	block.break(block_loc, player);
-	if(math.random(0, 99) < 100 / (unbreaking_level + 1)) {
-		player.damageItem(player, 1);
-	}	
-}
-
 @block_click
 if(action == "RIGHT_CLICK_AIR") {
 	player_loc = entity.getLocation(player);
 	world = loc.getWorld(player_loc);
-	if(world.getName(world) != "overworld") {
+	if(!world.isOverworld(world.getName(world))) {
 		goto("wait");
 	}
-	item = living.getEquip(player, read.slot("HAND"));
-	if(item.getType(item) != "minecraft:clock") {
+	item = living.getHand(player);
+	if(!item.isType(item, "CLOCK")) {
 		goto("wait");
 	}
 	time = world.getTime(world);
@@ -819,34 +629,25 @@ if(action == "RIGHT_CLICK_AIR") {
 	time_m = time%1000;
 	time_m = math.roundDown(time_m * 60 / 1000);
 	if(time_m < 10) {
-		time_m = string.concat("0", text.number(time_m));
+		time_m = string.concat("0", string.number(time_m));
 	} else {
-		time_m = text.number(time_m);
+		time_m = string.number(time_m);
 	}
-	msg.prefix(player, "§eClock", string.concat(text.number(time_h), ":", time_m));
+	msg.prefix(player, "§eClock", string.concat(string.number(time_h), ":", time_m));
 	goto("wait");
 }
-if(action == "RIGHT_CLICK_BLOCK" && player.checkHandsForTag(player, dye_tag)) {
-	/*if(block.hasTag(sign_tag, block)) {
-		if(!perm.has(player, "plot.bypass")) {
-			if(!plot.check(block_loc, player, 3, true)) {
-				cancel = true;
-				goto("wait");
-			}
-		}
-	}*/
-}
+goto("wait");
 if(hand == "OFF_HAND") {
 	goto("wait");
 }
 if(block_type == "minecraft:chest") {
 	if(isATpReceiver(block_loc)) {
-		tp_item = read.item("km:gear", 1, "§rTeleport");
+		tp_item = item.custom.create("GEAR", 1, "§rTeleport", null);
 		list = list.new();
 		list.add(list, world.getName(loc.getWorld(block_loc)));
-		list.add(list, text.number(loc.getX(block_loc)));
-		list.add(list, text.number(loc.getY(block_loc)));
-		list.add(list, text.number(loc.getZ(block_loc)));
+		list.add(list, string.number(loc.getX(block_loc)));
+		list.add(list, string.number(loc.getY(block_loc)));
+		list.add(list, string.number(loc.getZ(block_loc)));
 		item.setLore(tp_item, list);
 		player.giveItem(player, tp_item);
 		goto("wait");
@@ -962,63 +763,10 @@ if(block_loc == lottery_loc_1 || block_loc == lottery_loc_2) {
 	if(win == 1) {
 		addMoney(player, amount);
 		lottery.set(block_loc, 0);
-		message = string.concat(player.getName(player), " has won ", text.number(amount), " snuvis.");
+		message = string.concat(player.getName(player), " has won ", string.number(amount), " snuvis.");
 		msg.radius(prefix_money, message, block_loc, 50);
 	}
 	goto("wait");
-}
-goto("wait");
-
-@living_death
-if(isPlayer(living_entity)) {
-	player = living_entity;
-	setDeathLoc(player);
-	loc = entity.getLocation(player);
-	amount = skill.getAmount(player, "skill.subcu_inv");
-	if(skill.isActivated(player, "skill.subcu_inv") && amount > 0) {
-		new_amount = amount - 1;
-		skill.setAmount(player, "skill.subcu_inv", new_amount);
-		msg.prefix(player, prefix_skill, string.concat("Used Subcutaneous Inventory. New amount: ", text.number(new_amount)));
-	} else {
-		player.dropInventory(player, loc);
-	}
-	killer = player.getFromDamageSource(damage_source);
-	if(isPlayer(killer)) {
-		amount = skill.getAmount(player, "skill.head_human");
-		if(amount >= 1) {
-			if(perm.has(player, "isTeam")) {
-				temp = math.random(1, 20);
-			} else {
-				temp = math.random(1, 5);
-			}
-			if(temp == 1) {
-				item.drop(loc, player.getHead(player.getUuid(player), player.getName(player)));
-			}
-		}
-	}
-	goto("wait");
-}
-killer = player.getFromDamageSource(damage_source);
-if(isPlayer(killer)) {
-	r = math.random(1, 20);
-	if(r == 1) {
-		amount = skill.getAmount(killer, "skill.head_monster");
-		if(amount >= 1) {
-			entity_type = entity.getType(living_entity);
-			if(entity_type == "creeper") {
-				item.drop(loc, read.item("minecraft:creeper_head"));
-				goto("wait");
-			}
-			if(entity_type == "zombie") {
-				item.drop(loc, read.item("minecraft:zombie_head"));
-				goto("wait");
-			}
-			if(entity_type == "skeleton") {
-				item.drop(loc, read.item("minecraft:skeleton_skull"));
-				goto("wait");
-			}
-		}
-	}
 }
 goto("wait");
 
@@ -1037,15 +785,15 @@ if(set.contains(survival_respawn, player_uuid)) {
 		entity.teleport(player, tp_loc);
 		goto("wait");
 	}
-	amount = skill.getAmount(player, "skill.comeback");
+	/*amount = skill.getAmount(player, "skill.comeback");
 	if(skill.isActivated(player, "skill.comeback") && amount > 0) {
 		new_amount = amount - 1;
 		skill.setAmount(player, "skill.comeback", new_amount);
-		msg.prefix(player, prefix_skill, string.concat("Used Comeback. New amount: ", text.number(new_amount)));
+		msg.prefix(player, prefix_skill, concat("Used Comeback. New amount: ", string.number(new_amount)));
 		entity.teleport(player, getDeathLoc(player));
 		goto("wait");
-	}
-	entity.teleport(player, world.getServerSpawn());
+	}*/
+	//entity.teleport(player, world.getServerSpawn());
 }
 goto("wait");
 
@@ -1156,7 +904,7 @@ function lottery.set(location, amount) {
 		snuvi.debug("Lottery error");
 		return;
 	}
-	entity.setName(text_entity, string.concat("Snuvis to win: ", text.number(amount)), true);
+	entity.setName(text_entity, string.concat("Snuvis to win: ", string.number(amount)), true);
 }
 
 function lottery.add(location, amount) {
@@ -1169,7 +917,7 @@ function lottery.add(location, amount) {
 		return null;
 	}
 	amount = text.convert(text.subString(name, 15, text.length(name))) + 1;
-	entity.setName(text_entity, string.concat("Snuvis to win: ", text.number(amount)), true);
+	entity.setName(text_entity, string.concat("Snuvis to win: ", string.number(amount)), true);
 	return amount;
 }
 

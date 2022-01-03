@@ -426,6 +426,10 @@ function world.isGamesName(world_name) {
 	return world_name == "games";
 }
 
+function world.isOverworld(world_name) {
+	return world_name == "world";
+}
+
 function world.isSurvName(world_name) {
 	if(world_name == "world") {
 		return true;
@@ -527,7 +531,7 @@ function player.changeInv(player, from_world, to_world) {
 function player.changeGamemode(player, to_world_name) {
 	if(!player.isSpectator(player)) {
 		if(to_world_name == "creative") {
-			if(perm.has("creative", player)) {
+			if(perm.has("creative.gm1", player)) {
 				gm = "CREATIVE";
 			} else {
 				gm = "ADVENTURE";
@@ -1613,9 +1617,17 @@ function material.getAir() {
 	return material.get("AIR");
 }
 
+function material.equals(type, type_string) {
+	return type == material.get(type_string);
+}
+
 //--------------------------------------------------
 //Item-Utils
 //--------------------------------------------------
+
+function item.isType(item, type_string) {
+	return item.getType(item) == material.get(type_string);
+}
 
 function isSameItem(itemstack_1, itemstack_2) {
 	itemstack_1 = item.clone(itemstack_1);
@@ -2899,226 +2911,6 @@ function plot.setFree(plot, boolean) {
 function plot.setSub(plot, boolean) {
 	plot.setFlags(plot, calcLeftShift(30), boolean);
 	plot.setFlags(plot, calcLeftShift(29), !boolean); //Free-Plot entfernen
-}
-
-//--------------------------------------------------
-//Skill-Utils
-//--------------------------------------------------
-
-function skill.getAmount(player_or_id, tech_name) {
-	config = playerdata.getSurvival(player_or_id);
-	return config.getDouble(config, tech_name, 0);
-}
-
-function skill.setAmount(player_or_id, tech_name, amount) {
-	config = playerdata.getSurvival(player_or_id);
-	config.set(config, tech_name, amount);
-	config.saveAsync(config);
-}
-
-function skill.addAmount(player_or_id, tech_name, amount) {
-	config = playerdata.getSurvival(player_or_id);
-	config.set(config, tech_name, config.getDouble(config, tech_name, 0) + amount);
-	config.saveAsync(config);
-}
-
-function skill.isActivated(player_or_id, tech_name) {
-	config = playerdata.getSurvival(player_or_id);
-	return config.getBool(config, string.concat(tech_name, ".active"), true);
-}
-
-function skill.setActivated(player_or_id, tech_name, bool) {
-	config = playerdata.getSurvival(player_or_id);
-	config.set(config, string.concat(tech_name, ".active"), bool);
-}
-
-function skill.add(skill_name, tech_name, item, description, cost, permanent, active, toggleable) {
-	skill = array.new(8);
-	skill[0] = skill_name;
-	skill[1] = tech_name;
-	skill[2] = item;
-	skill[3] = description;
-	skill[4] = cost;
-	skill[5] = permanent;
-	skill[6] = active;
-	skill[7] = toggleable;
-	list.add(getScriptVar("skills"), skill);
-}
-
-function skill.get(tech_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_tech_name = array[1];
-		if(temp_tech_name == tech_name) {
-			return array;
-		}
-	}
-}
-
-function skill.getShopItem(player_or_id, tech_name) {
-	if(tech_name == null) {
-		return item.getAir();
-	}
-	skill = skill.get(tech_name);
-	amount = skill.getAmount(player_or_id, tech_name);
-	permanent = skill[5];
-	if(permanent) {
-		if(amount == 0) {
-			text_property = string.concat("§fBought: §cNo §f(Permanent)");
-		} else {
-			text_property = string.concat("§fBought: §aYes §f(Permanent)");
-		}
-	} else {
-		text_property = string.concat("§fAmount you have: §e", string.number(amount));
-	}
-	active = skill[6];
-	if(active) {
-		type = "§fActive skill";
-	} else {
-		type = "§fPassive skill";
-	}
-	toggleable = skill[7];
-	if(toggleable) {
-		if(skill.isActivated(player_or_id, tech_name)) {
-			tog = "§fToggleable: §aActive";
-		} else {
-			tog = "§fToggleable: §cInactive";
-		}
-	} else {
-		tog = "§fNot toggleable";
-	}
-	skill_name = skill.getName(tech_name);
-	item = read.item(skill[2], 1, string.concat("§e§o", skill_name), string.concat("§fCost: §e", string.number(skill[4])), skill[3], type, tog, text_property);
-	return item;
-}
-
-function skill.getName(tech_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_tech_name = array[1];
-		if(temp_tech_name == tech_name) {
-			return array[0];
-		}
-	}
-}
-
-function skill.getTechName(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[1];
-		}
-	}
-}
-
-function skill.getItem(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[2];
-		}
-	}
-}
-
-function skill.getDescription(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[3];
-		}
-	}
-}
-
-function skill.getCost(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[4];
-		}
-	}
-}
-
-function skill.isPermanent(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[5];
-		}
-	}
-}
-
-function skill.isActive(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[6];
-		}
-	}
-}
-
-function skill.isToggleable(skill_name) {
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		array = list.getIndex(skill_list, i);
-		temp_skill_name = array[0];
-		if(temp_skill_name == skill_name) {
-			return array[7];
-		}
-	}
-}
-
-function skill.showShop(player, tech_name1, tech_name2, tech_name3, tech_name4, tech_name5, tech_name6, tech_name7, tech_name8, tech_name9, tech_name10, tech_name11, tech_name12, tech_name13, tech_name14, tech_name15, tech_name16, tech_name17, tech_name18) {
-	inv = inv.new("333333333333333333");
-	inv.setItem(inv, 0, skill.getShopItem(player, tech_name1));
-	inv.setItem(inv, 1, skill.getShopItem(player, tech_name2));
-	inv.setItem(inv, 2, skill.getShopItem(player, tech_name3));
-	inv.setItem(inv, 3, skill.getShopItem(player, tech_name4));
-	inv.setItem(inv, 4, skill.getShopItem(player, tech_name5));
-	inv.setItem(inv, 5, skill.getShopItem(player, tech_name6));
-	inv.setItem(inv, 6, skill.getShopItem(player, tech_name7));
-	inv.setItem(inv, 7, skill.getShopItem(player, tech_name8));
-	inv.setItem(inv, 8, skill.getShopItem(player, tech_name9));
-	inv.setItem(inv, 9, skill.getShopItem(player, tech_name10));
-	inv.setItem(inv, 10, skill.getShopItem(player, tech_name11));
-	inv.setItem(inv, 11, skill.getShopItem(player, tech_name12));
-	inv.setItem(inv, 12, skill.getShopItem(player, tech_name13));
-	inv.setItem(inv, 13, skill.getShopItem(player, tech_name14));
-	inv.setItem(inv, 14, skill.getShopItem(player, tech_name15));
-	inv.setItem(inv, 15, skill.getShopItem(player, tech_name16));
-	inv.setItem(inv, 16, skill.getShopItem(player, tech_name17));
-	inv.setItem(inv, 17, skill.getShopItem(player, tech_name18));
-	inv.open(inv, player, "Skillshop");
-}
-
-function skill.showAll(from_player_or_id, to_player) {
-	inv = inv.new("333333333333333333333333333");
-	skill_list = getScriptVar("skills");
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		a = list.getIndex(skill_list, i);
-		tech_name = a[1];
-		inv.setItem(inv, i, skill.getShopItem(from_player_or_id, tech_name));
-	}
-	from_player_id = player.getValidId(from_player_or_id);
-	if(from_player_id == player.getValidId(to_player)) {
-		inv_name = "Skills";
-	} else {
-		inv_name = string.concat("Skills von ", player.getNameFromId(from_player_id));
-	}
-	inv.open(inv, to_player, inv_name);
 }
 
 //--------------------------------------------------

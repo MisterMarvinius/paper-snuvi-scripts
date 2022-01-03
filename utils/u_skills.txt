@@ -48,7 +48,7 @@ function skill.hasEnough(player, tech_name) {
 
 function skill.msg(player, tech_name) {
 	skill_name = skill.getName(tech_name);
-	msg.prefix(player, prefix_skill, concat("Used ", skill_name, ". New amount: ", text.number(skill.getAmount(player, tech_name))));
+	msg.prefix(player, prefix_skill, string.concat("Used ", skill_name, ". New amount: ", text.number(skill.getAmount(player, tech_name))));
 }
 
 function skill.getAmount(player_or_id, tech_name) {
@@ -76,12 +76,12 @@ function skill.subAmount(player_or_id, tech_name, amount) {
 
 function skill.isActivated(player_or_id, tech_name) {
 	config = playerdata.getSurvival(player_or_id);
-	return config.getBool(config, concat(tech_name, ".active"), true);
+	return config.getBool(config, string.concat(tech_name, ".active"), true);
 }
 
 function skill.setActivated(player_or_id, tech_name, bool) {
 	config = playerdata.getSurvival(player_or_id);
-	config.set(config, concat(tech_name, ".active"), bool);
+	config.set(config, string.concat(tech_name, ".active"), bool);
 }
 
 function skill.add(skill_name, tech_name, item, description, cost, permanent, active, toggleable, cooldown, mana, time) {
@@ -109,7 +109,7 @@ function skill.exists(tech_name) {
 }
 
 function skill.get(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -120,7 +120,7 @@ function skill.get(tech_name) {
 }
 
 function skill.getIndex(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -140,12 +140,12 @@ function skill.getShopItem(player_or_id, tech_name) {
 	permanent = skill[5];
 	if(permanent) {
 		if(amount == 0) {
-			text_property = concat("§fBought: §cNo §f(Permanent)");
+			text_property = string.concat("§fBought: §cNo §f(Permanent)");
 		} else {
-			text_property = concat("§fBought: §aYes §f(Permanent)");
+			text_property = string.concat("§fBought: §aYes §f(Permanent)");
 		}
 	} else {
-		text_property = concat("§fAmount you have: §e", text.number(amount));
+		text_property = string.concat("§fAmount you have: §e", text.number(amount));
 	}
 	active = skill[6];
 	if(active) {
@@ -164,12 +164,12 @@ function skill.getShopItem(player_or_id, tech_name) {
 		tog = "§fNot toggleable";
 	}
 	skill_name = skill.getName(tech_name);
-	item = read.item(skill[2], 1, concat("§e§o", skill_name), concat("§fCost: §e", text.number(skill[4])), skill[3], type, tog, text_property);
+	item = read.item(skill[2], 1, string.concat("§e§o", skill_name), string.concat("§fCost: §e", text.number(skill[4])), skill[3], type, tog, text_property);
 	return item;
 }
 
 function skill.getName(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -180,7 +180,7 @@ function skill.getName(tech_name) {
 }
 
 function skill.getTechName(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -191,7 +191,7 @@ function skill.getTechName(tech_name) {
 }
 
 function skill.getItem(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -202,7 +202,7 @@ function skill.getItem(tech_name) {
 }
 
 function skill.getDescription(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -213,7 +213,7 @@ function skill.getDescription(tech_name) {
 }
 
 function skill.getCost(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -224,7 +224,7 @@ function skill.getCost(tech_name) {
 }
 
 function skill.isPermanent(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -235,7 +235,7 @@ function skill.isPermanent(tech_name) {
 }
 
 function skill.isActive(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -246,7 +246,7 @@ function skill.isActive(tech_name) {
 }
 
 function skill.isToggleable(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -257,7 +257,7 @@ function skill.isToggleable(tech_name) {
 }
 
 function skill.getCooldown(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -268,7 +268,7 @@ function skill.getCooldown(tech_name) {
 }
 
 function skill.getMana(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -279,7 +279,7 @@ function skill.getMana(tech_name) {
 }
 
 function skill.getTime(tech_name) {
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
 		temp_tech_name = array[1];
@@ -314,7 +314,7 @@ function skill.showShop(player, tech_name1, tech_name2, tech_name3, tech_name4, 
 
 function skill.showAll(from_player_or_id, to_player) {
 	inv = inv.new("333333333333333333333333333");
-	skill_list  = skill.getList()
+	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		a = list.getIndex(skill_list, i);
 		tech_name = a[1];
@@ -324,7 +324,7 @@ function skill.showAll(from_player_or_id, to_player) {
 	if(from_player_id == player.getValidId(to_player)) {
 		inv_name = "Skills";
 	} else {
-		inv_name = concat("Skills von ", player.getNameFromId(from_player_id));
+		inv_name = string.concat("Skills von ", player.getNameFromId(from_player_id));
 	}
 	inv.open(inv, to_player, inv_name);
 }

@@ -1,4 +1,3 @@
-event.load("human_damage");
 event.load("entity_click");
 
 emerald = item.create("EMERALD", 1, "§fMarkt", null);
@@ -18,13 +17,6 @@ wait();
 ignoreGoto(event);
 goto("main");
 
-@human_damage
-player = player.getFromDamageSource(damage_source);
-if(player == null) {
-	goto("main");
-}
-goto("human_core");
-
 @entity_click
 if(slot.isOffHand(hand)) {
 	goto("main");
@@ -32,11 +24,7 @@ if(slot.isOffHand(hand)) {
 if(!entity.isHuman(entity)) {
 	goto("main");
 }
-human = entity;
-goto("human_core");
-
-@human_core
-entity_name = human.getName(human);
+entity_name = human.getName(entity);
 if(entity_name == "Farmer") {
 	inv.open(farmer_inv, player);
 } elseif(entity_name == "Miner") {

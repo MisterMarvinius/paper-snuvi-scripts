@@ -6,6 +6,9 @@ msg("online", text.new("§4The server will restart soon!!!"));
 @wait
 wait();
 if(event == "player_join") {
+	if(player.getName(player) == "marvinius") {
+		goto("wait");
+	}
 	ban.kick(player, text.new("Serverneustart"));
 }
 goto("wait");
@@ -28,7 +31,7 @@ sgoto(20, "stop");
 goto("wait");
 
 @final_stop
-//command("stop");
+stop();
 goto("wait");
 
 @on_error

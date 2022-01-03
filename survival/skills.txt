@@ -1,0 +1,268 @@
+//Hier werden alle Events abgefangen und beeinflusst, je nachdem ob ein Skill aktiv ist oder nicht
+
+event.load("projectile_hit");
+event.load("living_death");
+event.load("block_break");
+event.load("player_data_tick");
+
+prefix_skill = "§2Skill";
+
+setScriptVar("skills", list.new());
+skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true, 0, 0, null);
+skill.add("Comeback", "skill.comeback", "km:skill55", "Respawn at your death location", 100, false, false, true, 0, 0, null);
+skill.add("Head Hunter", "skill.head_human", "minecraft:player_head", "Drops a player's head with a 20% chance if you kill a player (5% if a staff member is killed)", 1000, true, false, false, 0, 0, null);
+skill.add("Mobheads", "skill.head_monster", "minecraft:zombie_head", "Drops a mobs's head with a 20% chance (zombie / skeleton / creeper)", 500, true, false, false, 0, 0, null);
+skill.add("Fly 10min", "skill.fly10min", "minecraft:elytra", "You can fly for 10 minutes", 500, false, true, false, 0, 0, 600);
+skill.add("Grow", "skill.grow", "minecraft:farmland", "Grow seeds in radius 5", 25, false, true, false, 0, 0, null);
+//skill.add("Haste", "skill.haste", "minecraft:iron_pickaxe", "Haste for 2 minutes", 25, false, true, false, 0, 0, 120);
+//skill.add("Speed", "skill.speed", "minecraft:iron_boots", "Speed for 2 minutes", 25, false, true, false, 0, 0, 120);
+//skill.add("Jump Boost", "skill.jump_boost", "minecraft:rabbit_foot", "JumpBoost Lvl.2 for 2 minutes", 25, false, true, false, 0, 0, 120);
+skill.add("Dolphin", "skill.dolphin", "minecraft:fire_coral", "Swim like a dolphin for a minute", 25, false, true, false, 0, 0, 60);
+skill.add("Block Up", "skill.block_up", "minecraft:diamond_pickaxe", "Break a block and the block above for a minute", 25, false, true, false, 0, 0, 60);
+skill.add("Block Down", "skill.block_down", "minecraft:diamond_pickaxe", "Break a block and the block below for a minute", 25, false, true, false, 0, 0, 60);
+skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees with an axe for a minute", 128, false, true, false, 0, 0, 60);
+skill.add("Fire Arrow", "skill.fire_arrow", "minecraft:arrow", "For a minute with an flame enchanted bow your arrows ignite hit blocks", 50, false, true, false, 0, 0, 60);
+skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 500, true, false, true, 0, 0, null);
+skill.add("Cobweb Miner", "skill.cobweb_miner", "minecraft:cobweb", "Swords increase the radius for destruction of cobwebs", 250, true, false, true, 0, 0, null);
+
+death_loc_map = map.new();
+
+//sword_tag = item.getTag("km:sword");
+//dye_tag = item.getTag("km:dye");
+leaves_tag = block.getTag("minecraft:leaves");
+//prop_persistent = block.getProperty("persistent");
+
+msg("dev", "§bSurvival §rloaded.");
+@wait
+wait();
+//Wenn Event aus Survival-Welten, dann wird er verarbeitet
+if(event == "living_death") {
+	loc = entity.getLocation(living_entity);
+} else {
+	loc = entity.getLocation(player);
+}
+world_name = world.getName(loc.getWorld(loc));
+if(world.isSurvName(world_name)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@player_data_tick
+if(var == "fly") {
+	tpBottom(player);
+	player.setFly(player, false);
+	msg.prefix(player, prefix_skill, "Fly time is over.");
+}
+goto("wait");
+
+@projectile_hit
+if(!isPlayer(shooter)) {
+	goto("wait");
+}
+player = shooter;
+duration = data.getTimer(player, "skill.fire_arrow");
+if(duration > 0) {
+	if(loc_hit == null) {
+		goto("wait");
+	}
+	flame = enchantment.getLevel(ench_flame, living.getHand(player));
+	if(flame <= 0) {
+		goto("wait");
+	}
+	if(!plot.check(loc_hit, player, 3, true) && !perm.has(player, "plot.bypass")) {
+		msg.prefix(player, prefix_skill, "You have no permissions on this plot.");
+		goto("wait");
+	}
+	ent_loc = entity.getLocation(projectile);
+	if(block.isAir(ent_loc)){
+		block.set(ent_loc, "minecraft:fire");
+	}
+	fire_ring(ent_loc, "minecraft:fire", 0);
+}
+goto("wait");
+
+@living_death
+if(isPlayer(living_entity)) {
+	player = living_entity;
+	loc = entity.getLocation(player);
+	amount = skill.getAmount(player, "skill.subcu_inv");
+	if(skill.isActivated(player, "skill.subcu_inv") && amount > 0) {
+		new_amount = amount - 1;
+		skill.setAmount(player, "skill.subcu_inv", new_amount);
+		msg.prefix(player, prefix_skill, string.concat("Used Subcutaneous Inventory. New amount: ", text.number(new_amount)));
+	} else {
+		player.dropInventory(player, loc);
+	}
+	killer = player.getFromDamageSource(damage_source);
+	if(isPlayer(killer)) {
+		amount = skill.getAmount(player, "skill.head_human");
+		if(amount >= 1) {
+			if(perm.has(player, "isTeam")) {
+				temp = math.random(1, 20);
+			} else {
+				temp = math.random(1, 5);
+			}
+			if(temp == 1) {
+				item.drop(loc, player.getHead(player.getUuid(player), player.getName(player)));
+			}
+		}
+	}
+	goto("wait");
+}
+killer = player.getFromDamageSource(damage_source);
+if(isPlayer(killer)) {
+	r = math.random(1, 20);
+	if(r == 1) {
+		amount = skill.getAmount(killer, "skill.head_monster");
+		if(amount >= 1) {
+			entity_type = entity.getType(living_entity);
+			if(entity_type == "creeper") {
+				item.drop(loc, read.item("minecraft:creeper_head"));
+				goto("wait");
+			}
+			if(entity_type == "zombie") {
+				item.drop(loc, read.item("minecraft:zombie_head"));
+				goto("wait");
+			}
+			if(entity_type == "skeleton") {
+				item.drop(loc, read.item("minecraft:skeleton_skull"));
+				goto("wait");
+			}
+		}
+	}
+}
+goto("wait");
+
+@block_break
+duration = data.getTimer(player, "block_down");
+if(duration > 0) {
+	do = true;
+	loc = loc.mod(block_loc, 0, -1, 0);
+	b_type = block.getType(loc);
+	if(b_type == "minecraft:bedrock" || b_type == "minecraft:end_portal_frame") {
+		do = false;
+	}
+	if(!plot.check(loc, player, 2, true)) {
+		do = false;
+	}
+	if(do) {
+		block.break(loc, player);
+	}
+}
+duration = data.getTimer(player, "block_up");
+if(duration > 0) {
+	do = true;
+	loc = loc.mod(block_loc, 0, 1, 0);
+	b_type = block.getType(loc);
+	if(b_type == "minecraft:bedrock" || b_type == "minecraft:end_portal_frame") {
+		do = false;
+	}
+	if(!plot.check(loc, player, 2, true)) {
+		do = false;
+	}
+	if(do) {
+		block.break(loc, player);
+	}
+}
+if(block_type == "minecraft:cobweb") {
+	if(cancel) {
+		goto("wait");
+	}
+	hand_item = living.getHand(player);
+	if(!item.hasTag(sword_tag, hand_item)) {
+		goto("wait");
+	}
+	amount = skill.getAmount(player, "skill.cobweb_miner");
+	if(amount <= 0) {
+		goto("wait");
+	}
+	if(!skill.isActivated(player, "skill.cobweb_miner")) {
+		goto("wait");
+	}
+	location = loc.mod(block_loc, 0, 0, 0);
+	cobweb_X = loc.getX(location);
+	cobweb_Y = loc.getY(location);
+	cobweb_Z = loc.getZ(location);
+	cobweb_radius = 1;
+	unbreaking_level = enchantment.getLevel(ench_unbreaking, hand_item);
+	for(a = -cobweb_radius; a < cobweb_radius + 1; a++) {
+		loc.setX(location, cobweb_X + a);
+		for(b = -cobweb_radius; b < cobweb_radius + 1; b++) {
+			loc.setY(location, cobweb_Y + b);
+			for(c = -cobweb_radius; c < cobweb_radius + 1; c++) {
+				loc.setZ(location, cobweb_Z + c);
+				if(math.abs(a) + math.abs(b) + math.abs(c) + math.random(0, 2) < cobweb_radius + 2) {
+					shear_cobweb(location, block_type, player, unbreaking_level);
+				}
+			}
+		}
+	}
+	goto("wait");
+}
+if(block.hasTag(leaves_tag, block)) {
+	if(cancel) {
+		goto("wait");
+	}
+	hand_item = living.getHand(player);
+	if(item.getType(hand_item) != "minecraft:shears") {
+		goto("wait");
+	}
+	if(block.property.getValue(block_loc, prop_persistent)){
+		goto("wait");
+	}
+	amount = skill.getAmount(player, "skill.better_shears");
+	if(amount <= 0) {
+		goto("wait");
+	}
+	if(!skill.isActivated(player, "skill.better_shears")) {
+		goto("wait");
+	}
+	location = loc.mod(block_loc, 0, 0, 0);
+	shears_X = loc.getX(location);
+	shears_Y = loc.getY(location);
+	shears_Z = loc.getZ(location);
+	unbreaking_level = enchantment.getLevel(ench_unbreaking, hand_item);
+	radius = enchantment.getLevel(ench_sharpness, hand_item);
+	if(radius > 0) {
+		cancel = true;
+	}
+	orig_item = block.toStack(location);
+	for(a = -radius; a < radius + 1; a++){
+		loc.setX(location, shears_X + a);
+		for(b = -radius; b < radius + 1; b++){
+			loc.setY(location, shears_Y + b);
+			for(c = -radius; c < radius + 1; c++){
+				loc.setZ(location, shears_Z + c);
+				if(math.abs(a) + math.abs(b) + math.abs(c) + math.random(0, 2) < radius + 2) {
+					shear_leave(location, block_type, orig_item, player, unbreaking_level);
+				}
+			}
+		}
+	}
+	goto("wait");
+}
+goto("wait");
+
+function shear_leave(block_loc, original_block_type, original_item, player, unbreaking_level){
+	if(block.getType(block_loc) != original_block_type) {
+		return;
+	}
+	if(block.property.getValue(block_loc, $prop_persistent)) {
+		return;
+	}
+	block.set(block_loc, "minecraft:air");
+	item.drop(block_loc, original_item);
+	if(player.isSurvival(player)) {
+		player.damageItem(player, 1);
+	}
+}
+
+function shear_cobweb(block_loc, original_block_type, player, unbreaking_level) {
+	if(block.getType(block_loc) != original_block_type) {
+		return;
+	}
+	block.break(block_loc, player);
+	if(math.random(0, 99) < 100 / (unbreaking_level + 1)) {
+		player.damageItem(player, 1);
+	}
+}

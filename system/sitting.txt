@@ -18,6 +18,7 @@ if(isPlayer(entity)) {
 		entity.remove(map.get(sitting, player_uuid));
 		map.remove(sitting, player_uuid);
 	}
+	entity.teleport(player, loc.mod(entity.getLocation(player), 0, 1, 0));
 }
 goto("wait");
 
