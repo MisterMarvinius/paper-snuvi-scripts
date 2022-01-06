@@ -1,1 +1,3 @@
-´
+world.load("games");
+world.load("creative");
+msg("dev", text.new("load"));

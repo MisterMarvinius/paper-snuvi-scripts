@@ -4,7 +4,7 @@ mainHand = read.slot("HAND");
 openMarkets = set.new();
 
 // Miner
-miner = inv.new("222222222", text.new("Miner"));
+miner = inv.new("222222222222222222", text.new("Miner"));
 inv.setItem(miner, 0, newItem(material.get("DIAMOND")));
 inv.setItem(miner, 1, newItem(material.get("IRON_INGOT")));
 inv.setItem(miner, 2, newItem(material.get("GOLD_INGOT")));
@@ -14,6 +14,7 @@ inv.setItem(miner, 5, newItem(material.get("LAPIS_LAZULI")));
 inv.setItem(miner, 6, newItem(material.get("REDSTONE")));
 inv.setItem(miner, 7, newItem(material.get("FLINT")));
 inv.setItem(miner, 8, newItem(material.get("EMERALD")));
+inv.setItem(miner, 9, newItem(material.get("QUARTZ")));
 set.add(openMarkets, inv.getId(miner));
 // Farmer
 farmer = inv.new("222222222", text.new("Farmer"));
@@ -48,7 +49,7 @@ item.addFlag(sturm, "HIDE_POTION_EFFECTS");
 inv.setItem(tavern, 1, newSellItem(sturm, 1, 64));
 red_bull = read.item("{Count:1b,id:'minecraft:potion',tag:{Potion:'minecraft:water'}}");
 item.addPotion(red_bull, "LEVITATION", 600, 0);
-item.setName(red_bull, text.new("§fRed Bull"));
+item.setName(red_bull, text.new("§fRed Bell"));
 item.addFlag(red_bull, "HIDE_POTION_EFFECTS");
 inv.setItem(tavern, 2, newSellItem(red_bull, 1, 20));
 set.add(openMarkets, inv.getId(tavern));
@@ -62,7 +63,6 @@ inv.setItem(priest, 4, newItem(material.get("PHANTOM_MEMBRANE")));
 inv.setItem(priest, 5, newItem(material.get("ENDER_PEARL")));
 inv.setItem(priest, 6, newItem(material.get("STRING")));
 inv.setItem(priest, 7, newItem(material.get("GUNPOWDER")));
-inv.setItem(priest, 8, newItem(material.get("BLAZE_ROD")));
 set.add(openMarkets, inv.getId(priest));
 // Mason
 mason = inv.new("222222222222222222", text.new("Mason"));
@@ -93,6 +93,54 @@ inv.setItem(mage, 5, newSellItem(item.new(material.get("FOX_SPAWN_EGG")), 1, 256
 inv.setItem(mage, 6, newSellItem(item.new(material.get("HORSE_SPAWN_EGG")), 1, 256));
 inv.setItem(mage, 7, newSellItem(item.new(material.get("STRIDER_SPAWN_EGG")), 1, 256));
 set.add(openMarkets, inv.getId(mage));
+// Lumberjack
+lumberjack = inv.new("222222222222222222", text.new("Lumberjack"));
+inv.setItem(lumberjack, 0, newItem(material.get("OAK_LOG")));
+inv.setItem(lumberjack, 1, newItem(material.get("SPRUCE_LOG")));
+inv.setItem(lumberjack, 2, newItem(material.get("BIRCH_LOG")));
+inv.setItem(lumberjack, 3, newItem(material.get("JUNGLE_LOG")));
+inv.setItem(lumberjack, 4, newItem(material.get("ACACIA_LOG")));
+inv.setItem(lumberjack, 5, newItem(material.get("DARK_OAK_LOG")));
+inv.setItem(lumberjack, 6, newItem(material.get("OAK_SAPLING")));
+inv.setItem(lumberjack, 7, newItem(material.get("SPRUCE_SAPLING")));
+inv.setItem(lumberjack, 8, newItem(material.get("BIRCH_SAPLING")));
+inv.setItem(lumberjack, 9, newItem(material.get("JUNGLE_SAPLING")));
+inv.setItem(lumberjack, 10, newItem(material.get("ACACIA_SAPLING")));
+inv.setItem(lumberjack, 11, newItem(material.get("DARK_OAK_SAPLING")));
+set.add(openMarkets, inv.getId(lumberjack));
+// Butcher
+butcher = inv.new("222222222", text.new("Butcher"));
+inv.setItem(butcher, 0, newItem(material.get("BEEF")));
+inv.setItem(butcher, 1, newItem(material.get("CHICKEN")));
+inv.setItem(butcher, 2, newItem(material.get("PORKCHOP")));
+inv.setItem(butcher, 3, newItem(material.get("RABBIT")));
+inv.setItem(butcher, 4, newItem(material.get("MUTTON")));
+inv.setItem(butcher, 5, newItem(material.get("FEATHER")));
+inv.setItem(butcher, 6, newItem(material.get("RABBIT_HIDE")));
+inv.setItem(butcher, 7, newItem(material.get("RABBIT_FOOT")));
+inv.setItem(butcher, 8, newItem(material.get("LEATHER")));
+set.add(openMarkets, inv.getId(butcher));
+// Librarian
+librarian = inv.new("222222222", text.new("Librarian"));
+inv.setItem(librarian, 0, newItem(material.get("INK_SAC")));
+inv.setItem(librarian, 1, newItem(material.get("WRITABLE_BOOK")));
+inv.setItem(librarian, 2, newItem(material.get("BOOK")));
+inv.setItem(librarian, 3, newItem(material.get("BOOKSHELF")));
+set.add(openMarkets, inv.getId(librarian));
+// Nether Merchant
+nether = inv.new("222222222222222222", text.new("Librarian"));
+inv.setItem(nether, 0, newItem(material.get("BLAZE_ROD")));
+inv.setItem(nether, 1, newItem(material.get("GHAST_TEAR")));
+inv.setItem(nether, 2, newItem(material.get("NETHER_WART")));
+inv.setItem(nether, 3, newItem(material.get("MAGMA_CREAM")));
+inv.setItem(nether, 4, newItem(material.get("WARPED_STEM")));
+inv.setItem(nether, 5, newItem(material.get("CRIMSON_STEM")));
+inv.setItem(nether, 6, newItem(material.get("NETHERRACK")));
+inv.setItem(nether, 7, newItem(material.get("BASALT")));
+inv.setItem(nether, 8, newItem(material.get("BLACKSTONE")));
+inv.setItem(nether, 9, newItem(material.get("GLOWSTONE")));
+inv.setItem(nether, 10, newItem(material.get("SHROOMLIGHT")));
+set.add(openMarkets, inv.getId(nether));
 
 emerald = material.get("EMERALD");
 
@@ -126,7 +174,7 @@ function hasSnuvis(player, amount) {
 }
 
 function removeSnuvis(player, amount) {
-	money.sub(player, amount);
+	money.subWithoutPopUp(player, amount);
 }
 
 function calculatePrices(material) {
@@ -214,7 +262,7 @@ config.saveAsync(stock);
 save = false;
 goto("loop");
 
-@entity_click
+/*@entity_click
 if(hand == mainHand) {
     goto("loop");
 }
@@ -236,7 +284,9 @@ if(string.contains(name, "Miner", 0)) {
     inv.open(mason, player);
 } elseif(string.contains(name, "Mage", 0)) {
     inv.open(mage, player);
-}
+} elseif(string.contains(name, "Lumberjack", 0)) {
+    inv.open(lumberjack, player);
+} */
 
 goto("loop");
 
@@ -261,6 +311,14 @@ if(item.getType(item) == emerald) {
 		inv.open(mason, player);
 	} elseif(title_string == "Mage") {
 		inv.open(mage, player);
+	} elseif(title_string == "Lumberjack") {
+		inv.open(lumberjack, player);
+	} elseif(title_string == "Butcher") {
+		inv.open(butcher, player);
+	} elseif(title_string == "Librarian") {
+		inv.open(librarian, player);
+	} elseif(title_string == "Nether Merchant") {
+		inv.open(nether, player);
 	}
 }
 if(!set.contains(openMarkets, inv.getId(inv))) {
@@ -304,6 +362,7 @@ if(lore == null || list.getSize(lore) == 0) {
         lostSnuvis += price;
     }
     if(lostSnuvis > 0) {
+		money.popUp(player, lostSnuvis * -1, false);
         msg(player, text.new(string.concat("§eYou spent §6", string.number(lostSnuvis), "§e Snuvis.")));
     }
 } else {
@@ -328,6 +387,7 @@ if(lore == null || list.getSize(lore) == 0) {
         config.set(stock, material, onStock - buyAmount);
     }
     if(lostSnuvis > 0) {
+		money.popUp(player, lostSnuvis * -1, false);
         msg(player, text.new(string.concat("§eYou spent §6", string.number(lostSnuvis), "§e Snuvis.")));
         updateItem(inv, inv_slot, material);
         save();

@@ -283,7 +283,6 @@ function isSameDay(timestamp_1, timestamp_2) {
 }
 
 function player.hasMinigame(player) {
-	return false;
 	id_set = player.getMinigameIds(player);
 	if(set.getSize(id_set) > 0)  {
 		return true;
@@ -395,7 +394,7 @@ function world.getGamesSpawn() {
 }
 
 function world.getCreativeSpawn() {
-	return read.location(config.getString(getServerConfig(), "creative", "world:0:0:0"));
+	return read.location(config.getString(getServerConfig(), "creativespawn", "world:0:0:0"));
 }
 
 function world.getOverWorld() {
@@ -604,7 +603,11 @@ function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
 	
 	//Allgemeine Daten
 	if(from_player_or_id == player.getId(sec_player)) {
-		living.setHealth(sec_player, config.getDouble(config, "health", 20));
+		health = config.getDouble(config, "health", 20);
+		if(health > 20) {
+			health = 20;
+		}
+		living.setHealth(sec_player, health);
 		player.setHunger(sec_player, config.getDouble(config, "hunger", 20));
 		player.setSaturation(sec_player, config.getDouble(config, "saturation", 5));
 		player.setExp(sec_player, config.getDouble(config, "xp", 0));
@@ -1388,8 +1391,8 @@ function player.teleport(player, location, setBackPos) {
 	world_change = player.checkForWorldChange(player, location);
 	if(world_change) {
 		//Inventory
-		//player.changeInv(player, from_world, to_world);
-		//entity.clearEffects(player);
+		player.changeInv(player, from_world, to_world);
+		living.clearEffects(player);
 		//Party
 		if(player.isInParty(player) && player.isPartyLeader(player)) {
 			party_id = player.getPartyId(player);
@@ -1521,6 +1524,10 @@ function player.getValid(player_or_id) {
 //--------------------------------------------------
 //Msg-Utils
 //--------------------------------------------------
+
+function msg.action(receiver, string) {
+	player.action(receiver, text.new(string));
+}
 
 function msg.string(receiver, string) {
 	msg(receiver, text.new(string));
@@ -1736,6 +1743,13 @@ function entity.isHuman(entity) {
 	return entity.getType(entity) == "human";
 }
 
+function entity.isArmorstand(entity) {
+	if(entity == null) {
+		return false;
+	}
+	return entity.getType(entity) == "armor_stand";
+}
+
 //--------------------------------------------------
 //Player-Utils
 //--------------------------------------------------
@@ -1819,6 +1833,17 @@ function player.setLeaveMessage(player_or_id, message) {
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "message.leave", message);
 	config.saveAsync(config);
+}
+
+function player.setLoggedIp(player_or_id, ip) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "ip", ip);
+	config.saveAsync(config);
+}
+
+function player.getLoggedIp(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getString(config, "ip", "-");
 }
 
 function player.isLive(player) {
@@ -2424,8 +2449,8 @@ function sign.setString(block, row, string) {
 	block.setSign(block, row, text.new(string));
 }
 
-function block.isType(block, type) {
-	return block.getType(block) == material.get(type);
+function block.isType(block, type_string) {
+	return block.getType(block) == material.get(type_string);
 }
 
 function block.isAir(block) {
@@ -2523,6 +2548,21 @@ function money.sub(player_or_id, money) {
 	}
 	displayMoney(player, new_money);
 	money.popUp(player, money * -1, false);
+}
+
+function money.subWithoutPopUp(player_or_id, money) {
+	if(money == 0) {
+		return;
+	}
+	config = playerdata.getSurvival(player_or_id);
+	new_money = config.getDouble(config, "money", 0) - money;
+	config.set(config, "money", new_money);
+	config.saveAsync(config);
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	displayMoney(player, new_money);
 }
 
 function addMoney(player_or_id, money) { //Deprecated
@@ -2686,6 +2726,19 @@ function plot.getIdListFromLocation(location) {
 		list.setIndex(list, i, plot.getId(plot));
 	}
 	return list;
+}
+
+function plot.getHighestId(location) {
+	list = plot.get(location);
+	iter = iterator(list);
+	highest = -1;
+	while(hasNext(iter)) {
+		plot_id = plot.getId(next(iter));
+		if(plot_id > highest) {
+			highest = plot_id;
+		}
+	}
+	return highest;
 }
 
 function plot.addPlayer(plot, player_name) {
@@ -3010,13 +3063,13 @@ function loc.round(location) {
 //--------------------------------------------------
 
 function living.setAi(bool) {
-	config = getScriptVar("server_config");
+	config = getServerConfig();
 	config.set(config, "spawnWithAi", bool);
 	config.saveAsync(config);
 }
 
 function living.getAi() {
-	config = getScriptVar("server_config");
+	config = getServerConfig();
 	return config.getBool(config, "spawnWithAi", true);
 }
 
@@ -3121,18 +3174,21 @@ function rank.checkCriteria(player, tech_name) {
 			clan_id = player.getClanId(player);
 			return clan.getMembersAmount(clan_id) >= 5;
 		}
+		return false;
 	}
 	if(tech_name == "rank.chief") {
 		if(player.isClanLeader(player)) {
 			clan_id = player.getClanId(player);
 			return clan.getMembersAmount(clan_id) >= 10;
 		}
+		return false;
 	}
 	if(tech_name == "rank.lord") {
 		if(player.isClanLeader(player)) {
 			clan_id = player.getClanId(player);
 			return clan.getMembersAmount(clan_id) >= 15;
 		}
+		return false;
 	}
 	//Quests
 	if(tech_name == "rank.volunteer") {
@@ -3433,7 +3489,7 @@ function player.isNicked(player) {
 //--------------------------------------------------
 
 function mail.send(from_name, to_name, message) {
-	server_config = getScriptVar("server_config");
+	server_config = getServerConfig();
 	mail_id = config.getDouble(server_config, "mail_id", 0) + 1;
 	config.set(server_config, "mail_id", mail_id);
 	config.saveAsync(server_config);
@@ -3699,7 +3755,7 @@ function clan.isExistingName(name) {
 }
 
 function clan.getNextFreeId() {
-	server_config = getScriptVar("server_config");
+	server_config = getServerConfig();
 	id = config.getDouble(server_config, "clan.id.next", 0) + 1;
 	config.set(server_config, "clan.id.next", id);
 	config.saveAsync(server_config);

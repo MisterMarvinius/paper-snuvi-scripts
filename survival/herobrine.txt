@@ -38,7 +38,7 @@ if(event == "block_break") {
 	if(!world.isSurvName(world_name)) {
 		goto("main");
 	}
-	r = math.random(1, 2000);
+	r = math.random(1, 15000);
 	if(r == 1) {
 		spawnHerobrine(player);
 	}
@@ -65,5 +65,6 @@ function spawnHerobrine(player) {
 	human.setSkin(ent, "ewogICJ0aW1lc3RhbXAiIDogMTYyMjMwNDY0MjU3MSwKICAicHJvZmlsZUlkIiA6ICI0NWY3YTJlNjE3ODE0YjJjODAwODM5MmRmN2IzNWY0ZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJfSnVzdERvSXQiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTUyM2UxZjA2ZDhlMTM5OWMwNjhhYTU3NjhmMDUzMDI1N2FhYjIxYTM0ZTk1NTY5MzNlNjM0NTUxODY0MjVhNiIKICAgIH0KICB9Cn0=", "PAL4UKYIgCe3RwmxfT6p05DDqc0kW2HTvlNNRuP3npXyuL68Hifjtiuu6OiJ/IQ/YGsjKf3Ni219teFFBJqEUJNEskC7CWnJxHWRq/WkSNDJXVKvBW6JjOYN607HSlBhifn4ZAxasol0bqVRURVG+0BwDUHXIGy4LRSu10/SLhsAmvwKhwYJiQ1xgnerqfzeWmPQSDZOo30Fxo6jNRnJ7v0VBGR8awImOfVsKE3SuEeys47U5AqXrHIp88s36aGOsIa0Bs6NHutW/L6Wbg9BHGUs93NGnjP9jxXizhGITF45KBXNl7gXPPjMnK7/CGOTuxuABc+MVAptB4cHCksnfaSMexryluQuwzWzOJTX1NCMGlYFREDq4c3GgVWJ7Yo2xWOwcy+XZxJXNchQ5/vzA3dv+XdU4zcD93OOhuv9PDoUTlmQgLFQLFbxM6Bq6cSQg3Wybi7wO6jQzBIVpZaswrOo/wgHuXbDkA9rv5uONjQQbKHJQjVjgIrbbUpX3+Kh4MkgBEUztxNvbgbt5RK0knwtYhscKDyrP5AAwp9CX6JnmbKXIRVWtx6b3JNPYC9I6FtBCoGxo6OfHl3f/okncszIh+40Sif3IdMrW+H5g3MxMkn5eHP4nOHRL24izlLUM52gS/TUgpG0dJrG6XMOR3w6KqTxcT/4vyxwlmJ+iDg=");
 	human.setAi(ent, 1);
 	human.canMove(ent, true);
+	living.setEquip(ent, slot.getHand(), item.create("IRON_SWORD", 1, null, null));
 	set.add($herobrines, ent);
 }

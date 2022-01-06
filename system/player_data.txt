@@ -4,14 +4,17 @@ Configs sind dauerhaft geladen und werden z.B. in der ScriptVar "survival_data" 
 */
 
 playerdata.loadAll("survival_data");
-//playerdata.loadAll("games_data");
-//playerdata.loadAll("story_data");
+playerdata.loadAll("games_data");
+playerdata.loadAll("story_data");
 msg.string("dev", "§bPlayerdata §rloaded");
 
 function playerdata.loadAll(name) {
 	player_data_map = map.new();
 	setScriptVar(name, player_data_map);
 	dir = file.new(string.concat("scripts/configs/player_data/", name));
+	if(!file.exists(dir)) {
+		return;
+	}
 	list = file.getList(dir);
 	iter = list.iterator(list);
 	while(hasNext(iter)) {

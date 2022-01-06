@@ -1445,6 +1445,16 @@
             <td>item.addFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">item.removeFlag</th>
+            <th class="desc">removes a flag from an itemstack</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>item.removeFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
+        </tr>
+    </table>
     <table>
         <tr>
             <th class="command">item.addPotion</th>
@@ -3741,6 +3751,16 @@
             <td>inv.getID(inventory)</td>
         </tr>
     </table>
+    <table>
+        <tr>
+            <th class="command">inv.closeAll()</th>
+            <th class="desc">closes all custom inventories of all players</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>inv.closeAll()</td>
+        </tr>
+    </table>
 </section>
 
 <section id="World">
@@ -5190,6 +5210,352 @@
         <tr>
             <td class="bold">Arguments</td>
             <td>double from 0 to 1</td>
+        </tr>
+    </table>
+</section>
+
+<section id="Whitelist">
+	<table>
+        <tr>
+            <th class="command">whitelist.enable</th>
+            <th class="desc">enables the whitelist</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>whitelist.enable()</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">whitelist.disable</th>
+            <th class="desc">disables the whitelist</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>whitelist.disable()</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">whitelist.add</th>
+            <th class="desc">adds a player to the whitelist</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>whitelist.add(uuid / uuid_string / player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">whitelist.remove</th>
+            <th class="desc">removes a player from the whitelist</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>whitelist.remove(uuid / uuid_string / player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">whitelist.clear</th>
+            <th class="desc">clears the whitelist</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>whitelist.clear()</td>
+        </tr>
+    </table>
+</section>
+
+<section id="Armorstand">
+	<table>
+        <tr>
+            <th class="command">as.getBodyPose</th>
+            <th class="desc">returns the body pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.getBodyPose(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.getHeadPose</th>
+            <th class="desc">returns the head pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.getHeadPose(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.getLeftArmPose</th>
+            <th class="desc">returns the left arm pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.getLeftArmPose(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.getRightArmPose</th>
+            <th class="desc">returns the right arm pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.getRightArmPose(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.getLeftLegPose</th>
+            <th class="desc">returns the left leg pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.getLeftLegPose(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.getRightLegPose</th>
+            <th class="desc">returns the right leg pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.getRightLegPose(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.hasArms</th>
+            <th class="desc">returns true if an armor stand has arms</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.hasArms(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.hasBasePlate</th>
+            <th class="desc">returns true if an armor stand has a base plate</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.hasBasePlate(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.isMarker</th>
+            <th class="desc">returns true if an armor stand is a marker</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.isMarker(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.isSmall</th>
+            <th class="desc">returns true if an armor stand is small</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.isSmall(armor_stand)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setArms</th>
+            <th class="desc">sets that an armor stand can have arms</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setArms(armor_stand, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setBasePlate</th>
+            <th class="desc">sets that an armor stand can have a base plate</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setBasePlate(armor_stand, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setMarker</th>
+            <th class="desc">sets that an armor stand can be a marker</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setMarker(armor_stand, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setSmall</th>
+            <th class="desc">sets that an armor stand is small</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setSmall(armor_stand, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.canMove</th>
+            <th class="desc">sets that an armor stand can move</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.canMove(armor_stand, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.canTick</th>
+            <th class="desc">sets that an armor stand can tick</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.canTick(armor_stand, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setBodyPose</th>
+            <th class="desc">sets the body pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setBodyPose(armor_stand, euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setHeadPose</th>
+            <th class="desc">sets the head pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setHeadPose(armor_stand, euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setLeftArmPose</th>
+            <th class="desc">sets the left arm pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setLeftArmPose(armor_stand, euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setRightArmPose</th>
+            <th class="desc">sets the right arm pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setRightArmPose(armor_stand, euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setLeftLegPose</th>
+            <th class="desc">sets the left leg pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setLeftLegPose(armor_stand, euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">as.setRightLegPose</th>
+            <th class="desc">sets the right leg pose of an armor stand</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>as.setRightLegPose(armor_stand, euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.new</th>
+            <th class="desc">returns a new created euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.new(x, y, z)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.getX</th>
+            <th class="desc">returns the x angle of an euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.getX(euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.getY</th>
+            <th class="desc">returns the y angle of an euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.getY(euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.getZ</th>
+            <th class="desc">returns the z angle of an euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.getZ(euler_angle)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.setX</th>
+            <th class="desc">sets the x angle of an euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.setX(euler_angle, value)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.setY</th>
+            <th class="desc">sets the y angle of an euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.setY(euler_angle, value)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">euler.setZ</th>
+            <th class="desc">sets the z angle of an euler angle</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>euler.setZ(euler_angle, value)</td>
         </tr>
     </table>
 </section>

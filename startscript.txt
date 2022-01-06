@@ -9,7 +9,7 @@ script.startNamed("Perms", "utils/u_error", "system/perms", "utils/u_general");
 script.startNamed("Playerdata", "utils/u_error", "system/player_data", "utils/u_general");
 script.startNamed("Chat", "utils/u_error", "system/chat", "utils/u_general");
 script.startNamed("Commands", "startcommands");
-	//script.startNamed("Creative", "utils/u_error", "system/creative", "utils/u_general");
+script.startNamed("Creative", "utils/u_error", "system/creative", "utils/u_general");
 script.startNamed("Copyisland", "system/copyisland", "utils/u_general");
 script.startNamed("Damage", "utils/u_error", "system/damage", "utils/u_general");
 script.startNamed("Doors", "utils/u_error", "system/doors", "utils/u_general");
@@ -24,7 +24,7 @@ script.startNamed("Sitting", "utils/u_error", "system/sitting", "utils/u_general
 script.startNamed("Ticket", "utils/u_error", "system/tickets", "utils/u_general");
 script.startNamed("Mails", "utils/u_error", "system/mailsystem", "utils/u_general");
 script.startNamed("Market", "utils/u_error", "system/market", "utils/u_general");
-script.startNamed("Shops", "utils/u_error", "system/chestshops", "utils/u_general");
+script.startNamed("ChestShops", "utils/u_error", "system/chestshops", "utils/u_general");
 script.startNamed("Humans", "utils/u_error", "system/humans", "utils/u_general");
 script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general");
 //script.startNamed("Skills", "utils/u_error", "survival/skills", "utils/u_general", "utils/u_skills");

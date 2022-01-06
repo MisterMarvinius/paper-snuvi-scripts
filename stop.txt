@@ -2,6 +2,7 @@ event.load("player_join");
 
 sgoto(400, "announce");
 msg("online", text.new("§4The server will restart soon!!!"));
+setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.1§f]\n§4Server is restarting!");
 
 @wait
 wait();

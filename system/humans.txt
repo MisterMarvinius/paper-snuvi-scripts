@@ -1,6 +1,6 @@
 event.load("entity_click");
 
-emerald = item.create("EMERALD", 1, "§fMarkt", null);
+emerald = item.create("EMERALD", 1, "§fMarket", null);
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 
 farmer_inv = createMainMenu("Farmer", true, false);
@@ -10,6 +10,10 @@ alena_inv = createMainMenu("Alena", true, false);
 mason_inv = createMainMenu("Mason", true, false);
 priest_inv = createMainMenu("Priest", true, false);
 mage_inv = createMainMenu("Mage", true, false);
+lumberjack_inv = createMainMenu("Lumberjack", true, false);
+butcher_inv = createMainMenu("Butcher", true, false);
+librarian_inv = createMainMenu("Librarian", true, false);
+nether_inv = createMainMenu("Nether Merchant", true, false);
 
 msg.string("dev", "§bHumans §rloaded.");
 @main
@@ -39,6 +43,14 @@ if(entity_name == "Farmer") {
 	inv.open(priest_inv, player);
 } elseif(entity_name == "Mage") {
 	inv.open(mage_inv, player);
+} elseif(entity_name == "Lumberjack") {
+	inv.open(lumberjack_inv, player);
+} elseif(entity_name == "Butcher") {
+	inv.open(butcher_inv, player);
+} elseif(entity_name == "Librarian") {
+	inv.open(librarian_inv, player);
+} elseif(entity_name == "Nether Merchant") {
+	inv.open(nether_inv, player);
 }
 goto("main");
 

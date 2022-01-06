@@ -1,0 +1,24 @@
+event.load("player_pre_respawn");
+event.load("player_post_respawn");
+
+crea_respawn = set.new();
+
+msg.string("dev", "§bCreative §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@player_pre_respawn
+if(loc.isInCreativeWorld(entity.getLocation(player))) {
+	set.add(crea_respawn, player.getUuid(player));
+}
+goto("wait");
+
+@player_post_respawn
+player_uuid = player.getUuid(player);
+if(set.contains(crea_respawn, player_uuid)) {
+	set.remove(crea_respawn, player_uuid);
+	entity.teleport(player, world.getCreativeSpawn());
+}
+goto("wait");

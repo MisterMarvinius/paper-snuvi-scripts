@@ -80,7 +80,7 @@ function updateEntityName(entity) {
 
 	entity_name = entity.getName(living_entity);
 	if(entity_name == null) {
-		string_name = null;
+		string_name = "";
 	} else {
 		string_name = string.text(entity_name);
 	}
@@ -98,6 +98,9 @@ function updateEntityName(entity) {
 	if(heart_index == 2) {
 		//Links vom Herz kein Name
 		setEntityName(living_entity, health, max_health, null);
+		return;
+	}
+	if(heart_index < 2) {
 		return;
 	}
 	string_name = string.subString(string_name, 0, heart_index - 2);

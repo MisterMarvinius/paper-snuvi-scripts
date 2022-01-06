@@ -12,6 +12,10 @@
             <td class="bold">Examples</td>
             <td>a = 3 * (5 - 1);<br>a++;<br>a <<= 3;</td>
         </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td><< and >> are not implemented at the moment</td>
+        </tr>
     </table>
     <table>
 		<tr>

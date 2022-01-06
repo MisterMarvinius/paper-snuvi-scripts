@@ -21,7 +21,7 @@ msg.string("dev", "§bDoors §rloaded.");
 wait();
 loc = entity.getLocation(player);
 world_name = world.getName(loc.getWorld(loc));
-if(world.isSurvName(world_name) || world.isStoryName(world_name)) {
+if(world.isSurvName(world_name)) {
 	ignoreGoto(event);
 }
 goto("main");

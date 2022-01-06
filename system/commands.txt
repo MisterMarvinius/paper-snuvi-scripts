@@ -3,9 +3,6 @@ error_counter = 0;
 error_counter++;
 if(error_counter > 1) {
 	snuvi.debug("Error Handler activated");
-	if(event == "inv_click") {
-		snuvi.debug(string.concat("slot: ", inv_slot, " size: ", inv_size));
-	}
 	if(event == "custom_command") {
 		snuvi.debug(string.concat("Command ", command, " failed."));
 		set.add(failed_cmds, command);
@@ -13,7 +10,7 @@ if(error_counter > 1) {
 	}
 	snuvi.debug("Restarting script...");
 	error_counter++;
-	if(error_counter >= 5) {
+	if(error_counter >= 100) {
 		snuvi.debug("Script terminated. Endless loop.");
 		term();
 	}
@@ -57,7 +54,8 @@ command_map = map.new();
 command.register("afk", "Toggles afk");
 command.register("allsounds", "Plays all sounds");
 command.register("answer", "Answers the last private message");
-//command.register("ass", "Armor Stand Signs");
+command.register("armorstand", "Armorstand commands");
+command.register("ass", "Armor Stand Signs");
 command.register("back", "Teleports to the last position");
 command.register("ban", "Bans a player");
 command.register("block", "Block commands");
@@ -65,7 +63,8 @@ command.register("boost", "Boosts you up to the clouds");
 //command.register("clan", "Clan-Commands");
 command.register("color", "Shows all colors");
 command.register("copyisland", "Copyisland-Commands");
-//command.register("creative", "Teleports to creative-spawn");
+command.register("creative", "Teleports to creative-spawn");
+command.register("customitems", "Shows all custom items");
 command.register("databank", "Databank-Commands");
 command.register("datatools", "Datatools-Commands");
 command.register("enchant", "Enchants an item in your hand");
@@ -104,7 +103,6 @@ command.register("logo", "Gives the Mundus Crassus logo on a banner");
 command.register("mail", "Mail-Commands");
 command.register("mailbox", "Mailbox-Commands");
 command.register("memory", "Returns RAM-usage");
-command.register("money", "Shows your bank account");
 command.register("msg", "Send a private message");
 command.register("mute", "Mutes a player");
 command.register("news", "Send Push-News to all players");
@@ -114,6 +112,7 @@ command.register("party", "Party-Commands");
 command.register("perm", "Manage permissions");
 command.register("playtime", "Shows your playtime");
 command.register("plot", "Plot-Commands");
+command.register("potion", "Adds a potion effects to an item");
 command.register("pvp", "Toggles pvp");
 //command.register("quest", "Quest-Commands");
 command.register("rank", "Shows your available ranks");
@@ -143,13 +142,13 @@ command.register("start", "Starts a script");
 //command.register("stats", "Statistics-Commands");
 //command.register("stopadventure", "Stops an adventure");
 command.register("suicide", "Kill yourself");
-command.register("teleport", "Teleports a player to a player");
 command.register("tempban", "Bans a player temporarly");
 command.register("tempfly", "Let a player temporarly fly");
 command.register("ticket", "Ticket-Commands");
 command.register("time", "Time-Commands");
 command.register("tip", "Tip-Commands");
 command.register("top", "Teleports to to highest point at the current position");
+command.register("tp", "Teleport command");
 command.register("tpa", "Sends a teleport request to a player");
 command.register("tpahere", "Sends a teleport request to a player");
 command.register("tpaccept", "Accepts a teleport request");
@@ -169,6 +168,8 @@ command.register("weather", "Weather-Commands");
 command.register("world", "World-Commands");
 command.register("yeet", "Throws you in sight");
 
+command.registerAlias("as", "armorstand");
+command.registerAlias("h", "home");
 command.registerAlias("skull", "head");
 command.registerAlias("skick", "silentkick");
 command.registerAlias("sban", "silentban");
@@ -179,7 +180,6 @@ command.registerAlias("mimimi", "help");
 command.registerAlias("ci", "copyisland");
 command.registerAlias("mem", "memory");
 command.registerAlias("ram", "memory");
-command.registerAlias("tp", "teleport");
 command.registerAlias("colour", "color");
 command.registerAlias("gm", "gamemode");
 command.registerAlias("p", "plot");
@@ -411,7 +411,7 @@ month.add(11, "Dec", 31);
 
 jailed_list = list.new();
 ironbars = item.create("minecraft:iron_bars", 1, "§r", null);
-jailmenu = inv.new("222222222", text.new("§8Jail"));
+jailmenu = inv.new("00000000", text.new("§8Jail"));
 inv.setItem(jailmenu, 0, ironbars);
 inv.setItem(jailmenu, 1, ironbars);
 inv.setItem(jailmenu, 2, ironbars);
@@ -435,6 +435,14 @@ list.add(lore_list, text.new("§fCost: §e2 VP"));
 list.add(lore_list, text.new("Rickroles every player on the server."));
 inv.setItem(vote_inv, 1, item.create("JUKEBOX", 1, "§aRick is in the house", lore_list));
 updateVoteInv();
+lore_list = list.new();
+list.add(lore_list, text.new("§fCost: §e2 VP"));
+list.add(lore_list, text.new("Be a kiddie and enjoy it."));
+inv.setItem(vote_inv, 3, item.create("JUKEBOX", 1, "§aBi Ba Bobby Car", lore_list));
+lore_list = list.new();
+list.add(lore_list, text.new("§fCost: §e1 VP"));
+list.add(lore_list, text.new("Plays a creeper sound for each player."));
+inv.setItem(vote_inv, 4, item.create("JUKEBOX", 1, "§aFalse Alarm", lore_list));
 vote_inv_id = inv.getId(vote_inv);
 
 consoleCommands = set.new();
@@ -452,6 +460,7 @@ set.add(consoleCommands, "tempban");
 set.add(consoleCommands, "tempfly");
 set.add(consoleCommands, "unban");
 set.add(consoleCommands, "unmute");
+set.add(consoleCommands, "user");
 set.add(consoleCommands, "warn");
 
 databank.workerExecute(databank.prepare("
@@ -501,16 +510,19 @@ plot.registerMoveEvents(world.getCreative());
 RickRollSounds = getRickRollSounds();
 RickRollSoundDists = getRickRollSoundDists();
 rick_sounds_amount = list.getSize(RickRollSoundDists);
+bobbyCarSounds = getBobbyCarSounds();
+bobbyCarSoundDists = getBobbyCarSoundDists();
+rick_sounds_amount = list.getSize(bobbyCarSoundDists);
 item_flags = getItemFlags();
 
 sound_category_master = sound.getCategory("MASTER");
 sound_flute = sound.get("BLOCK_NOTE_BLOCK_FLUTE");
 sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
 sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
+creeper_primed = sound.get("ENTITY_CREEPER_PRIMED");
 
-//event.load("player_move");
+event.load("player_move");
 event.load("snuvi_click");
-event.load("inv_click");
 event.load("inv_close");
 event.load("missing_perm");
 event.load("missing_command");
@@ -574,14 +586,14 @@ if(event == "vote") {
 		} elseif(!isSameDay(last_vote_time, now_time)) {
 			new_streak = 1;
 		}
-		if(new_streak == 14) {
+		/*if(new_streak == 14) {
 			new_streak = 0;
 			msg.online(prefix_vote, string.concat(player.getName(p_uuid), " reached a votestreak of 14 and each player online (survival) gets a sapphire."));
 			sapphire = item.getSapphire();
 			world.giveItem(world.getOverWorld(), sapphire);
 			world.giveItem(world.getTheNether(), sapphire);
 			world.giveItem(world.getTheEnd(), sapphire);
-		}
+		}*/
 		player.setVoteStreak(p_id, new_streak);
 		player.setLastVoteTime(p_id, now_time);
 	}
@@ -593,20 +605,22 @@ if(event == "player_move") {
 	if(last_move_id == id) {
 		goto("wait");
 	}
-	world = loc.getWorld(entity.getLocation(player));
-	plot_id = plot.getPlotIdFromMoveId(id);
-	plot = plot.getFromId(plot_id, world);
-	if(plot == null) {
+	player_loc = entity.getLocation(player);
+	new_plot_id = plot.getPlotIdFromMoveId(id);
+	new_plot = plot.getFromId(new_plot_id, loc.getWorld(player_loc));
+	if(new_plot == null) {
 		goto("wait");
 	}
-	if(plot.isCity(plot)) {
+	high_plot_id = plot.getHighestId(player_loc);
+	if(new_plot_id < high_plot_id) {
+		goto("wait");
+	}
+	if(plot.isCity(new_plot)) {
 		color_code = "§c";
 	} else {
 		color_code = "§e";
 	}
-	title.reset(player);
-	title.setSub(player, string.concat("You entered ", color_code, plot.getName(plot), "."));
-	title.send(player, "");
+	title.send(player, text.new(""), text.new(string.concat("You entered ", color_code, plot.getName(new_plot), ".")));
 	map.add(actual_move_id, player_uuid, id);
 	list.add(check_for_plot_list, player_uuid);
 	sgoto(100, "checkForPlot");
@@ -738,42 +752,6 @@ if(event == "missing_perm") {
 	msg.prefix(sender, prefix_perms, string.concat("Missing Perm: §c", perm));
 	goto("wait");
 }
-if(event == "inv_click") {
-	inv_size = inv.getSize(inv);
-	if(inv_slot >= inv_size || inv_slot < 0) {
-		goto("wait");
-	}
-	inv_id = inv.getId(inv);
-	item = inv.getItem(inv, inv_slot);
-	if(item == null) {
-		goto("wait");
-	}
-	title_string = string.text(inv_title);
-	//inv see
-	if(set.contains(invseeids, inv_id)) {
-		cancel = true;
-		//On snuvi_click in an invsee inventory
-		split_array = string.split(" ", title_string);
-		p_name = split_array[2];
-		p = read.player(p_name);
-		if(p == null) {
-			inv.close(player);
-			msg.prefix(player, prefix_commands, "This player is no longer online. Use /inv to load and overwrite an inventory of a offline player.");
-			goto("wait");
-		}
-		if(click == "SHIFT_LEFT") {
-			//Clone item
-			player.safeGiveItem(player, item);
-			goto("wait");
-		}
-		//Transmit item
-		player.removeItem(p, item);
-		player.safeGiveItem(player, item);
-		inv.setItem(inv, inv_slot, null);
-		goto("wait");
-	}
-	goto("wait");
-}
 if(event == "snuvi_click") {
 	inv_id = inv.getId(inv);
 	item = inv.getItem(inv, inv_slot);
@@ -781,23 +759,17 @@ if(event == "snuvi_click") {
 		goto("wait");
 	}
 	title_string = string.text(inv_title);
-	//mailbox
 	if(string.startsWith(title_string, "Mailbox", 0)) {
-		if(player.isOnAdventure(player)) {
-			msg.prefix(player, prefix_commands, "You can´t use the mailbox while on adventure.");
-			goto("wait");
-		}
+		item.removeFlag(item, "HIDE_DESTROYS");
 		if(click == "SHIFT_LEFT") {
-			if(perm.has("mailbox.other", player)) {
-				//Clone item
-				player.safeGiveItem(player, item);
-				goto("wait");
-			}
+			//Clone item
+			player.safeGiveItem(player, item);
+			goto("wait");
 		}
 		//Take item
 		player.safeGiveItem(player, item);
-		inv.setItem(inv, inv_slot, item.getAir());
-		split_array = string.split(" ", inv_title);
+		inv.setItem(inv, inv_slot, item.create("BLACK_STAINED_GLASS_PANE", 1, "", null));
+		split_array = string.split(" ", title_string);
 		p_name = split_array[2];
 		p_uuid = player.getUuid(p_name);
 		if(p_uuid == null) {
@@ -806,12 +778,17 @@ if(event == "snuvi_click") {
 			goto("wait");
 		}
 		p_id = player.getId(p_uuid);
-		mailbox.setItem(p_id, inv_slot, item.getAir());
+		mailbox.removeItem(p_id, inv_slot);
 		goto("wait");
 	}
-	//inv see
+	if(string.startsWith(title_string, "Customitems", 0)) {
+		item = inv.getItem(inv, inv_slot);
+		if(item != null) {
+			player.safeGiveItem(player, item);
+		}
+		goto("wait");
+	}
 	if(set.contains(invseeids, inv_id)) {
-		//On snuvi_click in an invsee inventory
 		split_array = string.split(" ", title_string);
 		p_name = split_array[2];
 		p = read.player(p_name);
@@ -820,6 +797,7 @@ if(event == "snuvi_click") {
 			msg.prefix(player, prefix_commands, "This player is no longer online. Use /inv to load and overwrite an inventory of a offline player.");
 			goto("wait");
 		}
+		item.removeFlag(item, "HIDE_DESTROYS");
 		if(click == "SHIFT_LEFT") {
 			//Clone item
 			player.safeGiveItem(player, item);
@@ -828,7 +806,7 @@ if(event == "snuvi_click") {
 		//Transmit item
 		player.removeItem(p, item);
 		player.safeGiveItem(player, item);
-		//inv.setItem(inv, inv_slot, null);
+		inv.setItem(inv, inv_slot, item.create("BLACK_STAINED_GLASS_PANE", 1, "", null));
 		goto("wait");
 	}
 	if(inv_id == vote_inv_id) {
@@ -869,6 +847,32 @@ if(event == "snuvi_click") {
 			player.setVotePoints(player, vp - 1);
 			increaseHomeBoost();
 			msg.online(prefix_vote, string.concat(player.getName(player), " spend their votepoints to §dMore Homes§r."));
+			goto("wait");
+		}
+		if(inv_slot == 3) {
+			vp = player.getVotePoints(player);
+			if(vp < 2) {
+				msg.prefix(player, prefix_commands, "Not enough vote points.");
+				goto("wait");
+			}
+			msg.online(prefix_vote, string.concat(player.getName(player), " activated §dBi Ba Bobby Car§r."));
+			player.setVotePoints(player, vp - 2);
+			bobbycarIndex = 0;
+			goto("bobbycar_play");
+		}
+		if(inv_slot == 4) {
+			vp = player.getVotePoints(player);
+			if(vp < 1) {
+				msg.prefix(player, prefix_commands, "Not enough vote points.");
+				goto("wait");
+			}
+			msg.online(prefix_vote, string.concat(player.getName(player), " activated §dFalse Alarm§r."));
+			player.setVotePoints(player, vp - 1);
+			iter = iterator(players.toList());
+			while(hasNext(iter)) {
+				sound.spawnForPlayer(next(iter), creeper_primed, sound_category_master);
+			}
+			goto("wait");
 		}
 		goto("wait");
 	}
@@ -1191,7 +1195,7 @@ player.giveItem(player, logo);
 goto("wait");
 
 @settings
-inv = inv.new("333333333", text.new("§8Settings"));
+inv = inv.new("222222222", text.new("§8Settings"));
 inv.setItem(inv, 0, item.create("minecraft:oak_door", 1, "§fAutomatic Doors", item.createLore(player.getAutoCloseDoor(player))));
 inv.setItem(inv, 1, item.create("minecraft:ender_pearl", 1, "§fAccept TPA-Requests", item.createLore(player.doesAcceptTpaRequests(player))));
 inv.setItem(inv, 2, item.create("minecraft:compass", 1, "§fShow Coords", item.createLore(player.getShowcoords(player))));
@@ -1229,10 +1233,6 @@ if(arg0 == "create") {
 		goto("wait");
 	}
 	sign_loc = block.getLocation(sign_block);
-	if(!plot.check(sign_loc, player, 0, false)) {
-		msg.prefix(player, prefix_shop, "Not your plot.");
-		goto("wait");
-	}
 	sign.setString(sign_block, 0, "[Shop]");
 	sign.setString(sign_block, 3, string.number(player.getId(player)));
 	msg.prefix(player, prefix_shop, "§rCreated Shop.");
@@ -1319,6 +1319,10 @@ if(!world.isSurvName(world_name)) {
 	msg.prefix(player, prefix_commands, "You can´t use this command in this world.");
 	goto("wait");
 }
+if(player.isOnAdventure(player) && !perm.has("mailbox.other", player)) {
+	msg.prefix(player, prefix_commands, "You can´t use the mailbox while on adventure.");
+	goto("wait");
+}
 if(size == 0) {
 	msg.prefix(player, prefix_commands, "/mailbox...");
 	if(perm.has("mailbox.other", player)) {
@@ -1359,8 +1363,12 @@ if(arg0 == "send") {
 }
 if(arg0 == "show") {
 	if(size == 1) {
-		from_player_id = player.getId(player);
-	} elseif(size == 2) {
+		player_id = player.getId(player);
+		mailbox.show(player, player_id, false);
+		mailbox.clear(player_id);
+		goto("wait");
+	}
+	if(size == 2) {
 		if(!perm.has("mailbox.other", player)) {
 			perm.no("mailbox.other", player);
 			goto("wait");
@@ -1371,101 +1379,15 @@ if(arg0 == "show") {
 			goto("wait");
 		}
 		from_player_id = player.getId(player.getUuid(from_name));
+		mailbox.show(player, from_player_id, true);
+		goto("wait");
+	}
+	if(perm.has("mailbox.other", player)) {
+		msg.prefix(player, prefix_commands, "/mailbox show [player]");
 	} else {
-		if(perm.has("mailbox.other", player)) {
-			msg.prefix(player, prefix_commands, "/mailbox show [player]");
-		} else {
-			msg.prefix(player, prefix_commands, "/mailbox show");
-		}
-		goto("wait");
-	}
-	mailbox.show(player, from_player_id);
-	goto("wait");
-}
-goto("wait");
-
-@money
-money = getMoney(player);
-inv = inv.new("111111111111111111111111111", text.new("Money"));
-index = 0;
-//Fill first slot with bronze
-copper_coin = item.custom.create("COPPER_COIN", 1, null, null);
-if(money < 64) {
-	bronze = money;
-} else {
-	bronze = 64;
-}
-money -= bronze;
-item.setAmount(copper_coin, bronze);
-inv.setItem(inv, index++, copper_coin);
-//Fill second slot with silver
-silver_coin = item.custom.create("SILVER_COIN", 1, null, null);
-if(money < 4096) {
-	silver = math.roundDown(money / 64);
-} else {
-	silver = 64;
-}
-if(silver != 0) {
-	money -= silver * 64;
-	item.setAmount(silver_coin, silver);
-	inv.setItem(inv, index++, silver_coin);
-}
-//Fill from third slot with gold
-gold_coin = item.custom.create("GOLD_COIN", 64, null, null);
-while(money > 262144) {
-	money -= 262144;
-	inv.setItem(inv, index++, gold_coin);
-	if(index >= 26) {
-		if(money != 0) {
-			inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
-		}
-		inv.open(inv, player);
-		goto("wait");
+		msg.prefix(player, prefix_commands, "/mailbox show");
 	}
 }
-//Fill the rest money
-if(index == 26) {
-	if(money != 0) {
-		inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
-	}
-	inv.open(inv, player);
-	goto("wait");
-}
-//gold
-gold = 0;
-while(money >= 4096) {
-	gold++;
-	money -= 4096;
-}
-if(gold != 0) {
-	item.setAmount(gold_coin, gold);
-	inv.setItem(inv, index++, gold_coin);
-}
-if(index == 26) {
-	if(money != 0) {
-		inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
-	}
-	inv.open(inv, player);
-	goto("wait");
-}
-//silver
-silver = math.roundDown(money / 64);
-if(silver != 0) {
-	money -= silver * 64;
-	item.setAmount(silver_coin, silver);
-	inv.setItem(inv, index++, silver_coin);
-}
-if(index == 26) {
-	if(money != 0) {
-		inv.setItem(inv, 26, item.create("PAPER", 1, string.concat(string.number(money), " more snuvis"), null));
-	}
-	inv.open(inv, player);
-	goto("wait");
-}
-//copper
-item.setAmount(copper_coin, money);
-inv.setItem(inv, index++, copper_coin);
-inv.open(inv, player);
 goto("wait");
 
 @entities
@@ -1487,7 +1409,7 @@ for(i = 0; i < size; i++) {
 	element = list.getIndex(list, i);
 	if(isLiving(element)) {
 		living++;
-		entity_type = entity.getType(element); 
+		entity_type = entity.getType(element);
 		n = map.get(map, entity_type);
 		if(n == null) {
 			map.add(map, entity_type, 1);
@@ -1516,14 +1438,24 @@ goto("wait");
 @RickRole_play
 if(rickIndex < rick_sounds_amount) {
 	pitch = list.getIndex(RickRollSounds, rickIndex);
-	RickSound(pitch);
+	PlayVoteSound(pitch);
 	ticks = 2 + list.getIndex(RickRollSoundDists, rickIndex);
 	sgoto(ticks, "RickRole_play");
 }
 rickIndex++;
 goto("wait");
 
-function RickSound(pitch) {
+@bobbycar_play
+if(bobbycarIndex < rick_sounds_amount) {
+	pitch = list.getIndex(bobbyCarSounds, bobbycarIndex);
+	PlayVoteSound(pitch);
+	ticks = list.getIndex(bobbyCarSoundDists, bobbycarIndex);
+	sgoto(ticks, "bobbycar_play");
+}
+bobbycarIndex++;
+goto("wait");
+
+function PlayVoteSound(pitch) {
 	iter = iterator(players.toList());
 	while(hasNext(iter)) {
 		online_player = next(iter);
@@ -2107,31 +2039,35 @@ goto("wait");
 @user
 if(size == 0) {
 	@user_help
-	msg.prefix(player, prefix_commands, "/user ...");
+	msg.prefix(sender, prefix_commands, "/user ...");
 	if(perm.has("user.other", player)) {
-		msg.string(player, "§6 - info [player] §rReturns info about a user");
+		msg.string(sender, "§6 - info [player] §rReturns info about a user");
 	} else {
-		msg.string(player, "§6 - info §rReturns info about you");
+		msg.string(sender, "§6 - info §rReturns info about you");
 	}
 	if(perm.has("user.money", player)) {
-		msg.string(player, "§6 - addmoney <player> <money> §rAdds money to a player");
-		msg.string(player, "§6 - setmoney <player> <money> §rSets the money of a player");
+		msg.string(sender, "§6 - addmoney <player> <money> §rAdds money to a player");
+		msg.string(sender, "§6 - setmoney <player> <money> §rSets the money of a player");
 	}
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "info") {
 	if(size < 2) {
+		if(!isPlayer(sender)) {
+			msg.prefix(sender, prefix_commands, "/user info <player>");
+			goto("wait");
+		}
 		p_name = player.getName(player);
 		p_uuid = player.getUuid(p_name);
 	} else {
-		if(!perm.has("user.other", player)) {
-			perm.no("user.other", player);
+		if(!perm.has("user.other", sender)) {
+			perm.no("user.other", sender);
 			goto("wait");
 		}
 		p_name = list.getIndex(args, 1);
 		if(!checkIfEverOnline(p_name)) {
-			msg.prefix(player, prefix_commands, "This player has never been online.");
+			msg.prefix(sender, prefix_commands, "This player has never been online.");
 			goto("wait");
 		}
 		p_uuid = player.getUuid(p_name);
@@ -2145,71 +2081,74 @@ if(arg0 == "info") {
 		p_or_id = p;
 	}
 	table = table.new("§8", 7, 24);
-	msg.string(player, table.getStart(table));
-	msg.string(player, table.get(table, "Player", p_name));
-	msg.string(player, table.getMiddle(table));
-	msg.string(player, table.get(table, "Playtime", string.number(math.roundDown(player.getTotalPlaytime(p_or_id) / 60))));
-	msg.string(player, table.get(table, "Joins", string.number(player.getJoins(p_or_id))));
-	msg.string(player, table.get(table, "First Join", getDateString(player.getFirstJoin(p_or_id))));
-	msg.string(player, table.get(table, "Last Join", getDateString(player.getLastJoin(p_or_id))));
-	msg.string(player, table.get(table, "UUID", p_uuid));
-	msg.string(player, table.get(table, "ID", string.number(p_id)));
-	msg.string(player, table.get(table, "Rank", getRank(p_or_id)));
-	msg.string(player, table.get(table, "PvP", hasPvpOn(p_or_id)));
-	msg.string(player, table.get(table, "Quests", string.number(quest.getCounter(p_or_id))));
-	msg.string(player, table.get(table, "Money", string.number(getMoney(p_or_id))));
-	msg.string(player, table.get(table, "Adventures", string.number(player.getAdventureAmounts(p_or_id))));
-	msg.string(player, table.getEnd(table));
+	msg.string(sender, table.getStart(table));
+	msg.string(sender, table.get(table, "Player", p_name));
+	msg.string(sender, table.getMiddle(table));
+	msg.string(sender, table.get(table, "Playtime", string.number(math.roundDown(player.getTotalPlaytime(p_or_id) / 60))));
+	msg.string(sender, table.get(table, "Joins", string.number(player.getJoins(p_or_id))));
+	msg.string(sender, table.get(table, "First Join", getDateString(player.getFirstJoin(p_or_id))));
+	msg.string(sender, table.get(table, "Last Join", getDateString(player.getLastJoin(p_or_id))));
+	if(perm.has("user.other", sender)) {
+		msg.string(sender, table.get(table, "UUID", p_uuid));
+		msg.string(sender, table.get(table, "ID", string.number(p_id)));
+		msg.string(sender, table.get(table, "IP", player.getLoggedIp(p_or_id)));
+	}
+	msg.string(sender, table.get(table, "Rank", getRank(p_or_id)));
+	msg.string(sender, table.get(table, "PvP", hasPvpOn(p_or_id)));
+	msg.string(sender, table.get(table, "Quests", string.number(quest.getCounter(p_or_id))));
+	msg.string(sender, table.get(table, "Money", string.number(getMoney(p_or_id))));
+	msg.string(sender, table.get(table, "Adventures", string.number(player.getAdventureAmounts(p_or_id))));
+	msg.string(sender, table.getEnd(table));
 	goto("wait");
 }
 if(arg0 == "addmoney") {
-	if(!perm.has("user.money", player)) {
-		perm.no("user.money", player);
+	if(!perm.has("user.money", sender)) {
+		perm.no("user.money", sender);
 		goto("wait");
 	}
 	if(size != 3) {
-		msg.prefix(player, prefix_commands, "/user addmoney <player> <money>");
+		msg.prefix(sender, prefix_commands, "/user addmoney <player> <money>");
 		goto("wait");
 	}
 	p_name = list.getIndex(args, 1);
 	if(!checkIfEverOnline(p_name)) {
-		msg.prefix(player, prefix_commands, "This player has never been online.");
+		msg.prefix(sender, prefix_commands, "This player has never been online.");
 		goto("wait");
 	}
 	money = list.getIndex(args, 2);
 	if(!isDouble(money)) {
-		msg.prefix(player, prefix_commands, "Number expected.");
+		msg.prefix(sender, prefix_commands, "Number expected.");
 		goto("wait");
 	}
 	p_uuid = player.getUuid(p_name);
 	p_id = player.getId(p_uuid);
 	addMoney(p_id, money);
-	msg.prefix(player, prefix_commands, string.concat("Added ", string.number(money), " snuvis to ", player.getName(p_uuid), "."));
+	msg.prefix(sender, prefix_commands, string.concat("Added ", string.number(money), " snuvis to ", player.getName(p_uuid), "."));
 	goto("wait");
 }
 if(arg0 == "setmoney") {
-	if(!perm.has("user.money", player)) {
-		perm.no("user.money", player);
+	if(!perm.has("user.money", sender)) {
+		perm.no("user.money", sender);
 		goto("wait");
 	}
 	if(size != 3) {
-		msg.prefix(player, prefix_commands, "/user setmoney <player> <money>");
+		msg.prefix(sender, prefix_commands, "/user setmoney <player> <money>");
 		goto("wait");
 	}
 	p_name = list.getIndex(args, 1);
 	if(!checkIfEverOnline(p_name)) {
-		msg.prefix(player, prefix_commands, "This player has never been online.");
+		msg.prefix(sender, prefix_commands, "This player has never been online.");
 		goto("wait");
 	}
 	money = list.getIndex(args, 2);
 	if(!isDouble(money)) {
-		msg.prefix(player, prefix_commands, "Number expected.");
+		msg.prefix(sender, prefix_commands, "Number expected.");
 		goto("wait");
 	}
 	p_uuid = player.getUuid(p_name);
 	p_id = player.getId(p_uuid);
 	setMoney(p_id, money);
-	msg.prefix(player, prefix_commands, string.concat("Set ", string.number(money), " snuvis for ", player.getName(p_uuid), "."));
+	msg.prefix(sender, prefix_commands, string.concat("Set ", string.number(money), " snuvis for ", player.getName(p_uuid), "."));
 	goto("wait");
 }
 goto("user_help");
@@ -2499,6 +2438,7 @@ goto("wait");
 player_loc = entity.getLocation(player);
 world_name = world.getName(loc.getWorld(player_loc));
 if(!world.isSurvName(world_name)) {
+	msg.prefix(player, prefix_commands, "Not possible in this world.");
 	goto("wait");
 }
 world_time = world.getTime(world.getOverWorld());
@@ -2526,8 +2466,8 @@ if(size == 0) {
 	p = player;
 }
 if(size == 1) {
-	if(!perm.has("teleport.other", player)) {
-		perm.no("teleport.other", player);
+	if(!perm.has("tp.other", player)) {
+		perm.no("tp.other", player);
 		goto("wait");
 	}
 	p_name = list.getIndex(args, 0);
@@ -2687,8 +2627,7 @@ iter = iterator(list);
 if(title_a == null) {
 	while(hasNext(iter)) {
 	p = next(iter);
-		//sb.setTitle(p, text.new("minecraft.hammerle.me"));
-		sb.setTitle(p, text.new("§c§k# §6minecraft§0.§6hammerle§0.§6me §c§k#"));
+		sb.setTitle(p, text.new("§c§k# §6minecraft§c.§6hammerle§c.§6me §c§k#"));
 		title_a = true;
 	}
 } else {
@@ -2712,6 +2651,21 @@ for(i = 0; i < size; i++) {
 	}
 }
 sgoto(10, "coordsloop");
+goto("wait");
+
+@customitems
+inv = inv.new("222222222222222222222222222222222222222222222222222222", text.new("Customitems"));
+a = item.custom.getAll();
+for(i = 0; i < array.getSize(a); i++) {
+	item = item.custom.new(a[i]);
+	item.setAmount(item, item.getMaxAmount(item));
+	inv.setItem(inv, i, item);
+	if(i > 53) {
+		snuvi.debug("More customitems than can be shown in one inv");
+		break;
+	}
+}
+inv.open(inv, player);
 goto("wait");
 
 @afk_loop
@@ -2802,6 +2756,331 @@ while(hasNext(iter)) {
 sgoto(1200, "afk_checker_loop");
 goto("wait");
 
+@armorstand
+if(size == 0) {
+	@armorstand_syntax
+	msg.prefix(player, prefix_datatools, "/armorstand ...");
+	msg.string(player, "§6 - name <name> §rSets the name");
+	msg.string(player, "§6 - visible <true/false> §rSets if is visible");
+	msg.string(player, "§6 - arms <true/false> §rSets if has arms");
+	msg.string(player, "§6 - small <true/false> §rSets if is small");
+	msg.string(player, "§6 - baseplate <true/false> §rSets if has baseplate");
+	msg.string(player, "§6 - marker <true/false> §rSets if is marker");
+	msg.string(player, "§6 - move <true/false> §rSets if can move");
+	msg.string(player, "§6 - tick <true/false> §rSets if can tick");
+	msg.string(player, "§6 - setpose <bodypart> <x> <y> <z> §rSets the pose");
+	msg.string(player, "§6 - addpose <bodypart> <x> <y> <z> §rSets the pose");
+	goto("wait");
+}
+as = player.getTargetEntity(player, 5);
+if(!entity.isArmorstand(entity)) {
+	location = entity.getLocation(player);
+	as = entity.get(location, 3, "org.bukkit.entity.ArmorStand");
+	if(as == null) {
+		msg.action(player, "No armorstand found.");
+	}
+}
+arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "name") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand name <name>");
+		goto("wait");
+	}
+	name = string.concatList(args, " ", 1, size - 1);
+	name = string.replace(name, "&", "§");
+	entity.setName(as, text.new(name), true);
+	msg.action(player, string.concat("Armorstand renamed to ", name, "§r."));
+	goto("wait");
+}
+if(arg0 == "visible") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand visible <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	living.setInvisible(as, !bool);
+	msg.action(player, "Visibility set.");
+	goto("wait");
+}
+if(arg0 == "arms") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand arms <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	as.setArms(as, bool);
+	msg.action(player, "Arms set.");
+	goto("wait");
+}
+if(arg0 == "small") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand small <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	as.setSmall(as, bool);
+	msg.action(player, "Small set.");
+	goto("wait");
+}
+if(arg0 == "baseplate") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand baseplate <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	as.setBasePlate(as, bool);
+	msg.action(player, "Baseplate set.");
+	goto("wait");
+}
+if(arg0 == "marker") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand marker <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	as.setMarker(as, bool);
+	msg.action(player, "Marker set.");
+	goto("wait");
+}
+if(arg0 == "move") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand move <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	as.canMove(as, bool);
+	msg.action(player, "Move set.");
+	goto("wait");
+}
+if(arg0 == "tick") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/armorstand tick <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	as.canTick(as, bool);
+	msg.action(player, "Tick set.");
+	goto("wait");
+}
+if(arg0 == "setpose") {
+	if(size < 5) {
+		msg.prefix(player, prefix_datatools, "/armorstand setpose <bodypart> <x> <y> <z>");
+		goto("wait");
+	}
+	x = list.getIndex(args, 2);
+	if(!isDouble(x) || x < -360  || x > 360) {
+		msg.action(player, "Number between -360 and 360 expected.");
+		goto("wait");
+	}
+	x *= math.pi() / 180;
+	y = list.getIndex(args, 3);
+	if(!isDouble(y) || y < -360 || y > 360) {
+		msg.action(player, "Number between -360 and 360 expected.");
+		goto("wait");
+	}
+	y *= math.pi() / 180;
+	z = list.getIndex(args, 4);
+	if(!isDouble(z) || z < -360 || z > 360) {
+		player.action(player, "Number between -360 and 360 expected.");
+		goto("wait");
+	}
+	z *= math.pi() / 180;
+	euler_angle = euler.new(x, y, z);
+	bodypart = list.getIndex(args, 1);
+	if(bodypart == "head") {
+		as.setHeadPose(as, euler_angle);
+	} elseif(bodypart == "body") {
+		as.setBodyPose(as, euler_angle);
+	} elseif(bodypart == "leftleg") {
+		as.setLeftLegPose(as, euler_angle);
+	} elseif(bodypart == "rightleg") {
+		as.setRightLegPose(as, euler_angle);
+	} elseif(bodypart == "leftarm") {
+		as.setLeftArmPose(as, euler_angle);
+	} elseif(bodypart == "rightarm") {
+		as.setRightArmPose(as, euler_angle);
+	} else {
+		msg.action(player, "Not a legit bodypart.");
+		goto("wait");
+	}
+	msg.action(player, "Pose set.");
+	goto("wait");
+}
+if(arg0 == "addpose") {
+	if(size < 5) {
+		msg.prefix(player, prefix_datatools, "/armorstand addpose <bodypart> <x> <y> <z>");
+		goto("wait");
+	}
+	x = list.getIndex(args, 2);
+	if(!isDouble(x) || x < -360  || x > 360) {
+		msg.action(player, "Number between -360 and 360 expected.");
+		goto("wait");
+	}
+	x *= math.pi() / 180;
+	y = list.getIndex(args, 3);
+	if(!isDouble(y) || y < -360 || y > 360) {
+		msg.action(player, "Number between -360 and 360 expected.");
+		goto("wait");
+	}
+	y *= math.pi() / 180;
+	z = list.getIndex(args, 4);
+	if(!isDouble(z) || z < -360 || z > 360) {
+		msg.action(player, "Number between -360 and 360 expected.");
+		goto("wait");
+	}
+	z *= math.pi() / 180;
+	bodypart = list.getIndex(args, 1);
+	if(bodypart == "head") {
+		euler_angle = as.getHeadPose(as);
+		euler_angle = euler.setX(euler_angle, euler.getX(euler_angle) + x);
+		euler_angle = euler.setY(euler_angle, euler.getY(euler_angle) + y);
+		euler_angle = euler.setZ(euler_angle, euler.getZ(euler_angle) + z);
+		as.setHeadPose(as, euler_angle);
+	} elseif(bodypart == "body") {
+		euler_angle = as.getBodyPose(as);
+		euler_angle = euler.setX(euler_angle, euler.getX(euler_angle) + x);
+		euler_angle = euler.setY(euler_angle, euler.getY(euler_angle) + y);
+		euler_angle = euler.setZ(euler_angle, euler.getZ(euler_angle) + z);
+		as.setBodyPose(as, euler_angle);
+	} elseif(bodypart == "leftleg") {
+		euler_angle = as.getLeftLegPose(as);
+		euler_angle = euler.setX(euler_angle, euler.getX(euler_angle) + x);
+		euler_angle = euler.setY(euler_angle, euler.getY(euler_angle) + y);
+		euler_angle = euler.setZ(euler_angle, euler.getZ(euler_angle) + z);
+		as.setLeftLegPose(as, euler_angle);
+	} elseif(bodypart == "rightleg") {
+		euler_angle = as.getRightLegPose(as);
+		euler_angle = euler.setX(euler_angle, euler.getX(euler_angle) + x);
+		euler_angle = euler.setY(euler_angle, euler.getY(euler_angle) + y);
+		euler_angle = euler.setZ(euler_angle, euler.getZ(euler_angle) + z);
+		as.setRightLegPose(as, euler_angle);
+	} elseif(bodypart == "leftarm") {
+		euler_angle = as.getLeftArmPose(as);
+		euler_angle = euler.setX(euler_angle, euler.getX(euler_angle) + x);
+		euler_angle = euler.setY(euler_angle, euler.getY(euler_angle) + y);
+		euler_angle = euler.setZ(euler_angle, euler.getZ(euler_angle) + z);
+		as.setLeftArmPose(as, euler_angle);
+	} elseif(bodypart == "rightarm") {
+		euler_angle = as.getRightArmPose(as);
+		euler_angle = euler.setX(euler_angle, euler.getX(euler_angle) + x);
+		euler_angle = euler.setY(euler_angle, euler.getY(euler_angle) + y);
+		euler_angle = euler.setZ(euler_angle, euler.getZ(euler_angle) + z);
+		as.setRightArmPose(as, euler_angle);
+	} else {
+		msg.action(player, "Not a legit bodypart.");
+		goto("wait");
+	}
+	msg.action(player, "Pose set.");
+	goto("wait");
+}
+goto("armorstand_syntax");
+
+@ass
+if(size == 0) {
+	msg.prefix(player, prefix_commands, "§r/ass ...");
+	msg.string(player, " - set <name>");
+	msg.string(player, " - name <name>");
+	msg.string(player, " - remove");
+	goto("wait");
+}
+arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "set") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/ass set <name>");
+		goto("wait");
+	}
+	name = string.concatList(args, " ", 1, size - 1);
+	name = string.replace(name, "&", "§");
+	as = entity.spawn(entity.getLocation(player), "ARMOR_STAND");
+	entity.setGravity(as, false);
+	entity.setName(as, text.new(name), true);
+	living.setInvisible(as, true);
+	as.setMarker(as, true);
+	as.canTick(as, false);
+	goto("wait");
+}
+as = player.getTargetEntity(player, 5);
+if(!entity.isArmorstand(entity)) {
+	location = entity.getLocation(player);
+	as = entity.get(location, 3, "org.bukkit.entity.ArmorStand");
+	if(as == null) {
+		msg.action(player, "No armorstand found.");
+	}
+}
+if(arg0 == "name") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/ass name <name>");
+		goto("wait");
+	}
+	name = string.concatList(args, " ", 1, size - 1);
+	name = string.replace(name, "&", "§");
+	entity.setName(as, text.new(name), true);
+	msg.action(player, "Armorstand renamed.");
+	goto("wait");
+}
+if(arg0 == "remove") {
+	entity.remove(as);
+	msg.action(player, "Armorstand removed.");
+	goto("wait");
+}
+goto("wait");
+
+@potion
+if(size != 3) {
+	msg.prefix(player, prefix_perms, "/potion <potion_name> <duration> <power>");
+	goto("wait");
+}
+item = living.getHand(player);
+if(item.getType(item) == null || !(item.isType(item, "POTION") || item.isType(item, "SPLASH_POTION") || item.isType(item, "LINGERING_POTION"))) {
+	msg.prefix(player, prefix_commands, "You need to hold an potion in your hand.");
+	goto("wait");
+}
+potion_name = list.getIndex(args, 0);
+list = getPotionTypes();
+if(!list.contains(list, potion_name)) {
+	msg.prefix(player, prefix_commands, "Not an potion effect type.");
+	goto("wait");
+}
+duration = list.getIndex(args, 1);
+if(!isDouble(duration) || duration < 0) {
+	msg.prefix(player, prefix_commands, "Positive number expected.");
+	goto("wait");
+}
+power = list.getIndex(args, 2);
+if(!isDouble(power) || power < 0) {
+	msg.prefix(player, prefix_commands, "Positive number expected.");
+	goto("wait");
+}
+item.addPotion(item, potion_name, duration, power);
+goto("wait");
 
 @pvp
 if(size == 0) {
@@ -3359,6 +3638,10 @@ if(arg0 == "list") {
 	goto("wait");
 }
 if(arg0 == "add") {
+	if(!perm.has("tip.mod", player)) {
+		perm.no("tip.mod", player);
+		goto("wait");
+	}
 	if(size < 3) {
 		msg.prefix(player, prefix_commands, "/tip add <name> <text>");
 		goto("wait");
@@ -3371,6 +3654,10 @@ if(arg0 == "add") {
 	goto("wait");
 }
 if(arg0 == "loop") {
+	if(!perm.has("tip.mod", player)) {
+		perm.no("tip.mod", player);
+		goto("wait");
+	}
 	if(size != 3) {
 		msg.prefix(player, prefix_commands, "/tip loop <tip> <boolean>");
 		goto("wait");
@@ -3395,6 +3682,10 @@ if(arg0 == "loop") {
 	goto("wait");
 }
 if(arg0 == "remove") {
+	if(!perm.has("tip.mod", player)) {
+		perm.no("tip.mod", player);
+		goto("wait");
+	}
 	if(size != 2) {
 		msg.prefix(player, prefix_commands, "/tip remove <name>");
 		goto("wait");
@@ -3551,7 +3842,7 @@ if(arg0 == "ai") {
 	script.startNamed("Ai", "system/ai", "utils/u_general");
 }
 elseif(arg0 == "commands") {
-	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_skills");
+	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_cmdhelp", "utils/u_skills");
 	if(script == null) {
 		snuvi.debug("Old commands script still active due to error in new script");
 		goto("wait");
@@ -3699,11 +3990,11 @@ elseif(arg0 == "scheduler") {
 	script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
 }
 elseif(arg0 == "shop") {
-	script = script.get("Shops");
+	script = script.get("ChestShops");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Shops", "utils/u_error", "system/chestshops", "utils/u_general");
+	script.startNamed("ChestShops", "utils/u_error", "system/chestshops", "utils/u_general");
 }
 elseif(arg0 == "mails") {
 	script = script.get("Mails");
@@ -3848,8 +4139,8 @@ if(size == 1) {
 		msg.prefix(player, prefix_commands, "This player is not online.");
 		goto("wait");
 	}
-	if(!perm.has("teleport.other", player)) {
-		perm.no("teleport.other", player);
+	if(!perm.has("tp.other", player)) {
+		perm.no("tp.other", player);
 		goto("wait");
 	}
 }
@@ -3891,8 +4182,8 @@ if(size == 1) {
 		msg.prefix(player, prefix_commands, "This player is not online.");
 		goto("wait");
 	}
-	if(!perm.has("teleport.other", player)) {
-		perm.no("teleport.other", player);
+	if(!perm.has("tp.other", player)) {
+		perm.no("tp.other", player);
 		goto("wait");
 	}
 }
@@ -4285,7 +4576,6 @@ if(arg0 == "entity-name") {
 	entity = list.getIndex(templist, 0);
 	name = string.concatList(args, " ", 1, size - 1);
 	name = string.replace(name, "&", "§");
-	name = string.replace(name, "\\n", "\n");
 	entity.setName(entity, text.new(name), true);
 	msg.prefix(player, prefix_datatools, string.concat("Entity renamed to ", name, "§r."));
 	goto("wait");
@@ -4432,6 +4722,16 @@ elseif(arg0 == "skin") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwNDQ5MjYyMzQxOCwKICAicHJvZmlsZUlkIiA6ICJlNzkzYjJjYTdhMmY0MTI2YTA5ODA5MmQ3Yzk5NDE3YiIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVfSG9zdGVyX01hbiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS85ODI1ZTk3NTZjM2VhNjZjOGNjZmEyZmU4MDU4MzRmNGZhMDVhMGY0ODc0NTY3NTljMzY0MjcwODkwNTE0NzZlIgogICAgfQogIH0KfQ==", "RLLeCZVT2zj4DhvrVl4fTVy4BdjyK02tTX5u3PT0gNcbluSRDNUjwG+G/HttDVtPpyQuVOq/8aAFT/xdu+BZaiI3q3830BWqVe+CbSJuHorHPbPskJRV8+L+Ra6rJLA9LJQh5li5EZCwiAwqBSQwqycIU7032xjtoPjfOXio0gAnqKLffTEc2irDq4KzZGH9WZjYJrEfS9eCkQ1780jl96oEordJT940G/mgiB+XZdg1RQs+YuDprGvX1ILVZluoN+SFWji9l3aPmktwGoP9K5NDJr1Yjqqtr0QcXUvB3bqs4EDeYe7+NXCtE4eW1bupr22dKO9EERyrL4oOm8K1lgmFRupeSH66R0Ny5Io8NrscZSSH1XZncnj6SZfYskJWRNN//F9BxM86hL0MEPtloAB9o0oJWLyoaXszMb1iJC9RKbvK3c2nAdyjWtcWijRA5muEZszzOX5XngHlFPAYWDI33EuTvqbth3GqZ7kid24Zly6TQbSCrd30EiNTeXYTJ1T5Fx1GRIzEYW+60qf3f2e59SlcBf4D7eA4btIaCAvfx2bKxbZQsdsHKDphpxsr7nizA8iRroo37nBiJ97gYUF2GsL03bLuge4cFLROpb4oaKGyldPZ4cHq33b8sbFs0eQUiS9selDsyx8G8MrvKfhYACpjyBv+ZLlWa+QMF4s=");
 		} elseif(name == "mage") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYyMTY3NjM0NTk3MSwKICAicHJvZmlsZUlkIiA6ICJmMjc0YzRkNjI1MDQ0ZTQxOGVmYmYwNmM3NWIyMDIxMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJIeXBpZ3NlbCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9hNjc1ZTBjNTQyZDZiMWY4NWI3ZWMzYjJiYmFiNjZhYmVmZTAwNThlZTM1NDAzZWFkNjJjZjUyYjI4OGM2MThiIgogICAgfQogIH0KfQ==", "W/I2zmrU27t5g7RNrKWQqE6eg7qfabfkM0pWMM4fXHs06KZG+TsgpH7dJ8OovuM0qsf9ylgqhngSlZM0FxMLI5GOEfiKSn1es8e4iN0GfhYohNQJJdZxp8GSGD4wgjFZP2Y86uQ/ukyWvWVjftQgkZQXrPmbh3f4IWUyY2haHUoKzbdwrkGZ9WE2zEO+UrTBzD2ncArfbnCTYm3wT2zIkJGag8IHozMCkZuCkr2tHu8i5Fs45ApvuF7swa/3ZNl33RRIxv4Q8BsKVQU/PmMe56nTYDvETInv3mVkZt5CP7MJhkvuzMS/WsKSRsHRk57vX9JRU8jRjgif32XUamYRyo1nslvwCMlKDaPOK6Hqo+WbQiHlniSPgOfVSmp2cUdbUpl+Pcw9wcTpod4BPnZUxh4FoXz3W2GpY1hHh36ncqT+0tEDVVnsR3A6f0QwekYwGAY1bTq8rRsoC6/ujzNy27ttvlyfNUSSLerWN4cTvfqtwqaybKbmkH7psnfUHHQYPWAdOIDMnxfJWQnmunkPfstbaXh2VnqyykT60q28MmMkLwMfnULUdpS28cX1zBpjItxxnEPN5N537RweDnXogDuodyOgBB6flJ/7KG2EXD9HGioz1GwOp6zKuvhkX6+L2YsFEwdMwZXCSSmqYeiptRHaAWF4RLJlBI1uiE7kDp8=");
+		} elseif(name == "banker") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU5NzMyNzk4Njk0MCwKICAicHJvZmlsZUlkIiA6ICI5MThhMDI5NTU5ZGQ0Y2U2YjE2ZjdhNWQ1M2VmYjQxMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJCZWV2ZWxvcGVyIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2RlODk0Zjk5NGVlYjQyMjU0OWE2NTE2YjYyODg1MGQ4MmY3OTJhZmNkNzVlY2U1YmQzYmQ3ZGE4M2M1YzkyMjYiCiAgICB9CiAgfQp9", "WhygM8rofUCUv4GVMrSl7tGxMUx/jczsz7lixaGhZbDJtEzKTAQFY25TZBjMvxpFqLvwOfbEWDRn1wOjof5dt7CwYcwnBfrksHj1lkpp7oh8omUbdnA0TDZFLdSAvmvtViRFaH+neH08jFfl+XLx5BnfY/6XimxKwxPKBZnvAc1DlpubiBgHXmPKYigRFAKCPgHCf9cDRm6jDNyZTYgPUJElBN5TIHREponJhE4pMDm8qOkidiUsrfqjHYZvl767sLA1QA3HPHZKtvug6xSve9X/2n6Fr3dvhNUI0dqj4EtbJkSPD7uCUgIvtx5nN1iQXjXWgEEVZ0JnA1KMCfjfjQRx2nEOqe9OVwADvIIbE+Asc0qw+Zas1Ys+AP5rBH5qT8Lmh5Wi2Bn0yj6zEk/iluTbkmnzMVdICnBKVUF4wdLY/5vvxe1+abZM2xVQ5eoPoyyEsD1wYc9c4Uticpe3A+jy8p8+a7FfAPVILfV6MOhkQ0S5FCpEIj0DbSbBoNnDBODmTYpBKrouYNI/IZPnwBsKluy0zAgTJ5lMM7bptda1BQaJKpA2kSkCTvADQ72kwFoBlfhOluwvfvgTBgI8rnVNAfSu2sEIC6BhdaOG9iqocKRYL474zbYMPWW1Z7fF3jrsEWWTa3+swN+8K89XeLv/jHUqwfx+3Gb5YG8ZGX0=");
+		} elseif(name == "lumberjack") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYxNzE4MjYwMDgxMSwKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yNDlkNmMxMjk2NmYzYmM5NjA1MGM3MDgwYWNiY2JmNWI4MmZlN2JmNzA0MzdiZTU2NzJhZjk1ZmVhOTA1ZWJlIgogICAgfQogIH0KfQ==", "ChHGtuNconaz4zViNV1NAcq5xlpyaQ9aiiXVj5h55yE9LOtSCIjLmq/xIDZIlAdno8kg6mXQ1RYF6E1yJ3rpCWh0KocHQT/WQHcr9v3I8k70+XGyF+Ad0U0cIww954PM5gznSeWD4XrDQxaKf9IgsCNTl9tI46NvaMUxW/2L4/VR46lU00cowlgS7u3JNWueIsKrMjgfj5pt7YVqiE8DZ3DHlc7VCpdZk6Ku1HIGDLoPziawtgrJUVppFumAPpfSxwz4Gr2OnnH1nd2aS1E7oYtU7+dw8BzDMjNRNiyQm3o1SYcVTyUf9/0TVeYfD0KqvFhF/9Yf2c8hQBB4qQ8VmEH1wlLrAjNsBVE92UwZ6D7lI0MZs3F8WwbQh+d/jKtJxcZi+GzAPTIt8A+pVNee+/mAM3VDg/6tJtK2jQtgYZYRa/RyTumAAxb9OxsxDg/j2Li0DNGFHue1oEAySmKwQg+wOWT9kujDLGMje6bYLqO2+S3wGAyskcVp3snt5LihYDNsXVtp7ZkD6Awgs6YptmTa23o2+XvB8vO64QqmMuBX/KyPJtv6T0ZxR4KTFKeCXe21Za0boEdolMVYRHjXsCZJ8m/zqIu8/3r1ALuSpbVApMv7PoGtfGaXWtSkHKu8LjY+btgfnooeLyjaLHn6ltJzTdEoooUzsj7JqKK19no=");
+		} elseif(name == "butcher") {
+			human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1ODU0MDAxOTU0MjgsInByb2ZpbGVJZCI6ImRkZWQ1NmUxZWY4YjQwZmU4YWQxNjI5MjBmN2FlY2RhIiwicHJvZmlsZU5hbWUiOiJEaXNjb3JkQXBwIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS81Y2Y2Y2JlMTQwMjRhMTZmODUzYjM3OTI1YmE2YjRiYzgzMmExNDNkNDA2ZTIxZDI0YWUyZTg2YjE3ZDdiZWYzIn19fQ==", "ncAbe8Nd7cEQChMUnr26eeyG4+wb/Nr0edoBZkGdQFJcqTTCLykb+f/rcjHnIrQufsBLGnhCMlM30iUtmscTSVty/HZOvz3edKUQAwidQCsYJfLalkz+HyexPLljce8HzZuKPAY24foweGpuStV1M2OS66Y0x9D64875x8IDkIbdf7UUJRPhnqDf46ar9O/Zj9sX3kRjsIgiU24s/EyBInttYkGu7ha7WifVpd64nNUbQxGtMOOif/0KP0dTgZEVLfPDkkUJw5KilL6lQc6nh+uio4U1iua4Iy5oVvDRrKXMQfyYnulT21zpbVBpa3AHCJ2bSNScbfA4CMQ7Q4dEbiwCNgzZLUH/hyKS8FZGQ0fGtxXicCjWcALyO5SgdDpMbLC8bI08eV0krtTbEeWBz6tw/CnE7rPsLq+JHGmYe1H9ryXYmNMvO75A8IfK1xtv21sTzh6Zjbhy7HtSkFMTxvq0JxI4cEfyniXCQjSuiQ3Tk7poR5b1H5cd2sJTq4iWaSWljPu8DGt9Z8b7QQRP/5yO5HOdUpmLql111sWqT8wY9w5DfEdNUG20ljSCLbJhY62wowRYhCtrDM4sr7k9pwIcEeWR7Hw2q07YnN3tFj/cPhZ7xAxiciwSkKIZpxBPtovJwObG+OxbnHLOgUMFXUaNnwKlnob8uGncZM+lsoQ=");
+		} elseif(name == "librarian") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwNDUzNTM2MTcxMywKICAicHJvZmlsZUlkIiA6ICJjNTBhZmE4YWJlYjk0ZTQ1OTRiZjFiNDI1YTk4MGYwMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJUd29FQmFlIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2Q1ODA2MWRhMGVjMjk0MTcyNGZhNWVhOTMwMDBhYmQzMWMzZDhmOWM0MTZkOWI0MmJkYTRkODEwZGZiNmZjNGQiCiAgICB9CiAgfQp9", "jLahDHyLmgUsNIWuIG53/xh71HcEPWVTA6tNH+cBFy02GZIbtwZHMKaVmOf6BIt/V+gvZlPyspcEpgDxlRmBrv55dahoHBw3UwfD4B3L9rmaSchazltaRYzH4e2AZcs/NJ5VOwI0+uBu6MPqqjg/3uv4dZ/GZ8zG0wcbNr990EIlTa6Nz6tG/x4XTQNBvQjlDoacxe9uqfiunhckTQmuVbS+aHzmvQY86pU7kDs1+ZZsjSj4Q1iTHj5qTOjSTltB7DKBWaBlcWc8/GfT2T8nWjyvgC6cHoS8z1XbsiHRpsOEppqQfi1sgZV3LzbJxNVrokQQKtZTHIreS+HVsGkmM+4giBRxsqvJE3sXw2xKTtwW3W74/K+sCJkAHJSdZ/v//n6TInqVhYVRzKXVz62qMNYpZo2LWt0jCTfIcfK8Z4o1sp/+6ec4s5Z2WC6F7Qk4WClQWhRzBsHT3UyXMoodLdP6G/WN2G6ENGdUViplM+IAMQL16FbIvjLZXICbjL1CIbnwn+4e0eO4EbVIuUxex7wGziWLx4EdXilZkrDNOZv6pU4qkflBjG6hxP+6OvhSQYQzJ6GTEorScFDdyGnEE5NxPXFjbBC1368yh8ukSvw4znfVnNV3UrwnuFMASc8FHw4WWwJqZ8xibwbq2TQnvpsuuZC/bRgXruM+QBm84MY=");
+		} elseif(name == "dark_mage") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYxMzg4NDI0MjQxMCwKICAicHJvZmlsZUlkIiA6ICJkNGY1ZGQ2YzVhYjE0NTNlYmJiNTg2ZTU2NzVkMDUyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICIwMDAwMDAwMDAwMDAwMDBQIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2M2NmQ3N2ExZTlkMDk0ZDI4MThkYjI1YTViMmQ1ZWIzZWYwOGQ4NTBhOGUxNGNiZWE5MjZlMDNhYTI1MTFiNjgiCiAgICB9CiAgfQp9", "nwOMBhB4wmZq0aQXOe38+ekT716r1YSIMVs60F/OrrNQa+vIWlDPSRZFeTjIkAQr5d1pYl7YlVmiXxgIzJGLcZC5LyvihVgEwseAU8CZdTXSfQBu7OJjC/qrhGZnfDuw0fliSBx6S/hFaOjNWsMTbuESqNRbYUzSx0BjuGDeicrbXHme9tsI2/wTfERLuWnXoeruKyHKNy+j7cQ+/76Bpk1KoQmt2pqxv+o7KGYP7EFl1FpsPDZY5/nWT37r2KrFj0e6+kPy1w4nth80dgBN0da8KceW/ykoHXIDkgVr0xZu3eXpI0bl9LT3rROf1/W1YAiA5gABLU22sZTuBBZYMAbUVuXiwUBlbF2T5mEBNKHQF/1wO+q7oNR9mojVgBggBE4aqMrgNWpx5Vdc1cEmlPVmgt/27w880uPuWW51Ri2JCOdLg28ZY0RqLAIHL28j6rqoum3HLDTWLpEZ+9iAMNJ1toJgN34Ni5C2hSzo7SCLn5I4K5Z/jKfvFJKhF1mkt4yc/Rezl+T9z4FT9qTLfvSFTwsAbQRefnCTqYkiDs7I8WFdL1wymjkqgK75oOE3VWb7fASqpHBMpX9hz09nemx7x4lsHxquj0mctidNhDcrIMiCe0BMqbEoDCgil7iUaiMtGqz8U6KBaWR457XIABL8xThhOw0unNknoau7q0k=");
 		} else {
 		    msg.prefix(player, prefix_human, "Not supported name.");
 		}
@@ -4532,69 +4832,26 @@ if(size == 1) {
 } else {
 	msg.string(sender, string.concat("§6There are ", string.number(size), " players online."));
 }
+table = table.new("§f", 16, 16);
+msg.string(sender, table.getStart(table));
 for(i = 0; i < size; i++) {
-	p = list.getIndex(list, i);
+	p = list.getIndex(list, i++);
 	full_name = player.getFullName(p);
 	if(player.isAfk(p)) {
 		full_name = string.concat(full_name, " §5§o[Afk]");
 	}
-	msg.string(sender, full_name);
-}
-goto("wait");
-
-@ass
-if(size < 2) {
-	msg.prefix(player, prefix_commands, "§r/ass ...");
-	msg.string(player, " - set <name>");
-	msg.string(player, " - rename <name>");
-	msg.string(player, " - remove <radius>");
-	goto("wait");
-}
-arg0 = string.toLowerCase(list.getIndex(args, 0));
-if(arg0 == "set") {
-	name = string.concatList(args, " ", 1, size - 1);
-	name = string.replace(name, "&", "§");
-	name = string.replace(name, "\\n", "\n");
-	ent = entity.spawn("km:nobody", entity.getLocation(player), "{NoGravity:true}");
-	entity.setName(ent, name);
-	goto("wait");
-}
-if(arg0 == "rename") {
-	name = string.concatList(args, " ", 1, size - 1);
-	name = string.replace(name, "&", "§");
-	name = string.replace(name, "\\n", "\n");
-	ent_list = living.near(player, 5);
-	for(i = 0; i < list.getSize(ent_list); i++) {
-		ent = list.getIndex(ent_list, i);
-		if(entity.getType(ent) == "nobody") {
-			entity.setName(ent, name);
-			goto("wait");
+	if(i < size) {
+		p_2 = list.getIndex(list, i);
+		full_name_2 = player.getFullName(p_2);
+		if(player.isAfk(p_2)) {
+			full_name_2 = string.concat(full_name_2, " §5§o[Afk]");
 		}
+	} else {
+		full_name_2 = "";
 	}
-	msg.prefix(player, prefix_commands, "§rKeinen Lufttext gefunden");
-	goto("wait");
+	msg.string(sender, table.get(table, full_name, full_name_2));
 }
-if(arg0 == "remove") {
-	radius = list.getIndex(args, 1);
-	if(!isDouble(radius)) {
-		msg.prefix(player, prefix_commands, "Number expected.");
-		goto("wait");
-	}
-	if(radius < 0 || radius > 5) {
-		msg.prefix(player, prefix_commands, "§rRadius: 0-5");
-		goto("wait");
-	}
-	ent_list = living.near(player, radius);
-	for(i = 0; i < list.getSize(ent_list); i++) {
-		ent = list.getIndex(ent_list, i);
-		if(entity.getType(ent) == "nobody") {
-			entity.remove(ent);
-			msg.prefix(player, prefix_commands, "§rLufttext entfernt");
-			goto("wait");
-		}
-	}
-	msg.prefix(player, prefix_commands, "§rKeinen Lufttext gefunden");
-}
+msg.string(sender, table.getEnd(table));
 goto("wait");
 
 @sign
@@ -4864,6 +5121,7 @@ if(days < 0 || hours < 0 || minutes < 0) {
 }
 endtime = time.getMillis() + minutes * 60000 + hours * 3600000 + days * 86400000;
 timestring = getTimeString(endtime);
+sender_name = player.getName(sender);
 if(size > 4) {
 	reason = string.concatList(args, " ", 4, size - 1);
 	msg.string("online", string.concat("§c", p_name, " got banned by ", sender_name, " until ", timestring, ". Reason: ", reason));
@@ -5642,7 +5900,7 @@ if(arg0 == "create" || arg0 == "create3d") {
 	loc1 = map.get(plotpos1, player_id);
 	loc2 = map.get(plotpos2, player_id);
 	if(loc1 == null || loc2 == null) {
-		msg.prefix(player, prefix_plot, "No corner points set.");
+		msg.prefix(player, prefix_plot, "Set corners points with §d/p pos1 §rand §d/p pos2§r.");
 		goto("wait");
 	}
 	world1 = loc.getWorld(loc1);
@@ -6589,12 +6847,12 @@ location = entity.getLocation(p);
 player.teleport(player, location, true);
 goto("wait");
 
-@teleport
+@tp
 if(size < 1 || size > 2) {
-	if(perm.has("teleport.other", player)) {
-		msg.prefix(player, prefix_commands, "/teleport [player] <to-player>");
+	if(perm.has("tp.other", player)) {
+		msg.prefix(player, prefix_commands, "/tp [player] <to-player>");
 	} else {
-		msg.prefix(player, prefix_commands, "/teleport <player>");
+		msg.prefix(player, prefix_commands, "/tp <player>");
 	}
 	goto("wait");
 }
@@ -6603,8 +6861,8 @@ if(size == 1) {
 	p = player;
 }
 elseif(size == 2) {
-	if(!perm.has("teleport.other", player)) {
-		perm.no("teleport.other", player);
+	if(!perm.has("tp.other", player)) {
+		perm.no("tp.other", player);
 		goto("wait");
 	}
 	p_name = list.getIndex(args, 0);
@@ -6875,6 +7133,7 @@ if(amount < 1) {
 	msg.prefix(sender, prefix_commands, "Positive number expected.");
 	goto("wait");
 }
+modTimer(-5);
 msg.prefix(sender, prefix_commands, "These players were last seen:");
 table = table.new("§f", 12, 12);
 msg.string(sender, table.getStart(table));
@@ -7785,7 +8044,7 @@ if(size != 1) {
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 new_spawn = string.location(entity.getLocation(player));
-config = getScriptVar("server_config");
+config = getServerConfig();
 if(arg0 == "games") {
 	config.set(config, "gamesspawn", new_spawn);
 	msg.prefix(player, prefix_commands, "New spawn for gaming world set.");
@@ -7822,7 +8081,7 @@ if(size == 0) {
 living.heal(p, 50);
 player.setHunger(p, 20);
 player.setSaturation(p, 5);
-//entity.clearEffects(p);
+living.clearEffects(p);
 entity.setBurning(p, 0);
 msg.prefix(p, prefix_commands, "You have been healed.");
 goto("wait");
@@ -8222,8 +8481,7 @@ goto("wait");
 
 function inv.show(from_player, to_player) {
 	player_inv = player.getInv(from_player);
-	//inv = inv.new("111111111 333333333 333333333 333333333 333333333");
-	inv = inv.new("111111111111111111111111111111111111111111111", text.new(string.concat("Inventory of ", player.getName(from_player))));
+	inv = inv.new("222222222222222222222222222222222222222222222", text.new(string.concat("Inventory of ", player.getName(from_player))));
 	set.add($invseeids, inv.getId(inv));
 	setInvItem(inv, 0, living.getEquip(from_player, read.slot("HEAD")));
 	setInvItem(inv, 1, living.getEquip(from_player, read.slot("CHEST")));
@@ -8240,7 +8498,7 @@ function inv.show(from_player, to_player) {
 }
 
 function setInvItem(inv, slot, item) {
-	if(item == null) {
+	if(item == null || item.isAir(item)) {
 		return;
 	}
 	inv.setItem(inv, slot, item);
@@ -8518,1171 +8776,6 @@ function addTpaRequest(player_uuid, aim_uuid) {
 	list.add($tpa_request, array);
 }
 
-function setCommandHelps() {
-	command.clearHelp();
-	command.clearIgnored();
-	command.clearNoPerm();
-	//Vanilla ignorieren, danach neu setzen
-	command.addIgnored("teleport");
-	command.addIgnored("time");
-	command.addIgnored("help");
-	command.addIgnored("ban");
-	command.addIgnored("kick");
-	command.addIgnored("gamemode");
-	command.addIgnored("gamerule");
-	command.addIgnored("enchant");
-	command.addIgnored("jumpto");
-
-	command.addNoPerm("/br");
-	command.addNoPerm("/brush");
-	command.addNoPerm("/desel");
-	command.addNoPerm("/deselect");
-	command.addNoPerm("/sel");
-	command.addNoPerm("/toggleplace");
-	command.addNoPerm(";");
-	command.addNoPerm("brush");
-	command.addNoPerm("none");
-	command.addNoPerm("toggleplace");
-	command.addNoPerm("tool");
-	command.addNoPerm("br");
-	command.addNoPerm("icanhasbukkit");
-	command.addNoPerm("we");
-	command.addNoPerm("worldedit");
-	command.addNoPerm("worldedit:we");
-	command.addNoPerm("worldedit:worldedit");
-	command.addNoPerm("worldedit:/br");
-	command.addNoPerm("worldedit:/brush");
-	command.addNoPerm("worldedit:/desel");
-	command.addNoPerm("worldedit:/deselect");
-	command.addNoPerm("worldedit:/sel");
-	command.addNoPerm("worldedit:/toggleplace");
-	command.addNoPerm("worldedit:;");
-	command.addNoPerm("worldedit:brush");
-	command.addNoPerm("worldedit:none");
-	command.addNoPerm("worldedit:toggleplace");
-	command.addNoPerm("worldedit:tool");
-	command.addNoPerm("worldedit:br");
-	command.addNoPerm("worldedit:icanhasbukkit");
-	
-	commandhelp.add("afk");
-	commandhelp.add("back");
-	commandhelp.add("boost");
-	commandhelp.add("color");
-	commandhelp.add("colour");
-	commandhelp.add("fuckit");
-	commandhelp.add("giveup");
-	commandhelp.add("hack");
-	commandhelp.add("hat");
-	commandhelp.add("head");
-	commandhelp.add("hub");
-	commandhelp.add("icon");
-	commandhelp.add("iteminfo");
-	commandhelp.add("jumpto");
-	commandhelp.add("l");
-	commandhelp.add("lag");
-	commandhelp.add("leave");
-	commandhelp.add("lightning");
-	commandhelp.add("live");
-	commandhelp.add("logo");
-	commandhelp.add("mem");
-	commandhelp.add("memory");
-	commandhelp.add("nowb");
-	commandhelp.add("ping");
-	commandhelp.add("ram");
-	commandhelp.add("rank");
-	commandhelp.add("repair");
-	commandhelp.add("report");
-	commandhelp.add("ride");
-	commandhelp.add("settings");
-	commandhelp.add("silentjoin");
-	commandhelp.add("skipnight");
-	commandhelp.add("skull");
-	commandhelp.add("startgame");
-	commandhelp.add("thor");
-	commandhelp.add("top");
-	commandhelp.add("vote");
-	commandhelp.add("voteshop");
-	
-	commandhelp.addChildPlayer("mute");
-	commandhelp.addChildPlayer("unmute");
-	commandhelp.addChildPlayer("tpa");
-	commandhelp.addChildPlayer("tpaccept");
-	commandhelp.addChildPlayer("tpahere");
-	commandhelp.addChildPlayer("tpaccepthere");
-	commandhelp.addChildPlayer("head");
-	commandhelp.addChildPlayer("seen");
-	commandhelp.addChildPlayer("heal");
-	commandhelp.addChildPlayer("feed");
-	
-	help = command.newHelp("vanish", "vanish");
-	//vanish [on] [player]
-	helpArg0 = command.newHelpLiteral("on");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//vanish [off] [player]
-	helpArg0 = command.newHelpLiteral("off");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("v", "vanish", helpArg0);
-	
-	help = command.newHelp("start", "start");
-	command.addHelpChild(help, command.newHelpLiteral("ai"));
-	command.addHelpChild(help, command.newHelpLiteral("chat"));
-	command.addHelpChild(help, command.newHelpLiteral("commands"));
-	command.addHelpChild(help, command.newHelpLiteral("copyisland"));
-	command.addHelpChild(help, command.newHelpLiteral("creative"));
-	command.addHelpChild(help, command.newHelpLiteral("damage"));
-	command.addHelpChild(help, command.newHelpLiteral("doors"));
-	command.addHelpChild(help, command.newHelpLiteral("fixitems"));
-	command.addHelpChild(help, command.newHelpLiteral("gemstones"));
-	command.addHelpChild(help, command.newHelpLiteral("harvest"));
-	command.addHelpChild(help, command.newHelpLiteral("herobrine"));
-	command.addHelpChild(help, command.newHelpLiteral("humans"));
-	command.addHelpChild(help, command.newHelpLiteral("lectern"));
-	command.addHelpChild(help, command.newHelpLiteral("loom"));
-	command.addHelpChild(help, command.newHelpLiteral("games"));
-	command.addHelpChild(help, command.newHelpLiteral("mails"));
-	command.addHelpChild(help, command.newHelpLiteral("market"));
-	command.addHelpChild(help, command.newHelpLiteral("mobarena"));
-	command.addHelpChild(help, command.newHelpLiteral("perms"));
-	command.addHelpChild(help, command.newHelpLiteral("playerdata"));
-	command.addHelpChild(help, command.newHelpLiteral("playtime"));
-	command.addHelpChild(help, command.newHelpLiteral("pumpkin"));
-	command.addHelpChild(help, command.newHelpLiteral("recipes"));
-	command.addHelpChild(help, command.newHelpLiteral("scheduler"));
-	command.addHelpChild(help, command.newHelpLiteral("shop"));
-	command.addHelpChild(help, command.newHelpLiteral("sitting"));
-	command.addHelpChild(help, command.newHelpLiteral("stats"));
-	command.addHelpChild(help, command.newHelpLiteral("story"));
-	command.addHelpChild(help, command.newHelpLiteral("survival"));
-	command.addHelpChild(help, command.newHelpLiteral("ticket"));
-	command.addHelpChild(help, command.newHelpLiteral("timber"));
-	command.addHelpChild(help, command.newHelpLiteral("tiploop"));
-	command.addHelpChild(help, command.newHelpLiteral("trader"));
-	command.addHelp(help);
-
-	addGmHelp("gamemode");
-	addGmHelp("gm");
-	
-	help = command.newHelp("databank", "databank");
-	//databank showtables
-	command.addHelpChild(help, command.newHelpLiteral("showtables"));
-	//databank showfields <table>
-	helpArg0 = command.newHelpLiteral("showfields");
-	command.addHelpChild(helpArg0, command.newHelpString("table", false));
-	command.addHelpChild(help, helpArg0);
-	//databank showdataypes <table>
-	helpArg0 = command.newHelpLiteral("showdataypes");
-	command.addHelpChild(helpArg0, command.newHelpString("table", false));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("copyisland", "copyisland");
-	//copyisland copy/paste
-	command.addHelpChild(help, command.newHelpLiteral("copy"));
-	command.addHelpChild(help, command.newHelpLiteral("paste"));
-	//copyisland pos1/pos2
-	command.addHelpChild(help, command.newHelpLiteral("pos1"));
-	command.addHelpChild(help, command.newHelpLiteral("pos2"));
-	command.addHelp(help);
-	
-	help = command.newHelp("fly", "fly");
-	helpArg0 = command.newHelpSpecial("Player", "player", "fly.other");
-	command.addHelpChild(helpArg0, command.newHelpLiteral("on"));
-	command.addHelpChild(helpArg0, command.newHelpLiteral("off"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("enchant", "enchant");
-	helpArg0 = command.newHelpSpecial("Enchantment", "enchantment");
-	command.addHelpChild(helpArg0, command.newHelpInt("level", 0, 100));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("allsounds", "allsounds");
-	command.addHelpChild(help, command.newHelpLiteral("start"));
-	command.addHelpChild(help, command.newHelpLiteral("stop"));
-	command.addHelp(help);
-	
-	help = command.newHelp("spawn", "spawn");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "teleport.other"));
-	command.addHelp(help);
-	
-	help = command.newHelp("games", "games");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "teleport.other"));
-	command.addHelp(help);
-	
-	help = command.newHelp("creative", "creative");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "teleport.other"));
-	command.addHelp(help);
-	
-	help = command.newHelp("ass", "ass");
-	//ass set <name>
-	helpArg0 = command.newHelpLiteral("set");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	command.addHelpChild(help, helpArg0);
-	//ass rename <name>
-	helpArg0 = command.newHelpLiteral("rename");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	command.addHelpChild(help, helpArg0);
-	//ass remove <radius>
-	helpArg0 = command.newHelpLiteral("remove");
-	command.addHelpChild(helpArg0, command.newHelpInt("radius", 0, 30));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("tppos", "tppos");
-	helpArg0 = command.newHelpInt("x", -32000, 32000);
-	helpArg1 = command.newHelpInt("y", 0, 1000);
-	helpArg2 = command.newHelpInt("z", -32000, 32000);
-	helpArg3 = command.newHelpString("world", false);
-	helpArg4 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg3, helpArg4);
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("stats", "stats");
-	addStatsGameHelp(help, "AmongUs");
-	addStatsGameHelp(help, "BedWars");
-	addStatsGameHelp(help, "RageMode");
-	addStatsGameHelp(help, "JR-Endless");
-	addStatsGameHelp(help, "Rebuild");
-	addStatsGameHelp(help, "FastBridge");
-	addStatsGameHelp(help, "Snowfight");
-	addStatsGameHelp(help, "JR-Death");
-	addStatsGameHelp(help, "JR-Ice");
-	addStatsGameHelp(help, "JR-Rooms");
-	addStatsGameHelp(help, "Letters");
-	addStatsGameHelp(help, "Sammelfieber");
-	addStatsGameHelp(help, "Buttons");
-	addStatsGameHelp(help, "HideAndSeek");
-	addStatsGameHelp(help, "Inverting");
-	addStatsGameHelp(help, "Spleef");
-	addStatsGameHelp(help, "Knockfight");
-	addStatsGameHelp(help, "Leapfrog");
-	addStatsGameHelp(help, "Parcour");
-	addStatsGameHelp(help, "Halma");
-	addStatsGameHelp(help, "ShoppingChaos");
-	addStatsGameHelp(help, "MengerRun");
-	command.addHelp(help);
-	
-	help = command.newHelp("setspawn", "setspawn");
-	command.addHelpChild(help, command.newHelpLiteral("server"));
-	command.addHelpChild(help, command.newHelpLiteral("games"));
-	command.addHelpChild(help, command.newHelpLiteral("creative"));
-	command.addHelp(help);
-	
-	addDtHelp("datatools");
-	addDtHelp("dt");
-	
-	help = command.newHelp("help", "help");
-	helpArg0 = command.newHelpInt("page", 1, 100);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("mimimi", "help", helpArg0);
-	
-	help = command.newHelp("suicide", "suicide");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "suicide.other"));
-	command.addHelp(help);
-	
-	help = command.newHelp("tempfly", "tempfly");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpInt("seconds", 1, 10000));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("tempban", "tempban");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	helpArg1 = command.newHelpInt("days", 0, 100);
-	helpArg2 = command.newHelpInt("hours", 0, 100);
-	helpArg3 = command.newHelpInt("minutes", 0, 100);
-	command.addHelpChild(helpArg3, command.newHelpString("reason", true));
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("unban", "unban");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("pardon", "unban", helpArg0);
-	
-	help = command.newHelp("ban", "ban");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("silentban", "silentban");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("kick", "kick");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("silentkick", "silentkick");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("answer", "answer");
-	helpArg0 = command.newHelpString("message", true);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("r", "answer", helpArg0);
-	
-	help = command.newHelp("time", "time");
-	//time set <time>
-	helpArg0 = command.newHelpLiteral("set");
-	command.addHelpChild(helpArg0, command.newHelpInt("time", 0, 100000));
-	command.addHelpChild(help, helpArg0);
-	//time add <time>
-	helpArg0 = command.newHelpLiteral("add");
-	command.addHelpChild(helpArg0, command.newHelpInt("time", 0, 100000));
-	command.addHelpChild(help, helpArg0);
-	//time day / noon / night / midnight
-	command.addHelpChild(help, command.newHelpLiteral("day"));
-	command.addHelpChild(help, command.newHelpLiteral("noon"));
-	command.addHelpChild(help, command.newHelpLiteral("night"));
-	command.addHelpChild(help, command.newHelpLiteral("midnight"));
-	command.addHelp(help);
-	
-	help = command.newHelp("enderchest", "enderchest");
-	//enderchest [player] <from-player>
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("from-player", false));
-	command.addHelpChild(help, helpArg0);
-	//enderchest [player] <from-player>
-	command.addHelpChild(help, command.newHelpString("from-player", false));
-	command.addHelp(help);
-	
-	help = command.newHelp("nickname", "nickname");
-	command.addHelpChild(help, command.newHelpString("name", true));
-	command.addHelpChild(help, command.newHelpLiteral("remove"));
-	command.addHelp(help);
-	
-	help = command.newHelp("perm", "perm");
-	//perm give <player> <perm>
-	helpArg0 = command.newHelpLiteral("give", "perm.give");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpLiteral("owner", "isOwner"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("admin", "isAdmin"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("moderator", "isAdmin"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("supporter"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("builder"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("worldedit"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("vip"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("developer"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("devmaster"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("yt"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("streamer"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("sponsor"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("creative"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//perm remove <player> <perm>
-	helpArg0 = command.newHelpLiteral("remove", "perm.remove");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpLiteral("owner", "isOwner"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("admin", "isAdmin"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("moderator", "isAdmin"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("supporter"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("builder"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("worldedit"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("vip"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("developer"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("devmaster"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("yt"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("streamer"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("sponsor"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("creative"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//perm removeall <player>
-	helpArg0 = command.newHelpLiteral("removeall", "perm.removeall");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//perm list <player>
-	helpArg0 = command.newHelpLiteral("list", "perm.list");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//perm toggle
-	command.addHelpChild(help, command.newHelpLiteral("toggle", "perm.toggle"));
-	command.addHelp(help);
-	
-	help = command.newHelp("script", "script");
-	//script start <scripts>
-	helpArg0 = command.newHelpLiteral("start");
-	command.addHelpChild(helpArg0, command.newHelpString("scrips...", true));
-	command.addHelpChild(help, helpArg0);
-	//script see
-	command.addHelpChild(help, command.newHelpLiteral("see"));
-	//script term
-	helpArg0 = command.newHelpLiteral("term");
-	command.addHelpChild(helpArg0, command.newHelpLiteral("all"));
-	command.addHelpChild(helpArg0, command.newHelpInt("id", 0, 1000000));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("s", "script", helpArg0);
-	
-	help = command.newHelp("home", "home");
-	//home set
-	helpArg0 = command.newHelpLiteral("set");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(help, helpArg0);
-	//home delete
-	helpArg0 = command.newHelpLiteral("delete");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(help, helpArg0);
-	//home list
-	helpArg0 = command.newHelpLiteral("list");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "home.other"));
-	command.addHelpChild(help, helpArg0);
-	//home <name>
-	helpArg0 = command.newHelpString("name", false);
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "home.other"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("block", "block");
-	//block info
-	command.addHelpChild(help, command.newHelpLiteral("info"));
-	//block public
-	command.addHelpChild(help, command.newHelpLiteral("public"));
-	//block remove
-	command.addHelpChild(help, command.newHelpLiteral("remove"));
-	command.addHelp(help);
-	
-	help = command.newHelp("plot", "plot");
-	//plot info
-	command.addHelpChild(help, command.newHelpLiteral("info"));
-	command.addHelpChild(help, command.newHelpLiteral("i"));
-	//plot pos1/pos2
-	command.addHelpChild(help, command.newHelpLiteral("pos1"));
-	command.addHelpChild(help, command.newHelpLiteral("pos2"));
-	//plot create/create3D
-	command.addHelpChild(help, command.newHelpLiteral("create"));
-	command.addHelpChild(help, command.newHelpLiteral("create3D"));
-	//plot remove
-	helpArg0 = command.newHelpLiteral("remove");
-	command.addHelpChild(helpArg0, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(help, helpArg0);
-	//plot name <name>
-	helpArg0 = command.newHelpLiteral("name");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	helpArg1 = command.newHelpInt("id", 0, 10000);
-	command.addHelpChild(helpArg1, command.newHelpString("name", true));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot share <name>
-	helpArg0 = command.newHelpLiteral("share");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot kick <name>
-	helpArg0 = command.newHelpLiteral("kick");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot raise
-	command.addHelpChild(help, command.newHelpLiteral("raise"));
-	//plot leader <name>
-	helpArg0 = command.newHelpLiteral("leader");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot mod <name>
-	helpArg0 = command.newHelpLiteral("mod");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot chest <name>
-	helpArg0 = command.newHelpLiteral("chest");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot sell <price>
-	helpArg0 = command.newHelpLiteral("sell");
-	command.addHelpChild(helpArg0, command.newHelpInt("price", 1, 10000));
-	command.addHelpChild(help, helpArg0);
-	//plot moreinfo
-	command.addHelpChild(help, command.newHelpLiteral("moreinfo", "plot.moreinfo"));
-	//plot listall
-	command.addHelpChild(help, command.newHelpLiteral("listall"));
-	//plot flags <int> <boolean>
-	helpArg0 = command.newHelpLiteral("flags");
-	helpArg1 = command.newHelpInt("int", 1, 1000);
-	command.addHelpChild(helpArg1, command.newHelpBool("boolean"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot expand <anzahl>
-	helpArg0 = command.newHelpLiteral("expand");
-	helpArg1 = command.newHelpInt("anzahl", 1, 1000);
-	helpArg3 = command.newHelpInt("id", 1, 10000);
-	helpArg2 = command.newHelpLiteral("north");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	helpArg2 = command.newHelpLiteral("east");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	helpArg2 = command.newHelpLiteral("south");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	helpArg2 = command.newHelpLiteral("west");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("p", "plot", helpArg0);
-	
-	help = command.newHelp("warp", "warp");
-	//warp set [group] <name>
-	helpArg0 = command.newHelpLiteral("set", "warp.create");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false, "warp.create"));
-	helpArg1 = command.newHelpString("group", false, "warp.create");
-	command.addHelpChild(helpArg1, command.newHelpString("name", false, "warp.create"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//warp delete [group] <name>
-	helpArg0 = command.newHelpLiteral("delete", "warp.create");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false, "warp.create"));
-	helpArg1 = command.newHelpString("group", false, "warp.create");
-	command.addHelpChild(helpArg1, command.newHelpString("name", false, "warp.create"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//warp groups
-	command.addHelpChild(help, command.newHelpLiteral("groups", "warp.create"));
-	//warp list [group]
-	helpArg0 = command.newHelpLiteral("list");
-	command.addHelpChild(helpArg0, command.newHelpString("group", false, "warp.create"));
-	command.addHelpChild(help, helpArg0);
-	//warp [group] <name>
-	helpArg0 = command.newHelpString("name", false);
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpString("group", false, "warp.create");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("teleport", "teleport");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "to-player", "teleport.other"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("tp", "teleport", helpArg0);
-	
-	help = command.newHelp("lastseen", "lastseen");
-	command.addHelpChild(help, command.newHelpInt("amount", 1, 100));
-	command.addHelp(help);
-	
-	help = command.newHelp("human", "human");
-	//human spawn
-	helpArg0 = command.newHelpLiteral("spawn");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	command.addHelpChild(help, helpArg0);
-	//human set <name>
-	helpArg0 = command.newHelpLiteral("set");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(help, helpArg0);
-	//human skin <name>
-	helpArg0 = command.newHelpLiteral("skin");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(help, helpArg0);
-	//human name
-	helpArg0 = command.newHelpLiteral("name");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	command.addHelpChild(help, helpArg0);
-	//human kill
-	command.addHelpChild(help, command.newHelpLiteral("remove"));
-	command.addHelp(help);
-	
-	help = command.newHelp("mail", "mail");
-	//mail <player> <message>
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//mail new
-	command.addHelpChild(help, command.newHelpLiteral("new"));
-	//mail inbox
-	command.addHelpChild(help, command.newHelpLiteral("inbox"));
-	//mail outbox
-	command.addHelpChild(help, command.newHelpLiteral("outbox"));
-	//mail reset
-	command.addHelpChild(help, command.newHelpLiteral("reset", "mail.reset"));
-	command.addHelp(help);
-	
-	help = command.newHelp("entities", "entities");
-	command.addHelpChild(help, command.newHelpString("world", false));
-	command.addHelp(help);
-	
-	help = command.newHelp("playtime", "playtime");
-	//playtime [player]
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player"));
-	//playtime all
-	command.addHelpChild(help, command.newHelpLiteral("all"));
-	//playtime month [1-12] [year]
-	helpArg0 = command.newHelpLiteral("month");
-	helpArg1 = command.newHelpInt("int", 1, 12);
-	command.addHelpChild(helpArg1, command.newHelpInt("year", 2019, 2024));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//playtime year [year]
-	helpArg0 = command.newHelpLiteral("year");
-	command.addHelpChild(helpArg0, command.newHelpInt("year", 2019, 2024));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("user", "user");
-	//user info <player>
-	helpArg0 = command.newHelpLiteral("info");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "user.other"));
-	command.addHelpChild(help, helpArg0);
-	//user addmoney <player> <money>
-	helpArg0 = command.newHelpLiteral("addmoney", "user.money");
-	helpArg1 = command.newHelpSpecial("Player", "player", "user.money");
-	command.addHelpChild(helpArg1, command.newHelpInt("money", -10000000, 10000000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//user setmoney <player> <money>
-	helpArg0 = command.newHelpLiteral("setmoney", "user.money");
-	helpArg1 = command.newHelpSpecial("Player", "player", "user.money");
-	command.addHelpChild(helpArg1, command.newHelpInt("money", -10000000, 10000000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("skills", "skills");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "user.other"));
-	command.addHelp(help);
-	
-	help = command.newHelp("grow", "grow");
-	command.addHelpChild(help, command.newHelpInt("int", 0, 1000));
-	command.addHelp(help);
-	
-	help = command.newHelp("news", "news");
-	command.addHelpChild(help, command.newHelpString("text", true));
-	command.addHelp(help);
-	
-	help = command.newHelp("inv", "inv");
-	//inv ignore
-	command.addHelpChild(help, command.newHelpLiteral("ignore"));
-	//inv see <player>
-	helpArg0 = command.newHelpLiteral("see");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//inv reload <player>
-	helpArg0 = command.newHelpLiteral("reload");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//inv loadFrom <player> <world>
-	helpArg0 = command.newHelpLiteral("loadFrom");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpString("world", false));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//inv saveFor <player> <world>
-	helpArg0 = command.newHelpLiteral("saveFor");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpString("world", false));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("warn", "warn");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player"));
-	command.addHelp(help);
-	
-	help = command.newHelp("jail", "jail");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player"));
-	command.addHelp(help);
-	
-	help = command.newHelp("unjail", "unjail");
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player"));
-	command.addHelp(help);
-	
-	help = command.newHelp("friend", "friend");
-	//friend add <player>
-	helpArg0 = command.newHelpLiteral("add");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//friend remove <player>
-	helpArg0 = command.newHelpLiteral("remove");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//friend list
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	command.addHelp(help);
-	
-	help = command.newHelp("sign", "sign");
-	helpArg0 = command.newHelpInt("1-4", 1, 4);
-	command.addHelpChild(helpArg0, command.newHelpString("text", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("speed", "speed");
-	helpArg0 = command.newHelpInt("int", 1, 10);
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "speed.other"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("errordebug", "errordebug");
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	command.addHelpChild(help, command.newHelpLiteral("clear"));
-	command.addHelp(help);
-	
-	help = command.newHelp("error", "error");
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	command.addHelpChild(help, command.newHelpLiteral("clear"));
-	command.addHelp(help);
-	
-	help = command.newHelp("mailbox", "mailbox");
-	//mailbox show <player>
-	helpArg0 = command.newHelpLiteral("show");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "mailbox.other"));
-	command.addHelpChild(help, helpArg0);
-	//mailbox send <player>
-	helpArg0 = command.newHelpLiteral("send");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("world", "world");
-	//world info
-	command.addHelpChild(help, command.newHelpLiteral("info"));
-	//world tp <world> [player]
-	helpArg0 = command.newHelpLiteral("tp");
-	helpArg1 = command.newHelpString("world", false);
-	command.addHelpChild(helpArg1, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//world list
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	//world diffi <world> <diffi>
-	helpArg0 = command.newHelpLiteral("diffi");
-	helpArg1 = command.newHelpString("world", false);
-	command.addHelpChild(helpArg1, command.newHelpLiteral("PEACEFUL"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("EASY"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("NORMAL"));
-	command.addHelpChild(helpArg1, command.newHelpLiteral("HARD"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//world setspawn
-	helpArg0 = command.newHelpLiteral("setspawn");
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("quest", "quest");
-	//quest see
-	command.addHelpChild(help, command.newHelpLiteral("see"));
-	//quest term <player>
-	helpArg0 = command.newHelpLiteral("term");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("pvp", "pvp");
-	helpArg0 = command.newHelpLiteral("on");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "pvp.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("off");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "pvp.other"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("game", "game");
-	command.addHelpChild(help, command.newHelpLiteral("open"));
-	command.addHelpChild(help, command.newHelpLiteral("close"));
-	command.addHelp(help);
-	
-	help = command.newHelp("party", "party");
-	//party invite <player>
-	helpArg0 = command.newHelpLiteral("invite");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//party accept <player>
-	helpArg0 = command.newHelpLiteral("accept");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//party deny <player>
-	helpArg0 = command.newHelpLiteral("deny");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//party kick <player>
-	helpArg0 = command.newHelpLiteral("kick");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//party leave
-	command.addHelpChild(help, command.newHelpLiteral("leave"));
-	//party promote <player>
-	helpArg0 = command.newHelpLiteral("promote");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//party demote <player>
-	helpArg0 = command.newHelpLiteral("demote");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//party disband
-	command.addHelpChild(help, command.newHelpLiteral("disband"));
-	//party list
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	command.addHelp(help);
-	
-	help = command.newHelp("var", "var");
-	helpArg0 = command.newHelpInt("id", 0, 1000000);
-	command.addHelpChild(helpArg0, command.newHelpString("varname", false));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("msg", "msg");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("setservermessage", "setservermessage");
-	command.addHelpChild(help, command.newHelpString("message", true));
-	command.addHelp(help);
-	
-	help = command.newHelp("gamerule", "gamerule");
-	//TODO
-	command.addHelp(help);
-	
-	help = command.newHelp("clan", "clan");
-	//clan invite <name>
-	helpArg0 = command.newHelpLiteral("invite");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//clan accept <id/name/tag>
-	helpArg0 = command.newHelpLiteral("invite");
-	command.addHelpChild(helpArg0, command.newHelpInt("id", 1, 500));
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(helpArg0, command.newHelpString("tag", false));
-	command.addHelpChild(help, helpArg0);
-	//clan info [id/name/tag]
-	helpArg0 = command.newHelpLiteral("info");
-	command.addHelpChild(helpArg0, command.newHelpInt("id", 1, 500));
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
-	command.addHelpChild(helpArg0, command.newHelpString("tag", false));
-	command.addHelpChild(help, helpArg0);
-	//clan create <name> <tag>
-	helpArg0 = command.newHelpLiteral("create");
-	helpArg1 = command.newHelpString("name", false);
-	command.addHelpChild(helpArg1, command.newHelpString("false", false));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//clan kick <name>
-	helpArg0 = command.newHelpLiteral("kick");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//clan leader <name>
-	helpArg0 = command.newHelpLiteral("leader");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//clan mod <name>
-	helpArg0 = command.newHelpLiteral("mod");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//clan degrade <name>
-	helpArg0 = command.newHelpLiteral("degrade");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//clan leave
-	command.addHelpChild(help, command.newHelpLiteral("leave"));
-	//clan rename <name> <tag>
-	helpArg0 = command.newHelpLiteral("rename");
-	helpArg1 = command.newHelpString("name", false);
-	command.addHelpChild(helpArg1, command.newHelpString("false", false));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//clan disband
-	command.addHelpChild(help, command.newHelpLiteral("disband"));
-	//clan msg <message>
-	helpArg0 = command.newHelpLiteral("msg");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//clan mail <message>
-	helpArg0 = command.newHelpLiteral("mail");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//clan shout <message>
-	helpArg0 = command.newHelpLiteral("shout");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//clan deposit <money>
-	helpArg0 = command.newHelpLiteral("deposit");
-	command.addHelpChild(helpArg0, command.newHelpInt("money", 0, 1000));
-	command.addHelpChild(help, helpArg0);
-	//clan withdraw <money>
-	helpArg0 = command.newHelpLiteral("withdraw");
-	command.addHelpChild(helpArg0, command.newHelpInt("money", 0, 1000));
-	command.addHelpChild(help, helpArg0);
-	//clan party
-	command.addHelpChild(help, command.newHelpLiteral("party"));
-	//clan setspawn
-	command.addHelpChild(help, command.newHelpLiteral("setspawn"));
-	//clan spawn
-	command.addHelpChild(help, command.newHelpLiteral("spawn"));
-	//clan list
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	command.addHelp(help);
-	
-	help = command.newHelp("shop", "shop");
-	//shop create
-	command.addHelpChild(help, command.newHelpLiteral("create"));
-	//shop remove
-	helpArg0 = command.newHelpLiteral("remove");
-	command.addHelpChild(helpArg0, command.newHelpLiteral("buy"));
-	command.addHelpChild(helpArg0, command.newHelpLiteral("sell"));
-	command.addHelpChild(help, helpArg0);
-	//shop buy <amount> <price>
-	helpArg0 = command.newHelpLiteral("buy");
-	helpArg1 = command.newHelpInt("amount", 0, 1000);
-	command.addHelpChild(helpArg1, command.newHelpInt("price", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//shop sell <amount> <price>
-	helpArg0 = command.newHelpLiteral("sell");
-	helpArg1 = command.newHelpInt("amount", 0, 1000);
-	command.addHelpChild(helpArg1, command.newHelpInt("price", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("setmessage", "setmessage");
-	//setmessage info
-	command.addHelpChild(help, command.newHelpLiteral("info"));
-	//setmessage join <message>
-	helpArg0 = command.newHelpLiteral("join");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//setmessage leave <message>
-	helpArg0 = command.newHelpLiteral("leave");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//setmessage delete <player>
-	helpArg0 = command.newHelpLiteral("delete");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "setmessage.delete"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("tip", "tip");
-	//tipp list
-	helpArg0 = command.newHelpLiteral("list");
-	command.addHelpChild(help, helpArg0);
-	//tipp add <tipp> <text>
-	helpArg0 = command.newHelpLiteral("add");
-	helpArg1 = command.newHelpString("tip", false);
-	command.addHelpChild(helpArg1, command.newHelpString("text", true));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//tipp remove <tipp>
-	helpArg0 = command.newHelpLiteral("remove");
-	command.addHelpChild(helpArg0, command.newHelpString("tip", false));
-	command.addHelpChild(help, helpArg0);
-	//tipp <tipp> [player]
-	helpArg0 = command.newHelpString("tip", false);
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
-	command.addHelpChild(help, helpArg0);
-	//tipp loop <tip> <boolean>
-	helpArg0 = command.newHelpLiteral("loop");
-	helpArg1 = command.newHelpString("tip", false);
-	command.addHelpChild(helpArg1, command.newHelpBool("boolean"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("ticket", "ticket");
-	//ticket new <message>
-	helpArg0 = command.newHelpLiteral("new");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
-	//ticket stop <ticket-id>
-	helpArg0 = command.newHelpLiteral("stop");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000));
-	command.addHelpChild(help, helpArg0);
-	//ticket list
-	command.addHelpChild(help, command.newHelpLiteral("list", "isSupporter"));
-	//ticket get [ticket-id]
-	helpArg0 = command.newHelpLiteral("get");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
-	command.addHelpChild(help, helpArg0);
-	//ticket finish <ticket-id>
-	helpArg0 = command.newHelpLiteral("finish");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
-	command.addHelpChild(help, helpArg0);
-	//ticket release <ticket-id>
-	helpArg0 = command.newHelpLiteral("release");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
-	command.addHelpChild(help, helpArg0);
-	//ticket report <ticket-id>
-	helpArg0 = command.newHelpLiteral("report");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("yeet", "yeet");
-	command.addHelpChild(help, command.newHelpInt("strength", 1, 10000000000000));
-	command.addHelp(help);
-	
-	command.sendHelp();
-}
-
-function commandhelp.add(command) {
-	help = command.newHelp(command, command);
-	command.addHelp(help);
-	return help;
-}
-
-function commandhelp.addChildString(command, arg0, bool) {
-	help = command.newHelp(command, command);
-	command.addHelpChild(help, command.newHelpString(arg0, bool));
-	command.addHelp(help);
-}
-
-function commandhelp.addChildPlayer(command) {
-	help = command.newHelp(command, command);
-	command.addHelpChild(help, command.newHelpSpecial("Player", "player"));
-	command.addHelp(help);
-}
-
-function commandhelp.addChildBool(command, arg0) {
-	help = command.newHelp(command, command);
-	command.addHelpChild(help, command.newHelpBool(arg0));
-	command.addHelp(help);
-}
-
-function commandhelp.addAlias(alias, command, helpArg0) {
-	help = command.newHelp(alias, command);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-}
-
-function addStatsGameHelp(help, game) {
-	helpArg0 = command.newHelpLiteral(game);
-	command.addHelpChild(helpArg0, command.newHelpLiteral("top"));
-	command.addHelpChild(helpArg0, command.newHelpInt("rank", 1, 1000));
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpLiteral("remove", "stats.remove"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-}
-
-function addGmHelp(command) {
-	help = command.newHelp(command, "gamemode");
-	helpArg0 = command.newHelpLiteral("adventure");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("creative");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("spectator");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpLiteral("survival");
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpInt("0-3", 0, 3);
-	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "gamemode.other"));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-}
-
-function addDtHelp(command) {
-	help = command.newHelp(command, "datatools");
-	//datatools item-flag <name>
-	helpArg0 = command.newHelpLiteral("item-flag");
-	item_flags = getItemFlags();
-	iter = iterator(item_flags);
-	while(hasNext(iter)) {
-		command.addHelpChild(helpArg0, command.newHelpLiteral(next(iter)));
-	}
-	command.addHelpChild(help, helpArg0);
-	//datatools item-attribute <attribute> <slot> <double> <op>
-	helpArg0 = command.newHelpLiteral("item-attribute");
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ARMOR"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ARMOR_TOUGHNESS"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_DAMAGE"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_KNOCKBACK"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_ATTACK_SPEED"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_FLYING_SPEED"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_FOLLOW_RANGE"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_KNOCKBACK_RESISTANCE"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_LUCK"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_MAX_HEALTH"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("GENERIC_MOVEMENT_SPEED"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("HORSE_JUMP_STRENGTH"));
-	command.addHelpChild(helpArg0, addDtAttributeAttributHelp("ZOMBIE_SPAWN_REINFORCEMENTS"));
-	command.addHelpChild(help, helpArg0);
-	//datatools entity-hide
-	command.addHelpChild(help, command.newHelpLiteral("entity-hide"));
-	//datatools entity-show
-	command.addHelpChild(help, command.newHelpLiteral("entity-show"));
-	//datatools frame-hide
-	command.addHelpChild(help, command.newHelpLiteral("frame-hide"));
-	//datatools frame-show
-	command.addHelpChild(help, command.newHelpLiteral("frame-show"));
-	//datatools entity-name <name>
-	helpArg0 = command.newHelpLiteral("entity-name");
-	helpArg1 = command.newHelpString("name", true);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//datatools name-visibility <name>
-	helpArg0 = command.newHelpLiteral("name-visibility");
-	command.addHelpChild(helpArg0, command.newHelpBool("boolean"));
-	command.addHelpChild(help, helpArg0);
-	//datatools item-name <name>
-	helpArg0 = command.newHelpLiteral("item-name");
-	helpArg1 = command.newHelpString("name", true);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//datatools entity-print
-	command.addHelpChild(help, command.newHelpLiteral("entity-print"));
-	//datatools item-lore <line> <lore>
-	helpArg0 = command.newHelpLiteral("item-lore");
-	command.addHelpChild(helpArg0, command.newHelpString("lore", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-}
-
-function addDtAttributeAttributHelp(attribut) {
-	helpArg1 = command.newHelpLiteral(attribut);
-	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("HAND"));
-	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("OFF_HAND"));
-	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("HEAD"));
-	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("CHEST"));
-	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("LEGS"));
-	command.addHelpChild(helpArg1, addDtAttributeSlotHelp("FEET"));
-	return helpArg1;
-}
-
-function addDtAttributeSlotHelp(slot) {
-	helpArg2 = command.newHelpLiteral(slot);
-	helpArg3 = command.newHelpInt("double", 0, 1000);
-	command.addHelpChild(helpArg3, command.newHelpLiteral("ADD_NUMBER"));
-	command.addHelpChild(helpArg3, command.newHelpLiteral("ADD_SCALAR"));
-	command.addHelpChild(helpArg3, command.newHelpLiteral("MULTIPLY_SCALAR_1"));
-	command.addHelpChild(helpArg2, helpArg3);
-	return helpArg2;
-}
-
 function showJail(player_name) {
 	if(isOnline(player_name)) {
 		inv.open($jailmenu, read.player(player_name));
@@ -9930,7 +9023,7 @@ function party.invitePlayer(inviter, invitee) {
 	map.add($party_invite_ids, inviter_uuid, party_id);
 	inviter_name = player.getName(inviter);
 	msg.prefix(invitee, $prefix_party, string.concat(inviter_name, " invites you to a party."));
-	msg.string(invitee, " §5=> §rAccept ? ", string.getClickText("[§aYes§r] ", string.concat("/party accept ", inviter_name)), string.getClickText("[§cNo§r]", string.concat("/party deny ", inviter_name)));
+	msg(invitee, text.merge(text.new(" §5=> §rAccept ? "), string.getClickText("[§aYes§r] ", string.concat("/party accept ", inviter_name)), string.getClickText("[§cNo§r]", text.new(string.concat("/party deny ", inviter_name)))));
 	sgoto(200, "deletePartyInvitation"); //Einladung bleibt 1 Minute lang erhalten
 	return true;
 }
@@ -10015,9 +9108,7 @@ function plot.registerMoveEvents(world) {
 	iter = plot.iterator(world);
 	while(hasNext(iter)) {
 		plot = next(iter);
-		if(plot.isCity(plot) || plot.isPlot(plot)) {
-			plot.setMoveEvent(plot, world);
-		}
+		plot.setMoveEvent(plot, world);
 	}
 }
 
@@ -10034,6 +9125,9 @@ function plot.delMoveEvent(plot) {
 }
 
 function plot.setMoveEvent(plot, world) {
+	if(!plot.isCity(plot) && !plot.isPlot(plot)) {
+		return;
+	}
 	x1 = plot.getMinX(plot);
 	y1 = plot.getMinY(plot);
 	z1 = plot.getMinZ(plot);
@@ -10108,6 +9202,18 @@ function tpBottom(player) {
 //Mailbox-Utils
 //--------------------------------------------------
 
+function mailbox.clear(player_id) {
+	pfad = "scripts/configs/inv_data/mailbox";
+	config = config.new(pfad, player_id);
+	if(config.exists(config)) {
+		config.load(config);
+	}
+	for(index = 0; index < 27; index++) {
+		config.set(config, string.concat("item-", string.number(index)), "null");
+	}
+	config.saveAsync(config);
+}
+
 function mailbox.setItem(player_id, index, item) {
 	pfad = "scripts/configs/inv_data/mailbox";
 	config = config.new(pfad, player_id);
@@ -10116,6 +9222,16 @@ function mailbox.setItem(player_id, index, item) {
 	}
 	item_string = string.item(item);
 	config.set(config, string.concat("item-", string.number(index)), item_string);
+	config.saveAsync(config);
+}
+
+function mailbox.removeItem(player_id, index) {
+	pfad = "scripts/configs/inv_data/mailbox";
+	config = config.new(pfad, player_id);
+	if(config.exists(config)) {
+		config.load(config);
+	}
+	config.set(config, string.concat("item-", string.number(index)), "null");
 	config.saveAsync(config);
 }
 
@@ -10134,13 +9250,17 @@ function mailbox.getFreeIndex(player_id) {
 	return -1;
 }
 
-function mailbox.show(to_player, player_id) {
+function mailbox.show(to_player, player_id, bool) {
 	pfad = "scripts/configs/inv_data/mailbox";
 	config = config.new(pfad, player_id);
 	if(config.exists(config)) {
 		config.load(config);
 	}
-	inv = inv.new("111111111111111111111111111", text.new(string.concat("Mailbox from ", player.getNameFromId(player_id))));
+	if(bool) {
+		inv = inv.new("222222222222222222222222222", text.new(string.concat("Mailbox from ", player.getNameFromId(player_id))));
+	} else {
+		inv = inv.new("111111111111111111111111111", text.new(string.concat("Mailbox from ", player.getNameFromId(player_id))));
+	}
 	for(i = 0; i < 27; i++) {
 		item_string = config.getString(config, string.concat("item-", string.number(i)), "null");
 		if(item_string == "null") {
@@ -10150,7 +9270,7 @@ function mailbox.show(to_player, player_id) {
 		if(item == null) {
 			continue;
 		}
-		inv.setItem(inv, i, item);
+		setInvItem(inv, i, item);
 	}
 	inv.open(inv, to_player);
 }
@@ -10169,13 +9289,13 @@ function getAdditionalVoteHomes() {
 }
 
 function getHomeBoost() {
-	config = getScriptVar("server_config");
+	config = getServerConfig();
 	return config.getDouble(config, "homeBoostPoints", 0);
 
 }
 
 function increaseHomeBoost() {
-	config = getScriptVar("server_config");
+	config = getServerConfig();
 	points = config.getDouble(config, "homeBoostPoints", 0) + 1;
 	config.set(config, "homeBoostPoints", points);
 	config.saveAsync(config);
@@ -10183,7 +9303,7 @@ function increaseHomeBoost() {
 }
 
 function decreaseHomeBoost() {
-	config = getScriptVar("server_config");
+	config = getServerConfig();
 	points = config.getDouble(config, "homeBoostPoints", 0) - 1;
 	if(points < 0) {
 		points = 0;

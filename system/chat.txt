@@ -48,7 +48,7 @@ list.add(falldeaths, string.concat(colorcodedeath, " tripped on a banana peal.")
 list.add(falldeaths, string.concat(colorcodedeath, " jumped into the depths."));
 list.add(falldeaths, string.concat(colorcodedeath, " jumped into death."));
 list.add(falldeaths, string.concat(colorcodedeath, " forgot their wings."));
-list.add(falldeaths, string.concat(colorcodedeath, " forgot their RedBull."));
+list.add(falldeaths, string.concat(colorcodedeath, " forgot their RedBell."));
 
 firedeaths = list.new();
 list.add(firedeaths, string.concat(colorcodedeath, " looks hot today."));
@@ -104,6 +104,7 @@ if(first_join) {
 	player.setFirstJoin(player, true);
 }
 player.setHeadName(player);
+player.setLoggedIp(player, player.getIp(player));
 silentjoin = player.getSilentJoin(player);
 if(silentjoin) {
 	message = null;
@@ -209,19 +210,17 @@ list = map.getOrDefault(causetolist, damage_type, defaultdeaths);
 if(damage_type == "player") {
 	killer = player.getFromDamageSource(damage_source);
 	killer_name = player.getName(killer);
-	item = living.getEquip(killer, read.slot("HAND"));
-	//if(item.hasName(item)) {
-	//	message1 = string.concat(death_prefix, fullname, colorcodedeath, " killed by ", killer_name, " with ");
-//		message2 = item.getFullText(item);
-		//message = text.concat2(message1, message2);
-	//} else {
+	item = living.getHand(killer);
+	if(item.hasName(item)) {
+		message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with ")), text.item(item.getName(item), item), text.new("§9."));
+	} else {
 		list.clear(list);
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
 		message = text.new(list.getIndex(list, math.random(0, list.getSize(list) - 1)));
-	//}
+	}
 } else {
 	message = text.new(string.concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1))));
 }

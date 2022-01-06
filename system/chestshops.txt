@@ -1,4 +1,4 @@
-event.load("inv_click");
+event.load("snuvi_click");
 event.load("inv_close");
 event.load("block_click");
 
@@ -11,13 +11,9 @@ wait();
 ignoreGoto(event);
 goto("main");
 
-@inv_click
-inv_size = inv.getSize(inv);
-if(inv_slot >= inv_size || inv_slot < 0) {
-	goto("main");
-}
+@snuvi_click
 title_string = string.removeFormat(string.text(inv_title));
-if(!string.startsWith(title_string, "Shop", 0)) {
+if(!string.startsWith(title_string, "ChestShop", 0)) {
 	goto("main");
 }
 cancel = true;
@@ -43,11 +39,6 @@ if(!block.isWallSign(sign_block)) {
 	goto("main");
 }
 factor = 1;
-if(click == "SHIFT_LEFT") {
-	factor = 8;
-}
-buy_price = shop.getBuyPrice(inv) * factor;
-sell_price = shop.getSellPrice(inv) * factor;
 chest_block = block.getShopChest(sign_block);
 if(!block.isChest(chest_block)) {
 	map.remove(invid_to_sign_block, inv_id);
@@ -58,6 +49,11 @@ if(!block.isChest(chest_block)) {
 block_inv = block.getInventory(chest_block);
 if(inv_slot == 3) { //Buy
 	itemstack = inv.getItem(inv, 4);
+	if(click == "SHIFT_LEFT") {
+		factor = math.roundDown(item.getMaxAmount(itemstack) / item.getAmount(itemstack));
+	}
+	buy_price = shop.getBuyPrice(inv) * factor;
+	item.removeFlag(itemstack, "HIDE_DESTROYS");
 	itemstack_2 = item.clone(itemstack);
 	if(click == "SHIFT_LEFT") {
 		item.setAmount(itemstack_2, item.getAmount(itemstack_2) * factor);
@@ -92,6 +88,11 @@ if(inv_slot == 3) { //Buy
 	money.sub(player, buy_price);
 }  elseif(inv_slot == 12) { //Sell
 	itemstack = inv.getItem(inv, 11);
+	if(click == "SHIFT_LEFT") {
+		factor = math.roundDown(item.getMaxAmount(itemstack) / item.getAmount(itemstack));
+	}
+	sell_price = shop.getSellPrice(inv) * factor;
+	item.removeFlag(itemstack, "HIDE_DESTROYS");
 	itemstack_2 = item.clone(itemstack);
 	if(click == "SHIFT_LEFT") {
 		item.setAmount(itemstack_2, item.getAmount(itemstack_2) * factor);
@@ -159,7 +160,7 @@ if(block.isWallSign(block)) {
 		msg.prefix(player, prefix_shop, "No item in chest.");
 		goto("main");
 	}
-	inv = inv.new("111111111111111111", text.new(string.concat("§8Shop of ", owner_name)));
+	inv = inv.new("000200000000200002", text.new(string.concat("§8ChestShop of ", owner_name)));
 	shop.setBuyElement(block, inv, item.clone(item_stack));
 	shop.setSellElement(block, inv, item.clone(item_stack));
 	inv.setItem(inv, 17, item.custom.create("CROSS_RED", 1, "§fClose", null));
@@ -194,9 +195,7 @@ function shop.setBuyElement(sign_block, inv, item_stack) {
 	if(gold != 0) {
 		inv.setItem(inv, index, item.custom.create("GOLD_COIN", gold, null, null));
 	}
-	lore_list = list.new();
-	list.add(lore_list, text.new("§5Shift Click means 8x Buy"));
-	inv.setItem(inv, 3, item.custom.create("ARROW_RIGHT", 1, "§fBuy", lore_list));
+	inv.setItem(inv, 3, item.custom.create("ARROW_RIGHT", 1, "§fBuy", null));
 	inv.setItem(inv, 4, item_stack);
 }
 
@@ -228,9 +227,7 @@ function shop.setSellElement(sign_block, inv, item_stack) {
 		inv.setItem(inv, index, item.custom.create("GOLD_COIN", gold, null, null));
 	}
 	inv.setItem(inv, 11, sell_stack);
-	lore_list = list.new();
-	list.add(lore_list, text.new("§5Shift Click means 8x Sell"));
-	inv.setItem(inv, 12, item.custom.create("ARROW_RIGHT", 1, "§fSell", lore_list));
+	inv.setItem(inv, 12, item.custom.create("ARROW_RIGHT", 1, "§fSell", null));
 }
 
 
@@ -266,13 +263,14 @@ function shop.getItemAmount(inv, slot) {
 	if(item == null) {
 		return 0;
 	}
-	if(item.getType(item) == "km:coin_gold") {
+	custom = item.getCustom(item);
+	if(isGoldCoin(custom)) {
 		return item.getAmount(item) * 64 * 64;
 	}
-	if(item.getType(item) == "km:coin_silver") {
+	if(isSilverCoin(custom)) {
 		return item.getAmount(item) * 64;
 	}
-	if(item.getType(item) == "km:coin_copper") {
+	if(isCopperCoin(custom)) {
 		return item.getAmount(item);
 	}
 	return 0;
@@ -288,8 +286,20 @@ function shop.getBuyPrice(inv) {
 
 function shop.getSellPrice(inv) {
 	snuvis = 0;
-	snuvis += shop.getItemAmount(inv, 7);
-	snuvis += shop.getItemAmount(inv, 8);
-	snuvis += shop.getItemAmount(inv, 9);
+	snuvis += shop.getItemAmount(inv, 13);
+	snuvis += shop.getItemAmount(inv, 14);
+	snuvis += shop.getItemAmount(inv, 15);
 	return snuvis;
+}
+
+function isCopperCoin(custom_item) {
+	return string(custom_item) == "COPPER_COIN";
+}
+
+function isSilverCoin(custom_item) {
+	return string(custom_item) == "SILVER_COIN";
+}
+
+function isGoldCoin(custom_item) {
+	return string(custom_item) == "GOLD_COIN";
 }

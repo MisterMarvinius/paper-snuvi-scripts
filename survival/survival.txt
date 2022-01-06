@@ -1,6 +1,6 @@
-//event.load("entity_click");
+event.load("entity_click");
 //event.load("inv_click");
-//event.load("snuvi_click");
+event.load("snuvi_click");
 event.load("player_pre_respawn");
 event.load("player_post_respawn");
 event.load("living_death");
@@ -73,37 +73,14 @@ gambler_inv_id = inv.getId(gambler_inv);
 inv.setItem(gambler_inv, 0, read.item("km:coin_copper", 1, "§f1 snuvi"));
 inv.setItem(gambler_inv, 1, read.item("km:coin_silver", 1, "§f64 snuvis"));
 inv.setItem(gambler_inv, 2, read.item("km:coin_gold", 1, "§f4096 snuvis"));
-inv.setItem(gambler_inv, 3, read.item("minecraft:netherite_block", 1, "§fAll in"));
+inv.setItem(gambler_inv, 3, read.item("minecraft:netherite_block", 1, "§fAll in"));*/
 
-bankmenu = inv.new("233330000233330000000000000233200000233200000");
-//bankmenu = inv.new("233330000 233330000 000000000 233200000 233200000");
+bankmenu = inv.new("222200000", text.new("Banker"));
 bankinvid = inv.getId(bankmenu);
-coin_gold = read.item("km:coin_gold");
-coin_silver = read.item("km:coin_silver");
-coin_copper = read.item("km:coin_copper");
-coin_silver64 = read.item("km:coin_silver", 64);
-coin_copper64 = read.item("km:coin_copper", 64);
-arrow_left = read.item("km:arrow_left", 1, "§fchange to");
-arrow_right = read.item("km:arrow_right", 1, "§fchange to");
-
-inv.setItem(bankmenu, 0, read.item("km:plus_green", 1, "§fDeposit..."));
-inv.setItem(bankmenu, 1, read.item("km:coin_copper", 1, "§f1 snuvi"));
-inv.setItem(bankmenu, 2, read.item("km:coin_silver", 1, "§f64 snuvis"));
-inv.setItem(bankmenu, 3, read.item("km:coin_gold", 1, "§f4096 snuvis"));
-inv.setItem(bankmenu, 4, read.item("minecraft:netherite_block", 1, "§fAll snuvis"));
-inv.setItem(bankmenu, 5, read.item("km:minus_red", 1, "§fWithdraw..."));
-inv.setItem(bankmenu, 6, read.item("km:coin_copper", 1, "§f1 snuvi"));
-inv.setItem(bankmenu, 7, read.item("km:coin_silver", 1, "§f64 snuvis"));
-inv.setItem(bankmenu, 8, read.item("km:coin_gold", 1, "§f4096 snuvis"));
-inv.setItem(bankmenu, 9, read.item("minecraft:netherite_block", 1, "§fAll snuvis"));
-inv.setItem(bankmenu, 10, read.item("km:coin_copper", 64, "§f64 snuvis"));
-inv.setItem(bankmenu, 11, arrow_left);
-inv.setItem(bankmenu, 12, arrow_right);
-inv.setItem(bankmenu, 13, read.item("km:coin_silver", 1, "§f64 snuvis"));
-inv.setItem(bankmenu, 14, read.item("km:coin_silver", 64, "§f4096 snuvis"));
-inv.setItem(bankmenu, 15, arrow_left);
-inv.setItem(bankmenu, 16, arrow_right);
-inv.setItem(bankmenu, 17, read.item("km:coin_gold", 1, "§f4096 snuvis"));*/
+inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 snuvi", null));
+inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 snuvi", null));
+inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 snuvi", null));
+inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll snuvis", null));
 
 msg.string("dev", "§bSurvival §rloaded.");
 @wait
@@ -205,194 +182,195 @@ if(!hasPvpOn(player)) {
 goto("wait");
 
 @entity_click
-if(hand == "OFF_HAND") {
+if(slot.isOffHand(hand)) {
 	goto("wait");
 }
-if(entity.getType(entity) == "human") {
-	entity_name = entity.getName(entity);
-	if(entity_name == "Administrator\n§cmarvinius") {
-		item = living.getHand(player);
-		item_name = item.getName(item);
-		if(removeFormat(item_name) == "Beer") {
-			sound.spawnForPlayer(player, $sound_drink_milk, $sound_category_master, 1, 1);
-			msg.prefix(player, "§cmarvinius", "Prost!");
-		}
-		else{
-			msg.prefix(player, "§cmarvinius", "Ich mag Gösser.");
-		}
-		goto("wait");
-	}
-	if(entity_name == "Owner\n§4kajetanjohannes") {
-		item = living.getHand(player);
-		item_type = item.getType(item);
-		sound.spawnForPlayer(player, $sound_slime_place, $sound_category_master, 1, 1);
-		if(item_type == "minecraft:redstone") {
-			rand_number = math.roundup(math.random(0,3));
-			if(rand_number == 0){
-				temp_message = "WUSIWUSIWUSIWUSIWUSIWUSIWUSIWUSI";
-			}
-			if(rand_number == 1){
-				temp_message = "Wusi!";
-			}
-			if(rand_number == 2){
-				temp_message = "Wusi?";
-			}
-			if(rand_number == 3){
-				temp_message = "Wusi.";
-			}
-			msg.prefix(player, "§4kajetanjohannes", temp_message);
-			goto("wait");
-		}
-		if(item_type == "minecraft:ice" || item_type == "minecraft:blue_ice" || item_type == "minecraft:packed_ice"){
-			msg.prefix(player, "§4kajetanjohannes", "§bDas sieht nach mir aus.");
-		}else{
-			msg.prefix(player, "§4kajetanjohannes", "wusi");
-		}
+if(!entity.isHuman(entity)) {
 	goto("wait");
+}
+entity_name = human.getName(entity);
+if(entity_name == "Administrator\n§cmarvinius") {
+	item = living.getHand(player);
+	item_name = item.getName(item);
+	if(removeFormat(item_name) == "Beer") {
+		sound.spawnForPlayer(player, $sound_drink_milk, $sound_category_master, 1, 1);
+		msg.prefix(player, "§cmarvinius", "Prost!");
 	}
-	if(entity_name == "Supporter\n§bImKillerKatze") {
-		rand_number = math.roundup(math.random(0,25));
-		if(rand_number > 13){
-			sound.spawnForPlayer(player, $sound_cat, $sound_category_master, 1, 1);
-			msg.prefix(player, "§bImKillerKatze", "Miau");
-			goto("wait");
-		}
-		if(rand_number < 12){
-			sound.spawnForPlayer(player, $sound_stray_cat, $sound_category_master, 1, 1);
-			msg.prefix(player, "§bImKillerKatze", "Miau!");
-			goto("wait");
-		}
-		else{
-			sound.spawnForPlayer(player, $sound_purreow, $sound_category_master, 1, 1);
-			msg.prefix(player, "§bImKillerKatze", "Schnurrr!");
-			goto("wait");
-		}
+	else{
+		msg.prefix(player, "§cmarvinius", "Ich mag Gösser.");
 	}
-	if(entity_name == "Administrator\n§cwertibaldi") {
-			msg.prefix(player, "§cwertibaldi", "Kann grad nicht, bin im Einsatz für den Katastrophenschutz.");
+	goto("wait");
+}
+if(entity_name == "Owner\n§4kajetanjohannes") {
+	item = living.getHand(player);
+	item_type = item.getType(item);
+	sound.spawnForPlayer(player, $sound_slime_place, $sound_category_master, 1, 1);
+	if(item_type == "minecraft:redstone") {
+		rand_number = math.roundup(math.random(0,3));
+		if(rand_number == 0){
+			temp_message = "WUSIWUSIWUSIWUSIWUSIWUSIWUSIWUSI";
+		}
+		if(rand_number == 1){
+			temp_message = "Wusi!";
+		}
+		if(rand_number == 2){
+			temp_message = "Wusi?";
+		}
+		if(rand_number == 3){
+			temp_message = "Wusi.";
+		}
+		msg.prefix(player, "§4kajetanjohannes", temp_message);
 		goto("wait");
 	}
-	if(entity_name == "Administrator\n§cMentorMentos") {
-		item = living.getHand(player);
-		item_name = item.getName(item);
-		if(removeFormat(item_name) == "Beer") {
-			msg.prefix(player, "§cMentorMentos", "Folg mir auf Twitch! ");
-			msg(player, string.getLinkText("Klick mich an :D","https://www.twitch.tv/Mentor_Mentos"));
-		}
-		else{
-			msg.prefix(player, "§cMentorMentos", "Ich mag Kölsch.");
-		}
+	if(item_type == "minecraft:ice" || item_type == "minecraft:blue_ice" || item_type == "minecraft:packed_ice"){
+		msg.prefix(player, "§4kajetanjohannes", "§bDas sieht nach mir aus.");
+	}else{
+		msg.prefix(player, "§4kajetanjohannes", "wusi");
+	}
+goto("wait");
+}
+if(entity_name == "Supporter\n§bImKillerKatze") {
+	rand_number = math.roundup(math.random(0,25));
+	if(rand_number > 13){
+		sound.spawnForPlayer(player, $sound_cat, $sound_category_master, 1, 1);
+		msg.prefix(player, "§bImKillerKatze", "Miau");
 		goto("wait");
 	}
-	if(entity_name == "Moderator\n§9SirTerence7") {
-		rand_number = math.roundup(math.random(0,7));
-		if(rand_number < 4){
-			msg.prefix(player, "§9SirTerence7", "Mathe bla... bla... bla...");
-		}
-		if(rand_number == 4){
-			msg.prefix(player, "§9SirTerence7", "Fraktale bla... bla... bla...");
-		}
-		if(rand_number == 5){
-			msg.prefix(player, "§9SirTerence7", "Höhere Dimensionen bla... bla... bla...");
-		}
-		if(rand_number == 6){
-			msg.prefix(player, "§9SirTerence7", "*redet mit Händen weiter*");
-		}
-		if(rand_number == 7){
-			msg.prefix(player, "§9SirTerence7", "*wechselt voller Faszination zwischen scheinbar zusammenhangslosen Themen hin und her*");
-		}
+	if(rand_number < 12){
+		sound.spawnForPlayer(player, $sound_stray_cat, $sound_category_master, 1, 1);
+		msg.prefix(player, "§bImKillerKatze", "Miau!");
+		goto("wait");
+	}
+	else{
+		sound.spawnForPlayer(player, $sound_purreow, $sound_category_master, 1, 1);
+		msg.prefix(player, "§bImKillerKatze", "Schnurrr!");
+		goto("wait");
+	}
+}
+if(entity_name == "Administrator\n§cwertibaldi") {
+		msg.prefix(player, "§cwertibaldi", "Kann grad nicht, bin im Einsatz für den Katastrophenschutz.");
+	goto("wait");
+}
+if(entity_name == "Administrator\n§cMentorMentos") {
+	item = living.getHand(player);
+	item_name = item.getName(item);
+	if(removeFormat(item_name) == "Beer") {
+		msg.prefix(player, "§cMentorMentos", "Folg mir auf Twitch! ");
+		msg(player, string.getLinkText("Klick mich an :D","https://www.twitch.tv/Mentor_Mentos"));
+	}
+	else{
+		msg.prefix(player, "§cMentorMentos", "Ich mag Kölsch.");
+	}
+	goto("wait");
+}
+if(entity_name == "Moderator\n§9SirTerence7") {
+	rand_number = math.roundup(math.random(0,7));
+	if(rand_number < 4){
+		msg.prefix(player, "§9SirTerence7", "Mathe bla... bla... bla...");
+	}
+	if(rand_number == 4){
+		msg.prefix(player, "§9SirTerence7", "Fraktale bla... bla... bla...");
+	}
+	if(rand_number == 5){
+		msg.prefix(player, "§9SirTerence7", "Höhere Dimensionen bla... bla... bla...");
+	}
+	if(rand_number == 6){
+		msg.prefix(player, "§9SirTerence7", "*redet mit Händen weiter*");
+	}
+	if(rand_number == 7){
+		msg.prefix(player, "§9SirTerence7", "*wechselt voller Faszination zwischen scheinbar zusammenhangslosen Themen hin und her*");
+	}
 
 
-		rand_number = math.roundup(math.random(0,500));
-		if(rand_number <= 2){
-			sound.spawnForPlayer(player, $music_chirp, $sound_category_master, 1, 1);
+	rand_number = math.roundup(math.random(0,500));
+	if(rand_number <= 2){
+		sound.spawnForPlayer(player, $music_chirp, $sound_category_master, 1, 1);
+	}else{
+		rand_pitch = math.roundup(math.random(4, list.getSize(Sound_Pitch_List)-5));
+		if(rand_number < 200){
+			pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-4);
+			pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
+			pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+3);
 		}else{
-			rand_pitch = math.roundup(math.random(4, list.getSize(Sound_Pitch_List)-5));
-			if(rand_number < 200){
+			if(rand_number < 300){
 				pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-4);
+				pitch1_2 = list.getIndex(Sound_Pitch_List, rand_pitch-2);
 				pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
+				pitch3_2 = list.getIndex(Sound_Pitch_List, rand_pitch+1);
 				pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+3);
+				sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.5, pitch1_2);
+				sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.5, pitch3_2);
+				sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.75, pitch1_2);
+				sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.75, pitch3_2);
 			}else{
-				if(rand_number < 300){
-					pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-4);
-					pitch1_2 = list.getIndex(Sound_Pitch_List, rand_pitch-2);
-					pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
-					pitch3_2 = list.getIndex(Sound_Pitch_List, rand_pitch+1);
-					pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+3);
-					sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.5, pitch1_2);
-					sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.5, pitch3_2);
-					sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.75, pitch1_2);
-					sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.75, pitch3_2);
-				}else{
-					pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-3);
-					pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
-					pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+4);
-				}
+				pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-3);
+				pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
+				pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+4);
 			}
-			sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.8, pitch1);
-			sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.9, pitch2);
-			sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.8, pitch2);
-			sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.9, pitch1);
-			sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 1, pitch2);
-			sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.9, pitch3);
 		}
+		sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.8, pitch1);
+		sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.9, pitch2);
+		sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.8, pitch2);
+		sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.9, pitch1);
+		sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 1, pitch2);
+		sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.9, pitch3);
+	}
+	goto("wait");
+}
+if(entity_name == "Moderator\n§9Mareeeen") {
+	rand_number = math.roundup(math.random(0,5));
+	if(rand_number > 1){
+		msg.prefix(player, "§9Mareeeen", "Wo ist die Schokolade versteckt!?");
+	}else{
+		msg.prefix(player, "§9Mareeeen", "Ich esse deine Schokolade!");
+		sound.spawnForPlayer(player, $sound_eating, $sound_category_master, 1, 1);
+	}
+	goto("wait");
+}
+
+if(entity_name == "Info-Point") {
+	msg(player, string.getSpacer());
+	msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
+	msg(player, string.getClickText("§r [§cclick§r] [§ePlots§r]", "/infopoint3"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eClans§r]", "/infopoint4"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eCities§r]", "/infopoint5"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eShops§r]", "/infopoint6"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), " ", string.getClickText("§f[§bTeleport§f]", "/games"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), " ", string.getClickText("§f[§bTeleport§f]", "/creative"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", string.getLinkText("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", string.getLinkText("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
+	msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
+	goto("wait");
+}
+if(entity_name == "Banker") {
+	inv.open(bankmenu, player);
+	goto("wait");
+}
+if(entity_name == "Adventure") {
+	if(!player.isOnAdventure(player)) {
+		msg.prefix(player, "§5Adventure", "You aren't on an adventure. Click the chest in the teleporter to start an adventure.");
 		goto("wait");
 	}
-	if(entity_name == "Moderator\n§9Mareeeen") {
-		rand_number = math.roundup(math.random(0,5));
-		if(rand_number > 1){
-			msg.prefix(player, "§9Mareeeen", "Wo ist die Schokolade versteckt!?");
-		}else{
-			msg.prefix(player, "§9Mareeeen", "Ich esse deine Schokolade!");
-			sound.spawnForPlayer(player, $sound_eating, $sound_category_master, 1, 1);
-		}
-		goto("wait");
+	player.setAdventure(player, false);
+	adventures = player.getAdventureAmounts(player);
+	if(adventures == null) {
+		adventures = 0;
 	}
-	
-	if(entity_name == "Info-Point") {
-		msg(player, string.getSpacer());
-		msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
-		msg(player, string.getClickText("§r [§cclick§r] [§ePlots§r]", "/infopoint3"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eClans§r]", "/infopoint4"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eCities§r]", "/infopoint5"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eShops§r]", "/infopoint6"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), " ", string.getClickText("§f[§bTeleport§f]", "/games"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), " ", string.getClickText("§f[§bTeleport§f]", "/creative"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", string.getLinkText("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", string.getLinkText("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
-		msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
-		goto("wait");
+	player.setAdventureAmounts(player, ++adventures);
+	msg.prefix(player, "§5Adventure", "Congratulations, you finished your adventure, here ist your reward!");
+	if(adventures == 10) {
+		offerRank(player, "rank.pioneer");
+	} elseif(adventures == 5) {
+		offerRank(player, "rank.explorer");
+	} elseif(adventures == 1) {
+		offerRank(player, "rank.adventurer");
 	}
-	if(entity_name == "Banker") {
-		inv.open(bankmenu, player, "Banker");
-		goto("wait");
-	}
-	if(entity_name == "Adventure") {
-		if(!player.isOnAdventure(player)) {
-			msg.prefix(player, "§5Adventure", "You aren't on an adventure. Click the chest in the teleporter to start an adventure.");
-			goto("wait");
-		}
-		player.setAdventure(player, false);
-		adventures = player.getAdventureAmounts(player);
-		if(adventures == null) {
-			adventures = 0;
-		}
-		player.setAdventureAmounts(player, ++adventures);
-		msg.prefix(player, "§5Adventure", "Congratulations, you finished your adventure, here ist your reward!");
-		if(adventures == 10) {
-			offerRank(player, "rank.pioneer");
-		} elseif(adventures == 5) {
-			offerRank(player, "rank.explorer");
-		} elseif(adventures == 1) {
-			offerRank(player, "rank.adventurer");
-		}
-		removeAdventureDisplay(player);
-		player.safeGiveItem(player, item.getAmber());
-		money.addBoost(player, 4096);
-		goto("wait");
-	}
+	removeAdventureDisplay(player);
+	player.safeGiveItem(player, item.getAmber());
+	money.addBoost(player, 4096);
+	goto("wait");
 }
 goto("wait");
 
@@ -411,141 +389,57 @@ if(set.contains(tp_set, player_uuid)) {
 goto("wait");
 
 @snuvi_click
+inv_id = inv.getId(inv);
 if(inv_id == bankinvid) { //Bankmenü
-	factor = 1;
-	if(click_type == "QUICK_MOVE") {
-		factor = 8;
-	}
-	gold_inv = player.getItemAmount(player, false, coin_gold);
-	silver_inv = player.getItemAmount(player, false, coin_silver);
-	copper_inv = player.getItemAmount(player, false, coin_copper);
-	//Wechseln
-	if(inv_slot == 11 || inv_slot == 12 || inv_slot == 15 || inv_slot == 16)  {
-		if(inv_slot == 11) {
-			//1 Silbermünze --> 64 Kupfermünzen
-			from_item = coin_silver;
-			to_item = coin_copper64;
-			message = "Not enough silvercoins in inventory.";
-			item_type = "km:coin_copper";
-			needed_inv_coins = silver_inv;
-		}
-		elseif(inv_slot == 12) {
-			//64 Kupfermünzen --> 1 Silbermünze
-			from_item = coin_copper64;
-			to_item = coin_silver;
-			message = "Not enough coppercoins in inventory.";
-			item_type = "km:coin_silver";
-			needed_inv_coins = copper_inv;
-		}
-		elseif(inv_slot == 15) {
-			//1 Goldmünze --> 64 Silbermünzen
-			from_item = coin_gold;
-			to_item = coin_silver64;
-			message = "Not enough goldcoins in inventory.";
-			item_type = "km:coin_silver";
-			needed_inv_coins = gold_inv;
-		}
-		elseif(inv_slot == 16) {
-			//64 Silbermünzen --> 1 Goldmünze
-			from_item = coin_silver64;
-			to_item = coin_gold;
-			message = "Not enough silvercoins in inventory.";
-			item_type = "km:coin_gold";
-			needed_inv_coins = silver_inv;
-		}
-		item_1 = item.clone(from_item);
-		item.setAmount(item_1, item.getAmount(item_1) * factor);
-		item_2 = item.clone(to_item);
-		item.setAmount(item_2, item.getAmount(item_2) * factor);
-		amount1 = item.getAmount(item_1);
-		amount2 = item.getAmount(item_2);
-		if(needed_inv_coins * factor < amount1 * factor) {
-			msg.prefix(player, prefix_money, message);
-			goto("wait");
-		}
-		player.removeItemNbt(player, item_1);
-		notgiven = player.giveItem(player, item_2);
-		if(item.getType(notgiven) != "minecraft:air") {
-			amount = item.getAmount(notgiven);
-			player.removeItemNbt(player, read.item(item_type, amount2 - amount));
-			player.giveItem(player, item_1);
-			msg.prefix(player, prefix_money, "Not enough space in inventory.");
-			goto("wait");
-		}
-		inv.update(player);
-		msg.prefix(player, prefix_money, "Exchange succesfull.");
-		goto("wait");
-	}
-	//Kontobewegungen
-	if(inv_slot == 1 || inv_slot == 6) {
-		betrag = 1 * factor;
-		coin_inv = copper_inv;
-	}
-	elseif(inv_slot == 2 || inv_slot == 7) {
-		betrag = 64 * factor;
-		coin_inv = silver_inv;
-	}
-	elseif(inv_slot == 3 || inv_slot == 8) {
-		betrag = 4096 * factor;
-		coin_inv = gold_inv;
-	}
-	elseif(inv_slot == 4 || inv_slot == 9) {
-		if(inv_slot == 4) {
-			betrag = copper_inv + silver_inv * 64 + gold_inv * 4096;
-			coin_inv = 8;
-		} elseif(inv_slot == 9) {
-			betrag = getMoney(player);
-			coin_inv = 8;
-		}
-	}
 	//Einzahlen
-	if(inv_slot > 0 && inv_slot < 5) {
-		if(coin_inv < 1 * factor) {
-			msg.prefix(player, prefix_money, "Coins not in inventory.");
-			goto("wait");
+	if(click == "RIGHT" || click == "SHIFT_RIGHT") {
+		amount_items = 1;
+		if(click == "SHIFT_RIGHT") {
+			amount_items = 64;
 		}
-		if(betrag == 0) {
-			msg.prefix(player, prefix_money, "No coins in your inventory.");
-			goto("wait");
+		player_inv = player.getInv(player);
+		gold_item = item.custom.create("GOLD_COIN", 1, null, null);
+		silver_item = item.custom.create("SILVER_COIN", 1, null, null);
+		copper_item = item.custom.create("COPPER_COIN", 1, null, null);
+		gold_inv = inv.getItemAmount(player_inv, gold_item);
+		silver_inv = inv.getItemAmount(player_inv, silver_item);
+		copper_inv = inv.getItemAmount(player_inv, copper_item);
+		if(inv_slot == 0) {
+			depositSnuvis(player, amount_items, 0, 0);
 		}
-		addMoney(player, betrag);
-		if(inv_slot == 4) {
-			player.removeItemNbt(player, read.item("km:coin_gold", gold_inv));
-			player.removeItemNbt(player, read.item("km:coin_silver", silver_inv));
-			player.removeItemNbt(player, read.item("km:coin_copper", copper_inv));
-		} else {
-			remove_item = item.clone(inv.getItem(bankmenu, inv_slot));	
-			item.setAmount(remove_item, item.getAmount(remove_item) * factor);
-			player.removeItemNbt(player, remove_item);
+		elseif(inv_slot == 1) {
+			depositSnuvis(player, 0, amount_items, 0);
 		}
-		inv.update(player);
+		elseif(inv_slot == 2) {
+			depositSnuvis(player, 0, 0, amount_items);
+		}
+		elseif(inv_slot == 3) {
+			gold_inv = inv.getItemAmount(player_inv, item.custom.create("GOLD_COIN", 1, null, null));
+			silver_inv = inv.getItemAmount(player_inv, item.custom.create("SILVER_COIN", 1, null, null));
+			copper_inv = inv.getItemAmount(player_inv, item.custom.create("COPPER_COIN", 1, null, null));
+			depositSnuvis(player, copper_inv, silver_inv, gold_inv);
+		}
 		goto("wait");
 	}
 	//Auszahlen
-	if(inv_slot > 5 && inv_slot < 10) {
-		if(!hasEnoughMoney(player, betrag)) {
-			msg.prefix(player, prefix_money, "Not enough snuvis on your account.");
-		} else {
-			subMoney(player, betrag);
-			if(inv_slot == 9) {
-				gold_amount = math.roundDown(betrag / 4096);
-				betrag %= 4096;
-				silver_amount = math.roundDown(betrag / 64);
-				copper_amount = math.roundDown(betrag % 64);
-				coin_item = read.item("km:coin_gold", gold_amount);
-				player.safeGiveItem(player, coin_item);
-				coin_item = read.item("km:coin_silver", silver_amount);
-				player.safeGiveItem(player, coin_item);
-				coin_item = read.item("km:coin_copper", copper_amount);
-				player.safeGiveItem(player, coin_item);
-			} else {
-				item = inv.getItem(bankmenu, inv_slot);
-				new_item = read.item(item.getType(item), item.getAmount(item) * factor);
-				player.safeGiveItem(player, new_item);
-			}
-			inv.update(player);
+	if(click == "LEFT" || click == "SHIFT_LEFT") {
+		amount_items = 1;
+		if(click == "SHIFT_LEFT") {
+			amount_items = 64;
 		}
-		goto("wait");
+		if(inv_slot == 0) {
+			withdrawSnuvis(player, amount_items, 0, 0);
+		}
+		elseif(inv_slot == 1) {
+			withdrawSnuvis(player, 0, amount_items, 0);
+		}
+		elseif(inv_slot == 2) {
+			withdrawSnuvis(player, 0, 0, amount_items);
+		}
+		elseif(inv_slot == 3) {
+			a = money.split(getMoney(player));
+			withdrawSnuvis(player, a[2], a[1], a[0]);
+		}
 	}
 	goto("wait");
 }
@@ -591,6 +485,59 @@ if(inv_id == gambler_inv_id) {
 }
 goto("wait");
 
+function depositSnuvis(player, copper, silver, gold) {
+	gold_item = item.custom.create("GOLD_COIN", 1, null, null);
+	silver_item = item.custom.create("SILVER_COIN", 1, null, null);
+	copper_item = item.custom.create("COPPER_COIN", 1, null, null);
+	player_inv = player.getInv(player);
+	gold_inv = inv.getItemAmount(player_inv, gold_item);
+	silver_inv = inv.getItemAmount(player_inv, silver_item);
+	copper_inv = inv.getItemAmount(player_inv, copper_item);
+	if(copper > copper_inv || silver > silver_inv || gold > gold_inv) {
+		player.action(player, text.new("Not enough coins in inventory."));
+		return;
+	}
+	if(copper > 0) {
+		item.setAmount(copper_item, copper);
+		inv.removeItem(player_inv, copper_item);
+	}
+	if(silver > 0) {
+		item.setAmount(silver_item, silver);
+		inv.removeItem(player_inv, silver_item);
+	}
+	if(gold > 0) {
+		item.setAmount(gold_item, gold);
+		inv.removeItem(player_inv, gold_item);
+	}
+	sum = copper + silver * 64 + gold * 4096;
+	money.add(player, sum);
+}
+
+function withdrawSnuvis(player, copper, silver, gold) {
+	sum = copper + silver * 64 + gold * 4096;
+	if(!hasEnoughMoney(player, sum)) {
+		player.action(player, text.new("Not enough snuvis on your account."));
+		return;
+	}
+	if(copper > 0) {
+		copper_item = item.custom.create("COPPER_COIN", 1, null, null);
+		item.setAmount(copper_item, copper);
+		player.safeGiveItem(player, copper_item);
+	}
+	if(silver > 0) {
+		silver_item = item.custom.create("SILVER_COIN", 1, null, null);
+		item.setAmount(silver_item, silver);
+		player.safeGiveItem(player, silver_item);
+	}
+	if(gold > 0) {
+		gold_item = item.custom.create("GOLD_COIN", 1, null, null);
+		item.setAmount(gold_item, gold);
+		player.safeGiveItem(player, gold_item);
+	}
+	sum = copper + silver * 64 + gold * 4096;
+	money.sub(player, sum);
+}
+
 function fire_ring(location, block_string, radius){
 	loc_x = loc.getX(location);
 	loc_y = loc.getY(location);
@@ -635,6 +582,14 @@ if(action == "RIGHT_CLICK_AIR") {
 	}
 	msg.prefix(player, "§eClock", string.concat(string.number(time_h), ":", time_m));
 	goto("wait");
+}
+if(action == "RIGHT_CLICK_BLOCK") {
+	if(block.isType(block, "SPAWNER")) {
+		if(!player.isCreative(player)) {
+			cancel = true;
+			goto("wait");
+		}
+	}
 }
 goto("wait");
 if(hand == "OFF_HAND") {
