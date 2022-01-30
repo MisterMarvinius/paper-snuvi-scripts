@@ -1,0 +1,14 @@
+gamesworld = world.getGames();
+//Rectangle 1: edge1 und edge2
+edge1 = loc.new(gamesworld, 3004, 101, 4996);
+edge2 = loc.new(gamesworld, 3006, 101, 5004);
+//Rectangle 2: edge3 und edge4, both rectangles creates a plus, which represents the board
+edge3 = loc.new(gamesworld, 3001, 101, 4999);
+edge4 = loc.new(gamesworld, 3009, 101, 5001);
+
+lu_corner = loc.new(gamesworld, 3001, 101, 4996); //left_upper_corner means north_west
+y_bottom = 100;
+torch = material.get("minecraft:redstone_torch");
+middleloc = loc.new(gamesworld, 3005, 101, 5000);
+gamesignloc = minigame.getSignLoc("leapfrogsign1");
+maxplayers = 1;

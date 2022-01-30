@@ -1,0 +1,56 @@
+event.load("block_break");
+block_remover_max = 10000;
+air_material = material.get("AIR");
+
+@wait
+wait();
+if(player.getName(player) == "SirTerence7"){
+	if(player.isSneaking(player) && player.isCreative(player)){
+		block_to_destroy = block.getType(block);
+		block_loc = block.getLocation(block);
+		block_remover.get(block_loc);
+	}
+}
+goto("wait");
+
+function block_remover.get(block_loc){
+	c = 0;
+	original_block_loc = block_loc;
+	max_radius = 10;
+	lava_counter = 0;
+	$lava_locs = list.new();
+	list.add($lava_locs, block_loc);
+	while(list.getSize($lava_locs) != 0){
+		c++;
+		block_loc = list.getIndex($lava_locs, 0);
+		list.removeIndex($lava_locs, 0);
+		if(location_circle.distance(block_loc, original_block_loc) < max_radius){
+			block_remover.add_block(loc.mod(block_loc,1,0,0));
+			block_remover.add_block(loc.mod(block_loc,-1,0,0));
+			block_remover.add_block(loc.mod(block_loc,0,1,0));
+			block_remover.add_block(loc.mod(block_loc,0,-1,0));
+			block_remover.add_block(loc.mod(block_loc,0,0,1));
+			block_remover.add_block(loc.mod(block_loc,0,0,-1));
+			
+			lava_counter++;
+			if(c > 100){
+				waitfor(2);
+				c = 0;
+			}
+			if(lava_counter > $block_remover_max - 1) {
+				break;
+			}
+		}
+	}
+}
+
+function block_remover.add_block(temp_loc){
+	if(block.getType(block.get(temp_loc)) == $block_to_destroy){
+		list.add($lava_locs, temp_loc);
+		block.setMaterial(block.get(temp_loc), $air_material);
+	}
+}
+
+function location_circle.distance(block_loc_1, block_loc_2){
+	return(math.roundUp(math.sqrt(math.pow(loc.getX(block_loc_1)-loc.getX(block_loc_2),2)+math.pow(loc.getY(block_loc_1)-loc.getY(block_loc_2),2)+math.pow(loc.getZ(block_loc_1)-loc.getZ(block_loc_2),2))));
+}

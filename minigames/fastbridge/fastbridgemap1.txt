@@ -1,0 +1,49 @@
+gamesignloc = minigame.getSignLoc("fastbridgesign1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 2026, 101, -3002);
+mapname = "Beehive";
+minplayers = 1;
+maxplayers = 10;
+minutes = 2;
+seconds = 0;
+middleloc = loc.new(gamesworld, 2000, 114, -2007);
+radius = 100;
+
+colors = list.new();
+list.add(colors, item.create("minecraft:white_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:orange_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:light_blue_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:lime_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:pink_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:light_gray_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:purple_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:brown_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:green_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:red_terracotta", 1, null, null));
+
+spawns = list.new();
+list.add(spawns, loc.new(gamesworld, 2000, 117, -2007));
+list.add(spawns, loc.new(gamesworld, 2010, 117, -2007));
+list.add(spawns, loc.new(gamesworld, 2020, 117, -2007));
+list.add(spawns, loc.new(gamesworld, 1995, 108, -2007));
+list.add(spawns, loc.new(gamesworld, 2005, 108, -2007));
+list.add(spawns, loc.new(gamesworld, 2015, 108, -2007));
+list.add(spawns, loc.new(gamesworld, 2025, 108, -2007));
+list.add(spawns, loc.new(gamesworld, 2000, 99, -2007));
+list.add(spawns, loc.new(gamesworld, 2010, 99, -2007));
+list.add(spawns, loc.new(gamesworld, 2020, 99, -2007));
+
+ycheck_list = list.new();
+list.add(ycheck_list, 117);
+list.add(ycheck_list, 117);
+list.add(ycheck_list, 117);
+list.add(ycheck_list, 108);
+list.add(ycheck_list, 108);
+list.add(ycheck_list, 108);
+list.add(ycheck_list, 108);
+list.add(ycheck_list, 99);
+list.add(ycheck_list, 99);
+list.add(ycheck_list, 99);
+
+//Welche Koordinate verändert sich nicht? x oder z?
+coord = "x";

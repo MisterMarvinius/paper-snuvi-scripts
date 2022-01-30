@@ -1,0 +1,303 @@
+event.load("block_place");
+event.load("block_click");
+
+games_world = world.getGames();
+
+red_glass_loc = loc.new(games_world, -425, 149, -51);
+yellow_glass_loc = loc.new(games_world, -425, 149, -50);
+green_glass_loc = loc.new(games_world, -425, 149, -49);
+clear_loc = loc.new(games_world, -425, 148, -50);
+
+tic_tac_toe_blocks = list.new();
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 148, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 149, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 150, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 148, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 149, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 150, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 148, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 149, -49));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 150, -49));
+
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 148, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 149, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 150, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 148, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 149, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 150, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 148, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 149, -50));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 150, -50));
+
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 148, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 149, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -430, 150, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 148, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 149, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -431, 150, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 148, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 149, -51));
+list.add(tic_tac_toe_blocks, loc.new(games_world, -432, 150, -51));
+
+winning_blocks = list.new();
+air = material.getAir();
+setFieldToAir();
+
+msg.string("dev", "§bTicTacToe §rloaded.");
+@wait
+wait();
+if(event == "block_click") {
+	if(block == null) {
+		goto("wait");
+	}
+	block_loc = block.getLocation(block);
+	if(block_loc == clear_loc) {
+		setFieldToAir();
+	}
+	elseif(block_loc == red_glass_loc) {
+		player.giveItem(player, item.create("minecraft:red_stained_glass", 32, null, null));
+	}
+	elseif(block_loc == yellow_glass_loc) {
+		player.giveItem(player, item.create("minecraft:yellow_stained_glass", 32, null, null));
+	}
+	elseif(block_loc == green_glass_loc) {
+		player.giveItem(player, item.create("minecraft:green_stained_glass", 32, null, null));
+	}
+	goto("wait");
+}
+if(event == "block_place") {
+	block_loc = block.getLocation(block);
+	block_type = block.getType(block);
+	if(is.tictactoe_placeable(block_loc)) {
+		cancel = false;
+		if(is.triplet(block_loc)) {
+			goto("tic_tac_toe_win");
+		}		
+	}
+}
+goto("wait");
+
+@tic_tac_toe_win
+msg.radius("§b3D-TicTacToe", string.concat(player.getName(player), " won."), entity.getLocation(player), 5);
+list.add(winning_blocks, block_loc);
+for(a = 0; a < list.getSize(winning_blocks); a++) {
+	block.setMaterial(block.get(list.getIndex(winning_blocks, a)), material.get("red_wool"));
+}
+list.clear(winning_blocks);
+waitfor(60);
+setFieldToAir();
+goto("wait");
+
+
+function is.tictactoe_placeable(block_loc) {
+	if(!list.contains($tic_tac_toe_blocks, block_loc)) {
+		return false;
+	}
+	loc.addY(block_loc, -1);
+	if(block.isAir(block.get(block_loc))) {
+		loc.addY(block_loc, 1);
+		return false;
+	}
+	loc.addY(block_loc, 1);
+	return true;
+}
+
+function is.triplet(block_loc) {
+	if(triplet.straight(block_loc)) {
+		return true;
+	}
+	if(triplet.cross(block_loc)) {
+		return true;
+	}
+	return triplet.cross_cross(block_loc);
+}
+
+function triplet.straight(block_loc){
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	loc.addX(block_loc, -2);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addX(block_loc, 1);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addX(block_loc, 2);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addX(block_loc, 1);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addX(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	loc.addY(block_loc, -2);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addY(block_loc, 1);	
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addY(block_loc, 2);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addY(block_loc, 1);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addY(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	loc.addZ(block_loc, -2);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addZ(block_loc, 1);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addZ(block_loc, 2);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addZ(block_loc, 1);
+	temp_block_count = temp_block_count + is.blockType(block_loc);
+	loc.addZ(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	return false;
+}
+
+function triplet.cross(block_loc){
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2, 0,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 0, 1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2, 0, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 0, 1));
+	loc.addX(block_loc, -2);
+	loc.addZ(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2, 0, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 0,-1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2, 0,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 0,-1));
+	loc.addX(block_loc, -2);
+	loc.addZ(block_loc, 2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0,-2,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0, 1, 1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0, 2, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0, 1, 1));
+	loc.addY(block_loc, -2);
+	loc.addZ(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0,-2, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0, 1,-1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0, 2,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 0, 1,-1));
+	loc.addY(block_loc, -2);
+	loc.addZ(block_loc, 2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2,-2, 0));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 1, 0));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2, 2, 0));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 1, 0));
+	loc.addY(block_loc, -2);
+	loc.addX(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2,-2, 0));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-1, 1, 0));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2, 2, 0));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-1, 1, 0));
+	loc.addY(block_loc, -2);
+	loc.addX(block_loc, 2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	return false;
+}
+
+function triplet.cross_cross(block_loc){
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2,-2,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 1, 1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2, 2, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 1, 1));
+	loc.addY(block_loc, -2);
+	loc.addX(block_loc, -2);
+	loc.addZ(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2,-2,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-1, 1, 1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2, 2, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-1, 1, 1));
+	loc.addY(block_loc, -2);
+	loc.addX(block_loc, 2);
+	loc.addZ(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2, 2,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1,-1, 1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2,-2, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1,-1, 1));
+	loc.addY(block_loc, 2);
+	loc.addX(block_loc, -2);
+	loc.addZ(block_loc, -2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	temp_block_count = 1;
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc,-2,-2, 2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 1,-1));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 2, 2,-2));
+	temp_block_count = temp_block_count + is.blockType(t_loc_add(block_loc, 1, 1,-1));
+	loc.addY(block_loc, -2);
+	loc.addX(block_loc, -2);
+	loc.addZ(block_loc, 2);
+	if(temp_block_count > 2){
+		return true;
+	}
+	list.clear($winning_blocks);
+	return false;
+}
+
+function t_loc_add(block_loc, x, y, z){
+	loc.add(block_loc,x, y ,z);
+	return block_loc;
+}
+
+function is.blockType(block_loc) {
+	if(block.getType(block.get(block_loc)) == $block_type) {
+		list.add($winning_blocks, loc.mod(block_loc, 0, 0, 0));
+		return 1;
+	}
+	return 0;
+}
+
+function setFieldToAir() {
+	for(a = 0; a < list.getSize($tic_tac_toe_blocks); a++) {
+		block.setMaterial(block.get(list.getIndex($tic_tac_toe_blocks, a)), $air);
+	}
+}

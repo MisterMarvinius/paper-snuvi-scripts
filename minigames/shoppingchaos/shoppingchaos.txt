@@ -1,0 +1,897 @@
+rankingtable = "shoppingranks";
+game_short = "sc";
+game_tab = "§eSC";
+specific_lobby_handling = true;
+no_core_reset = true;
+
+air = "minecraft:air";
+air_item = item.getAir();
+air_mat = material.getAir();
+paper_mat = material.get("PAPER");
+emerald = item.create("minecraft:emerald", 1, null, null);
+emerald10 = item.create("minecraft:emerald", 10, null, null);
+gamename = "§eShoppingChaos";
+start_sound = sound.get("BLOCK_NOTE_BLOCK_HARP");
+wall_signs_tag = block.getTag("minecraft:wall_signs");
+black_glass_pane = item.create("BLACK_STAINED_GLASS_PANE", 1, "", null);
+black_glass_pane_mat = material.get("BLACK_STAINED_GLASS_PANE");
+
+players = map.new(); //Alle player_uuids mit Verweis auf die Team-Nr
+playersinteam = map.new(); //Anzahl der Spieler im Team
+teamidtolist = map.new(); //Team-Nr mit Verweis auf die Spielerlisten
+allteams = list.new(); //Alle Teams, die noch im Spiel sind
+items_list = list.new(); //Array-List: Alle Items mit Rezepten
+points = map.new(); //Punktestand der Teams
+sales_map = map.new(); //Key Entity. Value Item
+recipe_menus = map.new(); //Rezept-Menüs für jeden Spieler
+removed_perms = list.new(); //Spieler-Uuids, denen Building-Perms entfernt wurden
+waiters = list.new(); //Spieler in der Lobby ohne Teamzugehörigkeit
+
+colorcodes = map.new();
+map.add(colorcodes, 0, "§9");
+map.add(colorcodes, 1, "§c");
+map.add(colorcodes, 2, "§e");
+map.add(colorcodes, 3, "§2");
+
+teamcolortext = map.new();
+map.add(teamcolortext, 0, "§9blue");
+map.add(teamcolortext, 1, "§cred");
+map.add(teamcolortext, 2, "§eyellow");
+map.add(teamcolortext, 3, "§2green");
+
+iron_block = "minecraft:iron_block";
+iron_ingot = "minecraft:iron_ingot";
+gold_ingot = "minecraft:gold_ingot";
+diamond = "minecraft:diamond";
+ink_sac = "minecraft:ink_sac";
+book = "minecraft:book";
+stick = "minecraft:stick";
+oak_planks = "minecraft:oak_planks";
+quartz_block = "minecraft:quartz_block";
+glass = "minecraft:glass";
+apple = "minecraft:apple";
+cobble = "minecraft:cobblestone";
+redstone = "minecraft:redstone";
+glowstone = "minecraft:glowstone";
+gold_nugget = "minecraft:gold_nugget";
+obsidian = "minecraft:obsidian";
+ender_eye = "minecraft:ender_eye";
+melon_slice = "minecraft:melon_slice";
+carrot = "minecraft:carrot";
+chest = "minecraft:chest";
+coal = "minecraft:coal";
+string = "minecraft:string";
+furnace = "minecraft:furnace";
+compass = "minecraft:compass";
+blaze_powder = "minecraft:blaze_powder";
+slime_ball = "minecraft:slime_ball";
+blaze_rod = "minecraft:blaze_rod";
+sugar_cane = "minecraft:sugar_cane";
+sugar = "minecraft:sugar";
+milk = "minecraft:milk_bucket";
+egg = "minecraft:egg";
+white_wool= "minecraft:white_wool";
+wheat = "minecraft:wheat";
+gunpowder = "minecraft:gunpowder";
+sand = "minecraft:sand";
+ender_pearl = "minecraft:ender_pearl";
+leather = "minecraft:leather";
+stone = "minecraft:stone";
+smooth_stone = "minecraft:smooth_stone";
+bow = "minecraft:bow";
+flint = "minecraft:flint";
+feather = "minecraft:feather";
+pumpkin = "minecraft:pumpkin";
+sugar = "minecraft:sugar";
+egg = "minecraft:egg";
+beef = "minecraft:beef";
+porkchop  = "minecraft:porkchop";
+paper = "minecraft:paper";
+brown_mushroom = "minecraft:brown_mushroom";
+red_mushroom = "minecraft:red_mushroom";
+bowl = "minecraft:bowl";
+redstone_torch = "minecraft:redstone_torch";
+quartz = "minecraft:quartz";
+oak_slab = "minecraft:oak_slab";
+cod = "minecraft:cod";
+piston = "minecraft:piston";
+tnt = "minecraft:tnt";
+minecart = "minecraft:minecart";
+stone_bricks = "minecraft:stone_bricks";
+stone_pressure_plate = "minecraft:stone_pressure_plate";
+
+addItem("minecraft:rail", iron_ingot, air, iron_ingot, iron_ingot, stick, iron_ingot, iron_ingot, air, iron_ingot);
+addItem("minecraft:oak_fence", air, air, air, oak_planks, stick, oak_planks, oak_planks, stick, oak_planks);
+addItem("minecraft:glass_bottle", glass, air, glass, air, glass, air, air, air, air);
+addItem("minecraft:dropper", cobble, cobble, cobble, cobble, air, cobble, cobble, redstone, cobble);
+addItem("minecraft:iron_sword", air, iron_ingot, air, air, iron_ingot, air, air, stick, air);
+addItem("minecraft:ladder", stick, air, stick, stick, stick, stick, stick, air, stick);
+addItem("minecraft:minecart", air, air, air, iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot);
+addItem("minecraft:hopper", iron_ingot, air, iron_ingot, iron_ingot, chest, iron_ingot, air, iron_ingot, air);
+addItem("minecraft:redstone_torch", air, air, air, air, redstone, air, air, stick, air);
+
+addItem("minecraft:torch", air, air, air, air, coal, air, air, stick, air);
+addItem("minecraft:bow", air, stick, string, stick, air, string, air, stick, string);
+addItem("minecraft:cobblestone_wall", air, air, air, cobble, cobble, cobble, cobble, cobble, cobble);
+addItem("minecraft:stone", air, air, air, furnace, cobble, air, air, air, air);
+addItem("minecraft:oak_door", oak_planks, oak_planks, air, oak_planks, oak_planks, air, oak_planks, oak_planks, air);
+addItem("minecraft:oak_fence_gate", air, air, air, stick, oak_planks, stick, stick, oak_planks, stick);
+addItem("minecraft:stone_pressure_plate", air, air, air, stone, stone, air, air, air, air);
+addItem("minecraft:oak_pressure_plate", air, air, air, oak_planks, oak_planks, air, air, air, air);
+addItem("minecraft:oak_trapdoor", air, air, air, oak_planks, oak_planks, oak_planks, oak_planks, oak_planks, oak_planks);
+
+addItem("minecraft:bucket", iron_ingot, air, iron_ingot, air, iron_ingot, air, air, air, air);
+addItem("minecraft:iron_bars", iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, air, air);
+addItem("minecraft:oak_sign", oak_planks, oak_planks, oak_planks, oak_planks, oak_planks, oak_planks, air, stick, air);
+addItem("minecraft:shears", air, iron_ingot, air, iron_ingot, air, air, air, air, air);
+addItem("minecraft:fishing_rod", air, air, stick, air, stick, string, stick, air, string);
+addItem("minecraft:compass", air, iron_ingot, air, iron_ingot, redstone, iron_ingot, air, iron_ingot, air);
+addItem("minecraft:oak_boat", oak_planks, air, oak_planks, oak_planks, oak_planks, oak_planks, air, air, air);
+addItem("minecraft:bowl", oak_planks, air, oak_planks, air, oak_planks, air, air, air, air);
+addItem("minecraft:white_wool", string, string, air, string, string, air, air, air, air);
+
+addItem("minecraft:wooden_sword", air, oak_planks, air, air, oak_planks, air, air, stick, air);
+addItem("minecraft:tripwire_hook", air, iron_ingot, air, air, stick, air, air, oak_planks, air);
+addItem("minecraft:chest_minecart", air, chest, air, air, minecart, air, air, air, air);
+addItem("minecraft:iron_door", iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, air);
+addItem("minecraft:smooth_stone_slab", smooth_stone, smooth_stone, smooth_stone, air, air, air, air, air, air);
+addItem("minecraft:activator_rail", iron_ingot, stick, iron_ingot, iron_ingot, redstone_torch, iron_ingot, iron_ingot, stick, iron_ingot);
+addItem("minecraft:detector_rail", iron_ingot, air, iron_ingot, iron_ingot, stone_pressure_plate, iron_ingot, iron_ingot, redstone, iron_ingot);
+addItem("minecraft:dispenser", cobble, cobble, cobble, cobble, bow, cobble, cobble, redstone, cobble);
+addItem("minecraft:piston", oak_planks, oak_planks, oak_planks, cobble, iron_ingot, cobble, cobble, redstone, cobble);
+
+addItem("minecraft:repeater", redstone_torch, redstone, redstone_torch, stone, stone, stone, air, air, air);
+addItem("minecraft:comparator", air, redstone_torch, air, redstone_torch, quartz, redstone_torch, stone, stone, stone);
+addItem("minecraft:heavy_weighted_pressure_plate", air, air, air, iron_ingot, iron_ingot, air, air, air, air);
+addItem("minecraft:arrow", air, flint, air, air, stick, air, air, feather, air);
+addItem("minecraft:bookshelf", oak_planks, oak_planks, oak_planks, paper, paper, paper, oak_planks, oak_planks, oak_planks);
+addItem("minecraft:mushroom_stew", brown_mushroom, red_mushroom, bowl, air, air, air, air, air, air);
+addItem("minecraft:pumpkin_pie", pumpkin, sugar, egg, air, air, air, air, air, air);
+addItem("minecraft:cooked_beef", air, air, air, furnace, beef, air, air, air, air);
+addItem("minecraft:cooked_porkchop", air, air, air, furnace, porkchop, air, air, air, air);
+//Page2
+addItem("minecraft:book", paper, paper, paper, leather, air, air, air, air, air);
+addItem("minecraft:map", paper, paper, paper, paper, compass, paper, paper, paper, paper);
+addItem("minecraft:ender_eye", ender_pearl, blaze_powder, air, air, air, air, air, air, air);
+addItem("minecraft:lead", air, string, string, air, slime_ball, string, string, air, air);
+addItem("minecraft:stone_brick_slab", stone_bricks, stone_bricks, stone_bricks, air, air, air, air, air, air);
+addItem("minecraft:brewing_stand", air, air, air, air, blaze_rod, air, cobble, cobble, cobble);
+addItem("minecraft:leather_helmet", leather, leather, leather, leather, air, leather, air, air, air);
+addItem("minecraft:leather_chestplate", leather, air, leather, leather, leather, leather, leather, leather, leather);
+addItem("minecraft:leather_leggings", leather, leather, leather, leather, air, leather, leather, air, leather);
+
+addItem("minecraft:leather_boots", air, air, air, leather, air, leather, leather, air, leather);
+addItem("minecraft:cauldron", iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot);
+addItem("minecraft:clock", air, gold_ingot, air, gold_ingot, redstone, gold_ingot, air, gold_ingot, air);
+addItem("minecraft:paper", sugar_cane, sugar_cane, sugar_cane, air, air, air, air, air, air);
+addItem("minecraft:tnt", gunpowder, sand, gunpowder, sand, gunpowder, sand, gunpowder, sand, gunpowder);
+addItem("minecraft:magma_cream", air, air, air, slime_ball, blaze_powder, air, air, air, air);
+addItem("minecraft:bread", air, air, air, wheat, wheat, wheat, air, air, air);
+addItem("minecraft:white_bed", air, air, air, white_wool, white_wool, white_wool, oak_planks, oak_planks, oak_planks);
+addItem("minecraft:cake", milk, milk, milk, sugar, egg, sugar, wheat, wheat, wheat);
+
+addItem("minecraft:cooked_cod", air, air, air, furnace, cod, air, air, air, air);
+addItem("minecraft:tnt_minecart", air, air, air, air, tnt, air, air, minecart, air);
+addItem("minecraft:melon", melon_slice, melon_slice, melon_slice, melon_slice, melon_slice, melon_slice, melon_slice, melon_slice, melon_slice);
+addItem("minecraft:hay_block", wheat, wheat, wheat, wheat, wheat, wheat, wheat, wheat, wheat);
+addItem("minecraft:ender_chest", obsidian, obsidian, obsidian, obsidian, ender_eye, obsidian, obsidian, obsidian, obsidian);
+addItem("minecraft:sticky_piston", air, air, air, air, slime_ball, air, air, piston, air);
+addItem("minecraft:daylight_detector", glass, glass, glass, quartz, quartz, quartz, oak_slab, oak_slab, oak_slab);
+addItem("minecraft:golden_apple", gold_ingot, gold_ingot, gold_ingot, gold_ingot, apple, gold_ingot, gold_ingot, gold_ingot, gold_ingot);
+addItem("minecraft:jukebox", oak_planks, oak_planks, oak_planks, oak_planks, diamond, oak_planks, oak_planks, oak_planks, oak_planks);
+
+addItem("minecraft:anvil", iron_block, iron_block, iron_block, air, iron_ingot, air, iron_ingot, iron_ingot, iron_ingot);
+addItem("minecraft:quartz_stairs", quartz_block, air, air, quartz_block, quartz_block, air, quartz_block, quartz_block, quartz_block);
+addItem("minecraft:enchanting_table", air, book, air, diamond, obsidian, diamond, obsidian, obsidian, obsidian);
+addItem("minecraft:golden_carrot", gold_nugget, gold_nugget, gold_nugget, gold_nugget, carrot, gold_nugget, gold_nugget, gold_nugget, gold_nugget);
+addItem("minecraft:glistering_melon_slice", gold_nugget, gold_nugget, gold_nugget, gold_nugget, melon_slice, gold_nugget, gold_nugget, gold_nugget, gold_nugget);
+addItem("minecraft:redstone_lamp", air, redstone, air, redstone, glowstone, redstone, air, redstone, air);
+addItem("minecraft:writable_book", book, feather, ink_sac, air, air, air, air, air, air);
+addItem("minecraft:powered_rail", gold_ingot, air, gold_ingot, gold_ingot, stick, gold_ingot, gold_ingot, redstone, gold_ingot);
+addItem("minecraft:stick", air, iron_ingot, air, air, iron_ingot, air, air, air, air);
+
+addItem("minecraft:wooden_pickaxe", oak_planks, oak_planks, oak_planks, air, stick, air, air, stick, air);
+addItem("minecraft:iron_pickaxe", iron_ingot, iron_ingot, iron_ingot, air, stick, air, air, stick, air);
+addItem("minecraft:golden_pickaxe", gold_ingot, gold_ingot, gold_ingot, air, stick, air, air, stick, air);
+addItem("minecraft:wooden_hoe", oak_planks, oak_planks, air, air, stick, air, air, stick, air);
+addItem("minecraft:diamond_hoe", diamond, diamond, air, air, stick, air, air, stick, air);
+addItem("minecraft:golden_hoe", gold_ingot, gold_ingot, air, air, stick, air, air, stick, air);
+addItem("minecraft:diamond_chestplate", diamond, air, diamond, diamond, diamond, diamond, diamond, diamond, diamond);
+addItem("minecraft:iron_chestplate", iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot);
+addItem("minecraft:golden_boots", air, air, air, gold_ingot, air, gold_ingot, gold_ingot, air, gold_ingot);
+
+//Page3
+addItem("minecraft:diamond_boots", air, air, air, diamond, air, diamond, diamond, air, diamond);
+addItem("minecraft:iron_helmet", iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, iron_ingot, air, air, air);
+addItem("minecraft:iron_leggings", iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot);
+addItem("minecraft:iron_boots", air, air, air, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot);
+addItem("minecraft:golden_leggings", iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot);
+addItem("minecraft:golden_helmet", iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, air, air);
+addItem("minecraft:golden_chestplate", iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot);
+	
+gosub("setstart");
+
+for(team = 0; team < numberofteams; team++) {
+	map.add(playersinteam, team, 0);
+	map.add(teamidtolist, team, list.new());
+}
+
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "minigame_join") {
+	list.add(waiters, player.getUuid(player));
+	living.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+	sb.add(player, 99, gamename);
+	sb.add(player, 98, "§7Map:");
+	sb.add(player, 97, string.concat("§3", mapname));
+	sb.add(player, 96, sb.getSpacer());
+	return;
+}
+if(event == "player_giveup" || event == "player_quit") {
+	list.remove(waiters, player.getUuid(player));
+	return;
+}
+if(event == "block_click") {
+	if(block == null) {
+		return;
+	}
+	if(slot.isOffHand(hand)) {
+		return;
+	}
+	player_uuid = player.getUuid(player);
+	block_loc = block.getLocation(block);
+	if(map.contains(join_blocks, block_loc)) {
+		newteam = map.get(join_blocks, block_loc);
+		newteamlist = map.get(teamidtolist, newteam);
+		if(list.contains(newteamlist, player_uuid)) {
+			msg.prefix(player, gamename, "You already choosed a team.");
+			return;
+		}
+		if(list.getSize(newteamlist) >= teamsize) {
+			msg.prefix(player, gamename, "Not enough space in this team.");
+			return;
+		}
+		list.remove(waiters, player_uuid);
+		yetteam = map.get(players, player_uuid);
+		if(yetteam != null) {
+			yetteamlist = map.get(teamidtolist, yetteam);
+			list.remove(yetteamlist, player_uuid);
+			map.add(playersinteam, yetteam, map.get(playersinteam, yetteam) - 1);
+		}
+		map.add(playersinteam, newteam, map.get(playersinteam, newteam) + 1);
+		list.add(newteamlist, player_uuid);
+		map.add(players, player_uuid, newteam);
+		msg.prefix(player, gamename, string.concat("You joined the ", map.get(teamcolortext, newteam), " §rteam."));
+		//entity.setName(player, string.concat(map.get(colorcodes, newteam), player.getName(player)));
+	}
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+minigame.clearItems(middleloc, radius);
+
+while(list.getSize(waiters) != 0) {
+	team = getTeamWithLowestPeople(teamidtolist, numberofteams);
+	teamlist = map.get(teamidtolist, team);
+	p_uuid = list.getIndex(waiters, 0);
+	map.add(playersinteam, team, map.get(playersinteam, team) + 1);
+	list.add(teamlist, p_uuid);
+	list.remove(waiters, p_uuid);
+	map.add(players, p_uuid, team);
+	color = map.get(colorcodes, team);
+	p = player.get(p_uuid);
+	//entity.setName(p, string.concat(color, player.getName(p_uuid)));
+	minigame.setTabName(p, game_tab, color);
+}
+
+event.load("player_post_respawn");
+event.load("entity_click");
+event.load("snuvi_click");
+event.load("human_damage");
+event.load("player_teleport");
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	p_uuid = list.getIndex(player_list, i);
+	team = map.get(players, p_uuid);
+	p = player.get(p_uuid);
+	msg.prefix(p, gamename, "The game has started.");
+	entity.teleport(p, map.get(spawn_locs, team));
+	//Recipe-Menus für jeden Spieler erstellen
+	menu = inv.new("222222222222222222222222222222222222222222222000000022", text.new("Recipes"));
+	map.add(recipe_menus, p_uuid, menu);
+	//Gamemode und Fly deaktivieren
+	player.setGamemode(p, "SURVIVAL");
+	player.setFly(p, false);
+	player.clearInventory(p);
+	//Building-Perms entfernen
+	if(perm.has("plot.bypass", p)) {
+		//perm.unregisterPlayer(p_uuid, 1);
+		//perm.unregisterPlayer(p_uuid, 15);
+		list.add(removed_perms, p_uuid);
+	}
+}
+
+humans_list = getAllEntites();
+resetSigns();
+resetFrames();
+resetContainers();
+
+for(team = 0; team < numberofteams; team++) {
+	teamsize = map.get(playersinteam, team);
+	if(teamsize != 0) {
+		list.add(allteams, team);
+		map.add(points, team, 0);
+	}
+}
+
+//Sales erstellen
+for(i = 0; i < list.getSize(allteams); i++) {
+	team = list.getIndex(allteams, i);
+	step = list.getSize(sell_frame_locs) / numberofteams;
+	index = team * step;
+	direction = map.get(sell_frame_directions, team);
+	frame_loc = list.getIndex(sell_frame_locs, index);
+	entity = list.getIndex(humans_list, index);
+	entity.removeAll("org.bukkit.entity.ItemFrame", frame_loc, 1.5);
+	item = getItem(getRandomIndex());
+	entity.frame.spawn(frame_loc, direction, item);
+	map.add(sales_map, entity, item);
+	time = math.random(30, 60);
+	as = map.get(as_map, entity);
+	entity.setName(as, text.new(string.number(time)), true);
+}
+updateDisplay();
+
+singleteam = false;
+if(list.getSize(allteams) == 1) {
+	singleteam = true;
+}
+
+@loop
+if(--seconds < 0) {
+	minutes--;
+	seconds = 59;
+}
+if(seconds < 10) {
+	minigame.displayAll(98, string.concat("§aTime left: §r", string.number(minutes), ":0", string.number(seconds)));  
+} else {
+	minigame.displayAll(98, string.concat("§aTime left: §r", string.number(minutes), ":", string.number(seconds)));
+}
+if(minutes == 0 && seconds == 30) {
+	minigame.speakAll(gamename, "The shops are closing in 30 seconds.");
+	for(i = 0; i < list.getSize(player_list); i++) {
+		p = player.get(list.getIndex(player_list, i));
+		sound.spawnForPlayer(p, join_sound, sound_category_ambient);
+	}
+} elseif(minutes == 0 && seconds == 10) {
+	minigame.speakAll(gamename, "The shops are closing in 10 seconds.");
+	for(i = 0; i < list.getSize(player_list); i++) {
+		p = player.get(list.getIndex(player_list, i));
+		sound.spawnForPlayer(p, join_sound, sound_category_ambient);
+	}
+} elseif(minutes == 0 && seconds <= 3) {
+	for(i = 0; i < list.getSize(player_list); i++) {
+		p = player.get(list.getIndex(player_list, i));
+		sound.spawnForPlayer(p, join_sound, sound_category_ambient);
+	}
+}
+if(minutes == 0 && seconds == 0) {
+	max = -1;
+	minigame.msgAll(getSpacer());
+	for(i = 0; i < list.getSize(allteams); i++) {
+		team = list.getIndex(allteams, i);
+		teampoints = map.get(points, team);
+		if(teampoints > max) {
+			max = teampoints;
+			winning_team = team;
+			winner_list = map.get(teamidtolist, winning_team);
+		}
+		teamlist = map.get(teamidtolist, team);
+		team_string = "";
+		for(h = 0; h < list.getSize(teamlist); h++) {
+			p_uuid = list.getIndex(teamlist, h);
+			if(team_string == "") {
+				team_string = player.getName(p_uuid);
+			} else {
+				team_string = string.concat(team_string, " ", player.getName(p_uuid));
+			}
+			money.addBoost(player.getId(p_uuid), math.round(teampoints) * 2);
+		}
+		minigame.speakAll(gamename, string.concat(string.number(teampoints), map.get(colorcodes, team), " (", team_string, ")"));
+	}
+	goto("win");
+}
+iter = map.iterator(sales_map);
+while(hasNext(iter)) {
+	iter_element = next(iter);
+	key = map.getKey(iter_element);
+	as = map.get(as_map, key);
+	time = read.number(string.text(entity.getName(as))) - 1;
+	if(time > 0) {
+		entity.setName(as, text.new(string.number(time)), true);
+	} else {
+		index = list.getIndexOf(humans_list, key);
+		location = list.getIndex(sell_frame_locs, index);
+		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1.5);
+		step = list.getSize(sell_frame_locs) / numberofteams;
+		team = math.roundDown(index / step);
+		direction = map.get(sell_frame_directions, team);
+		item = getItem(getRandomIndex());
+		entity.frame.spawn(location, direction, item);
+		map.add(sales_map, key, item);
+		time = math.random(30, 60);
+		entity.setName(as, text.new(string.number(time)), true);
+	}
+}
+sgoto(20, "loop");
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+} elseif(event == "human_damage") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("checkgame");
+	}
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("checkgame");
+}
+if(action != "RIGHT_CLICK_BLOCK") {
+	goto("checkgame");
+}
+if(block.hasTag(block, wall_signs_tag)) {
+	if(sign.getString(block, 0) == "Click here") {
+		if(player.getItemAmount(player, emerald) >= 10) {
+			direction = block.getDirectionalFace(block);
+			block.setMaterial(block, air_mat);
+			item = getItem(getRandomIndex());
+			block_loc = block.getLocation(block);
+			entity.frame.spawn(block_loc, direction, item);
+			entity = list.getIndex(humans_list, list.getIndexOf(sell_frame_locs, block_loc));
+			map.add(sales_map, entity, item);
+			time = math.random(30, 60);
+			as = map.get(as_map, entity);
+			entity.setName(as, text.new(string.number(time)), true);
+			player.removeItem(player, emerald10);
+		} else {
+			msg.prefix(player, gamename, "You need 10 emeralds.");
+		}
+	}
+}
+goto("checkgame");
+
+@entity_damage
+if(isPlayer(entity)) {
+	cancel = true;
+}
+goto("checkgame");
+
+@block_break
+@block_place
+cancel = true;
+goto("checkgame");
+
+@human_damage
+if(map.contains(sales_map, human)) {
+	hand_item = living.getHand(player);
+	aim_item = map.get(sales_map, human);
+	if(item.getType(hand_item) == item.getType(aim_item)) {
+		player_uuid = player.getUuid(player);
+		team = map.get(players, player_uuid);
+		direction = map.get(sell_frame_directions, team);
+		item = getItem(getRandomIndex());
+		location = list.getIndex(sell_frame_locs, list.getIndexOf(humans_list, human));
+		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1.5);
+		entity.frame.spawn(location, direction, item);
+		map.add(sales_map, human, item);
+		time = math.random(30, 60);
+		as = map.get(as_map, human);
+		entity.setName(as, text.new(string.number(time)), true);
+		player.giveItem(player, emerald);
+		player.removeItem(player, aim_item);
+		map.add(points, team, map.get(points, team) + 1);
+		updateDisplay();
+		msg.prefix(player, gamename, "Thank you §e+§r1 §aSmaragd");
+	} else {
+		msg.prefix(player, gamename, "Wrong item in your mainhand.");
+	}
+} else {
+	if(human.getName(human) != "Recipes") {
+		msg.prefix(player, gamename, "Shop not unlocked.");
+	}
+}
+goto("checkgame");
+
+@snuvi_click
+title_string = string.text(inv_title);
+if(title_string == "Recipes") {
+	player_uuid = player.getUuid(player);
+	team = map.get(players, player_uuid);
+	item = inv.getItem(inv, inv_slot);
+	item.removeFlag(item, "HIDE_DESTROYS");
+	item_type = item.getType(item);
+	if(item_type == black_glass_pane_mat) {
+		goto("checkgame");
+	}
+	if(item_type == paper_mat) {
+		name = item.getName(item);
+		if(string.contains(name, "<<") || string.contains(name, ">>")) {
+			page = removeFormat(name);
+			page = string.replace(page, "<<", "");
+			page = string.replace(page, ">>", "");
+			page = read.number(page);
+			if(inv_slot == 45) {
+				setRecipePage(player, inv, page);
+			}
+			if(inv_slot == 46) {
+				setRecipePage(player, inv, page);
+			}
+			goto("checkgame");
+		}
+	}
+	index = getIndexFromItemType(item_type);
+	if(index == null) {
+		goto("checkgame");
+	}
+	setItemFrames(team, index);
+}
+goto("checkgame");
+
+@entity_click
+if(entity.isHuman(entity)) {
+	if(human.getName(entity) == "Recipes") {
+		player_uuid = player.getUuid(player);
+		menu = map.get(recipe_menus, player_uuid);
+		setRecipePage(player, menu, 1);
+		inv.open(menu, player);
+	}
+	human = entity;
+	goto("human_damage");
+}
+goto("checkgame");
+
+@player_post_respawn
+player_uuid = player.getUuid(player);
+team = map.get(players, player_uuid);
+location = map.get(spawn_locs, team);
+entity.teleport(player, location);
+goto("checkgame");
+
+@player_teleport
+if(cause == "ENDER_PEARL") {
+	cancel = true;
+}
+goto("checkgame");
+
+@player_quit
+@player_giveup
+minigame.speakAll(gamename, string.concat("§8", player.getName(player), " §rhas left the game."));
+showstats(player, false);
+player_uuid = player.getUuid(player);
+//Building-Perms wieder geben
+if(list.contains(removed_perms, player_uuid)) {
+	list.remove(removed_perms, player_uuid);
+	//perm.registerPlayer(player_uuid, 1);
+	//perm.registerPlayer(player_uuid, 15);
+}
+if(singleteam) {
+	script = script.getFromId(script_id);
+	minigame.kickPlayer(script, player);
+	minigame.term(script, gamesignloc);
+	term();
+}
+team = map.get(players, player_uuid);
+map.remove(players, player_uuid);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+amount = map.get(playersinteam, team) - 1;
+map.add(playersinteam, team, amount);
+if(amount <= 0) {
+	list.remove(allteams, team);
+	if(list.getSize(allteams) == 1) {
+		winning_team = list.getIndex(allteams, 0);
+		winner_list = map.get(teamidtolist, winning_team);
+		goto("win");
+	}
+}
+minigame.displayRemoveAll(97 - team);
+goto("checkgame");
+
+@win
+team_string = "";
+for(h = 0; h < list.getSize(winner_list); h++) {
+	if(team_string == "") {
+		team_string = player.getName(list.getIndex(winner_list, h));
+	} else {
+		team_string = string.concat(team_string, " ", player.getName(list.getIndex(winner_list, h)));
+	}
+}
+if(!singleteam) {
+	minigame.speakAll( gamename, string.concat("Team ", map.get(colorcodes, winning_team), "(", team_string, ") §rhas won."));
+}
+for(i = 0; i < list.getSize(player_list); i++) {
+	player_uuid = list.getIndex(player_list, i);
+	p = player.get(player_uuid);
+	team = map.get(players, player_uuid);
+	if(team == winning_team) {
+		showstats(p, true);
+	} else {
+		showstats(p, false);
+	}
+}
+//Building-Perms wieder geben
+for(i = 0; i < list.getSize(removed_perms); i++) {
+	player_uuid = list.getIndex(removed_perms, i);
+	//perm.registerPlayer(player_uuid, 1);
+	//perm.registerPlayer(player_uuid, 15);
+}
+script = script.getFromId(script_id);
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();
+
+function showstats(player, won) { //Player player, Boolean won
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, playedgames);
+	
+	player_uuid = player.getUuid(player);
+	team = map.get($players, player_uuid);
+	record = map.get($points, team);
+	if(record < last_record) {
+		record = last_record;
+	}
+	ranking.setPoints($rankingtable, player_id, record);
+	
+	wongames = minigame.getWon(player, "sc");
+	if(!$singleteam) {
+		if(won) {
+			wongames++;
+			minigame.setWon(player, "sc", wongames);
+		}
+	}
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Max Items", string.number(last_record));
+	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+	minigame.statsLine(player, "§e", "Won games", string.number(wongames));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((wongames / playedgames) * 100, 2)), "%"));
+	}
+}
+
+function updateDisplay() {
+	minigame.displayAll(99, $gamename);
+	for(i = 0; i < list.getSize($allteams); i++) {
+		team = list.getIndex($allteams, i);
+		teamlist = map.get($teamidtolist, team);
+		team_string = "";
+		for(h = 0; h < list.getSize(teamlist); h++) {
+			if(team_string == "") {
+				team_string = player.getName(list.getIndex(teamlist, h));
+			} else {
+				team_string = string.concat(team_string, " ", player.getName(list.getIndex(teamlist, h)));
+			}
+		}
+		minigame.displayAll(97 - team, string.concat("§r", string.number(map.get($points, team)), " ", map.get($colorcodes, team), team_string));
+	}
+	minigame.displayAll(97 - i, sb.getSpacer());
+}
+
+function addItem(item, item1, item2, item3, item4, item5, item6, item7, item8, item9) {
+	array = array.new(10);
+	array[0] = item.new(material.get(item));
+	array[1] = item.new(material.get(item1));
+	array[2] = item.new(material.get(item2));
+	array[3] = item.new(material.get(item3));
+	array[4] = item.new(material.get(item4));
+	array[5] = item.new(material.get(item5));
+	array[6] = item.new(material.get(item6));
+	array[7] = item.new(material.get(item7));
+	array[8] = item.new(material.get(item8));
+	array[9] = item.new(material.get(item9));
+	list.add($items_list, array);
+}
+
+function getRandomIndex() {
+	return math.random(0, list.getSize($items_list) - 1);
+}
+
+function getIndexFromItemType(item_type) {
+	for(i = 0; i < list.getSize($items_list); i++) {
+		array = list.getIndex($items_list, i);
+		if(array[0] == item_type) {
+			return i;
+		}
+	}
+	return null;
+}
+
+function getItem(index) {
+	array = list.getIndex($items_list, index);
+	return array[0];
+}
+
+function setItemFrames(team, index) {
+	loc = list.getIndex($frame_locs, team);
+	entity.removeAll("org.bukkit.entity.ItemFrame", loc, 3.5);
+	direction = map.get($frame_directions, team);
+	array = list.getIndex($items_list, index);
+	entity.frame.spawn(loc, direction, array[0]);
+	if(direction == "NORTH") {
+		entity.frame.spawn(loc.mod(loc, 1, -1, 0), direction, array[1]);
+		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, array[2]);
+		entity.frame.spawn(loc.mod(loc, -1, -1, 0), direction, array[3]);
+		entity.frame.spawn(loc.mod(loc, 1, -2, 0), direction, array[4]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 0), direction, array[5]);
+		entity.frame.spawn(loc.mod(loc, -1, -2, 0), direction, array[6]);
+		entity.frame.spawn(loc.mod(loc, 1, -3, 0), direction, array[7]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 0), direction, array[8]);
+		entity.frame.spawn(loc.mod(loc, -1, -3, 0), direction, array[9]);
+	} elseif(direction == "EAST") {
+		entity.frame.spawn(loc.mod(loc, 0, -1, -1), direction, array[1]);
+		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, array[2]);
+		entity.frame.spawn(loc.mod(loc, 0, -1, 1), direction, array[3]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, -1), direction, array[4]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 0), direction, array[5]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 1), direction, array[6]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, -1), direction, array[7]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 0), direction, array[8]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 1), direction, array[9]);
+	} elseif(direction == "SOUTH") {
+		entity.frame.spawn(loc.mod(loc, -1, -1, 0), direction, array[1]);
+		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, array[2]);
+		entity.frame.spawn(loc.mod(loc, 1, -1, 0), direction, array[3]);
+		entity.frame.spawn(loc.mod(loc, -1, -2, 0), direction, array[4]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 0), direction, array[5]);
+		entity.frame.spawn(loc.mod(loc, 1, -2, 0), direction, array[6]);
+		entity.frame.spawn(loc.mod(loc, -1, -3, 0), direction, array[7]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 0), direction, array[8]);
+		entity.frame.spawn(loc.mod(loc, 1, -3, 0), direction, array[9]);
+	} elseif(direction == "WEST") {
+		entity.frame.spawn(loc.mod(loc, 0, -1, 1), direction, array[1]);
+		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, array[2]);
+		entity.frame.spawn(loc.mod(loc, 0, -1, -1), direction, array[3]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 1), direction, array[4]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 0), direction, array[5]);
+		entity.frame.spawn(loc.mod(loc, 0, -2, -1), direction, array[6]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 1), direction, array[7]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 0), direction, array[8]);
+		entity.frame.spawn(loc.mod(loc, 0, -3, -1), direction, array[9]);
+	}
+}
+
+function resetSigns() {
+	step = list.getSize($sell_frame_locs) / $numberofteams;
+	team = 0;
+	counter = 0;
+	oak_wall_sign = material.get("oak_wall_sign");
+	for(i = 0; i < list.getSize($sell_frame_locs); i++) {
+		if(counter != 0) { //Erste Locs werden übersprungen. Kein Schild platzieren = Freigeschalteter Shop
+			loc = list.getIndex($sell_frame_locs, i);
+			entity.removeAll("org.bukkit.entity.ItemFrame", loc, 1.5);
+			direction = map.get($sell_frame_directions, team);
+			block = block.get(loc);
+			block.setMaterial(block, oak_wall_sign);
+			block.setDirectionalFace(block, direction);
+			sign.setString(block, 0, "Click here");
+			sign.setString(block, 1, "to unlock for");
+			sign.setString(block, 2, "§a10 §rEmerald");
+			sign.setString(block, 3, ">> >> >>");
+		}
+		if(++counter == step) {
+			counter = 0;
+			team++;
+		}
+	}
+}
+
+function resetFrames() {
+	for(i = 0; i < list.getSize($frame_locs); i++) {
+		loc = list.getIndex($frame_locs, i);
+		entity.removeAll("org.bukkit.entity.ItemFrame", loc, 3.5);
+		direction = map.get($frame_directions, i);
+		entity.frame.spawn(loc, direction, $air_item);
+		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, $air_item);
+		entity.frame.spawn(loc.mod(loc, 0, -2, 0), direction, $air_item);
+		entity.frame.spawn(loc.mod(loc, 0, -3, 0), direction, $air_item);
+		if(direction == "north" || direction == "south") {
+			entity.frame.spawn(loc.mod(loc, 1, -1, 0), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, -1, -1, 0), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 1, -2, 0), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, -1, -2, 0), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 1, -3, 0), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, -1, -3, 0), direction, $air_item);
+		}
+		if(direction == "east" || direction == "west") {
+			entity.frame.spawn(loc.mod(loc, 0, -1, 1), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 0, -1, -1), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 0, -2, 1), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 0, -2, -1), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 0, -3, 1), direction, $air_item);
+			entity.frame.spawn(loc.mod(loc, 0, -3, -1), direction, $air_item);
+		}
+	}
+}
+
+function resetContainers() {
+	//1.Kiste
+	for(i = 0; i < list.getSize($chest_locs1); i++) {
+		loc = list.getIndex($chest_locs1, i);
+		block.clone(block.get(loc.mod(loc, 0, -3, 0)), loc);
+	}
+	//2.Kiste
+	for(i = 0; i < list.getSize($chest_locs2); i++) {
+		loc = list.getIndex($chest_locs2, i);
+		block.clone(block.get(loc.mod(loc, 0, -3, 0)), loc);
+	}
+	//Ofen
+	for(i = 0; i < list.getSize($furnace_locs); i++) {
+		loc = list.getIndex($furnace_locs, i);
+		block.clone(block.get(loc.mod(loc, 0, -3, 0)), loc);
+	}
+}
+
+function setRecipePage(player, menu, page) {
+	size = list.getSize($items_list);
+	max_page = math.roundUp(size / 45);
+	if(page > max_page) {
+		return;
+	}
+	if(page > 1) {
+		inv.setItem(menu, 45, item.create("PAPER", 1, string.concat("§e", string.number(page - 1), " <<"), null));
+	} else {
+		inv.setItem(menu, 45, black_glass_pane);
+	}
+	if(page < max_page) {
+		inv.setItem(menu, 46, item.create("PAPER", 1, string.concat("§e>> ", string.number(page + 1)), null));
+	} else {
+		inv.setItem(menu, 46, black_glass_pane);
+	}
+	max_index = size - 1;
+	for(i = 0; i < 45; i++) {
+		list_index = i + 45 * (page - 1);
+		if(list_index > max_index) {
+			inv.setItem(menu, i, black_glass_pane);
+		} else {
+			array = list.getIndex($items_list, list_index);
+			inv.setItem(menu, i, array[0]);
+		}
+	}
+	inv.update(player);
+}
+
+function getAllEntites() {
+	humans_list = list.new();
+	$as_map = map.new();
+	for(i = 0; i < list.getSize($humans_locs); i++) {
+		//human
+		location = list.getIndex($humans_locs, i);
+		list = entity.near(location, 0.7);
+		human = list.getIndex(list, 0);
+		list.add(humans_list, human);
+		//as
+		location = loc.mod(location, 0, 2.05, 0);
+		as = entity.get(location, 1, "org.bukkit.entity.ArmorStand");
+		map.add($as_map, human, as);
+	}
+	return humans_list;
+}

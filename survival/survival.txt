@@ -5,10 +5,11 @@ event.load("player_pre_respawn");
 event.load("player_post_respawn");
 event.load("living_death");
 //event.load("player_join");
-//event.load("player_move");
+event.load("player_move");
 event.load("block_click");
 event.load("entity_damage");
 event.load("explosion");
+event.load("entity_change_block");
 
 clan.loadData();
 
@@ -20,6 +21,7 @@ survival_respawn = set.new();
 
 overworld = world.getOverWorld();
 moveid_gamesspawn = event.addMoveData(loc.new(overworld, 219, 66, 253), loc.new(overworld, 223, 69, 258), 5, -1);
+moveid_mobarena = event.addMoveData(loc.new(overworld, 89, 71, -1), loc.new(overworld, 93, 72.9, -5), 5, -1);
 
 move_id_afk_loop = event.addMoveData(loc.new(overworld, 208, 69, 226), loc.new(overworld, 209, 69.5, 227), 5, -1);
 move_id_afk_loop_2 = event.addMoveData(loc.new(overworld, 208, 62, 242), loc.new(overworld, 209, 62.5, 243), 5, -1);
@@ -34,12 +36,13 @@ set.add(afk_loop_ids, move_id_afk_loop_3);
 set.add(afk_loop_ids, move_id_afk_loop_4);
 set.add(afk_loop_ids, move_id_afk_loop_5);
 
+pvp_banned = set.new();
+set.add(pvp_banned, read.uuid("ff03a205-6f11-4d77-a70f-88dacc3938b1"));
+
 config = getScriptVar("server_config");
 adventure_chest_loc = loc.new(overworld, 177, 74, 237);
 adventure_aim_loc = loc.new(overworld, 180, 70, 241);
-lottery_loc_1 = loc.new(overworld, 186, 69, 227);
-lottery_loc_2 = loc.new(overworld, 186, 69, 223);
-gambler_loc = loc.new(overworld, 185, 68, 225);
+mobarena_spawn = loc.new(overworld, 1150.5, -5, 1087, 90, 0);
 prefix_money = "§2Money";
 death_loc_map = map.new();
 
@@ -68,24 +71,38 @@ for(a = -12; a <= 12; a++){
 	list.add(Sound_Pitch_List, math.pow(2, -a / 12));
 }
 
-/*gambler_inv = inv.new("020202020");
-gambler_inv_id = inv.getId(gambler_inv);
-inv.setItem(gambler_inv, 0, read.item("km:coin_copper", 1, "§f1 snuvi"));
-inv.setItem(gambler_inv, 1, read.item("km:coin_silver", 1, "§f64 snuvis"));
-inv.setItem(gambler_inv, 2, read.item("km:coin_gold", 1, "§f4096 snuvis"));
-inv.setItem(gambler_inv, 3, read.item("minecraft:netherite_block", 1, "§fAll in"));*/
+casino_inv = inv.new("022200200", text.new("Casino"));
+casino_inv_id = inv.getId(casino_inv);
+lore_list = list.new();
+list.add(lore_list, text.new("§dClick to lose or double"));
+list.add(lore_list, text.new("§dWinrate: 45%"));
+inv.setItem(casino_inv, 1, item.custom.create("COPPER_COIN", 1, "§fGamble 1 Snuvi", lore_list));
+inv.setItem(casino_inv, 2, item.custom.create("SILVER_COIN", 1, "§fGamble 64 Snuvis", lore_list));
+inv.setItem(casino_inv, 3, item.custom.create("GOLD_COIN", 1, "§fGamble 4096 Snuvis", lore_list));;
+lore_list = list.new();
+lottery_value = lottery.getValue();
+list.add(lore_list, text.new(string.concat("§dWin value: ", string.number(lottery_value))));
+list.add(lore_list, text.new("§dBuy a ticket for 10 snuvis."));
+list.add(lore_list, text.new("§dWinrate 1:500"));
+inv.setItem(casino_inv, 6, item.custom.create("COPPER_COIN", 1, "§fLottery", lore_list));;
 
 bankmenu = inv.new("222200000", text.new("Banker"));
 bankinvid = inv.getId(bankmenu);
-inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 snuvi", null));
-inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 snuvi", null));
-inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 snuvi", null));
-inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll snuvis", null));
+inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", null));
+inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 Snuvis", null));
+inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null));
+inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll Snuvis", null));
 
 msg.string("dev", "§bSurvival §rloaded.");
 @wait
 wait();
 if(event == "player_move") {
+	if(id == moveid_mobarena) {
+		player.setBackPosLoc(player, world.getServerSpawn());
+		player.teleport(player, mobarena_spawn, false);
+		goto("wait");
+	}
+	goto("wait");
 	if(id == moveid_gamesspawn) {
 		player.setBackPosLoc(player, world.getServerSpawn());
 		player.teleport(player, world.getGamesSpawn(), false);
@@ -106,7 +123,7 @@ if(event == "player_move") {
 //Wenn Event aus Survival-Welten, dann wird er verarbeitet
 if(event == "living_death") {
 	loc = entity.getLocation(living_entity);
-} elseif(event == "explosion" || event == "entity_damage") {
+} elseif(event == "explosion" || event == "entity_damage" || event == "entity_change_block") {
 	loc = entity.getLocation(entity);
 } else {
 	loc = entity.getLocation(player);
@@ -121,6 +138,12 @@ goto("wait");
 if(isPlayer(living_entity)) {
 	player = living_entity;
 	setDeathLoc(player);
+}
+goto("wait");
+
+@entity_change_block
+if(entity.getType(entity) == "enderman") {
+	cancel = true;
 }
 goto("wait");
 
@@ -151,8 +174,8 @@ if(!isPlayer(entity)) {
 	pet_type = entity.getType(entity);
 	if(pet_type == "wolf" || pet_type == "cat" || pet_type == "parrot" || pet_type == "horse") {
 		if(pet.isTamed(entity)) {
-			owner_uuid = pet.getOwner(entity);
-			if(owner_uuid == player.getUuid(damager)) {
+			owner = pet.getOwner(entity);
+			if(owner == damager) {
 				if(player.getNoPetDamage(damager)) {
 					cancel = true;
 				}
@@ -174,6 +197,11 @@ if(!hasPvpOn(damager)) {
 	msg.prefix(damager, "§5PvP", "You have PvP disabled.");
 	goto("wait");
 }
+if(set.contains(pvp_banned, player.getUuid(damager))) {
+	cancel = true;
+	msg.prefix(damager, "§5PvP", "PvP is permanently disabled for you.");
+	goto("wait");
+}
 if(!hasPvpOn(player)) {
 	cancel = true;
 	msg.prefix(damager, "§5PvP", string.concat(player.getName(player), " has PvP disabled."));
@@ -188,7 +216,15 @@ if(slot.isOffHand(hand)) {
 if(!entity.isHuman(entity)) {
 	goto("wait");
 }
-entity_name = human.getName(entity);
+human_name = human.getName(entity);
+if(human_name == "Casino") {
+	inv.open(casino_inv, player);
+}
+if(human_name == "Banker") {
+	inv.open(bankmenu, player);
+	goto("wait");
+}
+goto("wait");
 if(entity_name == "Administrator\n§cmarvinius") {
 	item = living.getHand(player);
 	item_name = item.getName(item);
@@ -227,7 +263,7 @@ if(entity_name == "Owner\n§4kajetanjohannes") {
 	}else{
 		msg.prefix(player, "§4kajetanjohannes", "wusi");
 	}
-goto("wait");
+	goto("wait");
 }
 if(entity_name == "Supporter\n§bImKillerKatze") {
 	rand_number = math.roundup(math.random(0,25));
@@ -240,15 +276,14 @@ if(entity_name == "Supporter\n§bImKillerKatze") {
 		sound.spawnForPlayer(player, $sound_stray_cat, $sound_category_master, 1, 1);
 		msg.prefix(player, "§bImKillerKatze", "Miau!");
 		goto("wait");
-	}
-	else{
+	}else{
 		sound.spawnForPlayer(player, $sound_purreow, $sound_category_master, 1, 1);
 		msg.prefix(player, "§bImKillerKatze", "Schnurrr!");
 		goto("wait");
 	}
 }
 if(entity_name == "Administrator\n§cwertibaldi") {
-		msg.prefix(player, "§cwertibaldi", "Kann grad nicht, bin im Einsatz für den Katastrophenschutz.");
+	msg.prefix(player, "§cwertibaldi", "Kann grad nicht, bin im Einsatz für den Katastrophenschutz.");
 	goto("wait");
 }
 if(entity_name == "Administrator\n§cMentorMentos") {
@@ -257,8 +292,7 @@ if(entity_name == "Administrator\n§cMentorMentos") {
 	if(removeFormat(item_name) == "Beer") {
 		msg.prefix(player, "§cMentorMentos", "Folg mir auf Twitch! ");
 		msg(player, string.getLinkText("Klick mich an :D","https://www.twitch.tv/Mentor_Mentos"));
-	}
-	else{
+	}else{
 		msg.prefix(player, "§cMentorMentos", "Ich mag Kölsch.");
 	}
 	goto("wait");
@@ -327,7 +361,6 @@ if(entity_name == "Moderator\n§9Mareeeen") {
 	}
 	goto("wait");
 }
-
 if(entity_name == "Info-Point") {
 	msg(player, string.getSpacer());
 	msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
@@ -342,10 +375,6 @@ if(entity_name == "Info-Point") {
 	msg(player, string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", string.getLinkText("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
 	msg(player, string.getClickText("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", string.getLinkText("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
 	msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
-	goto("wait");
-}
-if(entity_name == "Banker") {
-	inv.open(bankmenu, player);
 	goto("wait");
 }
 if(entity_name == "Adventure") {
@@ -443,45 +472,55 @@ if(inv_id == bankinvid) { //Bankmenü
 	}
 	goto("wait");
 }
-if(inv_id == gambler_inv_id) {
-	if(inv_slot == 0) {
-		amount = 1;
-	} elseif(inv_slot == 1) {
-		amount = 64;
-	} elseif(inv_slot == 2) {
-		amount = 4096;
-	} elseif(inv_slot == 3) {
-		amount = getMoney(player);
-		if(amount == 0) {
-			msg.prefix(player, prefix_money, "You need at least 1 snuvi on your account.");
+if(inv_id == casino_inv_id) {
+	//Lottery
+	if(inv_slot == 6) {
+		ticket_price = 10;
+		if(!hasEnoughMoney(player, ticket_price)) {
+			msg.action(player, "Not enough snuvis on your account.");
 			goto("wait");
 		}
-	}
-	if(!hasEnoughMoney(player, amount)) {
-		msg.prefix(player, prefix_money, "Not enough snuvis on your account.");
+		money.sub(player, ticket_price);
+		new_value = lottery.addValue(10);
+		item = inv.getItem(inv, inv_slot);
+		lore_list = item.getLore(item);
+		list.setIndex(lore_list, 0, text.new(string.concat("§dWin value: ", string.number(new_value))));
+		item.setLore(item, lore_list);
+		win = math.random(1, 500);
+		if(win == 1) {
+			message = string.concat(player.getName(player), " won ", string.number(new_value), " snuvis.");
+			msg.online("§dLottery", message);
+			money.add(player, new_value);
+			list.setIndex(lore_list, 0, text.new(string.concat("§dWin value: 0")));
+			item.setLore(item, lore_list);
+			lottery.setValue(0);
+		}
 		goto("wait");
 	}
-	win = math.random(1, 2);
-	if(win == 1) {
-		addMoney(player, amount);
+	//Gambler
+	if(inv_slot == 1) {
+		amount = 1;
+	} elseif(inv_slot == 2) {
+		amount = 64;
+	} elseif(inv_slot == 3) {
+		amount = 4096;
+	}
+	if(!hasEnoughMoney(player, amount)) {
+		msg.action(player, "Not enough snuvis on your account.");
+		goto("wait");
+	}
+	win = math.random(1, 100);
+	if(win < 45) {
+		money.add(player, amount);
 		temp = " won ";
 	} else {
-		subMoney(player, amount);
+		money.sub(player, amount);
 		temp = " lost ";
 	}
-	if(amount == 1) {
-		message = string.concat(player.getName(player), temp, string.number(amount), " snuvi.");
-	} else {
+	if(amount == 4096) {
 		message = string.concat(player.getName(player), temp, string.number(amount), " snuvis.");
+		msg.radius("§dGambler", message, entity.getLocation(player), 10);
 	}
-	if(amount < 64) {
-		msg.prefix(player, "§2Gambler", message);
-	} elseif(amount >= 131072) {
-		msg.online("§2Gambler", message);
-	} else {
-		msg.radius("§2Gambler", message, entity.getLocation(player), 10);
-	}
-	goto("wait");
 }
 goto("wait");
 
@@ -592,138 +631,6 @@ if(action == "RIGHT_CLICK_BLOCK") {
 	}
 }
 goto("wait");
-if(hand == "OFF_HAND") {
-	goto("wait");
-}
-if(block_type == "minecraft:chest") {
-	if(isATpReceiver(block_loc)) {
-		tp_item = item.custom.create("GEAR", 1, "§rTeleport", null);
-		list = list.new();
-		list.add(list, world.getName(loc.getWorld(block_loc)));
-		list.add(list, string.number(loc.getX(block_loc)));
-		list.add(list, string.number(loc.getY(block_loc)));
-		list.add(list, string.number(loc.getZ(block_loc)));
-		item.setLore(tp_item, list);
-		player.giveItem(player, tp_item);
-		goto("wait");
-	}
-	if(isATpTransmitter(block_loc)) {
-		player_uuid = player.getUuid(player);
-		clicked = map.getOrDefault(tp_map, player_uuid, 0);
-		now_time = time.getMillis();
-		if(now_time - clicked < 5000) {
-			msg.prefix(player, "§5Adventure", "Wait 5 seconds!");
-			goto("wait");
-		}
-		map.add(tp_map, player_uuid, now_time);
-		//Abenteuer-Teleport
-		if(block_loc == adventure_chest_loc) {
-			if(!player.isOnAdventure(player)) {
-				if(!player.hasClearInventory(player)) {
-					msg.prefix(player, "§5Adventure", "Your inventory needs to be empty!");
-					goto("wait");
-				}
-				alpha = math.random(0, 360);
-				alpha *= math.pi() / 180;
-				x = math.round(math.sin(alpha) * 10000) + 0.5;
-				z = math.round(math.cos(alpha) * 10000) + 0.5;
-				y = 255;
-				tp_loc = loc.new(world.getOverWorld(), x, y, z);
-				while(block.isAir(tp_loc)) {
-					loc.setY(tp_loc, y);
-					y--;
-				}					
-				tp_loc = loc.mod(tp_loc, 0, 1, 0);
-				setTpWallX(block_loc, "minecraft:lime_stained_glass");
-				sound.spawn(block_loc, piston_sound, sound_category_ambient);
-				player_uuid = player.getUuid(player);
-				array = array.new(4);
-				array[0] = player_uuid;
-				array[1] = block_loc;
-				array[2] = tp_loc;
-				array[3] = true;
-				list.add(tp_list, array);
-				set.add(tp_set, player_uuid);
-				sgoto(30, "tp_ticker");
-			}
-			goto("wait");
-		}
-		//Normaler Teleport
-		temp = false;
-		inv = block.getInv(block_loc);
-		inv_size = inv.getSize(inv);
-		for(i = 0; i < inv_size; i++) {
-			item = inv.getItem(inv, i);
-			if(item.getType(item) == "km:gear") {
-				if(item.getName(item) == "§rTeleport") {
-					temp = true;
-					break;
-				}
-			}
-		}
-		if(!temp) {
-			msg.prefix(player, "§5Adventure", "No receiver found!");
-			goto("wait");
-		}
-		
-		lore_list = item.getLore(item);
-		if(list.getSize(lore_list) != 4) {
-			msg.prefix(player, "§5Adventure", "No receiver found!");
-			goto("wait");
-		}
-		world = world.get(list.getIndex(lore_list, 0));
-		x = read.number(list.getIndex(lore_list, 1));
-		y = read.number(list.getIndex(lore_list, 2));
-		z = read.number(list.getIndex(lore_list, 3));
-		tp_loc = loc.new(world, x, y, z);
-		if(!isATpReceiver(tp_loc)) {
-			msg.prefix(player, "§5Adventure", "No receiver found!");
-			goto("wait");
-		}
-		loc.add(tp_loc, 0.5, -3, 0.5);
-		
-		setTpWallX(block_loc, "minecraft:lime_stained_glass");
-		sound.spawn(block_loc, piston_sound, sound_category_ambient);
-		array = array.new(4);
-		array[0] = player.getUuid(player);
-		array[1] = block_loc;
-		array[2] = tp_loc;
-		array[3] = false;
-		list.add(tp_list, array);
-		sgoto(30, "tp_ticker");
-	}
-	goto("wait");
-}
-if(block_loc == gambler_loc) {
-	cancel = true;
-	inv.open(gambler_inv, player, "Choose your amount to bet with");
-	goto("wait");
-}
-if(block_loc == lottery_loc_1 || block_loc == lottery_loc_2) {
-	if(!hasEnoughMoney(player, 1)) {
-		msg.prefix(player, prefix_money, "Not enough snuvis on your account.");
-		goto("wait");
-	}
-	subMoney(player, 1);
-	amount = lottery.add(block_loc, 1);
-	if(amount == null) {
-		goto("wait");
-	}
-	if(block_loc == lottery_loc_1) {
-		winrate = 1000;
-	} else {
-		winrate = 10000;
-	}
-	win = math.random(1, winrate);
-	if(win == 1) {
-		addMoney(player, amount);
-		lottery.set(block_loc, 0);
-		message = string.concat(player.getName(player), " has won ", string.number(amount), " snuvis.");
-		msg.radius(prefix_money, message, block_loc, 50);
-	}
-	goto("wait");
-}
-goto("wait");
 
 @player_pre_respawn
 if(loc.isInSurvWorld(entity.getLocation(player))) {
@@ -750,104 +657,6 @@ if(set.contains(survival_respawn, player_uuid)) {
 	}*/
 	//entity.teleport(player, world.getServerSpawn());
 }
-goto("wait");
-
-@tp_ticker
-array = list.getIndex(tp_list, 0);
-list.removeIndex(tp_list, 0);
-block_loc = array[1];
-list.add(tp_list, array);
-setTpWallFull(block_loc, "minecraft:lime_stained_glass");
-sound.spawn(block_loc, piston_sound, sound_category_ambient);
-sgoto(30, "tp_final");
-goto("wait");
-
-@tp_final
-array = list.getIndex(tp_list, 0);
-list.removeIndex(tp_list, 0);
-player_uuid = array[0];
-block_loc = array[1];
-tp_loc = array[2];
-adventure = array[3];
-set.remove(tp_set, player_uuid);
-sound.spawn(block_loc, piston_sound, sound_category_ambient);
-setTpWallFull(block_loc, "minecraft:air");
-player = player.get(player_uuid);
-if(player == null) {
-	goto("wait");
-}
-sound.spawn(tp_loc, adv_tp_sound, sound_category_ambient);
-if(adventure) {
-	//Party
-	if(player.isInParty(player) && player.isPartyLeader(player)) {
-		party_id = player.getPartyId(player);
-		party_list = party.getList(party_id);
-		iter = list.iterator(party_list);
-		while(hasNext(iter)) {
-			p = player.get(next(iter));
-			p_name = player.getName(p);
-			p_loc = entity.getLocation(p);
-			if(!loc.isSameWorld(adventure_chest_loc, p_loc)) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c is in another world."));
-				msg.prefix(p, "§5Party", "§cYou are in another world.");
-				continue;
-			}
-			if(loc.distance(adventure_chest_loc, p_loc) > 5) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c is too far away."));
-				msg.prefix(p, "§5Party", "§cYou are too far away.");
-				continue;
-			}
-			if(player.hasMinigame(p)) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c is in a game."));
-				msg.prefix(p, "§5Party", "§cYou are in a game.");
-				continue;
-			}
-			if(player.hasQuest2(p)) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c is doing a quest."));
-				msg.prefix(p, "§5Party", "§cYou are doing a quest.");
-				continue;
-			}
-			if(player.isOnAdventure(p)) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c is already on an adventure."));
-				msg.prefix(p, "§5Party", "§cYou are already on an adventure.");
-				continue;
-			}
-			if(player.isAfk(p)) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c is afk."));
-				msg.prefix(p, "§5Party", "§cYou are afk.");
-				continue;
-			}
-			if(!player.hasClearInventory(p)) {
-				msg.prefix(player, "§5Party", string.concat(p_name, "§c has no clear inventory."));
-				msg.prefix(p, "§5Party", "§cYou have no clear inventory.");
-				continue;
-			}
-			player.teleport(p, tp_loc, false);
-			player.setAdventure(p, true);
-			player.setAdventureStart(p, tp_loc);
-			addAdventureDisplay(p, adventure_aim_loc);
-			title.reset(p);
-			title.setSub(p, "Have fun!");
-			title.send(p, "§cAdventure");
-			msg.prefix(p, "§5Adventure", "To complete your adventure, go to the survival spawn. You cannot teleport. If you die, you start again!");
-		}
-		goto("wait");
-	}
-	if(!player.hasClearInventory(player)) {
-		msg.prefix(player, "§5Adventure", "Your inventory needs to be empty!");
-		goto("wait");
-	}
-	player.teleport(player, tp_loc, false);
-	player.setAdventure(player, true);
-	player.setAdventureStart(player, tp_loc);
-	addAdventureDisplay(player, adventure_aim_loc);
-	title.reset(player);
-	title.setSub(player, "Have fun!");
-	title.send(player, "§cAdventure");
-	msg.prefix(player, "§5Adventure", "To complete your adventure, go to the survival spawn. You cannot teleport. If you die, you start again!");
-	goto("wait");
-}
-player.teleport(player, tp_loc, false);
 goto("wait");
 
 function lottery.set(location, amount) {
@@ -882,4 +691,23 @@ function setDeathLoc(player) {
 
 function getDeathLoc(player) {
 	return map.getOrDefault($death_loc_map, player.getUuid(player), world.getServerSpawn());
+}
+
+function lottery.addValue(value) {
+	config = getServerConfig();
+	new_value = config.getDouble(config, "lottery_value", 0) + value;
+	config.set(config, "lottery_value", new_value);
+	config.saveAsync(config);
+	return new_value;
+}
+
+function lottery.setValue(value) {
+	config = getServerConfig();
+	config.set(config, "lottery_value", value);
+	config.saveAsync(config);
+}
+
+function lottery.getValue() {
+	config = getServerConfig();
+	return config.getDouble(config, "lottery_value", 0);
 }

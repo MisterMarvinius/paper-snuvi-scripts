@@ -1,0 +1,13 @@
+minplayers = 2;
+maxplayers = 4;
+mapname = "Lost Temple";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 983.5, 91, 902.5);
+gamesignloc = minigame.getSignLoc("knockfightsign3");
+startlifes = 10;
+
+startlocs = list.new();
+list.add(startlocs, loc.new(gamesworld, 1491.5, 42, 2991.5));
+list.add(startlocs, loc.new(gamesworld, 1491.5, 42, 3009.5));
+list.add(startlocs, loc.new(gamesworld, 1509.5, 42, 3009.5));
+list.add(startlocs, loc.new(gamesworld, 1509.5, 42, 2991.5));

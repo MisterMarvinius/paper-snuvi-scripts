@@ -1,0 +1,29 @@
+gamesignloc = minigame.getSignLoc("buttonssign1");
+gamesworld = world.getGames();
+spawn_loc = loc.new(gamesworld, 3973.5, 60, -1968.5, 0.0001, 0.0001);
+mapname = "Farmland";
+origin_material = material.get("minecraft:andesite");
+mark_material = material.get("minecraft:polished_andesite");
+maxplayers = 1;
+
+buttons = list.new();
+list.add(buttons, loc.new(gamesworld, 3974, 63, -1964));
+list.add(buttons, loc.new(gamesworld, 3973, 63, -1964));
+list.add(buttons, loc.new(gamesworld, 3972, 63, -1964));
+list.add(buttons, loc.new(gamesworld, 3974, 62, -1964));
+list.add(buttons, loc.new(gamesworld, 3973, 62, -1964));
+list.add(buttons, loc.new(gamesworld, 3972, 62, -1964));
+list.add(buttons, loc.new(gamesworld, 3974, 61, -1964));
+list.add(buttons, loc.new(gamesworld, 3973, 61, -1964));
+list.add(buttons, loc.new(gamesworld, 3972, 61, -1964));
+
+/*
+norden  1  // -z
+osten  -1  // +x
+süden  -1  // +z
+westen  1  // -x
+*/
+
+//In welche Richtung schauen die Knöpfe?
+direction = "z"; 	//x oder z
+number = 1; 		//-1 oder 1

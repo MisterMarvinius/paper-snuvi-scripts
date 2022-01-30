@@ -1,0 +1,88 @@
+gamesignloc = minigame.getSignLoc("shoppingsign1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 0, 101, 3000);
+mapname = "Santa";
+minplayers = 1;
+maxplayers = 8;
+numberofteams = 4;
+teamsize = 2;
+minutes = 10;
+seconds = 0;
+middleloc = loc.new(gamesworld, 0, 101, 3000);
+radius = 30;
+
+humans_locs = list.new();
+list.add(humans_locs, loc.new(gamesworld, 0, 101, 2993)); //Team 1
+list.add(humans_locs, loc.new(gamesworld, 2, 101, 2993));
+list.add(humans_locs, loc.new(gamesworld, -2, 101, 2993));
+list.add(humans_locs, loc.new(gamesworld, 0, 101, 3007)); //Team 2
+list.add(humans_locs, loc.new(gamesworld, -2, 101, 3007));
+list.add(humans_locs, loc.new(gamesworld, 2, 101, 3007));
+list.add(humans_locs, loc.new(gamesworld, 7, 101, 3000)); //Team 3
+list.add(humans_locs, loc.new(gamesworld, 7, 101, 3002));
+list.add(humans_locs, loc.new(gamesworld, 7, 101, 2998));
+list.add(humans_locs, loc.new(gamesworld, -7, 101, 3000)); //Team 4
+list.add(humans_locs, loc.new(gamesworld, -7, 101, 2998));
+list.add(humans_locs, loc.new(gamesworld, -7, 101, 3002));
+
+sell_frame_locs = list.new();
+list.add(sell_frame_locs, loc.new(gamesworld, 0, 101, 2991)); //Team 1
+list.add(sell_frame_locs, loc.new(gamesworld, 2, 101, 2991));
+list.add(sell_frame_locs, loc.new(gamesworld, -2, 101, 2991));
+list.add(sell_frame_locs, loc.new(gamesworld, 0, 101, 3009)); //Team 2
+list.add(sell_frame_locs, loc.new(gamesworld, -2, 101, 3009));
+list.add(sell_frame_locs, loc.new(gamesworld, 2, 101, 3009));
+list.add(sell_frame_locs, loc.new(gamesworld, 9, 101, 3000)); //Team 3
+list.add(sell_frame_locs, loc.new(gamesworld, 9, 101, 3002));
+list.add(sell_frame_locs, loc.new(gamesworld, 9, 101, 2998));
+list.add(sell_frame_locs, loc.new(gamesworld, -9, 101, 3000)); //Team 4
+list.add(sell_frame_locs, loc.new(gamesworld, -9, 101, 2998));
+list.add(sell_frame_locs, loc.new(gamesworld, -9, 101, 3002));
+
+chest_locs1 = list.new();
+list.add(chest_locs1, loc.new(gamesworld, 4, 102, 2986));
+list.add(chest_locs1, loc.new(gamesworld, -4, 102, 3014));
+list.add(chest_locs1, loc.new(gamesworld, 14, 102, 3004));
+list.add(chest_locs1, loc.new(gamesworld, -14, 102, 2996));
+
+chest_locs2 = list.new();
+list.add(chest_locs2, loc.new(gamesworld, 4, 102, 2989));
+list.add(chest_locs2, loc.new(gamesworld, -4, 102, 3011));
+list.add(chest_locs2, loc.new(gamesworld, 11, 102, 3004));
+list.add(chest_locs2, loc.new(gamesworld, -11, 102, 2996));
+
+furnace_locs = list.new();
+list.add(furnace_locs, loc.new(gamesworld, 4, 102, 3014));
+list.add(furnace_locs, loc.new(gamesworld, -4, 102, 2986));
+list.add(furnace_locs, loc.new(gamesworld, -14, 102, 3004));
+list.add(furnace_locs, loc.new(gamesworld, 14, 102, 2996));
+
+frame_locs = list.new();
+list.add(frame_locs, loc.new(gamesworld, 0, 105, 2983)); //Team 1 south
+list.add(frame_locs, loc.new(gamesworld, 0, 105, 3017)); //Team 2 north
+list.add(frame_locs, loc.new(gamesworld, 17, 105, 3000)); //Team 3 west
+list.add(frame_locs, loc.new(gamesworld, -17, 105, 3000)); //Team 4 east
+
+frame_directions = map.new();
+map.add(frame_directions, 0, "SOUTH");
+map.add(frame_directions, 1, "NORTH");
+map.add(frame_directions, 2, "WEST");
+map.add(frame_directions, 3, "EAST");
+
+sell_frame_directions = map.new();
+map.add(sell_frame_directions, 0, "NORTH");
+map.add(sell_frame_directions, 1, "SOUTH");
+map.add(sell_frame_directions, 2, "EAST");
+map.add(sell_frame_directions, 3, "WEST");
+
+spawn_locs = map.new();
+map.add(spawn_locs, 0, loc.new(gamesworld, 0, 101, 2986, 0.0001, 0.0001));
+map.add(spawn_locs, 1, loc.new(gamesworld, 0, 101, 3014, -180, 0.0001));
+map.add(spawn_locs, 2, loc.new(gamesworld, 14, 101, 3000, 90, 0.0001));
+map.add(spawn_locs, 3, loc.new(gamesworld, -14, 101, 3000, -90, 0.0001));
+
+join_blocks = map.new(); //Block-Locations, um einem Team zu joinen
+map.add(join_blocks, loc.new(gamesworld, 0, 101, 2997), 0);
+map.add(join_blocks, loc.new(gamesworld, 0, 101, 3003), 1);
+map.add(join_blocks, loc.new(gamesworld, 3, 101, 3000), 2);
+map.add(join_blocks, loc.new(gamesworld, -3, 101, 3000), 3);

@@ -1,0 +1,246 @@
+rankingtable = "knockranks";
+game_short = "knock";
+
+event.load("player_drop");
+event.load("entity_damage");
+
+kf_skills = list.new();
+//addKnockfightSkill("Speed", "km:skill44", 30);
+//addKnockfightSkill("JumpBoost", "km:skill15", 30);
+//addKnockfightSkill("Slowness", "km:skill53", 30);
+//addKnockfightSkill("Blindness", "km:skill55", 30);
+//addKnockfightSkill("Kick", "km:skill9", 60);
+
+resettime = 180; //Zeit in Ticks, wie lange der letzte Schläger gehalten wird
+stick = item.create("stick", 1, null, null);
+enchantment.add(enchantment.get("knockback"), stick, 2);
+resetblocks = list.new();
+gamename = "§cKnockFight";
+
+gosub("setstart");
+goto("simplelobby");
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+size = list.getSize(player_list);
+cooldown_map = map.new();
+lifes = map.new();
+lastdamage = map.new();
+knockedcounter = map.new();
+resetlist = list.new();
+for(i = 0; i < size; i++) {
+	p_uuid = list.getIndex(player_list, i);
+	p = player.get(p_uuid);
+	msg.prefix(p, gamename, "The game has started.");
+	resetplayer(p);
+	entity.teleport(p, list.getIndex(startlocs, i));
+	player.setGamemode(p, "SURVIVAL");
+	player.setFly(p, false);
+	map.add(knockedcounter, p_uuid, 0);
+	player.giveItem(p, stick);
+	map.add(lastdamage, p_uuid, null);
+	map.add(lifes, p_uuid, startlifes);
+	//status.add(p, 0, "§cCooldowns");
+}
+gosub("updatedisplay");
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	player_name = player.getName(player);
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@player_drop
+cancel = true;
+goto("checkgame");
+
+@entity_damage
+player_uuid = player.getUuid(player);
+damage_type = damage.getType(damage_source);
+if(damage_type == "player") {
+	sec_player = player.getFromDamageSource(damage_source);
+	if(player.hasMinigameId(sec_player, script_id)) {
+		living.setHealth(player, 20);
+		player.setSaturation(sec_player, 5);
+		map.add(lastdamage, player_uuid, player.getUuid(sec_player));
+		list.add(resetlist, player_uuid);
+		sgoto(resettime, "resetdamager");
+	}
+	goto("checkgame");
+}
+if(damage_type == "fall") {
+	cancel = true;
+	goto("checkgame");
+}
+if(damage_type == "outOfWorld") {
+	if(loc.getY(entity.getLocation(player)) > 0) {
+		cancel = true;
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	lastdamager_uuid = map.get(lastdamage, player_uuid);
+	if(lastdamager_uuid == null) {
+		minigame.speakAll(gamename, string.concat("§6", player_name, " §rfell."));
+	} else {
+		minigame.speakAll(gamename, string.concat("§6", player_name, " §rwas knocked down by §6", player.getName(lastdamager_uuid), "."));
+		map.add(knockedcounter, lastdamager_uuid, map.get(knockedcounter, lastdamager_uuid) + 1);
+	}
+	entity.teleport(player, list.getIndex(startlocs, math.random(0, list.getSize(startlocs) - 1)));
+	new_lifes = map.get(lifes, player_uuid) - 1;
+	map.add(lifes, player_uuid, new_lifes);
+	gosub("updatedisplay");
+	if(new_lifes == 0) {
+		minigame.speakAll(gamename, string.concat("§6", player_name, " §rhas been eliminated."));
+		money.addBoost(player, 32);
+		goto("leavegame");
+	}
+}
+goto("checkgame");
+
+@block_break
+@block_place
+cancel = true;
+goto("checkgame");
+
+@function_key
+if(key > list.getSize(kf_skills)) {
+	goto("checkgame");
+}
+skill = list.getIndex(kf_skills, key - 1);
+skill_name = skill[0];
+last_exe_time = getKfLastExeTime(player, skill_name);
+needed_cooldown = skill[2];
+now_time = time.getMillis();
+diff_time = math.roundUp((now_time - last_exe_time) / 1000);
+if(diff_time < needed_cooldown) {
+	player.action(player, string.concat("§a", string.number(needed_cooldown - diff_time), "s cooldown left"));
+	goto("checkgame");
+}
+if(key == 1) {
+	entity.addEffect(player, "speed", 200, 1);
+} elseif(key == 2) {
+	entity.addEffect(player, "jump_boost", 200, 2);
+} elseif(key == 3) {
+	iter = list.iterator(player_list);
+	while(hasNext(iter)) {
+		p = player.get(next(iter));
+		if(p != player) {
+			entity.addEffect(p, "slowness", 160, 1);
+		}
+	}
+} elseif(key == 4) {
+	iter = list.iterator(player_list);
+	while(hasNext(iter)) {
+		p = player.get(next(iter));
+		if(p != player) {
+			entity.addEffect(p, "blindness", 160, 1);
+		}
+	}
+} elseif(key == 5) {
+	opp = player.getTargetEntity(player, 4, "net.minecraft.entity.player.PlayerEntity");
+	if(opp == null) {
+		player.action(player, "§aNo enemy targeted.");
+		goto("checkgame");
+	}
+	array = entity.getLook(player);
+	x = array[0] * 2;
+	z = array[2] * 2;
+	entity.throw(opp, x, 1, z);
+}
+setKfLastExeTime(player, skill_name);
+//status.addTimed(player, key, needed_cooldown * 20, string.concat("Cooldown ", skill_name));
+minigame.speakAll(gamename, string.concat("§6", player_name, "§r used §2", skill_name, "."));
+goto("checkgame");
+
+@resetdamager
+map.add(lastdamage, list.getIndex(resetlist, 0), null);
+list.removeIndex(resetlist, 0);
+goto("checkgame");
+
+@player_giveup
+@player_logout
+minigame.speakAll(gamename, string.concat("§6", player_name, " §rhas left the game."));
+@leavegame
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+gosub("updatedisplay");
+showstats(player, false);
+if(list.getSize(player_list) < minplayers) {
+	winner = player.get(list.getIndex(player_list, 0));
+	money.addBoost(winner, 128);
+	showstats(winner, true);
+	minigame.kickPlayer(script, winner);
+	minigame.term(script, gamesignloc);
+	term();
+}
+goto("checkgame");
+
+function setKfLastExeTime(player, skill_name) {
+	player_uuid = player.getUuid(player);
+	player_map = map.getOrDefault($cooldown_map, player_uuid, map.new());
+	map.add(player_map, skill_name, time.getMillis());
+	map.add($cooldown_map, player_uuid, player_map);
+}
+
+function getKfLastExeTime(player, skill_name) {
+	player_map = map.get($cooldown_map, player.getUuid(player));
+	if(player_map == null) {
+		return 0;
+	}
+	return map.getOrDefault(player_map, skill_name, 0);
+}
+
+function addKnockfightSkill(skill_name, icon, cooldown) {
+	skill = array.new(3);
+	skill[0] = skill_name;
+	skill[1] = icon;
+	skill[2] = cooldown; //s
+	list.add($kf_skills, skill);
+}
+
+function showstats(player, won) { //showstats(Player player, Boolean won)
+	player_name = player.getName(player);
+	player_id = player.getId(player);
+	playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, playedgames);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	knockedplayers = map.get($knockedcounter, player.getUuid(player));
+	points = last_record + knockedplayers;
+	ranking.setPoints($rankingtable, player_id, points);
+	
+	wongames = minigame.getWon(player, "knock");
+	if(won) {
+		wongames++;
+		minigame.setWon(player, "knock", wongames);
+		winningtext = "Yes";
+	} else {
+		winningtext = "No";
+	}
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Kills", string.number(knockedplayers));
+	minigame.statsLine(player, "§e", "Won games", string.number(wongames));
+	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((wongames / playedgames) * 100, 2)), "%"));
+	}
+	minigame.statsLine(player, "§e", "Won", winningtext);
+}
+
+@updatedisplay
+sb.clearGameAll();
+minigame.displayAll(99, gamename);
+for(i = 0; i < list.getSize(player_list); i++) {
+	p_uuid = list.getIndex(player_list, i);
+	minigame.displayAll(98 - i, string.concat("§c", string.number(map.get(lifes, p_uuid)), " §r", player.getName(p_uuid)));
+}
+minigame.displayAll(98 - i, sb.getSpacer());
+return;

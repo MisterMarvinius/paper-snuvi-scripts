@@ -4,6 +4,7 @@ emerald = item.create("EMERALD", 1, "§fMarket", null);
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 
 farmer_inv = createMainMenu("Farmer", true, false);
+fisher_inv = createMainMenu("Fisher", true, false);
 miner_inv = createMainMenu("Miner", true, false);
 baker_inv = createMainMenu("Baker", true, false);
 alena_inv = createMainMenu("Alena", true, false);
@@ -33,6 +34,8 @@ if(entity_name == "Farmer") {
 	inv.open(farmer_inv, player);
 } elseif(entity_name == "Miner") {
 	inv.open(miner_inv, player);
+} elseif(entity_name == "Fisher") {
+	inv.open(fisher_inv, player);
 } elseif(entity_name == "Baker") {
 	inv.open(baker_inv, player);
 } elseif(entity_name == "Alena") {

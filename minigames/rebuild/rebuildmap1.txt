@@ -1,0 +1,74 @@
+gamesignloc = minigame.getSignLoc("rebuildsign1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 985, 85, 957);
+mapname  = "§35x5";
+middleloc = loc.new(gamesworld, 3017, 101, 2989);
+radius = 100;
+minplayers = 1;
+maxplayers = 5;
+
+picture_length = 5;
+
+solve_to_win = 10;
+
+spawns = list.new();
+list.add(spawns, loc.new(gamesworld, 3017.5, 101, 2989.5));
+list.add(spawns, loc.new(gamesworld, 3009.5, 101, 2989.5));
+list.add(spawns, loc.new(gamesworld, 3001.5, 101, 2989.5));
+list.add(spawns, loc.new(gamesworld, 2993.5, 101, 2989.5));
+list.add(spawns, loc.new(gamesworld, 2985.5, 101, 2989.5));
+
+picture_edge = list.new();
+list.add(picture_edge, loc.new(gamesworld, 3019, 102, 2999));
+list.add(picture_edge, loc.new(gamesworld, 3011, 102, 2999));
+list.add(picture_edge, loc.new(gamesworld, 3003, 102, 2999));
+list.add(picture_edge, loc.new(gamesworld, 2995, 102, 2999));
+list.add(picture_edge, loc.new(gamesworld, 2987, 102, 2999));
+
+bottom_edge = list.new();
+list.add(bottom_edge, loc.new(gamesworld, 3019, 101, 2993));
+list.add(bottom_edge, loc.new(gamesworld, 3011, 101, 2993));
+list.add(bottom_edge, loc.new(gamesworld, 3003, 101, 2993));
+list.add(bottom_edge, loc.new(gamesworld, 2995, 101, 2993));
+list.add(bottom_edge, loc.new(gamesworld, 2987, 101, 2993));
+
+etagen = 9; //Anzahl der Etagen, auf denen die Vorlagen verteilt sind
+y_diff = 6; //Höhendifferenz zwischen den Etagen
+y = 107; //Y-Höhe der obersten Etage
+
+templates = list.new();
+bottom_templates = list.new();
+for(i = 0; i < etagen; i++) {
+	list.add(templates, loc.new(gamesworld, 3016, y, 2973));
+	list.add(templates, loc.new(gamesworld, 3006, y, 2973));
+	list.add(templates, loc.new(gamesworld, 2996, y, 2973));
+	list.add(templates, loc.new(gamesworld, 2986, y, 2973));
+	list.add(templates, loc.new(gamesworld, 3016, y, 2963));
+	list.add(templates, loc.new(gamesworld, 3006, y, 2963));
+	list.add(templates, loc.new(gamesworld, 2996, y, 2963));
+	list.add(templates, loc.new(gamesworld, 2986, y, 2963));
+	
+	list.add(bottom_templates, loc.new(gamesworld, 3016, y, 2967));
+	list.add(bottom_templates, loc.new(gamesworld, 3006, y, 2967));
+	list.add(bottom_templates, loc.new(gamesworld, 2996, y, 2967));
+	list.add(bottom_templates, loc.new(gamesworld, 2986, y, 2967));
+	list.add(bottom_templates, loc.new(gamesworld, 3016, y, 2957));
+	list.add(bottom_templates, loc.new(gamesworld, 3006, y, 2957));
+	list.add(bottom_templates, loc.new(gamesworld, 2996, y, 2957));
+	list.add(bottom_templates, loc.new(gamesworld, 2986, y, 2957));
+	y -= y_diff;
+}
+
+to_build_edges = list.new();
+bottom_check_edges = list.new();
+for(i = 0; i < solve_to_win; i++) {
+	//Random Vorlage auswählen
+	size = list.getSize(templates);
+	picture_index = math.random(0, size - 1);
+	//Random Vorlage zur Liste hinzufügen
+	list.add(to_build_edges, block.get(list.getIndex(templates, picture_index)));
+	list.add(bottom_check_edges, block.get(list.getIndex(bottom_templates, picture_index)));
+	//Random Vorlage aus All-Liste entfernen
+	list.removeIndex(templates, picture_index);
+	list.removeIndex(bottom_templates, picture_index);
+}

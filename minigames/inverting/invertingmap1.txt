@@ -1,0 +1,12 @@
+classic = false;
+xlength = 5;
+zlength = 5;
+iterations = 20;
+gamesworld = world.getGames();
+edge1 = loc.new(gamesworld, 2001, 100, 1994);
+edge2 = loc.new(gamesworld, 2005, 100, 1998);
+tploc = loc.new(gamesworld, 2003.5, 101, 1996.5);
+gamesignloc = minigame.getSignLoc("invertingsign1");
+map = "5x5";
+maxplayers = 1;
+money = 0;

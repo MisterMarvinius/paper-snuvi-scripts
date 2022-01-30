@@ -1,0 +1,464 @@
+event.load("entity_damage");
+event.load("player_join");
+event.load("player_pre_respawn");
+event.load("player_post_respawn");
+event.load("block_click");
+event.load("block_break");
+event.load("entity_click");
+event.load("custom_command");
+event.load("term_script");
+event.load("player_move");
+event.load("snuvi_click");
+
+script_ids = map.new();
+script_players = list.new();
+script_paths = list.new();
+games_respawn = set.new();
+gamesign_ground_block_loc = set.new();
+gamesignsmap = map.new();
+openedgames = map.new();
+gamepaths = map.new();
+gamemappaths = map.new();
+singleplayergames = set.new();
+compass_loc_list = list.new();
+
+prefix_party = "§5Party";
+gamesworld = world.getGames();
+sign_tag = block.getTag("minecraft:wall_signs");
+dice_loc = loc.new(gamesworld, -416, 156, -57);
+dice_loc_rm5 = loc.new(gamesworld, -3064, 156, 1061);
+dice_time = time.getMillis();
+move_id_to_spawn = event.addMoveData(loc.new(gamesworld, -415, 148, -62), loc.new(gamesworld, -411, 153, -58), 5, -1);
+
+minigame.addSign("bwmapsign1", false, loc.new(gamesworld, -423, 158, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap1", false);
+minigame.addSign("bwmapsign2", false, loc.new(gamesworld, -423, 158, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap2", false);
+minigame.addSign("bwmapsign3", false, loc.new(gamesworld, -423, 158, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap3", false);
+minigame.addSign("bwmapsign4", false, loc.new(gamesworld, -423, 157, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap4", false);
+minigame.addSign("bwmapsign5", false, loc.new(gamesworld, -423, 157, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap5", false);
+minigame.addSign("bwmapsign6", false, loc.new(gamesworld, -423, 157, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap6", false);
+minigame.addSign("bwmapsign7", false, loc.new(gamesworld, -423, 156, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap7", false);
+minigame.addSign("bwmapsign8", false, loc.new(gamesworld, -423, 156, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap8", false);
+minigame.addSign("bwmapsign9", false, loc.new(gamesworld, -423, 156, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap9", false);
+minigame.addSign("letterssign1", true, loc.new(gamesworld, -396, 158, -63), "minigames/letters/letters", "minigames/letters/lettersmap1", true);
+minigame.addSign("letterssign2", true, loc.new(gamesworld, -396, 158, -62), "minigames/letters/letters", "minigames/letters/lettersmap2", true);
+minigame.addSign("letterssign3", true, loc.new(gamesworld, -396, 158, -61), "minigames/letters/letters", "minigames/letters/lettersmap3", true);
+minigame.addSign("rmmaploc1", false, loc.new(gamesworld, -411, 158, -44), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap1", false);
+minigame.addSign("rmmaploc2", false, loc.new(gamesworld, -411, 158, -43), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap2", false);
+minigame.addSign("rmmaploc3", false, loc.new(gamesworld, -411, 158, -42), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap3", false);
+minigame.addSign("rmmaploc4", false, loc.new(gamesworld, -411, 157, -44), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap4", false);
+minigame.addSign("rmmaploc5", false, loc.new(gamesworld, -411, 157, -43), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap5", false);
+minigame.addSign("buttonssign1", true, loc.new(gamesworld, -399, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap1", true);
+minigame.addSign("buttonssign2", true, loc.new(gamesworld, -398, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap2", true);
+minigame.addSign("spleefsign1", true, loc.new(gamesworld, -419, 156, -40), "minigames/spleef/spleef", "minigames/spleef/spleefmap1", false);
+minigame.addSign("spleefsign2", true, loc.new(gamesworld, -420, 156, -40), "minigames/spleef/spleef", "minigames/spleef/spleefmap2", false);
+minigame.addSign("spleefsign3", true, loc.new(gamesworld, -421, 156, -40), "minigames/spleef/spleef", "minigames/spleef/spleefmap3", false);
+minigame.addSign("knockfightsign1", true, loc.new(gamesworld, -419, 157, -40), "minigames/knockfight/knockfight", "minigames/knockfight/knockmap1", false);
+minigame.addSign("knockfightsign2", true, loc.new(gamesworld, -420, 157, -40), "minigames/knockfight/knockfight", "minigames/knockfight/knockmap2", false);
+minigame.addSign("knockfightsign3", true, loc.new(gamesworld, -421, 157, -40), "minigames/knockfight/knockfight", "minigames/knockfight/knockmap3", false);
+minigame.addSign("invertingsign1", true, loc.new(gamesworld, -396, 158, -57), "minigames/inverting/inverting", "minigames/inverting/invertingmap1", true);
+minigame.addSign("invertingsign2", true, loc.new(gamesworld, -396, 158, -56), "minigames/inverting/inverting", "minigames/inverting/invertingmap2", true);
+minigame.addSign("invertingsign3", true, loc.new(gamesworld, -396, 158, -55), "minigames/inverting/inverting", "minigames/inverting/invertingmap3", true);
+minigame.addSign("invertingclsign1", true, loc.new(gamesworld, -396, 157, -57), "minigames/inverting/inverting", "minigames/inverting/invertingclmap1", true);
+minigame.addSign("invertingclsign2", true, loc.new(gamesworld, -396, 157, -56), "minigames/inverting/inverting", "minigames/inverting/invertingclmap2", true);
+minigame.addSign("invertingclsign3", true, loc.new(gamesworld, -396, 157, -55), "minigames/inverting/inverting", "minigames/inverting/invertingclmap3", true);
+//minigame.addSign("ctfsign1", false, loc.new(gamesworld, 13, 75, 64), "minigames/capturetheflag/capturetheflag", "minigames/capturetheflag/ctfmap1", false);
+minigame.addSign("jrmap", true, loc.new(gamesworld, -396, 158, -51), null, "minigames/jumpnrun/jumpnrun", true);
+minigame.addSign("parcoursign1", false, loc.new(gamesworld, -396, 158, -50), "minigames/parcour/parcour", "minigames/parcour/parcour_map1", true);
+minigame.addSign("tjrsign", false, loc.new(gamesworld, -396, 157, -51), null, "minigames/jumpnrun/todesjumpnrun", true);
+minigame.addSign("jr_sign_ice", false, loc.new(gamesworld, -396, 157, -49), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_ice", true);
+minigame.addSign("jr_sign_room", false, loc.new(gamesworld, -396, 157, -50), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_rooms", true);
+minigame.addSign("fastbridgesign1", true, loc.new(gamesworld, -413, 157, -40), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap1", false);
+minigame.addSign("fastbridgesign2", true, loc.new(gamesworld, -414, 157, -40), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap2", false);
+minigame.addSign("halmasign1", false, loc.new(gamesworld, -413, 156, -40), "minigames/halma/halma", "minigames/halma/halma_map1", false);
+minigame.addSign("halmasign2", false, loc.new(gamesworld, -414, 156, -40), "minigames/halma/halma", "minigames/halma/halma_map2", false);
+minigame.addSign("rebuildsign1", true, loc.new(gamesworld, -405, 158, -75), "minigames/rebuild/rebuild", "minigames/rebuild/rebuildmap1", false);
+minigame.addSign("rebuildsign2", true, loc.new(gamesworld, -404, 158, -75), "minigames/rebuild/rebuild", "minigames/rebuild/rebuildmap2", false);
+minigame.addSign("hideandseeksign1", false, loc.new(gamesworld, -413, 158, -40), "minigames/hideandseek/hideandseek", "minigames/hideandseek/hideandseekmap1", false);
+minigame.addSign("hideandseeksign2", false, loc.new(gamesworld, -414, 158, -40), "minigames/hideandseek/hideandseek", "minigames/hideandseek/hideandseekmap2", false);
+minigame.addSign("shoppingsign1", false, loc.new(gamesworld, -415, 158, -40), "minigames/shoppingchaos/shoppingchaos", "minigames/shoppingchaos/shopping_map1", false);
+minigame.addSign("mengersign1", false, loc.new(gamesworld, -405, 157, -75), "minigames/mengerrun/mengerrun", "minigames/mengerrun/menger_map1", false);
+minigame.addSign("leapfrogsign1", true, loc.new(gamesworld, -399, 157, -65), "minigames/leapfrog/leapfrog", "minigames/leapfrog/leapfrogmap1", true);
+minigame.addSign("snowsign1", true, loc.new(gamesworld, -419, 158, -40), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap1", false);
+minigame.addSign("snowsign2", true, loc.new(gamesworld, -420, 158, -40), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap2", false);
+//minigame.addSign("damesign1", false, loc.new(gamesworld, -411, 158, -44), "minigames/dame/dame", "minigames/dame/dame_map1", false);
+minigame.addSign("among_us_sign1", false, loc.new(gamesworld, -417, 157, -41), "minigames/among_us/among_us", "minigames/among_us/among_us_map1", false);
+minigame.addSign("jr_sign_4D_1", true, loc.new(gamesworld, -396, 156, -51), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map1", true);
+minigame.addSign("jr_sign_4D_3", true, loc.new(gamesworld, -396, 156, -49), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map3", true);
+setScriptVar("gamesigns", gamesignsmap);
+
+amongus_head = read.item("{Count:1b,id:'minecraft:player_head',tag:{SkullOwner:{Id:[I;1974515746,1982350500,-1169583430,618614082],Properties:{textures:[{Signature:'RO9IGJ16KwIM79JS04eY82CRaWXDEkIqtz4xA8odVaP0Uk4Ox1sHRa69Hh1V2Zo5KRGJ1dDNECvf0XHmzFn9xcDwXmGsk9HC/t2Ndxe2jLebtJk7Ytl3/kFsNQgluS/TikWkF1MgPnucQ/M0ftggu4B1c6SE4Hat0HAIGuhgC8+2jwrTcgDxWeKy9uO4ibopjDR8+S89XzYAPqqqf2CZtZnUP28DNR7pa2uJIT5+/kP3y6euRN+VOOAdTKLUnlfiCZTOxanIkDnC20tVvQQz5lPIGH18rq+9YIF/jok0G3zqWXCgiWk24QogYQErRa9h040sg7ganrC5A5iHBwzHmvzN8k9T/XXu2gDyKih5mzb2EAOxV+pe9HfG1qIZHDhjH8+2vLsUzUDpUINQPorYJ+Qk/YnWPc38EwW4H6byneDGP1xSHmcd5SnTeGYuyXHgHs9I55u5wxTxhZref3/BkS4vIL7w5tkc4YWHOU5HbEmdillLnc0Pepk7JxYLBcnSCcRdhvRPZ3ajGEPKfDwx0RgeZsah4+MFOWi8lXOcpBwnaqpNUYRNgLAahMpuyAUUHZ17Urd6hEadbrWttDFuTO+oHBH45Ueu0vD4pgdXjP1SHZWyPvQVVKRph4eF7xVtobHGkQeJk0u7DFx2Yn+XiPmflQWBGa/oYfitYayO4Kw=',Value:'ewogICJ0aW1lc3RhbXAiIDogMTYwMzk4NTQxMjIxNCwKICAicHJvZmlsZUlkIiA6ICIwNjEzY2I1Y2QxYjg0M2JjYjI4OTk1NWU4N2QzMGEyYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJicmVhZGxvYWZzcyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kNWEzNjhlNGI1MTc3NTljNTZhN2Q0ZDUxMWU1YmM5ZTNkOWVlNDA1Yzc5ZGFiNzZlY2IwMDdhYjBjYTg3ODc4IgogICAgfQogIH0KfQ=='}]}}}}");
+item.setName(amongus_head, text.new("§fAmong Us"));
+
+games_inv = inv.new("222222222222222222222222222", text.new("Minigames"));
+minigame.addCompass(0, item.create("minecraft:red_bed", 1, "§fBedWars", null), loc.new(gamesworld, -420.5, 156, -41.5, 90, 0.0001));
+minigame.addCompass(1, item.create("minecraft:iron_axe", 1, "§fRageMode", null), loc.new(gamesworld, -412.5, 156, -43.5, -90, 0.0001));
+minigame.addCompass(2, item.create("minecraft:snowball", 1, "§fSnowgame", null), loc.new(gamesworld, -418.5, 156, -41.5, 0.0001, -20));
+minigame.addCompass(3, item.create("minecraft:diamond_block", 1, "§fHide and Seek", null), loc.new(gamesworld, -412.5, 156, -41.5, 0.0001, -20));
+minigame.addCompass(4, item.create("minecraft:emerald", 1, "§fShoppingChaos", null), loc.new(gamesworld, -414.5, 156, -41.5, 0.0001, -20));
+minigame.addCompass(5, item.create("minecraft:light_blue_terracotta", 1, "§fFastBridge", null), loc.new(gamesworld, -412.5, 156, -41.5, 0.0001, 0.0001));
+minigame.addCompass(6, item.create("minecraft:blue_banner", 1, "§fHalma", null), loc.new(gamesworld, -412.5, 156, -41.5, 0.0001, 25));
+minigame.addCompass(7, amongus_head, loc.new(gamesworld, -416.5, 156, -42.5, 0.0001, 0.0001));
+minigame.addCompass(8, item.create("minecraft:grass_block", 1, "§fSammelfieber", null), loc.new(gamesworld, -397.5, 156, -48.5, 0.0001, 0.0001));
+minigame.addCompass(9, item.create("minecraft:slime_block", 1, "§fJ&R / Parcour", null), loc.new(gamesworld, -397.5, 156, -50.5, -90, 0.0001));
+minigame.addCompass(10, item.create("minecraft:lapis_block", 1, "§fInverting", null), loc.new(gamesworld, -397.5, 156, -56.5, -90, 0.0001));
+minigame.addCompass(11, item.create("minecraft:oak_sign", 1, "§fLetters", null), loc.new(gamesworld, -397.5, 156, -62.5, -90, -20));
+minigame.addCompass(12, item.create("minecraft:oak_button", 1, "§fButtons", null), loc.new(gamesworld, -398.5, 156, -62.5, 180, -20));
+minigame.addCompass(13, item.create("minecraft:redstone_torch", 1, "§fLeapfrog", null), loc.new(gamesworld, -398.5, 156, -62.5, 180, 0.0001));
+minigame.addCompass(14, item.create("minecraft:stick", 1, "§fKnockfight", null), loc.new(gamesworld, -418.5, 156, -41.5, 0.0001, 0.0001));
+minigame.addCompass(15, item.create("minecraft:diamond_shovel", 1, "§fSpleef", null), loc.new(gamesworld, -418.5, 156, -41.5, 0.0001, 25));
+
+modTimer(-500);
+iter = map.iterator(gamemappaths);
+while(hasNext(iter)) {
+	entry = next(iter);
+	gamesignloc = map.getKey(entry);
+	gamesignblock = block.get(gamesignloc);
+	facing = block.getDirectionalFace(gamesignblock);
+	if(facing == "NORTH") {
+		ground_block_loc = loc.mod(gamesignloc, 0, 0, 1);
+	} elseif(facing == "EAST") {
+		ground_block_loc = loc.mod(gamesignloc, -1, 0, 0);
+	} elseif(facing == "SOUTH") {
+		ground_block_loc = loc.mod(gamesignloc, 0, 0, -1);
+	} elseif(facing == "WEST") {
+		ground_block_loc = loc.mod(gamesignloc, 1, 0, 0);
+	}
+	set.add(gamesign_ground_block_loc, ground_block_loc);
+	if(map.get(openedgames, gamesignloc)) {
+		sign.ready(gamesignblock);
+	} else {
+		sign.closed(gamesignblock);
+	}
+}
+
+msg.string("dev", "§bGamecenter §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@snuvi_click
+title_string = string.text(inv_title);
+if(title_string == "Minigames") {
+	item = inv.getItem(inv, inv_slot);
+	if(item == null) {
+		goto("wait");
+	}
+	if(inv_slot >= list.getSize(compass_loc_list)) {
+		goto("wait");
+	}
+	loc = list.getIndex(compass_loc_list, inv_slot);
+	entity.teleport(player, loc);
+}
+goto("wait");
+
+@player_move
+if(id == move_id_to_spawn) {
+	player.setBackPosLoc(player, world.getGamesSpawn());
+	player.teleport(player, world.getServerSpawn(), false);
+}
+goto("wait");
+
+@term_script
+map.remove(script_ids, getScriptVar("sign_loc"));
+goto("wait");
+
+@custom_command
+if(!isPlayer(sender)) {
+	goto("wait");
+}
+player = sender;
+if(!perm.has(command, player)) {
+	goto("wait");
+}
+size = list.getSize(args);
+if(command == "game") {
+	if(size != 1) {
+		msg.string(player, "§6/game §r<open/close>");
+	} else {
+		arg0 = string.toLowerCase(list.getIndex(args, 0));
+		block = player.getTargetBlock(player, 5);
+		if(!block.hasTag(block, sign_tag)) {
+			msg.prefix(player, "§6Games", "Look at a sign.");
+			goto("wait");
+		}
+		block_loc = block.getLocation(block);
+		if(arg0 == "open") {
+			sign.ready(block);
+			map.add(openedgames, block_loc, true);
+		} elseif(arg0 == "close") {
+			sign.closed(block);
+			map.add(openedgames, block_loc, false);
+		} else {
+			msg.string(player, "§6/game §r<open/close>");
+		}
+	}
+}
+goto("wait");
+
+@entity_click
+if(slot.isOffHand(hand)) {
+	goto("wait");
+}
+player_loc = entity.getLocation(player);
+if(!loc.isInGamesWorld(player_loc)) {
+	goto("wait");
+}
+if(!entity.isHuman(entity)) {
+	goto("wait");
+}
+human_name = human.getName(entity);
+if(human_name == "marvinius") {
+	msg.prefix(player, "§cGamerMarv", "Help! I'm being held here against my will!");
+}
+goto("wait");
+
+@block_break
+block_loc = block.getLocation(block);
+if(set.contains(gamesign_ground_block_loc, block_loc) || map.contains(gamepaths, block_loc)) {
+	cancel = true;
+	msg.prefix(player, "§6Games", "You can´t break this block.");
+	goto("wait");
+}
+goto("wait");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("wait");
+}
+if(action == "RIGHT_CLICK_AIR" || action == "RIGHT_CLICK_BLOCK") {
+	item = living.getHand(player);
+	if(item.isType(item, "COMPASS")) {
+		player_loc = entity.getLocation(player);
+		if(loc.isInGamesWorld(player_loc)) {
+			if(!player.hasMinigame(player)) {
+				inv.open(games_inv, player);
+				goto("wait");
+			}
+		}
+	}
+}
+if(block == null) {
+	goto("wait");
+}
+if(action == "LEFT") {
+	goto("wait");
+}
+block_loc = block.getLocation(block);
+if(block_loc == dice_loc || block_loc == dice_loc_rm5) {
+	now_time = time.getMillis();
+	if(now_time - dice_time < 1000) {
+		goto("wait");
+	}
+	dice_time = now_time;
+	message = string.concat(player.getName(player), " has rolled a ", string.number(math.random(1, 6)), ".");
+	msg.radius("§6Dice", message, block_loc, 20);
+	goto("wait");
+}
+if(!block.hasTag(block, sign_tag)) {
+	goto("wait");
+}
+if(!map.contains(gamemappaths, block_loc)) {
+	goto("wait");
+}
+cancel = true;
+if(!map.get(openedgames, block_loc)) {
+	msg.prefix(player, "§6Games", "Closed game.");
+	goto("wait");
+}
+if(minigame.isStarted(block)) {
+	script_id = map.get(script_ids, block_loc);
+	if(script_id == null) {
+		goto("error_on_gamejoin");
+	}
+	script = script.getFromId(script_id);
+	if(script == null) {
+		goto("error_on_gamejoin");
+	}
+	msg.prefix(player, "§6Games", "Could not enter.");
+	goto("wait");
+}
+//Start/Get Script
+@startnewgame
+if(player.hasMinigame(player)) {
+	//prevent double game join
+	goto("wait");
+}
+pfad = map.get(gamemappaths, block_loc);
+pfad2 = map.get(gamepaths, block_loc);
+script_id = map.get(script_ids, block_loc);
+if(script_id == null) {
+	if(pfad2 != null) {
+		modTimer(-100);
+		if(pfad2 == "minigames/sammelfieber/sammelfieber" || pfad2 == "minigames/sammelfieber/sfranked") {
+			script = script.start(pfad, "minigames/sammelfieber/sammelfieberitems", pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+		} else {
+			script = script.start(pfad, pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+		}
+	} else {
+		script = script.start(pfad, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+	}
+	if(script == null) {
+		snuvi.debug("Minigame throws error on gamestart");
+		goto("wait");
+	}
+	map.add(script_ids, block_loc, script.getId(script));
+} else {
+	script = script.getFromId(script_id);
+}
+if(script == null) {
+	goto("error_on_gamejoin");
+}
+//Add player to script
+script_id = script.getId(script);
+maxplayers = script.getVar(script, "maxplayers");
+script.setVar(script, "script_id", script_id);
+if(player.isInParty(player)) {
+	if(player.isPartyLeader(player)) {
+		if(set.contains(singleplayergames, block_loc)) {
+			minigame.singleJoin(script, player);
+			goto("wait");
+		}
+		party_list = party.getList(player.getPartyId(player));
+		party_size = list.getSize(party_list);
+		if(party_size > maxplayers) {
+			msg.prefix(player, prefix_party, "Not enough space.");
+			goto("wait");
+		}
+		minigame.partyJoin(script, player, party_list);
+		goto("wait");
+	}
+	msg.prefix(player, prefix_party, "§cAttention! You are not the leader.");
+}
+minigame.singleJoin(script, player);
+goto("wait");
+
+@error_on_gamejoin
+snuvi.debug(string.concat("Started gamesign existing without game behind ", script_id, " ", block_loc));
+map.remove(script_ids, block_loc);
+goto("startnewgame");
+
+@player_join
+player_loc = entity.getLocation(player);
+if(loc.isInGamesWorld(player_loc)) {
+	resetplayer(player);
+	entity.teleport(player, world.getGamesSpawn());
+}
+goto("wait");
+
+@entity_damage
+if(!isPlayer(entity)) {
+	goto("wait");
+}
+player = entity;
+player_loc = entity.getLocation(player);
+if(!loc.isInGamesWorld(player_loc)) {
+	goto("wait");
+}
+plot_id = plot.getIdFromLocation(player_loc);
+if(plot_id == 32 || plot_id == 106) {
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	cancel = true;
+}
+goto("wait");
+
+@player_pre_respawn
+if(loc.isInGamesWorld(entity.getLocation(player))) {
+	if(!player.hasMinigame(player)) {
+		set.add(games_respawn, player.getUuid(player));
+	}
+}
+goto("wait");
+
+@player_post_respawn
+player_uuid = player.getUuid(player);
+if(set.contains(games_respawn, player_uuid)) {
+	set.remove(games_respawn, player_uuid);
+	entity.teleport(player, world.getGamesSpawn());
+}
+goto("wait");
+
+function minigame.addCompass(index, item, location) {
+	list.add($compass_loc_list, location);
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	inv.setItem($games_inv, index, item);
+}
+
+function minigame.addSign(map_string, opened, sign_loc, core_path, map_path, singleplayer) {
+	map.add($gamesignsmap, map_string, sign_loc);
+	map.add($openedgames, sign_loc, opened);
+	map.add($gamepaths, sign_loc, core_path);
+	map.add($gamemappaths, sign_loc, map_path);
+	if(singleplayer) {
+		set.add($singleplayergames, sign_loc);
+	}
+}
+
+function minigame.joinPlayer(script, player) {
+	id_set = player.getMinigameIds(player);
+	player_uuid = player.getUuid(player);
+	//Sicherheits-Handling 1
+	if(player.hasMinigame(player)) {
+		iter = set.iterator(id_set);
+		while(hasNext(iter)) {
+			s_id = next(iter);
+			s = script.getFromId(s_id);
+			if(s != null) {
+				list.remove(minigame.getPlayers(s_id), player_uuid);
+			}
+		}
+		set.clear(id_set);
+	}
+	minigame.setLastPos(player);
+	script_id = script.getId(script);
+	//Script-ID dem Set des Spielers hinzufügen
+	set.add(id_set, script_id);
+	//Spieler-UUID der Spielerliste des Scripts hinzufügen
+	player_list = minigame.getPlayers(script_id);
+	if(!list.contains(player_list, player_uuid)) { //Sicherheits-Handling 2
+		list.add(player_list, player.getUuid(player));
+	}
+	//Event minigame_join
+	script.setVar(script, "player", player);
+	modTimer.scriptCallEvent("minigame_join", script);
+	sign.players($block_loc, list.getSize(player_list), $maxplayers);
+}
+
+function minigame.singleJoin(script, player) {
+	player_list = minigame.getPlayers(script.getId(script));
+	if(list.getSize(player_list) >= $maxplayers) {
+		msg.prefix(player, "§6Games", "Not enough space.");
+		return;
+	}
+	minigame.joinPlayer(script, player);
+}
+
+function minigame.partyJoin(script, party_leader, party_list) {
+	minigame.joinPlayer(script, party_leader); //Party-Leader soll der 1.Spieler sein, der joint
+	party_leader_uuid = player.getUuid(party_leader);
+	iter = list.iterator(party_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		if(p_uuid == party_leader_uuid) {
+			continue;
+		}
+		p = player.get(p_uuid);
+		p_name = player.getName(p);
+		if(!loc.isInGamesWorld(entity.getLocation(p))) {
+			msg.prefix(party_leader, $prefix_party, string.concat(p_name, "§c is not in the world 'games'."));
+			continue;
+		}
+		if(player.hasMinigame(p)) {
+			msg.prefix(party_leader, $prefix_party, string.concat(p_name, "§c is in another game."));
+			continue;
+		}
+		if(player.isAfk(p)) {
+			msg.prefix(party_leader, $prefix_party, string.concat(p_name, "§c is afk."));
+			continue;
+		}
+		sign.ready($block_loc);
+		minigame.joinPlayer(script, p);
+	}
+}

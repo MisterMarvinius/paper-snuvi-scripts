@@ -2,7 +2,8 @@ event.load("player_join");
 
 sgoto(400, "announce");
 msg("online", text.new("§4The server will restart soon!!!"));
-setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.1§f]\n§4Server is restarting!");
+setMOTD("§4Server is restarting...");
+script.callEvent("server_pre_stop");
 
 @wait
 wait();
@@ -32,6 +33,12 @@ sgoto(20, "stop");
 goto("wait");
 
 @final_stop
+config = config.new("scripts/configs", "server");
+if(config.exists(config)) {
+	config.load(config);
+}
+config.set(config, "properShutdown", true);
+config.save(config);
 stop();
 goto("wait");
 

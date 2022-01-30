@@ -1,0 +1,170 @@
+rankingtable = string.concat("invertranks", map);
+game_short = string.concat("inv", map);
+sign.started(gamesignloc);
+gamename = "§9Inverting";
+
+x1 = loc.getX(edge1);
+y1 = loc.getY(edge1);
+z1 = loc.getZ(edge1);
+x2 = loc.getX(edge2);
+y2 = loc.getY(edge2);
+z2 = loc.getZ(edge2);
+edgeblock_1 = block.get(edge1);
+
+event.load("block_break");
+event.load("block_click");
+event.load("player_giveup");
+event.load("player_quit");
+event.load("minigame_join");
+event.load("entity_damage");
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(!player.hasMinigameId(player, script_id)) {
+	goto("wait");
+}
+if(event == "entity_damage") {
+	cancel = true;
+	goto("wait");
+}
+if(event == "minigame_join") {
+	entity.teleport(player, tploc);
+	living.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+	player.setGamemode(player, "SURVIVAL");
+	player.setFly(player, true);
+	lapis_block_type = material.get("minecraft:lapis_block");
+	redstone_block_type = material.get("minecraft:redstone_block");
+	gosub("newfield");
+	fields = xlength * zlength;
+	goto("wait");
+}
+if(event == "player_giveup" || event == "player_quit") {
+	player.setFly(player, false);
+	script = script.getFromId(script_id);
+	sb.remove(player, 97);
+	sb.remove(player, 98);
+	sb.remove(player, 99);
+	minigame.kickPlayer(script, player);
+	minigame.term(script, gamesignloc);
+	term();
+}
+if(event == "block_break") {
+	cancel = true;
+	goto("wait");
+}
+if(event == "block_click") {
+	if(block == null) {
+		goto("wait");
+	}
+	if(slot.isOffHand(hand)) {
+		goto("wait");
+	}
+	block_loc = block.getLocation(block);
+	tempx = loc.getBlockX(block_loc);
+	tempy = loc.getBlockY(block_loc);
+	tempz = loc.getBlockZ(block_loc);
+	if(tempy != y1) {
+		goto("wait");
+	}
+	if(tempx < x1 || tempx > x2) {
+		goto("wait");
+	}
+	if(tempz < z1 || tempz > z2) {
+		goto("wait");
+	}
+	clicked++;
+	sb.add(player, 98, string.concat("Swaps: ", string.number(clicked)));
+	if(inverting(block)) {
+		goto("solved");
+	}
+}
+goto("wait");
+
+@newfield
+sb.add(player, 99, gamename);
+clicked = 0;
+sb.add(player, 98, string.concat("Swaps: ", string.number(clicked)));
+sb.add(player, 97, sb.getSpacer());
+renewing = true;
+for(i = 0; i <= iterations; i++) {
+	centerblock = block.get(loc.new(gamesworld, math.random(x1, x2), y1, math.random(z1, z2)));
+	if(inverting(centerblock)) {
+		goto("solved");
+	}
+}
+renewing = false;
+return;
+
+function inverting(centerblock) {
+	if($classic) {
+		invertblock(centerblock);
+		invertblock(block.mod(centerblock, -1, 0, 0));
+		invertblock(block.mod(centerblock, 1, 0, 0));
+		invertblock(block.mod(centerblock, 0, 0, 1));
+		invertblock(block.mod(centerblock, 0, 0, -1));
+	} else {
+		for(x = -1; x <= 1; x++) {
+			for(z = -1; z <= 1; z++) {
+				invertblock(block.mod(centerblock, x, 0, z));
+			}
+		}
+	}
+	if(!$renewing) {
+		i = 0;
+		edgetype1 = block.getType($edgeblock_1);
+		for(x = 0; x <= $xlength - 1; x++) {
+			for(z = 0; z <= $zlength - 1; z++) {
+				if(block.getType(block.mod($edgeblock_1, x, 0, z)) != edgetype1) {
+					return false;
+				}
+				i++;
+			}
+		}
+		return i == $fields;
+	}
+	return false;
+}
+
+function invertblock(block) {
+	if(block.getType(block) == $lapis_block_type) {
+		block.setMaterial(block, $redstone_block_type);
+	} elseif(block.getType(block) == $redstone_block_type) {
+		block.setMaterial(block, $lapis_block_type);
+	}
+}
+
+@solved
+player_id = player.getId(player);
+last_record = ranking.getPoints(rankingtable, player_id);
+playedgames = minigame.getPlayed(player_id, game_short) + 1;
+minigame.setPlayed(player_id, game_short, playedgames);
+if(last_record == 0 || clicked < last_record) {
+	if(last_record != 0) {
+		diff = last_record - clicked;
+	}
+	last_record = clicked;
+}
+ranking.setPoints(rankingtable, player_id, last_record);
+
+minigame.statsHeader(player, gamename, "§e");
+minigame.statsLine(player, "§e", "Swaps", string.number(clicked));
+minigame.statsLine(player, "§e", "Your record", string.number(last_record));
+if(diff != null) {
+	msg.string(player, string.concat(" §e- §rBeat own record by §e", string.number(diff)));
+	diff = null;
+}
+minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+money.addBoost(player, money);
+
+gosub("newfield");
+goto("wait");

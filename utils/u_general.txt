@@ -8,6 +8,10 @@ function isString(anything) {
 	return string.class(anything) == "String";
 }
 
+function isBlock(anything) {
+	return string.class(anything) == "CraftBlock";
+}
+
 function getServerConfig() {
 	return getScriptVar("server_config");
 }
@@ -130,6 +134,35 @@ function getDirection(yaw) {
 	} elseif(yaw > 330 || yaw < 30) {
 		direction = "south";
 	} else {
+		return null;
+	}
+	return direction;
+}
+
+function getDirectionExact(yaw) {
+	while(yaw < 0) {
+		yaw += 360;
+	}
+	while(yaw >= 360) {
+		yaw -= 360;
+	}
+	if(yaw > 67.5 && yaw <= 112.5) {
+		direction = "West";
+	} elseif(yaw > 112.5 && yaw <= 157.5) {
+		direction = "North-West";
+	} elseif(yaw > 157.5 && yaw <= 202.5) {
+		direction = "North";
+	} elseif(yaw > 202.5 && yaw <= 247.5) {
+		direction = "North-East";
+	} elseif(yaw > 247.5 && yaw <= 292.5) {
+		direction = "East";
+	} elseif(yaw > 292.5 && yaw <= 337.5) {
+		direction = "South-East";
+	}elseif(yaw > 337.5 || yaw <= 22.5) {
+		direction = "South";
+	} elseif(yaw > 22.5 && yaw <= 67.5) {
+		direction = "South-West";
+	}else {
 		return null;
 	}
 	return direction;
@@ -299,6 +332,11 @@ function player.getMinigameIds(player) {
 	return set;
 }
 
+function player.resetMinigames(player) {
+	id_set = player.getMinigameIds(player);
+	set.clear(id_set);
+}
+
 function tjr.getWholeModule(player_or_id) {
 	return ranking.getPoints("tjrranks", player_or_id);
 }
@@ -335,6 +373,13 @@ function ranking.getSecPoints(rankingtable, player_or_id) {
 	databank.close(result);
 	databank.close(stmt);
 	return sec_points;
+}
+
+function registerNewbie(id, time) {
+	stmt = databank.prepare("INSERT INTO newbies (player_id, time) VALUES(?,?);");
+	databank.setInt(stmt, 1, id);
+	databank.setLong(stmt, 2, time);
+	databank.workerExecute(stmt);
 }
 
 //--------------------------------------------------
@@ -799,6 +844,42 @@ function inv.removeItem2(inv, wusi, amount_to_remove) {
 //Text-Utils
 //--------------------------------------------------
 
+function text.getClickText(show_text, execute_string) {
+	return text.click(show_text, execute_string);
+}
+
+function text.getHoverText(show_text, execute_string) {
+	return text.hover(show_text, text.new(execute_string));
+}
+
+//--------------------------------------------------
+//String-Utils
+//--------------------------------------------------
+
+function string.getHoverText(show_string, execute_string) {
+	return text.hover(text.new(show_string), text.new(execute_string));
+}
+
+function string.getClipBoardText(show_string, copy_string) {
+	return text.clipBoard(text.new(show_string), copy_string);
+}
+
+
+function string.getInterpretedText(string) {
+	start_index = string.indexOf(string, "%link", 0);
+	if(start_index == -1) {
+		return text.new(string);
+	}
+	start_text = text.new(string.subString(string, 0, start_index));
+	show_index = start_index + 6;
+	link_index = string.indexOf(string, " ", show_index) + 1;
+	show_string = string.subString(string, show_index, link_index - 1);
+	end_index = string.indexOf(string, " ", link_index) + 1;
+	link_string = string.subString(string, link_index, end_index - 1);
+	rest_string = string.subString(string, end_index, string.length(string));
+	return text.merge(start_text, string.getLinkText(show_string, link_string), text.new(rest_string));
+}
+
 function string.getPrefix(string) {
 	return string.concat("§r[", string, "§r]");
 }
@@ -813,22 +894,6 @@ function string.getLinkText(show_string, link_string) {
 
 function string.getClickText(show_string, execute_string) {
 	return text.click(text.new(show_string), execute_string);
-}
-
-function text.getClickText(show_text, execute_string) {
-	return text.click(show_text, execute_string);
-}
-
-function string.getHoverText(show_string, execute_string) {
-	return text.hover(text.new(show_string), text.new(execute_string));
-}
-
-function text.getHoverText(show_text, execute_string) {
-	return text.hover(show_text, text.new(execute_string));
-}
-
-function string.getClipBoardText(show_string, copy_string) {
-	return text.clipBoard(text.new(show_string), copy_string);
 }
 
 function string.getSpacer() {
@@ -1086,288 +1151,6 @@ function slot.isFeet(slot) {
 }
 
 //--------------------------------------------------
-//Teleporter-Utils
-//--------------------------------------------------
-
-function teleporter.initTransmitter() {
-	a = array.new(69);
-	a[0] = teleporter.getProp(0, 0, 0, "CHEST");
-	a[1] = teleporter.getProp(-1, 0, 0, "GLOWSTONE");
-	a[2] = teleporter.getProp(2, 0, 0, "GLOWSTONE");
-	a[3] = teleporter.getProp(-1, 0, -1, "GLOWSTONE");
-	a[4] = teleporter.getProp(0, 0, 2, "GLOWSTONE");
-	a[5] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[6] = teleporter.getProp(2, 0, 0, "km:bronze_block");
-	a[7] = teleporter.getProp(0, 0, -2, "km:bronze_block");
-	a[8] = teleporter.getProp(-2, 0, 0, "km:bronze_block");
-	a[9] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[10] = teleporter.getProp(0, 0, 1, "km:bronze_block");
-	a[11] = teleporter.getProp(0, 0, 1, "km:bronze_block");
-	a[12] = teleporter.getProp(0, 0, 1, "STONE_BRICK_SLAB");
-	a[13] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[14] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[15] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[16] = teleporter.getProp(1, 0, 0, "STONE_BRICK_SLAB");
-	a[17] = teleporter.getProp(0, 0, -1, "km:bronze_block");
-	a[18] = teleporter.getProp(0, 0, -1, "km:bronze_block");
-	a[19] = teleporter.getProp(0, 0, -1, "km:bronze_block");
-	a[20] = teleporter.getProp(0, 0, -1, "STONE_BRICK_SLAB");
-	a[21] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[22] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[23] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[24] = teleporter.getProp(-1, 0, 0, "STONE_BRICK_SLAB");
-	a[25] = teleporter.getProp(1, 1, 2, "km:bronze_block");
-	a[26] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[27] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[28] = teleporter.getProp(-1, 0, -1, "km:bronze_block");
-	a[29] = teleporter.getProp(0, 0, 2, "km:bronze_block");
-	a[30] = teleporter.getProp(0, 1, -1, "km:copper_block");
-	a[31] = teleporter.getProp(0, 1, 0, "km:copper_block");
-	a[32] = teleporter.getProp(-2, -4, -2, "km:bronze_block");
-	a[33] = teleporter.getProp(0, -1, 0, "km:bronze_block");
-	a[34] = teleporter.getProp(0, -1, 0, "km:bronze_block");
-	a[35] = teleporter.getProp(0, 0, 4, "km:bronze_block");
-	a[36] = teleporter.getProp(0, 1, 0, "km:bronze_block");
-	a[37] = teleporter.getProp(0, 1, 0, "km:bronze_block");
-	a[38] = teleporter.getProp(4, 0, 0, "km:bronze_block");
-	a[39] = teleporter.getProp(0, -1, 0, "km:bronze_block");
-	a[40] = teleporter.getProp(0, -1, 0, "km:bronze_block");
-	a[41] = teleporter.getProp(0, 0, -4, "km:bronze_block");
-	a[42] = teleporter.getProp(0, 1, 0, "km:bronze_block");
-	a[43] = teleporter.getProp(0, 1, 0, "km:bronze_block");
-	a[44] = teleporter.getProp(0, -3, 0, "km:bronze_block");
-	a[45] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[46] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[47] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[48] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[49] = teleporter.getProp(0, 0, 1, "km:bronze_block");
-	a[50] = teleporter.getProp(0, 0, 1, "km:bronze_block");
-	a[51] = teleporter.getProp(0, 0, 1, "km:bronze_block");
-	a[52] = teleporter.getProp(0, 0, 1, "km:bronze_block");
-	a[53] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[54] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[55] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[56] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[57] = teleporter.getProp(0, 0, -1, "km:bronze_block");
-	a[58] = teleporter.getProp(0, 0, -1, "km:bronze_block");
-	a[59] = teleporter.getProp(0, 0, -1, "km:bronze_block");
-	a[60] = teleporter.getProp(-1, 0, 0, "STONE_BRICKS");
-	a[61] = teleporter.getProp(-2, 0, 0, "STONE_BRICKS");
-	a[62] = teleporter.getProp(0, 0, 2, "STONE_BRICKS");
-	a[63] = teleporter.getProp(2, 0, 0, "STONE_BRICKS");
-	a[64] = teleporter.getProp(-1, 0, 0, "km:bronze_block");
-	a[65] = teleporter.getProp(-1, 0, -1, "km:bronze_block");
-	a[66] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[67] = teleporter.getProp(1, 0, 0, "km:bronze_block");
-	a[68] = teleporter.getProp(-1, 0, -1, "km:bronze_block");
-	setScriptVar("transmitter", a);
-}
-
-function teleporter.initReceiver() {
-	a = array.new(69);
-	a[0] = teleporter.getProp(0, 0, 0, "CHEST");
-	a[1] = teleporter.getProp(-1, 0, 0, "GLOWSTONE");
-	a[2] = teleporter.getProp(2, 0, 0, "GLOWSTONE");
-	a[3] = teleporter.getProp(-1, 0, -1, "GLOWSTONE");
-	a[4] = teleporter.getProp(0, 0, 2, "GLOWSTONE");
-	a[5] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[6] = teleporter.getProp(2, 0, 0, "km:tin_block");
-	a[7] = teleporter.getProp(0, 0, -2, "km:tin_block");
-	a[8] = teleporter.getProp(-2, 0, 0, "km:tin_block");
-	a[9] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[10] = teleporter.getProp(0, 0, 1, "km:tin_block");
-	a[11] = teleporter.getProp(0, 0, 1, "km:tin_block");
-	a[12] = teleporter.getProp(0, 0, 1, "STONE_BRICK_SLAB");
-	a[13] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[14] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[15] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[16] = teleporter.getProp(1, 0, 0, "STONE_BRICK_SLAB");
-	a[17] = teleporter.getProp(0, 0, -1, "km:tin_block");
-	a[18] = teleporter.getProp(0, 0, -1, "km:tin_block");
-	a[19] = teleporter.getProp(0, 0, -1, "km:tin_block");
-	a[20] = teleporter.getProp(0, 0, -1, "STONE_BRICK_SLAB");
-	a[21] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[22] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[23] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[24] = teleporter.getProp(-1, 0, 0, "STONE_BRICK_SLAB");
-	a[25] = teleporter.getProp(1, 1, 2, "km:tin_block");
-	a[26] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[27] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[28] = teleporter.getProp(-1, 0, -1, "km:tin_block");
-	a[29] = teleporter.getProp(0, 0, 2, "km:tin_block");
-	a[30] = teleporter.getProp(-2, -2, -3, "km:tin_block");
-	a[31] = teleporter.getProp(0, -1, 0, "km:tin_block");
-	a[32] = teleporter.getProp(0, -1, 0, "km:tin_block");
-	a[33] = teleporter.getProp(0, 0, 4, "km:tin_block");
-	a[34] = teleporter.getProp(0, 1, 0, "km:tin_block");
-	a[35] = teleporter.getProp(0, 1, 0, "km:tin_block");
-	a[36] = teleporter.getProp(4, 0, 0, "km:tin_block");
-	a[37] = teleporter.getProp(0, -1, 0, "km:tin_block");
-	a[38] = teleporter.getProp(0, -1, 0, "km:tin_block");
-	a[39] = teleporter.getProp(0, 0, -4, "km:tin_block");
-	a[40] = teleporter.getProp(0, 1, 0, "km:tin_block");
-	a[41] = teleporter.getProp(0, 1, 0, "km:tin_block");
-	a[42] = teleporter.getProp(0, -3, 0, "km:tin_block");
-	a[43] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[44] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[45] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[46] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[47] = teleporter.getProp(0, 0, 1, "km:tin_block");
-	a[48] = teleporter.getProp(0, 0, 1, "km:tin_block");
-	a[49] = teleporter.getProp(0, 0, 1, "km:tin_block");
-	a[50] = teleporter.getProp(0, 0, 1, "km:tin_block");
-	a[51] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[52] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[53] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[54] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[55] = teleporter.getProp(0, 0, -1, "km:tin_block");
-	a[56] = teleporter.getProp(0, 0, -1, "km:tin_block");
-	a[57] = teleporter.getProp(0, 0, -1, "km:tin_block");
-	a[58] = teleporter.getProp(-1, 0, 0, "STONE_BRICKS");
-	a[59] = teleporter.getProp(-2, 0, 0, "STONE_BRICKS");
-	a[60] = teleporter.getProp(0, 0, 2, "STONE_BRICKS");
-	a[61] = teleporter.getProp(2, 0, 0, "STONE_BRICKS");
-	a[62] = teleporter.getProp(-1, 0, 0, "km:tin_block");
-	a[63] = teleporter.getProp(-1, 0, -1, "km:tin_block");
-	a[64] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[65] = teleporter.getProp(1, 0, 0, "km:tin_block");
-	a[66] = teleporter.getProp(-1, 0, -1, "km:tin_block");
-}
-
-function teleporter.getTransmitter() {
-	return getScriptVar("transmitter");
-}
-
-function teleporter.getReceiver() {
-	return getScriptVar("receiver");
-}
-
-
-function teleporter.getProp(x, y, z, type) {
-	a = array.new(4);
-	a[0, 0] = x;
-	a[0, 1] = y;
-	a[0, 2] = z;
-	a[0, 3] = material.get(type);
-	return a;
-}
-
-function teleporter.isTransmitter(chest_loc) {
-	a = teleporter.getTransmitter();
-	loc = loc.mod(chest_loc, 0, 0 ,0);
-	for(i = 0; i < array.getSize(a); i++) {
-		loc.add(loc, a[i, 0], a[i, 1], a[i, 2]);
-		if(!block.getType(block.get(loc) == a[i, 3])) {
-			return false;
-		}
-	}
-}
-
-function teleporter.isReceiver(chest_loc) {
-	a = teleporter.getReceiver();
-	loc = loc.mod(chest_loc, 0, 0 ,0);
-	for(i = 0; i < array.getSize(a); i++) {
-		loc.add(loc, a[i, 0], a[i, 1], a[i, 2]);
-		if(!block.getType(block.get(loc) == a[i, 3])) {
-			return false;
-		}
-	}
-}
-
-function setTpWallX(chest_loc, item_type) {
-	block.set(loc.mod(chest_loc, 2, -1, -1), item_type);
-	//block.set(loc.mod(chest_loc, 2, -1, 0), item_type);
-	block.set(loc.mod(chest_loc, 2, -1, 1), item_type);
-	block.set(loc.mod(chest_loc, -2, -1, -1), item_type);
-	//block.set(loc.mod(chest_loc, -2, -1, 0), item_type);
-	block.set(loc.mod(chest_loc, -2, -1, 1), item_type);
-	block.set(loc.mod(chest_loc, -1, -1, 2), item_type);
-	//block.set(loc.mod(chest_loc, 0, -1, 2), item_type);
-	block.set(loc.mod(chest_loc, 1, -1, 2), item_type);
-	block.set(loc.mod(chest_loc, -1, -1, -2), item_type);
-	//block.set(loc.mod(chest_loc, 0, -1, -2), item_type);
-	block.set(loc.mod(chest_loc, 1, -1, -2), item_type);
-	
-	//block.set(loc.mod(chest_loc, 2, -2, -1), item_type);
-	block.set(loc.mod(chest_loc, 2, -2, 0), item_type);
-	//block.set(loc.mod(chest_loc, 2, -2, 1), item_type);
-	//block.set(loc.mod(chest_loc, -2, -2, -1), item_type);
-	block.set(loc.mod(chest_loc, -2, -2, 0), item_type);
-	//block.set(loc.mod(chest_loc, -2, -2, 1), item_type);
-	//block.set(loc.mod(chest_loc, -1, -2, 2), item_type);
-	block.set(loc.mod(chest_loc, 0, -2, 2), item_type);
-	//block.set(loc.mod(chest_loc, 1, -2, 2), item_type);
-	//block.set(loc.mod(chest_loc, -1, -2, -2), item_type);
-	block.set(loc.mod(chest_loc, 0, -2, -2), item_type);
-	//block.set(loc.mod(chest_loc, 1, -2, -2), item_type);
-	
-	block.set(loc.mod(chest_loc, 2, -3, -1), item_type);
-	//block.set(loc.mod(chest_loc, 2, -3, 0), item_type);
-	block.set(loc.mod(chest_loc, 2, -3, 1), item_type);
-	block.set(loc.mod(chest_loc, -2, -3, -1), item_type);
-	//block.set(loc.mod(chest_loc, -2, -3, 0), item_type);
-	block.set(loc.mod(chest_loc, -2, -3, 1), item_type);
-	block.set(loc.mod(chest_loc, -1, -3, 2), item_type);
-	//block.set(loc.mod(chest_loc, 0, -3, 2), item_type);
-	block.set(loc.mod(chest_loc, 1, -3, 2), item_type);
-	block.set(loc.mod(chest_loc, -1, -3, -2), item_type);
-	//block.set(loc.mod(chest_loc, 0, -3, -2), item_type);
-	block.set(loc.mod(chest_loc, 1, -3, -2), item_type);
-}
-
-function setTpWallFull(chest_loc, item_type) {
-	block.set(loc.mod(chest_loc, 2, -1, -1), item_type);
-	block.set(loc.mod(chest_loc, 2, -1, 0), item_type);
-	block.set(loc.mod(chest_loc, 2, -1, 1), item_type);
-	block.set(loc.mod(chest_loc, -2, -1, -1), item_type);
-	block.set(loc.mod(chest_loc, -2, -1, 0), item_type);
-	block.set(loc.mod(chest_loc, -2, -1, 1), item_type);
-	block.set(loc.mod(chest_loc, -1, -1, 2), item_type);
-	block.set(loc.mod(chest_loc, 0, -1, 2), item_type);
-	block.set(loc.mod(chest_loc, 1, -1, 2), item_type);
-	block.set(loc.mod(chest_loc, -1, -1, -2), item_type);
-	block.set(loc.mod(chest_loc, 0, -1, -2), item_type);
-	block.set(loc.mod(chest_loc, 1, -1, -2), item_type);
-	
-	block.set(loc.mod(chest_loc, 2, -2, -1), item_type);
-	block.set(loc.mod(chest_loc, 2, -2, 0), item_type);
-	block.set(loc.mod(chest_loc, 2, -2, 1), item_type);
-	block.set(loc.mod(chest_loc, -2, -2, -1), item_type);
-	block.set(loc.mod(chest_loc, -2, -2, 0), item_type);
-	block.set(loc.mod(chest_loc, -2, -2, 1), item_type);
-	block.set(loc.mod(chest_loc, -1, -2, 2), item_type);
-	block.set(loc.mod(chest_loc, 0, -2, 2), item_type);
-	block.set(loc.mod(chest_loc, 1, -2, 2), item_type);
-	block.set(loc.mod(chest_loc, -1, -2, -2), item_type);
-	block.set(loc.mod(chest_loc, 0, -2, -2), item_type);
-	block.set(loc.mod(chest_loc, 1, -2, -2), item_type);
-	
-	block.set(loc.mod(chest_loc, 2, -3, -1), item_type);
-	block.set(loc.mod(chest_loc, 2, -3, 0), item_type);
-	block.set(loc.mod(chest_loc, 2, -3, 1), item_type);
-	block.set(loc.mod(chest_loc, -2, -3, -1), item_type);
-	block.set(loc.mod(chest_loc, -2, -3, 0), item_type);
-	block.set(loc.mod(chest_loc, -2, -3, 1), item_type);
-	block.set(loc.mod(chest_loc, -1, -3, 2), item_type);
-	block.set(loc.mod(chest_loc, 0, -3, 2), item_type);
-	block.set(loc.mod(chest_loc, 1, -3, 2), item_type);
-	block.set(loc.mod(chest_loc, -1, -3, -2), item_type);
-	block.set(loc.mod(chest_loc, 0, -3, -2), item_type);
-	block.set(loc.mod(chest_loc, 1, -3, -2), item_type);
-}
-
-function removeAdventureDisplay(player) {
-	//display.remove(player, 10);
-}
-
-function addAdventureDisplay(player, location) {
-	x = string.number(loc.getX(location));
-	y = string.number(loc.getY(location));
-	z = string.number(loc.getZ(location));
-	//display.add(player, 10, string.concat("§2Adventure Target: §r", x, " ", y, " ", z));
-}
-
-//--------------------------------------------------
 //Player-Data-Utils
 //--------------------------------------------------
 
@@ -1446,7 +1229,7 @@ function player.teleport(player, location, setBackPos) {
 	if(world.isGamesName(to_world_name)) {
 		player.clearInventory(player);
 		inv = player.getInv(player);
-		inv.setItem(inv, 0, read.item("minecraft:compass"));
+		inv.setItem(inv, 0, item.create("COMPASS", 1, null, null));
 	}
 	player.setTabName(player);
 	return true;
@@ -1527,6 +1310,22 @@ function player.getValid(player_or_id) {
 
 function msg.action(receiver, string) {
 	player.action(receiver, text.new(string));
+}
+
+function msg.team(from, string) {
+	from_name = player.getName(from);
+	online_list = players.toList();
+	iter = iterator(online_list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		if(perm.has("isTeam", p)) {
+			if(player.isLive(p)) {
+				msg(p, text.merge(text.new(string.concat(string.getPrefix("§4Team"), " ", from_name, ": ")), string.getHoverText("§7§oHidden", string)));
+			} else {
+				msg.prefix(p, "§4Team", string.concat("§c", from_name, "§r: ", string));
+			}
+		}
+	}
 }
 
 function msg.string(receiver, string) {
@@ -1656,13 +1455,24 @@ function item.isAir(itemstack) {
 	return item.getType(itemstack) == material.getAir();
 }
 
-function item.custom.create(type, amount, name, lore_list) {
+function item.custom.isType(item, custom) {
+	return item.getCustom(item) == custom;
+}
+
+function item.custom.create(type, amount, name, wusi) {
+	//wusi: lore_list or lore_string
 	item = item.custom.new(item.custom.get(type), amount);
 	if(name != null) {
 		item.setName(item, text.new(name));
 	}
-	if(lore_list != null) {
-		item.setLore(item, lore_list);
+	if(wusi != null) {
+		if(isString(wusi)) {
+			lore_list = list.new();
+			list.add(lore_list, text.new(wusi));
+			item.setLore(item, lore_list);
+		} else {
+			item.setLore(item, wusi);
+		}
 	}
 	return item;
 }
@@ -1709,27 +1519,27 @@ function item.getAirString() {
 }
 
 function item.isAmber(item) {
-	return string.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:13664802,display:{Name:'{\"text\":\"§fAmber\"}'}}}";
+	return string.item(item) == "{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:64,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fAmber'}'}}}";
 }
 
 function item.isSapphire(item) {
-	return string.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:3289855,display:{Name:'{\"text\":\"§fSapphire\"}'}}}";
+	return string.item(item) == "{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:66,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fSapphire'}'}}}";
 }
 
 function item.isRuby(item) {
-	return string.item(item) == "{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:16724530,display:{Name:'{\"text\":\"§fRuby\"}'}}}";
+	return string.item(item) == "{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:62,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fRuby'}'}}}";
 }
 
 function item.getAmber() {
-	return read.item("{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:13664802,display:{Name:'{\"text\":\"§fAmber\"}'}}}");
+	return read.item("{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:64,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fAmber'}'}}}");
 }
 
 function item.getSapphire() {
-	return read.item("{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:3289855,display:{Name:'{\"text\":\"§fSapphire\"}'}}}");
+	return read.item("{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:66,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fSapphire'}'}}}");
 }
 
 function item.getRuby() {
-	return read.item("{id:\"km:flawless_gem_stone\",Count:1b,tag:{color:16724530,display:{Name:'{\"text\":\"§fRuby\"}'}}}");
+	return item.custom.new(item.custom.get("RUBY"));
 }
 
 //--------------------------------------------------
@@ -2633,6 +2443,9 @@ function money.getString(money) {
 	} else {
 		copper_string = string.concat(icon.getCopperCoin(), string.number(copper));;
 	}
+	if(gold == 0 && silver == 0 && copper == 0) {
+		copper_string = string.concat(icon.getCopperCoin(), string.number(0));;
+	}
 	return string.concat(gold_string, silver_string, copper_string);
 }
 
@@ -2782,17 +2595,16 @@ function plot.getLeaderName(plot) {
 }
 
 function plot.getLeaderId(plot) {
-	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT player_id FROM new_plotranks WHERE plot_id = ? AND rank = ?;");
-	databank.setInt(stmt, 1, plot_id);
-	databank.setString(stmt, 2, "leader");
-	result = databank.execute(stmt);
-	while(databank.next(result)) {
-		player_id = databank.getInt(result, 1);
+	map = plot.getRanksMap(plot);
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		rank = map.getValue(element);
+		if(rank == "leader") {
+			p_id = map.getKey(element);
+		}
 	}
-	databank.close(result);
-	databank.close(stmt);
-	return player_id;
+	return p_id;
 }
 
 function plot.setLeader(plot, player_or_id) {
@@ -2805,16 +2617,15 @@ function plot.isMod(plot, player_or_id) {
 
 function plot.getMods(plot) {
 	list = list.new();
-	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT player_id FROM new_plotranks WHERE plot_id = ? AND rank = ?;");
-	databank.setInt(stmt, 1, plot_id);
-	databank.setString(stmt, 2, "mod");
-	result = databank.execute(stmt);
-	while(databank.next(result)) {
-		list.add(list, databank.getInt(result, 1));
+	map = plot.getRanksMap(plot);
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		rank = map.getValue(element);
+		if(rank == "mod") {
+			list.add(list, map.getKey(element));
+		}
 	}
-	databank.close(result);
-	databank.close(stmt);
 	return list;
 }
 
@@ -2830,47 +2641,50 @@ function plot.setChest(plot, player_or_id) {
 	plot.setRank(plot, player_or_id, "chest");
 }
 
+function plot.getAllRanks() {
+	return getScriptVar("plot_ranks");
+}
+
+function plot.getRanksMap(plot) {
+	plot_id = plot.getId(plot);
+	plot_ranks_map = plot.getAllRanks();
+	map = map.get(plot_ranks_map, plot_id);
+	if(map == null) {
+		map = map.new();
+	}
+	return map;
+}
+
 function plot.getChestRanks(plot) {
 	list = list.new();
-	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT player_id FROM new_plotranks WHERE plot_id = ? AND rank = ?;");
-	databank.setInt(stmt, 1, plot_id);
-	databank.setString(stmt, 2, "chest");
-	result = databank.execute(stmt);
-	while(databank.next(result)) {
-		list.add(list, databank.getInt(result, 1));
+	map = plot.getRanksMap(plot);
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		rank = map.getValue(element);
+		if(rank == "chest") {
+			list.add(list, map.getKey(element));
+		}
 	}
-	databank.close(result);
-	databank.close(stmt);
 	return list;
 }
 
 function plot.getRank(plot, player_or_id) {
-	if(isPlayer(player_or_id)) {
-		player_id = player.getId(player_or_id);
-	} else {
-		player_id = player_or_id;
-	}
-	plot_id = plot.getId(plot);
-	stmt = databank.prepare("SELECT rank FROM new_plotranks WHERE player_id = ? AND plot_id = ?;");
-	databank.setInt(stmt, 1, player_id);
-	databank.setInt(stmt, 2, plot_id);
-	result = databank.execute(stmt);
-	while(databank.next(result)) {
-		rank = databank.getString(result, 1);
-	}
-	databank.close(result);
-	databank.close(stmt);
+	map = plot.getRanksMap(plot);
+	player_id = player.getValidId(player_or_id);
+	rank = map.get(map, player_id);
 	return rank;
 }
 
 function plot.setRank(plot, player_or_id, rank) {
-	if(isPlayer(player_or_id)) {
-		player_id = player.getId(player_or_id);
-	} else {
-		player_id = player_or_id;
-	}
+	player_id = player.getValidId(player_or_id);
 	plot_id = plot.getId(plot);
+	//Cache
+	plot_ranks_map = plot.getAllRanks();
+	map = plot.getRanksMap(plot);
+	map.add(map, player_id, rank);
+	map.add(plot_ranks_map, plot_id, map);
+	//DB
 	stmt = databank.prepare("INSERT INTO new_plotranks (plot_id, player_id, rank) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rank = ?");
 	databank.setInt(stmt, 1, plot_id);
 	databank.setInt(stmt, 2, player_id);
@@ -2880,12 +2694,14 @@ function plot.setRank(plot, player_or_id, rank) {
 }
 
 function plot.removeRank(plot, player_or_id) {
-	if(isPlayer(player_or_id)) {
-		player_id = player.getId(player_or_id);
-	} else {
-		player_id = player_or_id;
-	}
+	player_id = player.getValidId(player_or_id);
 	plot_id = plot.getId(plot);
+	//Cache
+	plot_ranks_map = plot.getAllRanks();
+	map = plot.getRanksMap(plot);
+	map.remove(map, player_id);
+	map.add(plot_ranks_map, plot_id, map);
+	//DB
 	stmt = databank.prepare("DELETE FROM new_plotranks WHERE player_id = ? AND plot_id = ?;");
 	databank.setInt(stmt, 1, player_id);
 	databank.setInt(stmt, 2, plot_id);
@@ -2969,6 +2785,20 @@ function plot.setSub(plot, boolean) {
 //--------------------------------------------------
 //Loc-Utils
 //--------------------------------------------------
+
+function loc.getHighestPoint(loc) {
+	y = 319;
+	loc.setY(loc, y);
+	while(y > 0 && block.isAir(block.get(loc))) {
+		loc.setY(loc, y);
+		y = y - 10;
+	}
+	while(!block.isAir(block.get(loc))) {
+		loc.setY(loc, y);
+		y++;
+	}
+	return loc;
+}
 
 function loc.getStringColon(loc) {
 	world_name = world.getName(loc.getWorld(loc));
@@ -3073,12 +2903,16 @@ function living.getAi() {
 	return config.getBool(config, "spawnWithAi", true);
 }
 
+function living.setHand(living, item) {
+	living.setEquip(living, slot.getHand(), item);
+}
+
 function living.getHand(living) {
-	return living.getEquip(living, read.slot("HAND"));
+	return living.getEquip(living, slot.getHand());
 }
 
 function living.getOffHand(living) {
-	return living.getEquip(living, read.slot("OFF_HAND"));
+	return living.getEquip(living, slot.getOffHand());
 }
 
 //--------------------------------------------------
@@ -3509,7 +3343,7 @@ function mail.send(from_name, to_name, message) {
 	//Wenn Spieler online, dann Pushmeldung veranlassen
 	p = read.player(to_name);
 	if(p != null) {
-		msg.prefix(p, "§bMail", string.concat("§rYou´ve got a new mail from §b", from_name, "."));
+	msg(p, text.merge(text.new(string.concat(string.getPrefix("§bMail"), " §rYou´ve got a new mail from §b", from_name, ". ")), string.getClickText("[§cClick§r]", "/mail new")));
 	}
 }
 
@@ -3533,9 +3367,9 @@ function mail.checkForNew(player) {
 	databank.close(stmt);
 	if(newmails > 0) {
 		if(newmails > 1) {
-			msg.prefix(player, "§bMail", string.concat("§rYou´ve got §b", string.number(newmails), "§r new mails."));
+			msg(player, text.merge(text.new(string.concat(string.getPrefix("§bMail"), " §rYou´ve got §b", string.number(newmails), "§r new mails. ")), string.getClickText("[§cClick§r]", "/mail new")));;
 		} else {
-			msg.prefix(player, "§bMail", "§rYou´ve got §b1 §rnew mail.");
+			msg(player, text.merge(text.new(string.concat(string.getPrefix("§bMail"), " §rYou´ve got §b1 §rnew mail. ")), string.getClickText("[§cClick§r]", "/mail new")));;
 		}
 	}
 }

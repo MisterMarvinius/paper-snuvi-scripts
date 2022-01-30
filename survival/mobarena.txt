@@ -1,0 +1,219 @@
+event.load("player_move");
+event.load("living_death");
+event.load("entity_damage");
+event.load("entity_spawn");
+
+x1 = 1000;
+y1 = -30;
+z1 = 1000;
+x2 = 1153;
+y2 = 27;
+z2 = 1129;
+
+overworld = world.getOverworld();
+loc1 = loc.new(overworld, x1, y1, z1);
+loc2 = loc.new(overworld, x2, y2, z2);
+cooldown = 400; //3 exe per minute
+arena_id = event.addMoveData(loc1, loc2, cooldown, -1);
+
+spawns = list.new();
+list.add(spawns, loc.new(overworld, 1030, -11, 1039));
+list.add(spawns, loc.new(overworld, 1051, -3, 1083));
+list.add(spawns, loc.new(overworld, 1008, -8, 1092));
+list.add(spawns, loc.new(overworld, 1082, -6, 1118));
+list.add(spawns, loc.new(overworld, 1087, -10, 1050));
+list.add(spawns, loc.new(overworld, 1072, -8, 1021));
+list.add(spawns, loc.new(overworld, 1135, -10, 1071));
+list.add(spawns, loc.new(overworld, 1125, -10, 1088));
+
+bosses = list.new();
+list.add(bosses, "ZOMBIE");
+list.add(bosses, "SPIDER");
+list.add(bosses, "CAVE_SPIDER");
+list.add(bosses, "WITHER_SKELETON");
+list.add(bosses, "RABBIT");
+list.add(bosses, "MAGMA_CUBE");
+
+entities_list = list.new();
+iron_sword = item.create("IRON_SWORD", 1, null, null);
+copper_coin = item.custom.create("COPPER_COIN", 1, null, null);
+silver_coin = item.custom.create("SILVER_COIN", 1, null, null);
+ruby = item.getRuby();
+
+msg.string("dev", "§bMobarena §rloaded.");
+@main
+wait();
+if(event == "player_move") {
+	if(id == arena_id) {
+		spawnArenaMob();
+	}
+	goto("main");
+}
+if(event == "entity_damage") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("main");
+	}
+	entity_name = entity.getName(entity);
+	if(entity_name == null) {
+		goto("main");
+	}
+	string_name = string.text(entity_name);
+	if(string.contains(string_name, "Boss")) {
+		cancel = false;
+	}
+	goto("main");
+}
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("main");
+	}
+	ent_loc = entity.getLocation(living_entity);
+	world_name = world.getName(loc.getWorld(ent_loc));
+	if(!world.isOverworld(world_name)) {
+		goto("main");
+	}
+	x = loc.getX(ent_loc);
+	z = loc.getZ(ent_loc);
+	if(x < x1 || x > x2) {
+		goto("main");
+	}
+	if(z < z1 || z > z2) {
+		goto("main");
+	}
+	entity_name = entity.getName(living_entity);
+	if(entity_name == null) {
+		string_name = "";
+	} else {
+		string_name = string.text(entity_name);
+	}
+	if(string.contains(string_name, "Boss")) {
+		r = math.random(1, 100);
+		if(r == 1) {
+			item.drop(ruby, ent_loc);
+		}
+	//	item.drop(silver_coin, ent_loc);
+	} else {
+	//	item.drop(copper_coin, ent_loc);
+	}
+	goto("main");
+}
+if(event == "entity_spawn") {
+	if(!isLiving(entity)) {
+		goto("main");
+	}
+	entity_type = entity.getType(entity);
+	if(entity_type == "MAGMA_CUBE") {
+		setEntityProperties(entity, entity_type);
+		goto("main");
+	}
+	if(entity_type != "CREEPER") {
+		ent_loc = entity.getLocation(entity);
+		world_name = world.getName(loc.getWorld(ent_loc));
+		if(!world.isOverworld(world_name)) {
+			goto("main");
+		}
+		x = loc.getX(ent_loc);
+		y = loc.getY(ent_loc);
+		z = loc.getZ(ent_loc);
+		if(x < x1 || x > x2) {
+			goto("main");
+		}
+		if(y < y1 || y > y2) {
+			goto("main");
+		}
+		if(z < z1 || z > z2) {
+			goto("main");
+		}
+		cancel = true;
+	}
+	goto("main");
+}
+goto("main");
+
+function spawnArenaMob() {
+	loc = getRandomLoc();
+	boss = getRandomBoss();
+	if(boss == "RABBIT") {
+		entity = read.spawnMob(loc, "{RabbitType:99,id:\"minecraft:rabbit\"}");
+	} else {
+		entity = entity.spawn(loc, boss);
+	}
+	setEntityProperties(entity, boss);
+}
+	
+function setEntityProperties(entity, boss) {
+	if(boss == "ZOMBIE") {
+		living.setMaxHealth(entity, 200);
+		living.setHealth(entity, 200);
+		living.setAttackDamage(entity, 10);
+		living.setHand(entity, $iron_sword);
+		living.setKnockbackResistance(entity, 3);
+		living.setFollowRange(entity, 50);
+		living.setAttackKnockback(entity, 10);
+	}
+	elseif(boss == "WITHER_SKELETON") {
+		living.setMaxHealth(entity, 250);
+		living.setHealth(entity, 250);
+		living.setAttackDamage(entity, 15);
+		living.setHand(entity, $iron_sword);
+		living.setKnockbackResistance(entity, 3);
+		living.setFollowRange(entity, 50);
+		living.setAttackKnockback(entity, 10);
+	}
+	elseif(boss == "SPIDER") {
+		living.setMaxHealth(entity, 150);
+		living.setHealth(entity, 150);
+		living.setAttackDamage(entity, 8);
+		living.setKnockbackResistance(entity, 2);
+		living.setFollowRange(entity, 50);
+		living.setAttackKnockback(entity, 5);
+	}
+	elseif(boss == "CAVE_SPIDER") {
+		living.setMaxHealth(entity, 100);
+		living.setHealth(entity, 100);
+		living.setAttackDamage(entity, 7);
+		living.setKnockbackResistance(entity, 2);
+		living.setFollowRange(entity, 50);
+		living.setAttackKnockback(entity, 5);
+	}
+	elseif(boss == "RABBIT") {
+		living.setMaxHealth(entity, 50);
+		living.setHealth(entity, 50);
+		living.setAttackDamage(entity, 6);
+		living.setKnockbackResistance(entity, 2);
+		living.setFollowRange(entity, 50);
+		living.setAttackKnockback(entity, 5);
+	}
+	elseif(boss == "MAGMA_CUBE") {
+		living.setMaxHealth(entity, 50);
+		living.setHealth(entity, 50);
+		living.setAttackDamage(entity, 6);
+		living.setKnockbackResistance(entity, 2);
+		living.setFollowRange(entity, 50);
+		living.setAttackKnockback(entity, 5);
+	}
+	list.add($entities_list, entity);
+	sgoto(2, "sgoto_updateEntityName");
+}
+
+@sgoto_updateEntityName
+iter = list.iterator(entities_list);
+while(hasNext(iter)) {
+	living_entity = next(iter);
+	health = string.number(math.round(living.getHealth(living_entity)));
+	entity.setName(living_entity, text.new(string.concat("Boss §c❤§r", health)), true);
+}
+list.clear(entities_list);
+goto("main");
+
+function getRandomLoc() {
+	index = math.random(0, list.getSize($spawns) - 1);
+	return list.getIndex($spawns, index);
+}
+
+function getRandomBoss() {
+	index = math.random(0, list.getSize($bosses) - 1);
+	return list.getIndex($bosses, index);
+}

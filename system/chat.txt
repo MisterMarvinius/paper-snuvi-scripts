@@ -4,6 +4,12 @@ event.load("player_join");
 event.load("player_quit");
 event.load("living_death");
 
+config = config.new("scripts/configs", "server");
+if(config.exists(config)) {
+	config.load(config);
+}
+crash = config.getBool(config, "crash", false);
+
 cookie_time = 0;
 cookie = item.new(material.get("minecraft:cookie"));
 serverspawn = world.getServerSpawn();
@@ -33,6 +39,29 @@ list.add(defaultdeaths, string.concat(colorcodedeath, " f***ing died."));
 list.add(defaultdeaths, string.concat(colorcodedeath, " now dines with ghosts."));
 list.add(defaultdeaths, string.concat(colorcodedeath, " visits kajetan in his heaven."));
 list.add(defaultdeaths, string.concat(colorcodedeath, " is judged by kajetan (god)."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " got eaten by a cow."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " got eaten by a sheep."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " got eaten by a pig."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " got eaten by a chicken."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " got hit by a tree."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " tried to go to heaven."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " failed miserably."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " is crying now."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " bites the dust."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " is no longer afraid of death."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " met death."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " bites the dust."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " is ready for their funeral."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " has to pay Marvin 50€."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " needs necromancy."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " is now in ghost town."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " feels pretty stupid right now."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " loves playing Minecraft."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " has met inner peace through outer means."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " used to love playing Minecraft."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " regrets to stay alive."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " has written their poetry."));
+list.add(defaultdeaths, string.concat(colorcodedeath, " is talked about in past tense now."));
 
 drowndeaths = list.new();
 list.add(drowndeaths, string.concat(colorcodedeath, " drowned."));
@@ -40,7 +69,10 @@ list.add(drowndeaths, string.concat(colorcodedeath, " drank too much water."));
 list.add(drowndeaths, string.concat(colorcodedeath, " didn't grow gills fast enough."));
 list.add(drowndeaths, string.concat(colorcodedeath, " wanted to visit cthulhu."));
 list.add(drowndeaths, string.concat(colorcodedeath, " forgot they were in survival."));
-list.add(drowndeaths, string.concat(colorcodedeath, " believed they can fly."));
+list.add(drowndeaths, string.concat(colorcodedeath, " noticed they couldn't swim."));
+list.add(drowndeaths, string.concat(colorcodedeath, " is in fact not a fish."));
+list.add(drowndeaths, string.concat(colorcodedeath, " is looking for the titanic."));
+list.add(drowndeaths, string.concat(colorcodedeath, " is looking for atlantic."));
 
 falldeaths = list.new();
 list.add(falldeaths, string.concat(colorcodedeath, " fell victim to gravitation."));
@@ -49,9 +81,16 @@ list.add(falldeaths, string.concat(colorcodedeath, " jumped into the depths."));
 list.add(falldeaths, string.concat(colorcodedeath, " jumped into death."));
 list.add(falldeaths, string.concat(colorcodedeath, " forgot their wings."));
 list.add(falldeaths, string.concat(colorcodedeath, " forgot their RedBell."));
+list.add(falldeaths, string.concat(colorcodedeath, " believed they can fly."));
+list.add(falldeaths, string.concat(colorcodedeath, " dived to their grave."));
+list.add(falldeaths, string.concat(colorcodedeath, " is in fact not a cat."));
+list.add(falldeaths, string.concat(colorcodedeath, " has been lied to by a parachute company."));
 
 firedeaths = list.new();
 list.add(firedeaths, string.concat(colorcodedeath, " looks hot today."));
+list.add(firedeaths, string.concat(colorcodedeath, " will be back."));
+list.add(firedeaths, string.concat(colorcodedeath, " could light a torch right now."));
+list.add(firedeaths, string.concat(colorcodedeath, " has been fired from pyromancy academy."));
 
 flydeaths = list.new();
 list.add(flydeaths, string.concat(colorcodedeath, " wanted to be a pilot."));
@@ -102,6 +141,7 @@ if(first_join) {
 	msg.string("online", string.concat(" §d§k# §eWelcome to our sick world §b", player_name, " §e!!! §d§k#"));
 	msg.string("online", string.getSpacer());
 	player.setFirstJoin(player, true);
+	registerNewbie(player.getId(player), time.getMillis());
 }
 player.setHeadName(player);
 player.setLoggedIp(player, player.getIp(player));
@@ -119,7 +159,9 @@ if(silentjoin) {
 }
 player_loc = entity.getLocation(player);
 //Inventory
-inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
+if(!crash) {
+	inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
+}
 giveCookie(player);
 player.setTabName(player);
 player.greet(player);
@@ -211,14 +253,17 @@ if(damage_type == "player") {
 	killer = player.getFromDamageSource(damage_source);
 	killer_name = player.getName(killer);
 	item = living.getHand(killer);
-	if(item.hasName(item)) {
-		message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with ")), text.item(item.getName(item), item), text.new("§9."));
+	if(item != null && item.hasName(item)) {
+		message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with §b§o")), text.item(item.getName(item), item), text.new("§9."));
 	} else {
 		list.clear(list);
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was slain with love by  ", killer_name, "."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " is now forever married to  ", killer_name, "."));
+		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was made ready for their funeral by  ", killer_name, "."));
 		message = text.new(list.getIndex(list, math.random(0, list.getSize(list) - 1)));
 	}
 } else {

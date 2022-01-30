@@ -1,0 +1,425 @@
+rankingtable = "snowranks";
+game_short = "snow";
+game_tab = "§6SNOW";
+specific_lobby_handling = true;
+no_core_reset = true;
+gamename = "§6Snowfight";
+snow_stack = item.create("minecraft:snowball", 16, null, null);
+
+colorcodes = map.new();
+map.add(colorcodes, 0, "§1");
+map.add(colorcodes, 1, "§4");
+map.add(colorcodes, 2, "§e");
+map.add(colorcodes, 3, "§2");
+
+teamcolortext = map.new();
+map.add(teamcolortext, 0, "§1blue");
+map.add(teamcolortext, 1, "§4red");
+map.add(teamcolortext, 2, "§eyellow");
+map.add(teamcolortext, 3, "§2green");
+
+teamcolortext2 = map.new();
+map.add(teamcolortext2, 0, "§1Blue");
+map.add(teamcolortext2, 1, "§4Red");
+map.add(teamcolortext2, 2, "§eYellow");
+map.add(teamcolortext2, 3, "§2Green");
+
+cloth_color = map.new();
+map.add(cloth_color, 0, 3361970);
+map.add(cloth_color, 1, 10040115);
+map.add(cloth_color, 2, 16701501);
+map.add(cloth_color, 3, 84395831);
+
+team_lists = map.new(); //Map mit Spielerlisten für jedes Team
+map.add(team_lists, 0, list.new());
+map.add(team_lists, 1, list.new());
+map.add(team_lists, 2, list.new());
+map.add(team_lists, 3, list.new());
+
+players = map.new(); //Alle Spieler (key) des Spiels und deren Teamzugehörigkeit (value)
+allteams = list.new(); //Alle Teams, die noch im Spiel sind
+waiters = list.new(); //Spieler in der Lobby ohne Teamzugehörigkeit
+lifes = map.new();
+nerf_map = map.new();
+kills_map = map.new();
+deaths_map = map.new();
+cooldown_map = map.new();
+snowball = material.get("snowball");
+
+gosub("setstart");
+goto("simplelobby");
+
+@specificLobbyHandling
+player_name = player.getName(player);
+if(event == "minigame_join") {
+	list.add(waiters, player_name);
+	map.add(nerf_map, player_name, 0);
+	map.add(kills_map, player_name, 0);
+	map.add(deaths_map, player_name, 0);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+	sb.add(player, 99, gamename);
+	sb.add(player, 98, string.concat("Map: ", mapname));
+	sb.add(player, 97, "2x10");
+	sb.add(player, 96, sb.getSpacer());
+	return;
+}
+if(event == "player_quit" || event == "player_giveup") {
+	list.remove(waiters, player_name);
+	team = map.get(players, player_name);
+	if(team != null) {
+		teamlist = map.get(team_lists, team);
+		list.remove(teamlist, player_name);
+	}
+	map.remove(players, player_name);
+	return;
+}
+if(event == "block_click") {
+	if(slot.isOffHand(hand)) {
+		return;
+	}
+	if(action != "RIGHT_CLICK_BLOCK") {
+		return;
+	}
+	block_loc = block.getLocation(block);
+	if(list.contains(joinblocks, block_loc)) {
+		newteam = list.getIndexOf(joinblocks, block_loc);
+		newteamlist = map.get(team_lists, newteam);
+		if(list.contains(newteamlist, player_name)) {
+			msg.prefix(player, gamename, "§eYou are already in this team.");
+			return;
+		}
+		if(list.getSize(newteamlist) >= teamsize) {
+			msg.prefix(player, gamename, "§eNo space for you in this team.");
+			return;
+		}
+		list.remove(waiters, player_name);
+		yetteam = map.get(players, player_name);
+		if(yetteam != null) {
+			yetteamlist = map.get(team_lists, yetteam);
+			list.remove(yetteamlist, player_name);
+		}
+		list.add(newteamlist, player_name);
+		map.add(players, player_name, newteam);
+		msg.prefix(player, gamename, string.concat("§eYou joined the ", map.get(teamcolortext, newteam), " §eteam."));;
+	}
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+starttime = time.getMillis();
+event.load("projectile_hit");
+event.load("player_drop");
+event.load("living_death");
+event.load("player_post_respawn");
+
+while(list.getSize(waiters) != 0) {
+	team = getTeamWithLowestPeople(team_lists, numberofteams);
+	teamlist = map.get(team_lists, team);
+	p_name = list.getIndex(waiters, 0);
+	map.add(players, p_name, team);
+	list.add(teamlist, p_name);
+	list.remove(waiters, p_name);
+}
+
+max = 1;
+for(i = 0; i < numberofteams; i++) {
+	teamlist = map.get(team_lists, i);
+	size = list.getSize(teamlist);
+	if(size > max) {
+		max = size;
+	}
+}
+team_lifes = max * 10;
+
+sb.clearGameAll();
+minigame.displayAll(99, gamename);
+for(i = 0; i < numberofteams; i++) {
+	teamlist = map.get(team_lists, i);
+	size = list.getSize(teamlist);
+	if(size != 0) {
+		list.add(allteams, i);
+		map.add(lifes, i, team_lifes);
+		minigame.displayAll(98 - i, string.concat(map.get(teamcolortext2, i), " Lifes: ", string.number(team_lifes)));
+	}
+}
+minigame.displayAll(98 - i, sb.getSpacer());
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	p_name = player.getName(p);
+	msg.prefix(p, gamename, "The game has started.");
+	team = map.get(players, p_name);
+	giveSnowballs(p);
+	player.setHunger(p, 20);
+	player.setSaturation(p, 5);
+	player.setGamemode(p, "SURVIVAL");
+	player.setFly(p, false);
+	entity.teleport(p, map.get(spawnlocs, team));
+	color = map.get(colorcodes, team);
+	player.action(p, text.new(string.concat(color, "Team ", map.get(teamcolortext2, team))));
+	equipPlayer(p, team);
+	minigame.setTabName(p, game_tab, color);
+}
+sgoto(40, "loop");
+
+@checkgame
+wait();
+if(event == "living_death") {
+	if(!isPlayer(living_entity)) {
+		goto("checkgame");
+	}
+	player = living_entity;
+}
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(event == "projectile_hit") {
+	if(shooter == null || !isPlayer(shooter)) {
+		goto("checkgame");
+	}
+	player = shooter;
+}
+if(player.hasMinigameId(player, script_id)) {
+	player_name = player.getName(player);
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("checkgame");
+}
+if(action != "RIGHT_CLICK_AIR") {
+	goto("checkgame");
+}
+player_item_type = item.getType(living.getHand(player));
+if(player_item_type == snowball) {
+	for(i = 0; i < list.getSize(allteams); i++) {
+		temp_team = list.getIndex(allteams, i);
+		teamlist = map.get(team_lists, temp_team);
+		if(!list.contains(teamlist, player_name)) {
+			loc = map.get(spawnlocs, i);
+			if(loc.distance(loc, entity.getLocation(player)) < nerfradius) {
+				team = map.get(players, player_name);
+				living.addEffect(player, "WITHER", 200, 8);
+				living.addEffect(player, "SLOW", 100, 3);
+				nerf_counter = map.get(nerf_map, player_name);
+				map.add(nerf_map, player_name, nerf_counter + 1);
+				if(nerf_counter == 10) {
+					map.add(nerf_map, player_name, 0);
+					player.clearInventory(player);
+					living.cleareffects(player);
+					giveSnowballs(player);
+					entity.teleport(player, map.get(spawnlocs, team));
+					map.add(deaths_map, player_name, map.get(deaths_map, player_name) + 1);
+					new_lifes = map.get(lifes, team) - 1;
+					map.add(lifes, team, new_lifes);
+					minigame.displayAll(98 - team, string.concat(map.get(teamcolortext2, team), " Lifes: ", string.number(new_lifes)));
+				}
+			}
+		}
+	}
+}
+goto("checkgame");
+
+@projectile_hit
+if(entity_hit != null) {
+	if(!isPlayer(entity_hit)) {
+		goto("checkgame");
+	}
+	entity_hit_name = player.getName(entity_hit);
+	if(!list.contains(player_list, player.getUuid(entity_hit))) {
+		minigame.msgAll(string.concat("Illegal Player ", entity_hit_name));
+		goto("checkgame");
+	}
+	if(!list.contains(player_list, player.getUuid(player))) {
+		minigame.msgAll(string.concat("Illegal Player ", entity_hit_name));
+		goto("checkgame");
+	}
+	team = map.get(players, player_name);
+	hit_team = map.get(players, entity_hit_name);
+	if(team == hit_team) {
+		goto("checkgame"); //Friendly-Firedly-Fire
+	}
+	player.clearInventory(entity_hit);
+	giveSnowballs(entity_hit);
+	map.add(kills_map, player_name, map.get(kills_map, player_name) + 1);
+	map.add(deaths_map, entity_hit_name, map.get(deaths_map, entity_hit_name) + 1);
+	new_lifes = map.get(lifes, hit_team) - 1;
+	map.add(lifes, hit_team, new_lifes);
+	minigame.displayAll(98 - hit_team, string.concat(map.get(teamcolortext2, hit_team), " Lifes: ", string.number(new_lifes)));
+	loc = map.get(spawnlocs, hit_team);
+	entity.teleport(entity_hit, loc);
+	if(new_lifes == 0) {
+		colorgameover(hit_team);
+	}
+}	
+goto("checkgame");
+
+@player_post_respawn
+team = map.get(players, player_name);
+loc = map.get(spawnlocs, team);
+entity.teleport(player, loc);
+giveSnowballs(player);
+goto("checkgame");
+
+@living_death
+list.clear(drops);
+goto("checkgame");
+
+@entity_damage
+damage_type = damage.getType(damage_source);
+if(damage_type == "wither") {
+	goto("checkgame");
+}
+cancel = true;
+goto("checkgame");
+
+@player_drop
+cancel = true;
+goto("checkgame");
+
+@block_break
+@block_place
+cancel = true;
+goto("checkgame");
+
+@loop
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	p_name = player.getName(p);
+	team = map.get(players, p_name);
+	player.setHunger(p, 20);
+	player.setSaturation(p, 5);
+	player.action(p, text.new(string.concat(map.get(colorcodes, team), "Team ", map.get(teamcolortext2, team))));
+	equipPlayer(p, team);
+}
+sgoto(40, "loop");
+goto("checkgame");
+
+@player_giveup
+@player_quit
+team = map.get(players, player_name);
+color = map.get(colorcodes, team);
+minigame.speakAll(gamename, string.concat(color, player_name, " §ehas left the game."));
+teamlist = map.get(team_lists, team);
+list.remove(teamlist, player_name);
+map.remove(players, player_name);
+script = script.getFromId(script_id);
+minigame.kickplayer(script, player);
+if(list.getSize(teamlist) == 0) {
+	colorgameover(team);
+}
+goto("checkgame");
+
+function colorgameover(team) {
+	tempcolortext = map.get($teamcolortext, team);
+	minigame.speakAll($gamename, string.concat("§cThe ", tempcolortext, " §cTeam has been eliminated."));
+	list.remove($allteams, team);
+	if(list.getSize($allteams) == 1) {
+		$endtime = time.getMillis();
+		kickteam(team, true, false);
+		win_team = list.getIndex($allteams, 0);
+		kickteam(win_team, true, true);
+		minigame.clearItems($middleloc, $radius);
+		script = script.getFromId($script_id);
+		minigame.term(script, $gamesignloc);
+		term();
+	}
+	kickteam(team, false, false);
+}
+
+function kickteam(team, show_time, won) {
+	teamlist = map.get($team_lists, team);
+	for(i = 0; i < list.getSize(teamlist); i++) {
+		p_name = list.getIndex(teamlist, i);
+		p = read.player(p_name);
+		showstats(p, show_time, won);
+		script = script.getFromId($script_id);
+		minigame.kickplayer(script, p);
+		if(won) {
+			//money.addBoost(p, 128);
+		} else {
+			//money.addBoost(p, 32);
+		}
+	}
+}
+
+function showstats(player, show_time, won) { //Player player, Boolean show_time, Boolean won
+	player_name = player.getName(player);
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, playedgames);
+	kills = map.get($kills_map, player_name);
+	record = last_record + kills;
+	ranking.setPoints($rankingtable, player_id, record);
+	deaths = map.get($deaths_map, player_name);
+	wongames = minigame.getWon(player, "snow");
+	if(won) {
+		wongames++;
+		minigame.setWon(player, "snow", wongames);
+	}
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	if(show_time) {
+		time = ($endtime - $starttime) / 1000;
+		minigame.statsLine(player, "§e", "Time", string.concat(string.number(math.rounddown(time / 60)), " min ", string.number(math.round(time % 60)), " s"));
+	}
+	minigame.statsLine(player, "§e", "Kills", string.number(kills));
+	minigame.statsLine(player, "§e", "Deaths", string.number(deaths));
+	if(deaths != 0) {
+		kd = kills / deaths;
+		minigame.statsLine(player, "§e", "K/D",  string.number(math.roundcomma(kd, 2)));
+	}
+	minigame.statsLine(player, "§e", "Won games", string.number(wongames));
+	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((wongames / playedgames) * 100, 2)), "%"));
+	}
+}
+
+function giveSnowballs(player) {
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+	player.giveItem(player, $snow_stack);
+}
+
+function equipPlayer(player, team) {
+	if(living.getEquip(player, slot.getHead()) == null) {
+		color = map.get($cloth_color, team);
+		living.setEquip(player, slot.getHead(), read.item(string.concat("{id:'minecraft:leather_helmet',Count:1b,tag:{display:{color:", color, "}}}")));
+		living.setEquip(player, slot.getChest(), read.item(string.concat("{id:'minecraft:leather_chestplate',Count:1b,tag:{display:{color:", color, "}}}")));
+		living.setEquip(player, slot.getLegs(), read.item(string.concat("{id:'minecraft:leather_leggings',Count:1b,tag:{display:{color:", color, "}}}")));
+		living.setEquip(player, slot.getFeet(), read.item(string.concat("{id:'minecraft:leather_boots',Count:1b,tag:{display:{color:", color, "}}}")));
+	}
+}
+
+function canStartGame() {
+	if(list.getSize($waiters) > 0) {
+		return true;
+	}
+	player_list = minigame.getPlayers(script_id);
+	all_size = list.getSize(player_list);
+	for(i = 0; i < $numberofteams; i++) {
+		teamlist = map.get($team_lists, i);
+		team_size = list.getSize(teamlist);
+		if(team_size == all_size) {
+			return false;
+		}
+	}
+	return true;
+}

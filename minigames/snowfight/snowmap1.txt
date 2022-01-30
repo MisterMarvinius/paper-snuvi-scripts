@@ -1,0 +1,19 @@
+mapname = "Icy Tower";
+numberofteams = 2;
+teamsize = 10;
+minplayers = 2;
+maxplayers = 20;
+gamesignloc = minigame.getSignLoc("snowsign1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, -1224, 43, -995, 90, 0);
+middleloc = loc.new(gamesworld, -1205, 41, -979);
+radius = 200;
+nerfradius = 8;
+
+joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
+list.add(joinblocks, loc.new(gamesworld, -1229, 42, -992));
+list.add(joinblocks, loc.new(gamesworld, -1229, 42, -999));
+
+spawnlocs = map.new(); //Liste der Spawnlocs der einzelnen Teams
+map.add(spawnlocs, 0, loc.new(gamesworld, -1213, 41, -961));
+map.add(spawnlocs, 1, loc.new(gamesworld, -1186, 42, -997));

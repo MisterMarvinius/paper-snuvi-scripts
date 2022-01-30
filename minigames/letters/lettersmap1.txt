@@ -1,0 +1,8 @@
+fixsigns = false;
+mapname = "Void";
+gamesignloc = minigame.getSignLoc("letterssign1");
+gamesworld = world.getGames();
+edge1 = loc.new(gamesworld, 1976, 101, -6008);
+edge2 = loc.new(gamesworld, 2004, 101, -5986);
+spawnloc = loc.new(gamesworld, 2002, 101, -5998, 90, 0);
+maxplayers = 1;

@@ -1,5 +1,5 @@
 event.load("custom_command");
-event.load("player_logout");
+event.load("player_quit");
 prefix = "§2Ticket";
 pling_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
 sound_category_ambient = sound.getCategory("AMBIENT");
@@ -18,20 +18,36 @@ if(!isPlayer(sender)) {
 	goto("wait");
 }
 player = sender;
+if(command == "support") {
+	if(player.isMuted(player)) {
+		msg.prefix(player, prefix, "You are muted.");
+		goto("wait");
+	}
+	if(!isTicketSupOnline()) {
+		msg.prefix(player, prefix, "There is no supporter available.");
+		goto("wait");
+	}
+	size = list.getSize(args);
+	if(size == 0) {
+		ticket = ticket.create(player, "-");
+	} else {
+		message = string.concatList(args, " ", 0, size - 1);
+		ticket = ticket.create(player, message);
+	}
+	msg.prefix(player, prefix, string.concat("Ticket §a#", string.number(ticket.getId(ticket)), " §rcreated."));
+	informSuppsAboutNew(ticket);
+	goto("wait");
+}
 if(command == "ticket") {
 	size = list.getSize(args);
 	if(size == 0) {
 		@tickethelp
 		msg.prefix(player, prefix, "/ticket...");
-		msg.string(player, "§2 - new <message> §rCreate a ticket");
-		msg.string(player, "§2 - stop [id] §rCancel your ticket");
-		if(isSupporter(player)) {
-			msg.string(player, "§2 - list §rShows all tickets");
-			msg.string(player, "§2 - get [id] §rTake care of a ticket");
-			msg.string(player, "§2 - finish [id] §rFinish a ticket");
-			msg.string(player, "§2 - release [id] §rRelease a ticket for the next supporter");
-			msg.string(player, "§2 - report [id] §rReport a ticket to marvinius");
-		}
+		msg.string(player, "§2 - list §rShows all tickets");
+		msg.string(player, "§2 - get [id] §rTakes care of a ticket");
+		msg.string(player, "§2 - finish §rFinishes a ticket");
+		msg.string(player, "§2 - release §rReleases a ticket");
+		msg.string(player, "§2 - note <message> §rSets a note");
 		goto("wait");
 	}
 	arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -40,46 +56,34 @@ if(command == "ticket") {
 			msg.prefix(player, prefix, "/ticket list");
 			goto("wait");
 		}
-		if(!isSupporter(player)) {
-			msg.prefix(player, prefix, "You are not a supporter.");
-			goto("wait");
-		}
 		amount = list.getSize(tickets);
 		if(amount == 0) {
 			msg.prefix(player, prefix, "There are no tickets.");
 			goto("wait");
 		}
-		if(ticket.getProcessingAmount() == 0) {
-			msg.prefix(player, prefix, "There are no processing tickets.");
-		} else {
-			msg.prefix(player, prefix, "Processing tickets:");
-			msg.string(player, "§2--------------------------");
-			list = ticket.getProcessing();
-			iter = list.iterator(list);
-			while(hasNext(iter)) {
-				ticket = next(iter);
-				msg.string(player, string.concat("§2 - §rID: §a", string.number(ticket.getId(ticket))));
-				msg.string(player, string.concat("§2 - §rPlayer: §a", player.getNameFromId(ticket.getHelpNeeder(ticket))));
-				msg.string(player, string.concat("§2 - §rSupporter: §a", player.getNameFromId(ticket.getSupporter(ticket))));
-				msg.string(player, string.concat("§2 - §rMessage: §a", ticket.getMessage(ticket)));
-				msg.string(player, "§2--------------------------");
-			}
+		msg.string(player, "§2--------------------------");
+		msg.prefix(player, prefix, "Processing tickets:");
+		msg.string(player, "");
+		list = ticket.getProcessing();
+		iter = iterator(list);
+		while(hasNext(iter)) {
+			ticket = next(iter);
+			ticket_id = string.number(ticket.getId(ticket));
+			p_name = player.getNameFromId(ticket.getHelpNeeder(ticket));
+			supporter = player.getNameFromId(ticket.getSupporter(ticket));
+			message = ticket.getMessage(ticket);
+			msg.string(player, string.concat("§2 - §r", ticket_id, " §a", p_name, "§r by ", supporter, " §7| §r", message));
 		}
-		if(ticket.getOutstandingAmount() == 0) {
-			msg.prefix(player, prefix, "There are no outstanding tickets.");
-		} else {
-			msg.prefix(player, prefix, "Outstanding tickets:");
-			msg.string(player, "§2--------------------------");
-			list = ticket.getOutstanding();
-			iter = list.iterator(list);
-			while(hasNext(iter)) {
-				ticket = next(iter);
-				msg.string(player, string.concat("§2 - §rID: §a", string.number(ticket.getId(ticket))));
-				msg.string(player, string.concat("§2 - §rPlayer: §a", player.getNameFromId(ticket.getHelpNeeder(ticket))));
-				msg.string(player, string.concat("§2 - §rMessage: §a", ticket.getMessage(ticket)));
-				msg.string(player, "§2--------------------------");
-			}
+		msg.string(player, "§2--------------------------");
+		msg.prefix(player, prefix, "Outstanding tickets:");
+		msg.string(player, "");
+		list = ticket.getOutstanding();
+		iter = iterator(list);
+		while(hasNext(iter)) {
+			ticket = next(iter);
+			ticket.print(ticket, player);
 		}
+		msg.string(player, "§2--------------------------");
 		goto("wait");
 	}
 	if(arg0 == "get") {
@@ -87,8 +91,8 @@ if(command == "ticket") {
 			msg.prefix(player, prefix, "/ticket get [id]");
 			goto("wait");
 		}
-		if(!isSupporter(player)) {
-			msg.prefix(player, prefix, "You are not a supporter.");
+		if(ticket.getFromSupporter(player) != null) {
+			msg.prefix(player, prefix, "You already support a ticket.");
 			goto("wait");
 		}
 		if(size == 1) {
@@ -110,208 +114,71 @@ if(command == "ticket") {
 			}
 			supporter_id = ticket.getSupporter(ticket);
 			if(supporter_id != null) {
-				msg.prefix(player, prefix, "Another supporter supports this ticket.");
+				msg.prefix(player, prefix, "Another supporter already supports this ticket.");
 				goto("wait");
 			}
 		}
-		message = ticket.getMessage(ticket);
 		ticket.setSupporter(ticket, player);
 		p_name = player.getNameFromId(ticket.getHelpNeeder(ticket));
 		p = read.player(p_name);
-		msg.prefix(p, prefix, "Your ticket is in process:");
-		msg.string(p, string.concat("§2 - §rSupporter: §a", player.getName(player)));
-		msg.string(p, string.concat("§2 - §rYour message: §a", message));
+		ticket_id = string.number(ticket.getId(ticket));
+		msg.prefix(p, prefix, string.concat("Ticket §a#", ticket_id, "§r is in process: §a", player.getName(player)));
 		msg.prefix(player, prefix, "You take care of the ticket:");
-		msg.string(player, string.concat("§2 - §rID: §a", string.number(ticket.getId(ticket))));
-		msg.string(player, string.concat("§2 - §rPlayer: §a", p_name));
-		msg.string(player, string.concat("§2 - §rMessage: §a", message));
+		ticket.print(ticket, player);
 		goto("wait");
 	}
 	if(arg0 == "finish") {
-		if(size < 1 || size > 2) {
-			msg.prefix(player, prefix, "/ticket finish [id]");
+		if(size != 1) {
+			msg.prefix(player, prefix, "/ticket finish");
 			goto("wait");
 		}
-		if(!isSupporter(player)) {
-			msg.prefix(player, prefix, "You are not a supporter.");
-			goto("wait");
-		}
-		if(size == 1) {
-			if(ticket.getAmountFromSupporter(player) > 1) {
-				msg.prefix(player, prefix, "You support more than one ticket.");
-				goto("wait");
-			}
-			ticket = ticket.getFromSupporter(player);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "You support no tickets.");
-				goto("wait");
-			}
-		} else {
-			ticketid = list.getIndex(args, 1);
-			if(!isDouble(ticketid)) {
-				msg.prefix(player, prefix, "Number expected.");
-				goto("wait");
-			}
-			ticket = ticket.getFromID(ticketid);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "Not an existing ticket.");
-				goto("wait");
-			}
-		}
-		if(!ticket.isSupporter(ticket, player)) {
-			msg.prefix(player, prefix, "Another supporter supports this ticket.");
+		ticket = ticket.getFromSupporter(player);
+		if(ticket == null) {
+			msg.prefix(player, prefix, "You support no ticket.");
 			goto("wait");
 		}
 		ticket.stop(ticket);
 		name = player.getNameFromId(ticket.getHelpNeeder(ticket));
-		msg.send(null, name, prefix, "Your ticket was finished.", false);
+		msg.prefix(read.player(name), prefix, "Your ticket was finished.");
 		msg.prefix(player, prefix, "You finished the ticket.");
 		goto("wait");
 	}
-	if(arg0 == "release") {
-		if(size < 1 || size > 2) {
-			msg.prefix(player, prefix, "/ticket release [id]");
-			goto("wait");
-		}
-		if(!isSupporter(player)) {
-			msg.prefix(player, prefix, "You are not a supporter.");
-			goto("wait");
-		}
-		if(size == 1) {
-			if(ticket.getAmountFromSupporter(player) > 1) {
-				msg.prefix(player, prefix, "You support more than one ticket.");
-				goto("wait");
-			}
-			ticket = ticket.getFromSupporter(player);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "You support no tickets.");
-				goto("wait");
-			}
-		} else {
-			ticketid = list.getIndex(args, 1);
-			if(!isDouble(ticketid)) {
-				msg.prefix(player, prefix, "Number expected.");
-				goto("wait");
-			}
-			ticket = ticket.getFromID(ticketid);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "Not an existing ticket.");
-				goto("wait");
-			}
-		}
-		if(!ticket.isSupporter(ticket, player)) {
-			msg.prefix(player, prefix, "Another supporter supports this ticket.");
-			goto("wait");
-		}
-		ticket.release(ticket, player);
-		goto("wait");
-	}
-	if(arg0 == "report") {
-		if(size < 1 || size > 2) {
-			msg.prefix(player, prefix, "/ticket report [id]");
-			goto("wait");
-		}
-		if(!isSupporter(player)) {
-			msg.prefix(player, prefix, "You are not a supporter.");
-			goto("wait");
-		}
-		if(size == 1) {
-			if(ticket.getAmountFromSupporter(player) > 1) {
-				msg.prefix(player, prefix, "You support more than one ticket.");
-				goto("wait");
-			}
-			ticket = ticket.getFromSupporter(player);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "You support no tickets.");
-				goto("wait");
-			}
-		} else {
-			ticketid = list.getIndex(args, 1);
-			if(!isDouble(ticketid)) {
-				msg.prefix(player, prefix, "Number expected.");
-				goto("wait");
-			}
-			ticket = ticket.getFromID(ticketid);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "Not an existing ticket.");
-				goto("wait");
-			}
-		}
-		if(!ticket.isSupporter(ticket, player)) {
-			msg.prefix(player, prefix, "Another supporter supports this ticket.");
-			goto("wait");
-		}
-		ticket.report(ticket, player);
-		name = player.getNameFromId(ticket.getHelpNeeder(ticket));
-		msg.send(null, name, prefix, "Your ticket got reported.", false);
-		msg.prefix(player, prefix, "You reported the ticket.");
-		goto("wait");
-	}
-	if(arg0 == "stop") {
-		if(size < 1 || size > 2) {
-			msg.prefix(player, prefix, "/ticket stop [id]");
-			goto("wait");
-		}
-		if(size == 1) {
-			if(ticket.getAmountFromHelpNeeder(player) > 1) {
-				msg.prefix(player, prefix, "You have more than one ticket.");
-				goto("wait");
-			}
-			ticket = ticket.getFromHelpNeeder(player);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "You have no tickets.");
-				goto("wait");
-			}
-		} else {
-			ticketid = list.getIndex(args, 1);
-			if(!isDouble(ticketid)) {
-				msg.prefix(player, prefix, "Number expected.");
-				goto("wait");
-			}
-			ticket = ticket.getFromID(ticketid);
-			if(ticket == null) {
-				msg.prefix(player, prefix, "Not an existing ticket.");
-				goto("wait");
-			}
-			if(!hasTicketCreated(player, ticket)) {
-				msg.prefix(player, prefix, "Not your ticket.");
-				goto("wait");
-			}
-		}
-		if(ticket.stop(ticket)) {
-			msg.prefix(player, prefix, "Stopped your ticket.");
-			supporter_id = ticket.getSupporter(ticket);
-			if(supporter_id != null) {
-				msg.send(null, player.getNameFromId(supporter_id), prefix, string.concat("The ticket from ", player.getName(player), " was stopped."), false);
-			}
-		}
-		goto("wait");
-	}
-	if(arg0 == "new") {
+	if(arg0 == "note") {
 		if(size < 2) {
-			msg.prefix(player, prefix, "/ticket new <message>");
+			msg.prefix(player, prefix, "/ticket note <message>");
 			goto("wait");
 		}
-		
-		supporters = getAvailableSupporters();
-		if(list.getSize(supporters) == 0) {
-			msg.prefix(player, prefix, "There is no supporter available.");
+		ticket = ticket.getFromSupporter(player);
+		if(ticket == null) {
+			msg.prefix(player, prefix, "You support no ticket.");
 			goto("wait");
 		}
 		message = string.concatList(args, " ", 1, size - 1);
-		ticket = ticket.create(player, message);
-		msg.prefix(player, prefix, string.concat("Ticket created (ID: ", string.number(ticket.getId(ticket)), ")."));
-		informSuppsAboutNew(ticket);
+		ticket.setMessage(ticket, message);
+		msg.prefix(player, prefix, "Note set.");
+		goto("wait");
+	}
+	if(arg0 == "release") {
+		if(size != 1) {
+			msg.prefix(player, prefix, "/ticket release");
+			goto("wait");
+		}
+		ticket = ticket.getFromSupporter(player);
+		if(ticket == null) {
+			msg.prefix(player, prefix, "You support no ticket.");
+			goto("wait");
+		}
+		ticket.release(ticket, player);
 		goto("wait");
 	}
 	goto("tickethelp");
 }
 goto("wait");
 
-@player_logout
+@player_quit
 player_id = player.getId(player);
-if(isSupporter(player)) {
-	iter = list.iterator(tickets);
+if(doesTickets(player)) {
+	iter = iterator(tickets);
 	while(hasNext(iter)) {
 		ticket = next(iter);
 		if(ticket.isSupporter(ticket, player)) {
@@ -319,6 +186,7 @@ if(isSupporter(player)) {
 		}
 	}
 }
+//No iterator here, otherwise concurrent modification
 for(i = 0; i < list.getSize(tickets); i++) {
 	ticket = list.getIndex(tickets, i);
 	if(ticket.isHelpNeeder(ticket, player)) {
@@ -327,9 +195,16 @@ for(i = 0; i < list.getSize(tickets); i++) {
 }
 goto("wait");
 
+function ticket.print(ticket, player) {
+	ticket_id = string.number(ticket.getId(ticket));
+	p_name = player.getNameFromId(ticket.getHelpNeeder(ticket));
+	message = ticket.getMessage(ticket);
+	msg.string(player, string.concat("§2 - §r", ticket_id, " §a", p_name, " §7| §r", message));
+}
+
 function ticket.getProcessing() {
 	list = list.new();
-	iter = list.iterator($tickets);
+	iter = iterator($tickets);
 	while(hasNext(iter)) {
 		ticket = next(iter);
 		if(ticket.getSupporter(ticket) != null) {
@@ -345,7 +220,7 @@ function ticket.getProcessingAmount() {
 
 function ticket.getOutstanding() {
 	list = list.new();
-	iter = list.iterator($tickets);
+	iter = iterator($tickets);
 	while(hasNext(iter)) {
 		ticket = next(iter);
 		if(ticket.getSupporter(ticket) == null) {
@@ -360,7 +235,7 @@ function ticket.getOutstandingAmount() {
 }
 
 function ticket.getNextOutstanding() {
-	iter = list.iterator($tickets);
+	iter = iterator($tickets);
 	while(hasNext(iter)) {
 		t = next(iter);
 		if(ticket.getSupporter(t) == null) {
@@ -378,16 +253,17 @@ function ticket.isHelpNeeder(ticket, player) {
 	return ticket.getHelpNeeder(ticket) == player.getId(player);
 }
 
-function isSupporter(player) {
-	return perm.has("isSupporter", player);
+function doesTickets(player) {
+	return perm.has("ticket", player) && !perm.has("notickets", player);
 }
 
-function getAvailableSupporters() {
+function getAvailableTicketSups() {
 	online = players.toList();
+	iter = iterator(online);
 	supporters = list.new();
-	for(i = 0; i < list.getSize(online); i++) {
-		p = list.getIndex(online, i);
-		if(isSupporter(p)) {
+	while(hasNext(iter)) {
+		p = next(iter);
+		if(doesTickets(p)) {
 			list.add(supporters, p);
 		}
 	}
@@ -406,54 +282,38 @@ function ticket.create(player, message) {
 
 function ticket.release(ticket, supporter) {
 	player_id = ticket.getHelpNeeder(ticket);
-	name = player.getNameFromId(player_id);
-	msg.send(null, name, $prefix, "Your ticket got released, so another supporter can take care of.", false);
-	msg.prefix(supporter, $prefix, "You released the ticket for another supporter.");
+	p = read.player(player.getNameFromId(player_id));
+	ticket_id = string.number(ticket.getId(ticket));
+	msg.prefix(p, $prefix, string.concat("Ticket §a#", ticket_id, "§r is queued."));
 	ticket.setSupporter(ticket, null);
-	informSuppsAboutRelease(ticket, supporter);
+	//Inform supports
+	supporters = getAvailableTicketSups();
+	iter = iterator(supporters);
+	while(hasNext(iter)) {
+		p = next(iter);
+		msg.prefix(p, $prefix, string.concat("Ticket released by §a", player.getName(supporter), "§r:"));
+		ticket.print(ticket, p);
+		sound.spawnForPlayer(p, $pling_sound, $sound_category_ambient);
+	}
 }
 
 function informSuppsAboutNew(ticket) {
-	supporters = getAvailableSupporters();
-	iter = list.iterator(supporters);
+	supporters = getAvailableTicketSups();
+	iter = iterator(supporters);
 	while(hasNext(iter)) {
 		p = next(iter);
 		msg.prefix(p, $prefix, "New ticket:");
-		msg.string(p, string.concat("§2 - §rID: §a", string.number(ticket.getId(ticket))));
-		msg.string(p, string.concat("§2 - §rPlayer: §a", player.getNameFromId(ticket.getHelpNeeder(ticket))));
-		msg.string(p, string.concat("§2 - §rMessage: §a", ticket.getMessage(ticket)));
+		ticket.print(ticket, p);
 		sound.spawnForPlayer(p, $pling_sound, $sound_category_ambient);
 	}
 }
 
-function informSuppsAboutRelease(ticket, supporter) {
-	supporters = getAvailableSupporters();
-	iter = list.iterator(supporters);
-	while(hasNext(iter)) {
-		p = next(iter);
-		msg.prefix(p, $prefix, "Ticket released:");
-		msg.string(p, string.concat("§2 - §rID: §a", string.number(ticket.getId(ticket))));
-		msg.string(p, string.concat("§2 - §rPlayer: §a", player.getNameFromId(ticket.getHelpNeeder(ticket))));
-		msg.string(p, string.concat("§2 - §rEx-Supporter: §a", player.getName(supporter)));
-		msg.string(p, string.concat("§2 - §rMessage: §a", ticket.getMessage(ticket)));
-		sound.spawnForPlayer(p, $pling_sound, $sound_category_ambient);
-	}
-}
-
-function ticket.report(ticket, supporter) {
-	name = player.getNameFromId(ticket.getHelpNeeder(ticket));
-	message = ticket.getMessage(ticket);
-	supporter_name = player.getName(supporter);
-	mail.send(supporter_name, "marvinius", string.concat("Ticket Report: ", name, " / ", message));
-	ticket.stop(ticket);
+function isTicketSupOnline() {
+	return list.getSize(getAvailableTicketSups()) != 0;
 }
 
 function ticket.stop(ticket) {
-	if(!list.contains($tickets, ticket)) {
-		return false;
-	}
 	list.remove($tickets, ticket);
-	return true;
 }
 
 function ticket.getHelpNeeder(ticket) {
@@ -462,6 +322,10 @@ function ticket.getHelpNeeder(ticket) {
 
 function ticket.getMessage(ticket) {
 	return ticket[1];
+}
+
+function ticket.setMessage(ticket, message) {
+	ticket[1] = message;
 }
 
 function ticket.getSupporter(ticket) {
@@ -480,12 +344,8 @@ function ticket.setSupporter(ticket, player) {
 	}
 }
 
-function hasTicketCreated(player, ticket) {
-	return player.getId(player) == ticket.getHelpNeeder(ticket);
-}
-
 function ticket.getFromID(ticket_id) {
-	iter = list.iterator($tickets);
+	iter = iterator($tickets);
 	while(hasNext(iter)) {
 		t = next(iter);
 		if(ticket.getId(t) == ticket_id) {
@@ -495,46 +355,11 @@ function ticket.getFromID(ticket_id) {
 	return null;
 }
 
-function ticket.getAmountFromSupporter(player) {
-	c = 0;
-	iter = list.iterator($tickets);
-	while(hasNext(iter)) {
-		t = next(iter);
-		if(ticket.isSupporter(t, player)) {
-			c++;
-		}
-	}
-	return c;
-}
-
 function ticket.getFromSupporter(player) {
-	iter = list.iterator($tickets);
+	iter = iterator($tickets);
 	while(hasNext(iter)) {
 		t = next(iter);
 		if(ticket.isSupporter(t, player)) {
-			return t;
-		}
-	}
-	return null;
-}
-
-function ticket.getAmountFromHelpNeeder(player) {
-	c = 0;
-	iter = list.iterator($tickets);
-	while(hasNext(iter)) {
-		t = next(iter);
-		if(ticket.isHelpNeeder(t, player)) {
-			c++;
-		}
-	}
-	return c;
-}
-
-function ticket.getFromHelpNeeder(player) {
-	iter = list.iterator($tickets);
-	while(hasNext(iter)) {
-		t = next(iter);
-		if(ticket.isHelpNeeder(t, player)) {
 			return t;
 		}
 	}

@@ -1,0 +1,64 @@
+all_lines = 0;
+real_lines = 0;
+code_lines = 0;
+sumUpDirectory(file.new("scripts/minigames"));
+sumUpDirectory(file.new("scripts/story"));
+sumUpDirectory(file.new("scripts/survival"));
+sumUpDirectory(file.new("scripts/system"));
+sumUpDirectory(file.new("scripts/utils"));
+sumUpFile(file.new("scripts/all.txt"));
+//sumUpFile(file.new("scripts/analyse.txt"));
+//sumUpFile(file.new("scripts/benchmark.txt"));
+sumUpFile(file.new("scripts/endscript.txt"));
+//sumUpFile(file.new("scripts/pre_generate.txt"));
+sumUpFile(file.new("scripts/startcommands.txt"));
+sumUpFile(file.new("scripts/startscript.txt"));
+sumUpFile(file.new("scripts/stop.txt"));
+msg("dev", text.new(string.concat(" §eSnuvi: ", string.number(code_lines), " lines.")));
+real_lines += code_lines;
+
+//code_lines = 0;
+////sumUpDirectory(file.new("scripts/Archiv"));
+//msg("dev", text.new(string.concat(" §7Archive: ", string.number(code_lines), " lines.")));
+//all_lines += code_lines;
+
+//code_lines = 0;
+//sumUpDirectory(file.new("scripts/jan"));
+//msg("dev", text.new(string.concat(" §7Development: ", string.number(code_lines), " lines.")));
+//all_lines += code_lines;
+
+//code_lines = 14461;
+//msg("dev", text.new(string.concat(" §eK-Plugin: ", string.number(code_lines), " lines.")));
+//real_lines += code_lines;
+
+//code_lines = 8005;
+//msg("dev", text.new(string.concat(" §7Mod-Config: ", string.number(code_lines), " lines.")));
+//all_lines += code_lines;
+
+//msg("dev", "");
+
+//msg("dev", text.new(string.concat(" §eCountable: ", string.number(real_lines), " lines.")));
+//msg("dev", text.new(string.concat(" §7No count: ", string.number(all_lines), " lines.")));
+//msg("dev", text.new(string.concat(" §7Sum: ", string.number(all_lines + real_lines), " lines.")));
+term();
+
+function sumUpDirectory(dir) {
+	list = file.getList(dir);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		file = next(iter);
+		if(file.isDirectory(file)) {
+			sumUpDirectory(file);
+		} else {
+			sumUpFile(file);
+		}
+	}
+}
+
+function sumUpFile(file) {
+	$code_lines += getLines(file);
+}
+
+function getLines(file) {
+	return list.getSize(file.read(file));
+}

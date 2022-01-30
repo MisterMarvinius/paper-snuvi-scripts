@@ -1,4 +1,11 @@
 p = read.player("kajetanjohannes");
+for(i = 0; i < 100; i++) {
+    access = plot.check(entity.getLocation(p), p, 1, false);
+}
+msg(p, text.new(access));
+term();
+
+p = read.player("kajetanjohannes");
 loc = entity.getLocation(p);
 h = human.spawn(loc, "Marvinius");
 human.setAI(h, 1);

@@ -1,0 +1,93 @@
+//bored_mathematician_quests
+event.load("human_damage");
+event.load("human_goal_reach");
+event.load("human_goal_timeout");
+event.load("player_toggle_sneak");
+
+survivalworld = world.get("world");
+Human_Spawn1 = loc.new(survivalworld, -2720, 65, 1096);
+Human_End = loc.new(survivalworld, -2668, 56, 1095);
+MovePos1 = array.new(3);
+MovePos1[0] = -2709;
+MovePos1[1] = 64;
+MovePos1[2] = 1096;
+
+MovePos2 = array.new(3);
+MovePos2[0] = -2707;
+MovePos2[1] = 64;
+MovePos2[2] = 1094;
+
+MovePos3 = array.new(3);
+MovePos3[0] = -2706;
+MovePos3[1] = 64;
+MovePos3[2] = 1089;
+
+particle1 = particle.get("SMOKE_LARGE");
+particle2 = particle.get("SOUL");
+particle3 = particle.get("ASH");
+//particle4 = particle.get("ASH");
+
+uuid = "6cc9f8c7-9dfd-44f4-a3f2-af30054411a8";
+started = false;
+one = false;
+
+@wait
+wait();
+if(event == "player_toggle_sneak"){
+	playername = player.getName(player);
+	if(playername == "SirTerence7"){
+		PLAYER = player;
+		if(!started){
+			particle.spawn(Human_Spawn1, particle3, 25, 0, 0.25, 0.5, 0.25);
+			waitfor(2);
+			particle.spawn(Human_Spawn1, particle2, 25, 0, 0.25, 0.5, 0.25);
+			bored_mathematician_human = human.spawn(Human_Spawn1, "Bored Mathematician");
+			human.canMove(bored_mathematician_human, true);
+			human.setSkinUuid(bored_mathematician_human, uuid);
+			id1 = human.moveTo(bored_mathematician_human, MovePos1[0], MovePos1[1], MovePos1[2]);
+			started = true;
+		}
+	}
+}
+if(event == "human_damage"){
+	if(human == bored_mathematician_human){
+		if(started){
+			//msg(PLAYER, text.new("don't do that."));
+		}
+	}
+	goto("wait");
+}
+if(event == "human_goal_reach"){
+	if(human == bored_mathematician_human){
+		if(id == id1 && !one){
+			one = true;
+			id2 = human.moveTo(bored_mathematician_human, MovePos2[0], MovePos2[1], MovePos2[2]);
+		}
+		if(id == id2){
+			id3 = human.moveTo(bored_mathematician_human, MovePos3[0], MovePos3[1], MovePos3[2]);
+		}
+		if(id == id3){
+			particle.spawn(loc.new(survivalworld, MovePos3[0], MovePos3[1], MovePos3[2]), particle3, 25, 0, 0.25, 0.5, 0.25);
+			waitfor(2);
+			particle.spawn(loc.new(survivalworld, MovePos3[0], MovePos3[1], MovePos3[2]), particle1, 15, 0, 0.25, 0.25, 0.25);
+			particle.spawn(loc.new(survivalworld, MovePos3[0], MovePos3[1], MovePos3[2]), particle2, 25, 0, 0.25, 0.25, 0.25);
+			entity.teleport(bored_mathematician_human, Human_End);
+			started = false;
+		}
+	}
+	goto("wait");
+}
+if(event == "human_goal_timeout"){
+	if(human == bored_mathematician_human){
+		if(id == id1){
+			msg(PLAYER, text.new("I seem to be lost, how unfortunate."));
+		}
+		if(id == id2){
+			msg(PLAYER, text.new("I seem to be lost, how unfortunate. 2"));
+			started = false;
+		}
+		started = false;
+	}
+	goto("wait");
+}
+goto("wait");

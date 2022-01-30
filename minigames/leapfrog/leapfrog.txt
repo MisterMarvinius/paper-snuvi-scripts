@@ -1,0 +1,313 @@
+event.load("block_break");
+event.load("block_place");
+event.load("block_click");
+event.load("minigame_join");
+event.load("player_giveup");
+event.load("player_quit");
+
+rankingtable = "leapfrogranks";
+game_short = "lf";
+sign.started(gamesignloc);
+gamename = "§9Leapfrog";
+points = 0;
+middleblock = block.get(middleloc);
+
+@wait
+wait();
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@minigame_join
+player_record = ranking.getPoints(rankingtable, player);
+sb.add(player, 99, gamename);
+sb.add(player, 98, "Points: §e", string.number(points));
+sb.add(player, 97, "Your Record: §e", string.number(player_record));
+sb.add(player, 96, sb.getSpacer());
+living.setHealth(player, 20);
+player.setHunger(player, 20);
+player.setSaturation(player, 5);
+entity.teleport(player, loc.mod(middleloc, 0.5, 0, 0.5));
+initPlayField();
+resetPlayField();
+msg.prefix(player, gamename, "Click on a torch and jump over another torch to let it disappear. Try to get as many points (jumps) as possible. If the last torch ends up in the middle, you get an extra point.");
+goto("wait");
+
+@block_break
+@block_place
+cancel = true;
+goto("wait");
+
+@block_click
+if(slot.isOffHand(hand) || action != "RIGHT_CLICK_BLOCK") {
+	goto("wait");
+}
+block_loc = block.getLocation(block);
+if(!isInPlayField(block_loc)) {
+	goto("wait");
+}
+//Click token
+if(loc.getY(block_loc) == y_bottom + 1) {
+	if(pos1 != null) {
+		block.setMaterial(block.get(loc.mod(pos1, 0, -2, 0)), torch);
+	}
+	pos1 = block_loc;
+	block.setMaterial(block.get(loc.mod(pos1, 0, -2, 0)), material.getAir());
+	goto("wait");
+}
+//Jump with token
+if(loc.getY(block_loc) == y_bottom) {
+	pos2 = block_loc;
+	if(pos1 == null) {
+		msg.prefix(player, gamename, "Select a torch first.");
+		goto("wait");
+	}
+	//Are pos1 and pos2 on same line
+	x1 = loc.getX(pos1);
+	z1 = loc.getZ(pos1);
+	x2 = loc.getX(pos2);
+	z2 = loc.getZ(pos2);
+	if(x1 == x2) {
+		if(!distanceCheck(pos1, pos2)) {
+			msgUnlegitMove(player);
+			goto("wait");
+		}
+		if(fieldHasToken(pos2)) {
+			msgUnlegitMove(player);
+			goto("wait");
+		}
+		if(z2 > z1) {
+			middlepos = loc.new(gamesworld, x1, y_bottom + 1, z1 + 1);
+		} else {
+			middlepos = loc.new(gamesworld, x1, y_bottom + 1, z2 + 1);
+		}
+		if(!hasToken(middlepos)) {
+			msgUnlegitMove(player);
+			goto("wait");
+		}
+		doMove(player, pos1, pos2, middlepos);
+		goto("wait");
+	}
+	if(z1 == z2) {
+		if(!distanceCheck(pos1, pos2)) {
+			msgUnlegitMove(player);
+			goto("wait");
+		}
+		if(fieldHasToken(pos2)) {
+			msgUnlegitMove(player);
+			goto("wait");
+		}
+		if(x2 > x1) {
+			middlepos = loc.new(gamesworld, x1 + 1, y_bottom + 1, z1);
+		} else {
+			middlepos = loc.new(gamesworld, x2 + 1, y_bottom + 1, z1);
+		}
+		if(!hasToken(middlepos)) {
+			msgUnlegitMove(player);
+			goto("wait");
+		}
+		doMove(player, pos1, pos2, middlepos);
+		goto("wait");
+	}
+	msgUnlegitMove(player);
+}
+goto("wait");
+
+@player_giveup
+@player_quit
+//money.addBoost(player, math.round(points / 4));
+sb.remove(player, 99);
+sb.remove(player, 98);
+sb.remove(player, 97);
+sb.remove(player, 96);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+minigame.term(script, gamesignloc);
+term();
+
+function msgUnlegitMove(player) {
+	msg.action(player, "Unlegit move. Jump over a torch to a free field.");
+}
+
+function distanceCheck(pos1, pos2) { //returns true if the distance between the token and the selected field is 2
+	return loc.distance(pos1, loc.mod(pos2, 0, 1, 0)) == 2;
+}
+
+function fieldHasToken(location) { //returns true if above a field is a token
+	return !block.isAir(block.get(loc.mod(location, 0, 1, 0)));
+}
+
+function hasToken(location) { //returns true if there is a token
+	return !block.isAir(block.get(location));
+}
+
+function doMove(player, pos1, pos2, middlepos) {
+	air = material.getAir();
+	block.setMaterial(block.get(pos1), air);
+	block.setMaterial(block.get(loc.mod(pos2, 0, 1, 0)), $torch);
+	block.setMaterial(block.get(middlepos), air);
+	block.setMaterial(block.get(loc.mod(pos2, 0, -1, 0)), $torch);
+	$points++;
+	$pos1 = null;
+	if(isGameOver()) {
+		msg.prefix(player, $gamename, "Gameover. No more moves possible.");
+		msg.prefix(player, $gamename, "Study the field to get better.");
+		msg.prefix(player, $gamename, "Use /leave to return to lobby.");
+		event.unload("block_click");
+		//extra
+		if(block.isType($middleblock, $torch) && $points == 43) {
+			$points++;
+			msg.prefix(player, $gamename, "Extra point for the last torch ending up in the middle.");
+		}
+		showStats(player, $points);
+	}
+	sb.add(player, 98, "Points: §e", string.number($points));
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+}
+
+function isGameOver() {
+	//left to right
+	for(i = 0; i < list.getSize($left_start_locs); i++) {
+		//init a counter and history vars
+		counter = 0;
+		hist_2 = 1;
+		hist_1 = 1;
+		loc = list.getIndex($left_start_locs, i);
+		loc = loc.mod(loc, 0, 0, 0);
+		end_loc = list.getIndex($right_ends_locs, i);
+		while(loc != end_loc) {
+			//raise counter if current location is torch
+			if(block.isType(block.get(loc), $torch)) {
+				counter++;
+				hist_0 = 1;
+			} else {
+				//if there is no torch and the counter has 2 or more torches the game is not over, else reset counter
+				hist_0 = 0;
+				if(counter >= 2) {
+					return false;
+				}
+				counter = 0;
+			}
+			//if counter found 2 torches and the field before these 2 torches is free, game is not over
+			if(counter == 2) {
+				if(hist_2 == 0) {
+					return false;
+				}
+			}
+			hist_2 = hist_1;
+			hist_1 = hist_0;
+			loc.addX(loc, 1);
+		}
+	}
+	//up to down
+	for(i = 0; i < list.getSize($upper_start_locs); i++) {
+		counter = 0;
+		hist_2 = 1;
+		hist_1 = 1;
+		loc = list.getIndex($upper_start_locs, i);
+		loc = loc.mod(loc, 0, 0, 0);
+		end_loc = list.getIndex($down_ends_locs, i);
+		while(loc != end_loc) {
+			if(block.isType(block.get(loc), $torch)) {
+				counter++;
+				hist_0 = 1;
+			} else {
+				hist_0 = 0;
+				if(counter >= 2) {
+					return false;
+				}
+				counter = 0;
+			}
+			if(counter == 2) {
+				if(hist_2 == 0) {
+					return false;
+				}
+			}
+			hist_2 = hist_1;
+			hist_1 = hist_0;
+			loc.addZ(loc, 1);
+		}
+	}
+	return true;
+}
+
+function showStats(player, points) {
+	minigame.addPlayed(player, $game_short, 1);
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Points", string.number(points));
+	if($player_record < points) {
+		ranking.setPoints($rankingtable, player, points);
+		minigame.statsLine(player, "§e", "Beat own record by", string.number(points - $player_record));
+		$player_record = points;
+		sb.add(player, 97, "Your Record: §e", string.number($player_record));
+	}
+	minigame.statsLine(player, "§e", "Record", string.number($player_record));
+}
+
+function isInPlayField(location) {
+	if(loc.isBetween(location, $edge1, loc.mod($edge2, 0, -1, 0))) {
+		return true;
+	}
+	return loc.isBetween(location, $edge3, loc.mod($edge4, 0, -1, 0));
+}
+
+function initPlayField() {
+	$left_start_locs = list.new();
+	list.add($left_start_locs, loc.mod($lu_corner, 3, 0, 0));
+	list.add($left_start_locs, loc.mod($lu_corner, 3, 0, 1));
+	list.add($left_start_locs, loc.mod($lu_corner, 3, 0, 2));
+	list.add($left_start_locs, loc.mod($lu_corner, 0, 0, 3));
+	list.add($left_start_locs, loc.mod($lu_corner, 0, 0, 4));
+	list.add($left_start_locs, loc.mod($lu_corner, 0, 0, 5));
+	list.add($left_start_locs, loc.mod($lu_corner, 3, 0, 6));
+	list.add($left_start_locs, loc.mod($lu_corner, 3, 0, 7));
+	list.add($left_start_locs, loc.mod($lu_corner, 3, 0, 8));
+
+	$right_ends_locs = list.new();
+	list.add($right_ends_locs, loc.mod($lu_corner, 6, 0, 0));
+	list.add($right_ends_locs, loc.mod($lu_corner, 6, 0, 1));
+	list.add($right_ends_locs, loc.mod($lu_corner, 6, 0, 2));
+	list.add($right_ends_locs, loc.mod($lu_corner, 9, 0, 3));
+	list.add($right_ends_locs, loc.mod($lu_corner, 9, 0, 4));
+	list.add($right_ends_locs, loc.mod($lu_corner, 9, 0, 5));
+	list.add($right_ends_locs, loc.mod($lu_corner, 6, 0, 6));
+	list.add($right_ends_locs, loc.mod($lu_corner, 6, 0, 7));
+	list.add($right_ends_locs, loc.mod($lu_corner, 6, 0, 8));
+
+	$upper_start_locs = list.new();
+	list.add($upper_start_locs, loc.mod($lu_corner, 0, 0, 3));
+	list.add($upper_start_locs, loc.mod($lu_corner, 1, 0, 3));
+	list.add($upper_start_locs, loc.mod($lu_corner, 2, 0, 3));
+	list.add($upper_start_locs, loc.mod($lu_corner, 3, 0, 0));
+	list.add($upper_start_locs, loc.mod($lu_corner, 4, 0, 0));
+	list.add($upper_start_locs, loc.mod($lu_corner, 5, 0, 0));
+	list.add($upper_start_locs, loc.mod($lu_corner, 6, 0, 3));
+	list.add($upper_start_locs, loc.mod($lu_corner, 7, 0, 3));
+	list.add($upper_start_locs, loc.mod($lu_corner, 8, 0, 3));
+
+	$down_ends_locs = list.new();
+	list.add($down_ends_locs, loc.mod($lu_corner, 0, 0, 6));
+	list.add($down_ends_locs, loc.mod($lu_corner, 1, 0, 6));
+	list.add($down_ends_locs, loc.mod($lu_corner, 2, 0, 6));
+	list.add($down_ends_locs, loc.mod($lu_corner, 3, 0, 9));
+	list.add($down_ends_locs, loc.mod($lu_corner, 4, 0, 9));
+	list.add($down_ends_locs, loc.mod($lu_corner, 5, 0, 9));
+	list.add($down_ends_locs, loc.mod($lu_corner, 6, 0, 6));
+	list.add($down_ends_locs, loc.mod($lu_corner, 7, 0, 6));
+	list.add($down_ends_locs, loc.mod($lu_corner, 8, 0, 6));
+}
+
+function resetPlayField() {
+	for(i = 0; i < list.getSize($left_start_locs); i++) {
+		block = block.get(list.getIndex($left_start_locs, i));
+		end_block = block.get(list.getIndex($right_ends_locs, i));
+		while(block != end_block) {
+			block.setMaterial(block, $torch);
+			block.setMaterial(block.mod(block, 0, -2, 0), $torch);
+			block = block.mod(block, 1, 0, 0);
+		}
+	}
+	block.setMaterial($middleblock, material.getAir());
+}

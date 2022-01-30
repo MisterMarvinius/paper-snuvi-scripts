@@ -11,25 +11,25 @@ function getNewId(old_id) {
 	return new_id;
 }
 
-function updatePlaytime(old_id) {
+function updateGames(old_id) {
 	new_id = getNewId(old_id);
 	if(new_id == null) {
 		return;
 	}
-	stmt1 = databank.prepare("UPDATE playtime SET player_id = ? WHERE player_id = ?");
+	stmt1 = databank.prepare(string.concat("UPDATE tjrranks SET player_id = ? WHERE player_id = ?"));
 	databank.setInt(stmt1, 1, new_id);
 	databank.setInt(stmt1, 2, old_id);
 	databank.workerExecute(stmt1);
 }
 
-stmt = databank.prepare("SELECT player_id FROM playtime");
+stmt = databank.prepare(string.concat("SELECT player_id FROM tjrranks"));
 result = databank.execute(stmt);
 while(databank.next(result)) {
 	id1 = databank.getInt(result, 1);
-	updatePlaytime(id1);
+	updateGames(id1);
 }
 databank.close(result);
 databank.close(stmt);
 
-wait();
 msg("dev", text.new("Done"));
+wait();

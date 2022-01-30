@@ -1,0 +1,13 @@
+classic = false;
+xlength = 7;
+zlength = 7;
+iterations = 30;
+gamesworld = world.getGames();
+edge1 = loc.new(gamesworld, 1979, 100, 1992);
+edge2 = loc.new(gamesworld, 1985, 100, 1998);
+tploc = loc.new(gamesworld, 1982.5, 101, 1995.5);
+gamesignsmap = getScriptVar("gamesigns");
+gamesignloc = map.get(gamesignsmap, "invertingsign2");
+map = "7x7";
+maxplayers = 1;
+money = 0;

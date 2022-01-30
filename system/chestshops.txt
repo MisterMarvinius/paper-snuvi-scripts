@@ -17,7 +17,8 @@ if(!string.startsWith(title_string, "ChestShop", 0)) {
 	goto("main");
 }
 cancel = true;
-if(!(inv_slot == 3 || inv_slot == 12 || inv_slot == 17)) {
+custom = item.getCustom(inv.getItem(inv, inv_slot));
+if(custom == null) {
 	goto("main");
 }
 inv_id = inv.getId(inv);
@@ -68,12 +69,7 @@ if(inv_slot == 3) { //Buy
 		msg.prefix(player, prefix_shop, "Not enough items in chest.");
 		goto("main");
 	}
-	//Items ins Inventar geben oder droppen
-	notgiven = player.giveItem(player, itemstack_2);
-	if(notgiven != 0) {
-		item.setAmount(itemstack_2, notgiven);
-		item.drop(itemstack_2, entity.getLocation(player));
-	}
+	player.safeGiveItem(player, itemstack_2);
 	inv.removeItem(block_inv, itemstack_2);
 	owner_player_id = read.number(sign.getString(sign_block, 3));
 	if(!isDouble(owner_player_id)) {
@@ -172,6 +168,9 @@ goto("main");
 function shop.setBuyElement(sign_block, inv, item_stack) {
 	buy_line = sign.getString(sign_block, 1);
 	split_array = string.split(" ", buy_line);
+	if(array.getSize(split_array) < 4) {
+		return;
+	}
 	buy_amount = read.number(split_array[1]);
 	if(!isDouble(buy_amount)) {
 		return;
@@ -202,6 +201,9 @@ function shop.setBuyElement(sign_block, inv, item_stack) {
 function shop.setSellElement(sign_block, inv, item_stack) {
 	sell_line = sign.getString(sign_block, 2);
 	split_array = string.split(" ", sell_line);
+	if(array.getSize(split_array) < 4) {
+		return;
+	}
 	sell_amount = read.number(split_array[1]);
 	if(!isDouble(sell_amount)) {
 		return;

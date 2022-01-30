@@ -1,10 +1,11 @@
 //---------- Worlds ----------
 
-//world.load("creative");
-//world.load("games");
+world.load("creative");
+world.load("games");
 
 //---------- ScriptVars ----------
 
+clearScriptVars();
 config = config.new("scripts/configs", "server");
 if(config.exists(config)) {
 	config.load(config);
@@ -37,6 +38,18 @@ table.setsize(",", 2);
 table.setsize(".", 2);
 table.setsize("i", 2);
 table.setsize(":", 2);
+table.setsize(string.fromCode(63489), 9);
+table.setsize(string.fromCode(63490), 9);
+table.setsize(string.fromCode(63491), 9);
+table.setsize(string.fromCode(63492), 9);
+table.setsize(string.fromCode(63493), 9);
+table.setsize(string.fromCode(63494), 9);
+table.setsize(string.fromCode(63495), 9);
+table.setsize(string.fromCode(63496), 9);
+table.setsize(string.fromCode(63497), 9);
+table.setsize(string.fromCode(63498), 9);
+table.setsize(string.fromCode(63499), 9);
+table.setsize(string.fromCode(63500), 9);
 
 table.setEmpty1(string.concat(string.fromCode(63502), " "));
 table.setEmpty2(string.concat(string.fromCode(63501), " "));

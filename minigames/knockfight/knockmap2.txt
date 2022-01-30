@@ -1,0 +1,13 @@
+minplayers = 2;
+maxplayers = 4;
+mapname = "Towers";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 983.5, 90, 913.5);
+gamesignloc = minigame.getSignLoc("knockfightsign2");
+startlifes = 10;
+
+startlocs = list.new();
+list.add(startlocs, loc.new(gamesworld, 2000.5, 52, 2993.5));
+list.add(startlocs, loc.new(gamesworld, 2007.5, 52, 3000.5));
+list.add(startlocs, loc.new(gamesworld, 2000.5, 52, 3007.5));
+list.add(startlocs, loc.new(gamesworld, 1993.5, 52, 3000.5));

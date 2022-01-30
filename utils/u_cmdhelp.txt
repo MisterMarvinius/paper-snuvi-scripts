@@ -58,6 +58,7 @@ function setCommandHelps() {
 	commandhelp.add("hub");
 	commandhelp.add("icon");
 	commandhelp.add("iteminfo");
+	commandhelp.add("joinme");
 	commandhelp.add("jumpto");
 	commandhelp.add("l");
 	commandhelp.add("lag");
@@ -72,7 +73,6 @@ function setCommandHelps() {
 	commandhelp.add("ram");
 	commandhelp.add("rank");
 	commandhelp.add("repair");
-	commandhelp.add("report");
 	commandhelp.add("ride");
 	commandhelp.add("settings");
 	commandhelp.add("silentjoin");
@@ -81,10 +81,8 @@ function setCommandHelps() {
 	commandhelp.add("startgame");
 	commandhelp.add("thor");
 	commandhelp.add("top");
-	commandhelp.add("vote");
 	commandhelp.add("voteshop");
 	
-	commandhelp.addChildPlayer("mute");
 	commandhelp.addChildPlayer("unmute");
 	commandhelp.addChildPlayer("tpa");
 	commandhelp.addChildPlayer("tpaccept");
@@ -125,6 +123,7 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("stats"));
 	command.addHelpChild(help, command.newHelpLiteral("story"));
 	command.addHelpChild(help, command.newHelpLiteral("survival"));
+	command.addHelpChild(help, command.newHelpLiteral("teleporter"));
 	command.addHelpChild(help, command.newHelpLiteral("ticket"));
 	command.addHelpChild(help, command.newHelpLiteral("timber"));
 	command.addHelpChild(help, command.newHelpLiteral("tiploop"));
@@ -209,8 +208,10 @@ function setCommandHelps() {
 	helpArg0 = command.newHelpLiteral("name");
 	command.addHelpChild(helpArg0, command.newHelpString("name", true));
 	command.addHelpChild(help, helpArg0);
-	//ass remove
-	command.addHelpChild(help, command.newHelpLiteral("remove"));
+	//ass remove <radius>
+	helpArg0 = command.newHelpLiteral("remove");
+	command.addHelpChild(helpArg0, command.newHelpInt("radius", 0, 10));
+	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
 	help = command.newHelp("tppos", "tppos");
@@ -371,6 +372,8 @@ function setCommandHelps() {
 	command.addHelpChild(helpArg1, command.newHelpLiteral("streamer"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("sponsor"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("creative"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("notickets"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("bypass"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	//perm remove <player> <perm>
@@ -417,93 +420,8 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("remove"));
 	command.addHelp(help);
 	
-	help = command.newHelp("plot", "plot");
-	//plot info
-	command.addHelpChild(help, command.newHelpLiteral("info"));
-	command.addHelpChild(help, command.newHelpLiteral("i"));
-	//plot pos1/pos2
-	command.addHelpChild(help, command.newHelpLiteral("pos1"));
-	command.addHelpChild(help, command.newHelpLiteral("pos2"));
-	//plot create/create3D
-	command.addHelpChild(help, command.newHelpLiteral("create"));
-	command.addHelpChild(help, command.newHelpLiteral("create3D"));
-	//plot remove
-	helpArg0 = command.newHelpLiteral("remove");
-	command.addHelpChild(helpArg0, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(help, helpArg0);
-	//plot name <name>
-	helpArg0 = command.newHelpLiteral("name");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	helpArg1 = command.newHelpInt("id", 0, 10000);
-	command.addHelpChild(helpArg1, command.newHelpString("name", true));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot share <name>
-	helpArg0 = command.newHelpLiteral("share");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot kick <name>
-	helpArg0 = command.newHelpLiteral("kick");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot raise
-	command.addHelpChild(help, command.newHelpLiteral("raise"));
-	//plot leader <name>
-	helpArg0 = command.newHelpLiteral("leader");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot mod <name>
-	helpArg0 = command.newHelpLiteral("mod");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot chest <name>
-	helpArg0 = command.newHelpLiteral("chest");
-	helpArg1 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot sell <price>
-	helpArg0 = command.newHelpLiteral("sell");
-	command.addHelpChild(helpArg0, command.newHelpInt("price", 1, 10000));
-	command.addHelpChild(help, helpArg0);
-	//plot moreinfo
-	command.addHelpChild(help, command.newHelpLiteral("moreinfo", "plot.moreinfo"));
-	//plot listall
-	command.addHelpChild(help, command.newHelpLiteral("listall"));
-	//plot flags <int> <boolean>
-	helpArg0 = command.newHelpLiteral("flags");
-	helpArg1 = command.newHelpInt("int", 1, 1000);
-	command.addHelpChild(helpArg1, command.newHelpBool("boolean"));
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	//plot expand <anzahl>
-	helpArg0 = command.newHelpLiteral("expand");
-	helpArg1 = command.newHelpInt("anzahl", 1, 1000);
-	helpArg3 = command.newHelpInt("id", 1, 10000);
-	helpArg2 = command.newHelpLiteral("north");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	helpArg2 = command.newHelpLiteral("east");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	helpArg2 = command.newHelpLiteral("south");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	helpArg2 = command.newHelpLiteral("west");
-	command.addHelpChild(helpArg2, helpArg3);
-	command.addHelpChild(helpArg1, helpArg2);
-	command.addHelpChild(helpArg0, helpArg1);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("p", "plot", helpArg0);
+	addPlotHelp("plot");
+	addPlotHelp("p");
 	
 	help = command.newHelp("warp", "warp");
 	//warp set [group] <name>
@@ -551,15 +469,23 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	//human set <name>
 	helpArg0 = command.newHelpLiteral("set");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
+	command.addHelpChild(helpArg0, command.newHelpString("uuid", false));
 	command.addHelpChild(help, helpArg0);
 	//human skin <name>
 	helpArg0 = command.newHelpLiteral("skin");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
+	command.addHelpChild(helpArg0, command.newHelpString("skinname", false));
 	command.addHelpChild(help, helpArg0);
 	//human name
 	helpArg0 = command.newHelpLiteral("name");
 	command.addHelpChild(helpArg0, command.newHelpString("name", true));
+	command.addHelpChild(help, helpArg0);
+	//human move <true/fals>
+	helpArg0 = command.newHelpLiteral("move");
+	command.addHelpChild(helpArg0, command.newHelpBool("boolean"));
+	command.addHelpChild(help, helpArg0);
+	//human ai <value>
+	helpArg0 = command.newHelpLiteral("ai");
+	command.addHelpChild(helpArg0, command.newHelpInt("value", 0, 20));
 	command.addHelpChild(help, helpArg0);
 	//human kill
 	command.addHelpChild(help, command.newHelpLiteral("remove"));
@@ -591,7 +517,7 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("all"));
 	//playtime month [1-12] [year]
 	helpArg0 = command.newHelpLiteral("month");
-	helpArg1 = command.newHelpInt("int", 1, 12);
+	helpArg1 = command.newHelpInt("month", 1, 12);
 	command.addHelpChild(helpArg1, command.newHelpInt("year", 2019, 2024));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
@@ -1005,32 +931,40 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
-	help = command.newHelp("ticket", "ticket");
-	//ticket new <message>
-	helpArg0 = command.newHelpLiteral("new");
+	help = command.newHelp("support", "support");
+	command.addHelpChild(help, command.newHelpString("message", true));
+	command.addHelp(help);
+	
+	help = command.newHelp("teammsg", "isTeam");
+	helpArg0 = command.newHelpString("message", true);
+	command.addHelpChild(help, helpArg0);
+	command.addHelp(help);
+	commandhelp.addAlias("t", "teammsg", helpArg0);
+
+	help = command.newHelp("mute", "mute");
+	helpArg0 = command.newHelpSpecial("Player", "player");
 	command.addHelpChild(helpArg0, command.newHelpString("message", true));
 	command.addHelpChild(help, helpArg0);
-	//ticket stop <ticket-id>
-	helpArg0 = command.newHelpLiteral("stop");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000));
-	command.addHelpChild(help, helpArg0);
+	command.addHelp(help);
+	
+	help = command.newHelp("vote", "vote");
+	command.addHelpChild(help, command.newHelpSpecial("Player", "player", "user.other"));
+	command.addHelp(help);
+	
+	help = command.newHelp("ticket", "ticket");
 	//ticket list
-	command.addHelpChild(help, command.newHelpLiteral("list", "isSupporter"));
-	//ticket get [ticket-id]
+	command.addHelpChild(help, command.newHelpLiteral("list"));
+	//ticket get [id]
 	helpArg0 = command.newHelpLiteral("get");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
+	command.addHelpChild(helpArg0, command.newHelpInt("id", 1, 1000));
 	command.addHelpChild(help, helpArg0);
-	//ticket finish <ticket-id>
-	helpArg0 = command.newHelpLiteral("finish");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
-	command.addHelpChild(help, helpArg0);
-	//ticket release <ticket-id>
-	helpArg0 = command.newHelpLiteral("release");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
-	command.addHelpChild(help, helpArg0);
-	//ticket report <ticket-id>
-	helpArg0 = command.newHelpLiteral("report");
-	command.addHelpChild(helpArg0, command.newHelpInt("ticket-id", 1, 1000, "isSupporter"));
+	//ticket finish
+	command.addHelpChild(help, command.newHelpLiteral("finish"));
+	//ticket release
+	command.addHelpChild(help, command.newHelpLiteral("release"));
+	//ticket note <message>
+	helpArg0 = command.newHelpLiteral("note");
+	command.addHelpChild(helpArg0, command.newHelpString("message", true));
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
@@ -1200,6 +1134,100 @@ function addAsBodypartHelp(help, helpArg0, helpArg2, bodypart) {
 	command.addHelpChild(helpArg1, helpArg2);
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
+}
+
+function addPlotHelp(command) {
+	help = command.newHelp(command, "plot");
+	//plot info
+	command.addHelpChild(help, command.newHelpLiteral("info"));
+	command.addHelpChild(help, command.newHelpLiteral("i"));
+	//plot pos1/pos2
+	command.addHelpChild(help, command.newHelpLiteral("pos1"));
+	command.addHelpChild(help, command.newHelpLiteral("pos2"));
+	//plot create/create3D
+	command.addHelpChild(help, command.newHelpLiteral("create"));
+	command.addHelpChild(help, command.newHelpLiteral("create3D"));
+	//plot remove
+	helpArg0 = command.newHelpLiteral("remove");
+	command.addHelpChild(helpArg0, command.newHelpInt("id", 0, 10000));
+	command.addHelpChild(help, helpArg0);
+	//plot name <name>
+	helpArg0 = command.newHelpLiteral("name");
+	command.addHelpChild(helpArg0, command.newHelpString("name", true));
+	helpArg1 = command.newHelpInt("id", 0, 10000);
+	command.addHelpChild(helpArg1, command.newHelpString("name", true));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot share <name>
+	helpArg0 = command.newHelpLiteral("share");
+	helpArg1 = command.newHelpSpecial("Player", "player");
+	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot kick <name>
+	helpArg0 = command.newHelpLiteral("kick");
+	helpArg1 = command.newHelpSpecial("Player", "player");
+	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot raise
+	command.addHelpChild(help, command.newHelpLiteral("raise"));
+	//plot leader <name>
+	helpArg0 = command.newHelpLiteral("leader");
+	helpArg1 = command.newHelpSpecial("Player", "player");
+	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot mod <name>
+	helpArg0 = command.newHelpLiteral("mod");
+	helpArg1 = command.newHelpSpecial("Player", "player");
+	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot chest <name>
+	helpArg0 = command.newHelpLiteral("chest");
+	helpArg1 = command.newHelpSpecial("Player", "player");
+	command.addHelpChild(helpArg1, command.newHelpInt("id", 0, 10000));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot sell <price>
+	helpArg0 = command.newHelpLiteral("sell");
+	command.addHelpChild(helpArg0, command.newHelpInt("price", 1, 10000));
+	command.addHelpChild(help, helpArg0);
+	//plot moreinfo
+	command.addHelpChild(help, command.newHelpLiteral("moreinfo", "plot.moreinfo"));
+	//plot list <name>
+	helpArg0 = command.newHelpLiteral("list");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "plot.moreinfo"));
+	command.addHelpChild(help, helpArg0);
+	//plot flags <int> <boolean>
+	//plot listall
+	command.addHelpChild(help, command.newHelpLiteral("listall"));
+	//plot flags <int> <boolean>
+	helpArg0 = command.newHelpLiteral("flags");
+	helpArg1 = command.newHelpInt("int", 1, 1000);
+	command.addHelpChild(helpArg1, command.newHelpBool("boolean"));
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot expand <anzahl>
+	helpArg0 = command.newHelpLiteral("expand");
+	helpArg1 = command.newHelpInt("anzahl", 1, 1000);
+	helpArg3 = command.newHelpInt("id", 1, 10000);
+	helpArg2 = command.newHelpLiteral("north");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	helpArg2 = command.newHelpLiteral("east");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	helpArg2 = command.newHelpLiteral("south");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	helpArg2 = command.newHelpLiteral("west");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	command.addHelp(help);
 }
 
 function addGmHelp(command) {

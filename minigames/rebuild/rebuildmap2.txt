@@ -1,0 +1,93 @@
+gamesignloc = minigame.getSignLoc("rebuildsign2");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 1003, 85, 957);
+mapname  = "§38x8";
+middleloc = loc.new(gamesworld, -2057, 101, -2007);
+radius = 100;
+minplayers = 1;
+maxplayers = 10;
+
+picture_length = 8;
+
+solve_to_win = 10;
+
+spawns = list.new();
+list.add(spawns, loc.new(gamesworld, -2008, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2019, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2030, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2041, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2052, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2063, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2074, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2085, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2096, 101, -2015));
+list.add(spawns, loc.new(gamesworld, -2107, 101, -2015));
+
+picture_edge = list.new();
+list.add(picture_edge, loc.new(gamesworld, -2004, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2015, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2026, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2037, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2048, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2059, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2070, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2081, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2092, 101, -2000));
+list.add(picture_edge, loc.new(gamesworld, -2103, 101, -2000));
+
+bottom_edge = list.new();
+list.add(bottom_edge, loc.new(gamesworld, -2004, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2015, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2026, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2037, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2048, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2059, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2070, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2081, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2092, 101, -2011));
+list.add(bottom_edge, loc.new(gamesworld, -2103, 101, -2011));
+
+etagen = 6; //Anzahl der Etagen, auf denen die Vorlagen verteilt sind
+y_diff = 11; //Höhendifferenz zwischen den Etagen
+y = 90; //Y-Höhe der obersten Etage
+
+templates = list.new();
+bottom_templates = list.new();
+for(i = 0; i < etagen; i++) {
+	list.add(templates, loc.new(gamesworld, -2004, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2015, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2026, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2037, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2048, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2059, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2070, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2081, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2092, y, -2000));
+	list.add(templates, loc.new(gamesworld, -2103, y, -2000));
+	
+	list.add(bottom_templates, loc.new(gamesworld, -2004, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2015, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2026, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2037, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2048, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2059, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2070, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2081, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2092, y, -2011));
+	list.add(bottom_templates, loc.new(gamesworld, -2103, y, -2011));
+	y -= y_diff;
+}
+
+to_build_edges = list.new();
+bottom_check_edges = list.new();
+for(i = 0; i < solve_to_win; i++) {
+	//Random Vorlage auswählen
+	size = list.getSize(templates);
+	picture_index = math.random(0, size - 1);
+	//Random Vorlage zur Liste hinzufügen
+	list.add(to_build_edges, block.get(list.getIndex(templates, picture_index)));
+	list.add(bottom_check_edges, block.get(list.getIndex(bottom_templates, picture_index)));
+	//Random Vorlage aus All-Liste entfernen
+	list.removeIndex(templates, picture_index);
+	list.removeIndex(bottom_templates, picture_index);
+}

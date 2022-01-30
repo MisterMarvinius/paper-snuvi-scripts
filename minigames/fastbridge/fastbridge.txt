@@ -1,0 +1,320 @@
+placedblocks = list.new();
+points = list.new();
+spawn_locs = map.new();
+
+rankingtable = "fastbridgeranks";
+game_short = "fb";
+gamename = "§dFastBridge";
+specific_lobby_handling = true;
+no_core_reset = true;
+start_sound = sound.get("BLOCK_NOTE_BLOCK_HARP");
+
+gosub("setstart");
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "minigame_join") {
+	living.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+	sb.add(player, 99, gamename);
+	sb.add(player, 98, string.concat("§7Map: ", mapname));
+	sb.add(player, 96, sb.getSpacer());
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+if(seconds < 10) {
+    minigame.displayAll(97, string.concat("Time: ", string.number(minutes), ":0", string.number(seconds)));
+} else {
+    minigame.displayAll(97, string.concat("TIme: ", string.number(minutes), ":", string.number(seconds)));
+}
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	p_uuid = player.getUuid(p);
+	msg.prefix(p, gamename, "The game has started.");
+	spawnloc = list.getIndex(spawns, i);
+	map.add(spawn_locs, p, spawnloc);
+	entity.teleport(p, spawnloc);
+	sound.spawnForPlayer(p, start_sound, sound_category_ambient);
+	array = array.new(2);
+	array[0] = p_uuid;
+	array[1] = 0;
+	list.add(points, array);
+	
+	player.setGamemode(p, "SURVIVAL");
+	player.setFly(p, false);
+}
+
+if(list.getSize(player_list) == 1) {
+	singleplayer = true;
+} else {
+	singleplayer = false;
+	minplayers = 2;
+}
+
+countdown = 5;
+@title
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	title.send(p, text.new(string.concat("§4", string.number(countdown))), text.new(""), 0, 20, 0);
+}
+if(countdown == 0) {
+	sgoto(20, "loadevents");
+} else {
+	sgoto(20, "title");
+	countdown--;
+}
+
+@checkstart
+wait();
+if(event == "block_click") {
+	cancel = true;
+	goto("checkstart");
+}
+if(event == "player_quit" || event == "player_giveup") {
+	removeFromPoints(player.getUuid(player));
+	script = script.getFromId(script_id);
+	minigame.kickPlayer(script, player);
+	minigame.speakAll(gamename, string.concat(player.getName(player), " §rhas left the game."));
+	if(singleplayer) {
+		minigame.term(script, gamesignloc);
+		term();
+	}
+	if(list.getSize(player_list) < minplayers) {
+		p = player.get(list.getIndex(player_list, 0));
+		wincore(p);
+	}
+}
+goto("checkstart");
+
+@loadevents
+minigame.speakAll(gamename, "Build faster than the others in one line.");
+event.load("player_post_respawn");
+
+sgoto(20, "loop");
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@block_break
+cancel = true;
+goto("checkgame");
+
+@player_post_respawn
+entity.teleport(player, map.get(spawn_locs, player));
+goto("checkgame");
+
+@entity_damage
+damage_type = damage.getType(damage_source);
+if(damage_type == "player") {
+	cancel = true;
+}
+goto("checkgame");
+
+@loop
+if(seconds == 0) {
+    seconds = 59;
+	minutes--;
+    if(minutes == -1) {
+		sortPoints();
+		array = list.getIndex(points, 0);
+		winner = player.get(array[0]);
+		for(i = 0; i < list.getSize(player_list); i++) {
+			p = player.get(list.getIndex(player_list, i));
+			if(p == winner) {
+				//money.addBoost(p, 64);
+			} else {
+				//money.addBoost(p, 16);
+			}
+		}
+		wincore(winner);
+	}
+} else {
+    seconds--;
+}
+if(seconds < 10) {
+    minigame.displayAll(97, string.concat("Time: ", string.number(minutes), ":0", string.number(seconds)));
+} else {
+    minigame.displayAll(97, string.concat("Time: ", string.number(minutes), ":", string.number(seconds)));
+}
+for(i = 0; i < list.getSize(player_list); i++) {
+	item.drop(list.getIndex(colors, i), list.getIndex(spawns, i));
+	ycheck = list.getIndex(ycheck_list, i);
+	p = player.get(list.getIndex(player_list, i));
+	y = loc.getY(entity.getLocation(p));
+	if(y < ycheck) {
+		entity.teleport(p, map.get(spawn_locs, p));
+		living.addEffect(p, "SLOW", 240, 2);
+		player.clearInventory(p);
+	}
+}
+sgoto(20, "loop");
+goto("checkgame");
+
+@block_place
+block_loc = block.getLocation(block);
+spawnloc = map.get(spawn_locs, player);
+starty = loc.getY(spawnloc, "y") - 1;
+y = loc.getY(block_loc);
+if(starty == y) {
+	startx = loc.getX(spawnloc, "x");
+	startz = loc.getZ(spawnloc, "z");
+	x = loc.getX(block_loc);
+	z = loc.getZ(block_loc);
+	if(coord == "x" && startx != x) {
+		goto("cancelPlacement");
+	} elseif(coord == "z" && startz != z) {
+		goto("cancelPlacement");
+	} else {
+		cancel = false;
+		raiseNumber(player.getUuid(player));
+		list.add(placedblocks, block);
+		goto("checkgame");
+	}
+}
+@cancelPlacement
+cancel = true;
+goto("checkgame");
+
+@player_quit
+@player_giveup
+script = script.getFromId(script_id);
+minigame.speakAll(gamename, string.concat(player.getName(player), " §rhas left the game."));
+if(singleplayer) {
+	//Blöcke resetten, während Spieler noch da sind, weil Chunks somit noch geladen sind
+	air = material.getAir();
+	for(i = 0; i < list.getSize(placedblocks); i++) {
+		block.setMaterial(list.getIndex(placedblocks, i), air);
+	}
+	minigame.clearItems(middleloc, radius);
+	minigame.kickPlayer(script, player);
+	minigame.term(script, gamesignloc);
+	term();
+}
+minigame.kickPlayer(script, player);
+if(list.getSize(player_list) < minplayers) {
+	p = player.get(list.getIndex(player_list, 0));
+	wincore(p);
+}
+goto("checkgame");
+
+function wincore(winner) {
+	if(!$singleplayer) {
+		winner_name = player.getName(winner);
+		minigame.speakAll($gamename, string.concat("§b", winner_name, " §rhas won!"));
+	}
+	//Spielern das Inventar leeren, damit sie keine Blöcke mehr setzen können
+	for(i = 0; i < list.getSize($player_list); i++) {
+		player_uuid = list.getIndex($player_list, i);
+		player = player.get(player_uuid);
+		player.clearInventory(player);
+	}
+	//Blöcke resetten, während Spieler noch da sind, weil Chunks somit noch geladen sind
+	air = material.getAir();
+	for(i = 0; i < list.getSize($placedblocks); i++) {
+		block.setMaterial(list.getIndex($placedblocks, i), air);
+	}
+	//Erst jetzt Spieler kicken/resetten/rausteleportieren
+	for(i = 0; i < list.getSize($player_list); i++) {
+		player_uuid = list.getIndex($player_list, i);
+		player = player.get(player_uuid);
+		player_id = player.getId(player);
+		
+		last_record = ranking.getPoints($rankingtable, player_id);
+		playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+		minigame.setPlayed(player_id, $game_short, playedgames);
+		record = getNumber(player_uuid);
+		if(record < last_record) {
+			record = last_record;
+		}
+		ranking.setPoints($rankingtable, player_id, record);
+		
+		fbwon = minigame.getWon(player, "fb");
+		if(!$singleplayer) {
+			if(player == winner) {
+				fbwon++;
+				minigame.setWon(player, "fb", fbwon);
+			}
+		}
+		
+		minigame.statsHeader(player, $gamename, "§e");
+		for(h = 0; h < list.getSize($points); h++) {
+			array = list.getIndex($points, h);
+			msg.string(player, string.concat(" §e- §r", string.number(array[1]), " §e", player.getName(array[0])));
+		}
+		msg.string(player, "");
+		minigame.statsLine(player, "§e", "Won games", string.number(fbwon));
+		minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+		if(playedgames != 0) {
+			minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((fbwon / playedgames) * 100, 2)), "%"));
+		}
+	}
+	minigame.clearItems($middleloc, $radius);
+	script = script.getFromId($script_id);
+	minigame.kickAllPlayers(script);
+	minigame.term(script, $gamesignloc);
+}
+
+function removeFromPoints(player_uuid) {
+	for(i = 0; i < list.getSize($points); i++) {
+		array = list.getIndex($points, i);
+		if(array[0] == player_uuid) {
+			list.removeIndex($points, i);
+			break;
+		}
+	}
+}
+
+function sortPoints() {
+	size = list.getSize($points);
+	swapped = true;
+
+	while(swapped) {
+		swapped = false;
+		for(i = 0; i < size - 1; i++) {
+			array = list.getIndex($points, i);
+			array2 = list.getIndex($points, i + 1);
+			zahl1 = array[1];
+			zahl2 = array2[1];
+			if(zahl1 < zahl2) {
+				list.setIndex($points, i, array2);
+				list.setIndex($points, i + 1, array);
+				swapped = true;
+			}
+		}
+	}
+}
+
+function raiseNumber(player_uuid) {
+	for(i = 0; i < list.getSize($points); i++) {
+		array = list.getIndex($points, i);
+		if(array[0] == player_uuid) {
+			array[1] = array[1] + 1;
+			break;
+		}
+	}
+}
+
+function getNumber(player_uuid) {
+	for(i = 0; i < list.getSize($points); i++) {
+		array = list.getIndex($points, i);
+		if(array[0] == player_uuid) {
+			return array[1];
+		}
+	}
+}

@@ -1,0 +1,52 @@
+mapname = "Throneroom";
+numberofteams = 2;
+teamsize = 4;
+minplayers = teamsize + 1;
+maxplayers = teamsize * numberofteams;
+gamesignloc = minigame.getSignLoc("bwmapsign7");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 825.5, 85, 1012.5, -90, 0); //Lobbyspawn
+middleloc = loc.new(gamesworld, -22, 93, 1988); //Middleloc und Radius zum Resetten der Items
+radius = 150;
+
+join_blocks = map.new(); //Block-Locations, um einem Team zu joinen
+map.add(join_blocks, loc.new(gamesworld, 829, 84, 1007), 0);
+map.add(join_blocks, loc.new(gamesworld, 829, 84, 1017), 1);
+
+foot_bed_loc = list.new(); //Liste aller Locs Fußteile der Betten
+list.add(foot_bed_loc, loc.new(gamesworld, -106, 96, 1994));
+list.add(foot_bed_loc, loc.new(gamesworld, 62, 96, 1982));
+
+head_bed_loc = list.new(); //Liste aller Locs Kopfteile der Betten
+list.add(head_bed_loc, loc.new(gamesworld, -107, 96, 1994));
+list.add(head_bed_loc, loc.new(gamesworld, 63, 96, 1982));
+
+bed_facing = map.new(); //Map in welche Richtung das Bett schaut
+map.add(bed_facing, 0, "WEST");
+map.add(bed_facing, 1, "EAST");
+
+spawn_locs = map.new(); //Liste der Spawnlocs der einzelnen Teams
+map.add(spawn_locs, 0, loc.new(gamesworld, -84.5, 91, 1988.5, -90, 0));
+map.add(spawn_locs, 1, loc.new(gamesworld, 41.5, 91, 1988.5, 90, 0));
+
+copper_locs = list.new();
+list.add(copper_locs, loc.new(gamesworld, 61.5, 96, 1993.5));
+list.add(copper_locs, loc.new(gamesworld, 63.5, 96, 1995.5));
+list.add(copper_locs, loc.new(gamesworld, -104.5, 96, 1983.5));
+list.add(copper_locs, loc.new(gamesworld, -106.5, 96, 1981.5));
+
+silver_locs = list.new();
+list.add(silver_locs, loc.new(gamesworld, -108.5, 99, 1987.5));
+list.add(silver_locs, loc.new(gamesworld, -108.5, 99, 1989.5));
+list.add(silver_locs, loc.new(gamesworld, 65.5, 99, 1989.5));
+list.add(silver_locs, loc.new(gamesworld, 65.5, 99, 1987.5));
+list.add(silver_locs, loc.new(gamesworld, -34.5, 86, 1984.5));
+list.add(silver_locs, loc.new(gamesworld, -8.5, 86, 1980.5));
+list.add(silver_locs, loc.new(gamesworld, -9.5, 86, 1993.5)); 
+list.add(silver_locs, loc.new(gamesworld, -32.5, 86, 1994.5));
+  
+gold_locs = list.new();
+list.add(gold_locs, loc.new(gamesworld, -21.5, 86, 2006.5));
+list.add(gold_locs, loc.new(gamesworld, -21.5, 86, 1970.5));
+list.add(gold_locs, loc.new(gamesworld, -27.5, 86, 1988.5));
+list.add(gold_locs, loc.new(gamesworld, -15.5, 86, 1988.5));

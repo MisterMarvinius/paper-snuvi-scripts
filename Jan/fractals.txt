@@ -1,0 +1,23 @@
+event.load("player_elytra_start");
+event.load("player_toggle_sneak");
+
+
+@wait
+wait();
+playername = player.getName(player);
+if(playername == "fireeagle013" || playername == "marvinius" || playername == "Mareeeen" || playername == "SirTerence7"){
+	Player_look_ = entity.getLook(player);
+	Player_move_ = entity.getMotion(player);
+	if(event == "player_elytra_start"){
+		x = Player_look_[0]/2 + Player_move_[0];
+		y = Player_look_[1]/2 + Player_move_[1];
+		z = Player_look_[2]/2 + Player_move_[2];
+	}
+	elseif(event == "player_toggle_sneak"){
+		x = Player_look_[2]/4;//Player_look_[0]/2 + Player_move_[0];
+		y = Player_move_[1] + 0.25;
+		z = Player_look_[0]/4;//Player_look_[2]/2 + Player_move_[2];
+	}
+	entity.setMotion(player, x, y, z);
+}
+goto("wait");

@@ -1,0 +1,16 @@
+minplayers = 2;
+maxplayers = 4;
+mapname = "Black on white";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 998.5, 88, 942.5);
+gamesignloc = minigame.getSignLoc("spleefsign2");
+
+spleef_list = list.new();
+list.add(spleef_list, material.get("snow_block"));
+list.add(spleef_list, material.get("obsidian"));
+
+startlocs = list.new();
+list.add(startlocs, loc.new(gamesworld, -1994.5, 35, -6.5));
+list.add(startlocs, loc.new(gamesworld, -1994.5, 35, 6.5));
+list.add(startlocs, loc.new(gamesworld, -2006.5, 35, 6.5));
+list.add(startlocs, loc.new(gamesworld, -2006.5, 35, -6.5));

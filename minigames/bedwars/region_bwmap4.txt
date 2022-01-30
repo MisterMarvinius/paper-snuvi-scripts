@@ -1,0 +1,60 @@
+mapname = "Masters";
+numberofteams = 4;
+teamsize = 2;
+minplayers = teamsize + 1;
+maxplayers = teamsize * numberofteams;
+gamesignloc = minigame.getSignLoc("bwmapsign4");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 900, 85, 1012, -90, 0); //Lobbyspawn
+middleloc = loc.new(gamesworld, -9011, 58, 2084); //Middleloc und Radius zum Resetten der Items
+radius = 200;
+voidedge1 = loc.new(gamesworld, -9129, -30, 1964);
+voidedge2 = loc.new(gamesworld, -8889, 7, 2204);
+
+join_blocks = map.new(); //Block-Locations, um einem Team zu joinen
+map.add(join_blocks, loc.new(gamesworld, 909, 84, 1010), 0);
+map.add(join_blocks, loc.new(gamesworld, 909, 84, 1011), 1);
+map.add(join_blocks, loc.new(gamesworld, 909, 84, 1013), 2);
+map.add(join_blocks, loc.new(gamesworld, 909, 84, 1014), 3);
+
+foot_bed_loc = list.new(); //Liste aller Locs Fußteile der Betten
+list.add(foot_bed_loc, loc.new(gamesworld, -9012, 47, 2004));
+list.add(foot_bed_loc, loc.new(gamesworld, -8931, 47, 2080));
+list.add(foot_bed_loc, loc.new(gamesworld, -9007, 47, 2161));
+list.add(foot_bed_loc, loc.new(gamesworld, -9088, 47, 2085));
+
+head_bed_loc = list.new(); //Liste aller Locs Kopfteile der Betten
+list.add(head_bed_loc, loc.new(gamesworld, -9012, 47, 2003));
+list.add(head_bed_loc, loc.new(gamesworld, -8930, 47, 2080));
+list.add(head_bed_loc, loc.new(gamesworld, -9007, 47, 2162));
+list.add(head_bed_loc, loc.new(gamesworld, -9089, 47, 2085));
+
+bed_facing = map.new(); //Map in welche Richtung das Bett schaut
+map.add(bed_facing, 0, "NORTH");
+map.add(bed_facing, 1, "EAST");
+map.add(bed_facing, 2, "SOUTH");
+map.add(bed_facing, 3, "WEST");
+
+spawn_locs = map.new(); //Liste der Spawnlocs der einzelnen Teams
+map.add(spawn_locs, 0, loc.new(gamesworld, -9006.5, 48, 2004.5, 0, 0));
+map.add(spawn_locs, 1, loc.new(gamesworld, -8930.5, 48, 2085.5, 90, 0));
+map.add(spawn_locs, 2, loc.new(gamesworld, -9011.5, 48, 2161.5, 180, 0));
+map.add(spawn_locs, 3, loc.new(gamesworld, -9087.5, 48, 2080.5, -90, 0));
+
+copper_locs = list.new();
+list.add(copper_locs, loc.new(gamesworld, -9009, 46, 2006));
+list.add(copper_locs, loc.new(gamesworld, -8932, 46, 2083));
+list.add(copper_locs, loc.new(gamesworld, -9009, 46, 2160));
+list.add(copper_locs, loc.new(gamesworld, -9086, 46, 2083));
+
+silver_locs = list.new();
+list.add(silver_locs, loc.new(gamesworld, -9029, 38, 2083));
+list.add(silver_locs, loc.new(gamesworld, -9009, 38, 2063));
+list.add(silver_locs, loc.new(gamesworld, -8989, 38, 2083));
+list.add(silver_locs, loc.new(gamesworld, -9009, 38, 2103));
+
+gold_locs = list.new();
+list.add(gold_locs, loc.new(gamesworld, -9009, 46, 2073));
+list.add(gold_locs, loc.new(gamesworld, -8999, 46, 2083));
+list.add(gold_locs, loc.new(gamesworld, -9009, 46, 2093));
+list.add(gold_locs, loc.new(gamesworld, -9019, 46, 2083));

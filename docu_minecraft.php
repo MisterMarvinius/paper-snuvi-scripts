@@ -130,6 +130,16 @@
     </table>
     <table>
         <tr>
+            <th class="command">entity_dismount</th>
+            <th class="desc">an entity dismounts another entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>mount as entity</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
             <th class="command">player_login</th>
             <th class="desc">a player tries to connect to the server</th>
         </tr>
@@ -5195,7 +5205,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>boss.setTitle(string)</td>
+            <td>boss.setTitle(bossbar, string)</td>
         </tr>
     </table>
 	<table>
@@ -5205,7 +5215,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>boss.setProgress(double)</td>
+            <td>boss.setProgress(bossbar, double)</td>
         </tr>
         <tr>
             <td class="bold">Arguments</td>

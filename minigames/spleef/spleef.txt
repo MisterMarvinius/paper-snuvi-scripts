@@ -1,0 +1,117 @@
+rankingtable = "spleefranks";
+game_short = "spleef";
+
+spleefed = map.new();
+resetblocks = list.new();
+resetblocks_type = list.new();
+gamename = "§9Spleef";
+air = material.getAir();
+
+gosub("setstart");
+goto("simplelobby");
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+all_size = list.getSize(player_list);
+for(i = 0; i < all_size; i++) {
+	msg.prefix(p, gamename, "The game has started.");
+	p_uuid = list.getIndex(player_list, i);
+	p = player.get(p_uuid);
+	sb.add(p, 99, gamename);
+	sb.add(p, 98, string.concat("Remaining players: ", string.number(all_size)));
+	sb.add(p, 97, sb.getSpacer());
+	entity.teleport(p, list.getIndex(startlocs, i));
+	player.setGamemode(p, "SURVIVAL");
+	player.setFly(player, false);
+	map.add(spleefed, p_uuid, 0);
+}
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@entity_damage
+cancel = true;
+if(damage.getType(damage_source) == "outOfWorld") {
+	minigame.speakAll(gamename, string.concat("§6", player.getName(player), " §rfell down."));
+	goto("loosegame");
+}
+goto("checkgame");
+
+@block_place
+@block_break
+cancel = true;
+goto("checkgame");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("checkgame");
+}
+if(action == "LEFT_CLICK_BLOCK") {
+	block_type = block.getType(block);
+	if(list.contains(spleef_list, block_type)) {
+		block.setMaterial(block, air);
+		list.add(resetblocks, block);
+		list.add(resetblocks_type, block_type);
+		p_uuid = player.getUuid(player);
+		map.add(spleefed, p_uuid, map.get(spleefed, p_uuid) + 1);
+	}
+}
+goto("checkgame");
+
+@player_giveup
+@player_quit
+minigame.speakAll(gamename, string.concat("§6", player.getName(player), " §rhas left the game."));
+@loosegame
+script = script.getFromId(script_id);
+minigame.kickplayer(script, player);
+size = list.getSize(player_list);
+minigame.displayAll(98, string.concat("Remaining players: ", string.number(size)));
+showstats(player, false);
+if(size < minplayers) {
+	winner_uuid = list.getIndex(player_list, 0);
+	winner = player.get(winner_uuid);
+	goto("win");
+}
+goto("checkgame");
+
+@win
+minigame.speakAll(gamename, string.concat("§6", player.getName(winner), " §rhas won the game."));
+for(i = 0; i < list.getSize(resetblocks); i++) {
+	block.setMaterial(list.getIndex(resetblocks, i), list.getIndex(resetblocks_type, i));
+}
+showstats(winner, true);
+minigame.kickPlayer(script, winner);
+minigame.term(script, gamesignloc);
+term();
+
+function showstats(player, won) { //Player player, Boolean won
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	if(won) {
+		last_record++;
+	}
+	
+	played_games = minigame.getPlayed(player_id, $game_short) + 1;
+	if(last_record > played_games) {
+		played_games = last_record;
+	}
+	minigame.setPlayed(player_id, $game_short, played_games);
+	ranking.setPoints($rankingtable, player_id, last_record);
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Won games", string.number(last_record));
+	minigame.statsLine(player, "§e", "Played games", string.number(played_games));
+	if(played_games != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((last_record / played_games) * 100, 2)), "%"));
+	}
+}

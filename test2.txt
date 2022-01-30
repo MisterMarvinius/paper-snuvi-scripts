@@ -1,17 +1,17 @@
-test(read.player("marvinius"));
-test(read.player("kajetanjohannes"));
-
-function test(player) {
-	a = item.custom.getAll();
-	iter = iterator(a);
-	while(hasNext(iter)) {
-		player.safeGiveItem(player, item.custom.new(next(iter)));
-	}
-}
-
-function player.safeGiveItem(player, item) {
-	rest_item = player.giveItem(player, item);
-	if(item.getAmount(rest_item) > 0) {
-		item.drop(entity.getLocation(player), rest_item);
-	}
-}
+/tip add crea &aBe &b/creative &ain gamemode 1.
+/tip add creeper &aCreepers don´t explode on plots.
+/tip add disc &aJoin our <%link &dDiscord https://discord.gg/AjwBpm5 &a>.
+/tip add don &aSupport us with a <%link &dDonation https://minecraft.hammerle.me/?site=contact &a>.
+/tip add games &aBread and &b/games&a!
+/tip add home &aCreate your &b/home&a.
+/tip add night &aSkip the night with &b/skipnight&a.
+/tip add plot &aCreate your own plot with &b/plot create&a.
+/tip add plotcost &aPlots cost &b3 x Length x Width&a.
+/tip add rank &aChange your &b/rank&a.
+/tip add ranks &aClimb the <%link &dRanks https://minecraft.hammerle.me/?site=ranks &a>!
+/tip add settings &aChange your &b/settings&a.
+/tip add shop &aCreate your own &b/shop&a.
+/tip add Stream &aDaily Twitch Streams with <%link &dMentos https://www.twitch.tv/mentor_mentos &a>.
+/tip add supp &aProblem? &b/support&a!
+/tip add vote &a&b/Vote &afor our server and get rewards&a.
+/tip add website &aOur <%link &dWebsite https://minecraft.hammerle.me/ &a>.

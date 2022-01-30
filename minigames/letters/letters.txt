@@ -1,0 +1,223 @@
+sign.started(gamesignloc);
+rankingtable = "letterranks";
+game_short = "letter";
+
+event.load("block_click");
+event.load("player_quit");
+event.load("player_giveup");
+event.load("minigame_join");
+event.load("entity_damage");
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@entity_damage
+cancel = true;
+goto("wait");
+
+@minigame_join
+letters = list.new();
+list.addAll(letters, "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z");
+letters2 = list.copy(letters);
+gamename = "§dLetters";
+counter = 0;
+minutes = 0;
+seconds = 0;
+
+this_player = player;
+entity.teleport(player, spawnloc);
+living.cleareffects(player);
+living.setHealth(player, 20);
+player.setHunger(player, 20);
+player.setSaturation(player, 5);
+title.send(player, text.new(gamename), text.new(mapname));
+nextletter = list.getIndex(letters, counter);
+sb.add(player, 99, gamename);
+sb.add(player, 98, string.concat(string.number(counter), "/26"));
+sb.add(player, 97, string.concat("Find: ", nextletter));
+sb.add(player, 96, string.concat("Time: 0:00"));
+sb.add(player, 95, sb.getSpacer());
+player.clearInventory(player);
+
+if(!fixsigns) {
+	logblocks = list.new();
+	signblocks = list.new();
+	sign_facing = list.new();
+}
+log_tag = block.getTag("minecraft:logs");
+sign_tag = block.getTag("minecraft:signs");
+
+if(!fixsigns) {
+	x1 = loc.getBlockX(edge1);
+	y1 = loc.getBlockY(edge1);
+	z1 = loc.getBlockZ(edge1);
+
+	x2 = loc.getBlockX(edge2);
+	y2 = loc.getBlockY(edge2);
+	z2 = loc.getBlockZ(edge2);
+
+	if(x1 > x2) {
+		helper = x2;
+		x2 = x1;
+		x1 = helper;
+	}
+	if(z1 > z2) {
+		helper = z2;
+		z2 = z1;
+		z1 = helper;
+	}
+
+	edge1 = loc.new(gamesworld, x1, y1, z1);
+	edgeblock1 = block.get(edge1);
+	xedgedistance = x2 - x1;
+	zedgedistance = z2 - z1;
+
+	for(x = 0; x < xedgedistance; x++) {
+		for(z = 0; z < zedgedistance; z++) {
+			relblock = block.mod(edgeblock1, x, 0, z);
+			if(block.hasTag(relblock, log_tag)) {
+				list.add(logblocks, relblock);
+			}
+			if(block.hasTag(relblock, sign_tag)) {
+				block.setMaterial(relblock, material.getAir());
+			}
+		}
+	}
+
+	for(i = 0; i < list.getSize(logblocks); i++) {
+		x = 0;
+		z = 0;
+		y = math.random(0, 3);
+		xz = math.random(0, 1);
+		if(xz == 0) {
+			while(x == 0) {
+				x = math.random(-1, 1); 
+			}
+		} else {
+			while(z == 0) {
+				z = math.random(-1, 1);
+			}
+		}
+		list.add(signblocks, block.mod(list.getIndex(logblocks, i), x, y, z));
+		if(x == -1) {
+			list.add(sign_facing, "WEST");
+		} elseif(x == 1) {
+			list.add(sign_facing, "EAST");
+		}
+		if(z == -1) {
+			list.add(sign_facing, "NORTH");
+		} elseif(z == 1) {
+			list.add(sign_facing, "SOUTH");
+		}
+	}
+
+	oak_wall_sign = material.get("OAK_WALL_SIGN");
+	for(i = 0; i < list.getSize(signblocks); i++) {
+		tempblock = list.getIndex(signblocks, i);
+		facing = list.getIndex(sign_facing, i);
+		block.setMaterial(tempblock, oak_wall_sign);
+		block.setDirectionalFace(tempblock, facing);
+		tempindex = math.random(0 , list.getSize(letters2) - 1);
+		sign.setString(tempblock, 0, list.getIndex(letters2, tempindex));
+		list.removeIndex(letters2, tempindex);
+	}
+} elseif(fixsigns) {
+	for(i = 0; i < list.getSize(signcoords); i++) {
+		tempblock = block.get(list.getIndex(signcoords, i));
+		tempindex = math.random(0 , list.getSize(letters2) - 1);
+		sign.setString(tempblock, 0, list.getIndex(letters2, tempindex));
+		list.removeIndex(letters2, tempindex);
+	}
+}
+sgoto(20, "loop");
+goto("wait");
+
+@loop
+seconds++;
+if(seconds == 60) {
+    minutes++;
+	seconds = 0;
+}
+if(seconds < 10) {
+	sb.add(this_player, 96, string.concat("Time: ", string.number(minutes), ":0", string.number(seconds)));
+} else {
+    sb.add(this_player, 96, string.concat("Time: ", string.number(minutes), ":", string.number(seconds)));
+}
+sgoto(20, "loop");
+goto("wait");
+
+@block_click
+if(block == null) {
+	goto("wait");
+}
+cancel = true;
+if(block.hasTag(block, sign_tag)) {
+	letter = sign.getString(block, 0);
+	if(letter == nextletter) {
+		counter++;
+		msg.prefix(player, gamename, string.concat("Progress: ", string.number(counter), "/26"));
+		sb.add(player, 98, string.concat(string.number(counter), "/26"));
+		living.setHealth(player, 20);
+		player.setHunger(player, 20);
+		player.setSaturation(player, 5);
+		if(counter == 26) {
+			time = minutes * 60 + seconds;
+			tpl = math.roundComma(time / 26, 2);
+			player_id = player.getId(player);
+			played_games = minigame.getPlayed(player_id, game_short) + 1;
+			minigame.setPlayed(player_id, game_short, played_games);
+			last_record = ranking.getPoints(rankingtable, player_id);
+			if(last_record == 0 || time < last_record) {
+				record = time;
+				diff = last_record - time;
+			} else {
+				record = last_record;
+			}
+			ranking.setPoints(rankingtable, player_id, record);
+			rec_mins = math.roundDown(record / 60);
+			rec_secs = math.roundComma(record % 60, 2);
+			
+			minigame.statsHeader(player, gamename, "§e");
+			minigame.statsLine(player, "§e", "Time", string.concat(string.number(minutes), " min ", string.number(seconds), " s"));
+			minigame.statsLine(player, "§e", "Time per Letter", string.concat(string.number(tpl), " s"));
+			minigame.statsLine(player, "§e", "Your record", string.concat(string.number(rec_mins), " min ", string.number(rec_secs), " s"));
+			if(diff != null) {
+				msg.string(player, string.concat(" §e- §rBeat own record by §e", string.concat(string.number(diff), " s")));
+			}
+			minigame.statsLine(player, "§e", "Played games", string.number(played_games));
+			//money.addBoost(player, 26);
+			goto("player_giveup");
+		}
+		nextletter = list.getIndex(letters, counter);
+		sb.add(player, 97, string.concat("Find: ", nextletter));
+	}
+}
+goto("wait");
+
+@player_quit
+@player_giveup
+if(!fixsigns) {
+	for(i = 0; i < list.getSize(signblocks); i++) {
+		block.setMaterial(list.getIndex(signblocks, i), material.getAir());
+	}
+}
+sb.remove(player, 99);
+sb.remove(player, 98);
+sb.remove(player, 97);
+sb.remove(player, 96);
+sb.remove(player, 95);
+sb.remove(player, 95);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+minigame.term(script, gamesignloc);
+term();

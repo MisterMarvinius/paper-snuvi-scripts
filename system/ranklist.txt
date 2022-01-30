@@ -1,0 +1,372 @@
+event.load("custom_command");
+stats_prefix = "§bStatistic";
+games = list.new();
+
+inverting_list = list.new();
+list.add(inverting_list, "5x5");
+list.add(inverting_list, "7x7");
+list.add(inverting_list, "10x10");
+list.add(inverting_list, "5x5cl");
+list.add(inverting_list, "7x7cl");
+list.add(inverting_list, "10x10cl");
+
+ranking.add("§b", "BedWars", "bw", "bwranks", "All Kills", "DESC", null);
+ranking.add("§c", "RageMode", "rm", "rmranks", "All Kills", "DESC", null);
+ranking.add("§5", "Rebuild", "rebuild", "rebuildranks", "All solved patterns", "DESC", null);
+ranking.add("§d", "FastBridge", "fb", "fastbridgeranks", "Points Record", "DESC", null);
+ranking.add("§6", "Snowfight", "snow", "snowranks", "Kills", "DESC", null);
+ranking.add("§c", "JR-Death", "tjr", "tjrranks", "Checkpoints | Time", "DESC", "ASC");
+ranking.add("§a", "JR-Ice", "ijr", "icejrranks", "Checkpoints | Time", "DESC", "ASC");
+ranking.add("§a", "JR-Rooms", "jr_rooms", "jr_room_ranks", "Checkpoints | Time", "DESC", "ASC");
+ranking.add("§a", "JR-Endless", "jr", "jumpranks", "Points Record", "DESC", null);
+ranking.add("§d", "Letters", "letter", "letterranks", "Time", "ASC", null);
+ranking.add("§a", "Sammelfieber", "sfsingle", "sfsingle", "Points Record", "DESC", null);
+ranking.add("§2", "Buttons", "button", "buttonranks", "Points Record", "DESC", null);
+ranking.add("§9", "HideAndSeek", "hs", "fncranks", "Wins", "DESC", null);
+ranking.add("§9", "Inverting", "inv", "invertranks", "Points Record", "ASC", null);
+ranking.add("§9", "Spleef", "spleef", "spleefranks", "Wins", "DESC", null);
+ranking.add("§c", "Knockfight", "knock", "knockranks", "All Kills", "DESC", null);
+ranking.add("§9", "Leapfrog", "lf", "leapfrogranks", "Points Record", "DESC", null);
+ranking.add("§6", "Parcour", null, "parcourranks1", "Time", "ASC", null);
+ranking.add("§e", "Halma", "halma", "halmaranks", "Wins", "DESC", null);
+ranking.add("§e", "ShoppingChaos", "sc", "shoppingranks", "Max Items", "DESC", null);
+ranking.add("§e", "MengerRun", "mr", "mrranks", "Wins", "DESC", null);
+ranking.add("§c", "AmongUs", "among_us", "among_us_ranks", "Time", "ASC", null);
+
+ranking.register("invertranks5x5");
+ranking.register("invertranks7x7");
+ranking.register("invertranks10x10");
+ranking.register("invertranks5x5cl");
+ranking.register("invertranks7x7cl");
+ranking.register("invertranks10x10cl");
+
+msg.string("dev", "§bStatistics §rloaded");
+@wait
+wait();
+if(event == "custom_command") {
+	if(!isPlayer(sender)) {
+		goto("wait");
+	}
+	player = sender;
+	command = string.toLowerCase(command);
+	size = list.getSize(args);
+	if(command == "stats") {
+		if(size == 0) {
+			@statshelp
+			msg.prefix(player, stats_prefix, "§r/stats ...");
+			msg.string(player, "§b - <game> §rShows own stats");
+			msg.string(player, "§b - <game> top §rShows Top Ten");
+			msg.string(player, "§b - <game> <position> §rShows stats from a position");
+			msg.string(player, "§b - <game> <player> §rShows stats from a player");
+			if(perm.has("stats.remove", player)) {
+				msg.string(player, "§b - <game> <player> remove §rRemoves stats from a player");
+			}
+			goto("wait");
+		}
+		gamename = list.getIndex(args, 0);
+		if(game.getArray(gamename) == null) {
+			msg.prefix(player, stats_prefix, "Unknown game.");
+			goto("wait");
+		}
+		table = game.getRankingTable(gamename);
+		if(size == 1) {
+			p_name = player.getName(player);
+			playerStatsCore(player, gamename, p_name);
+			goto("wait");
+		}
+		if(size == 2) {
+			arg1 = list.getIndex(args, 1);
+			if(isDouble(arg1)) {
+				order = game.getOrder(gamename);
+				order2 = game.getOrder2(gamename);
+				a = ranking.getArrayFromRank(table, arg1, order, order2);
+				if(a == null) {
+					msg.prefix(player, stats_prefix, "Invalid rank.");
+					goto("wait");
+				}
+				p_name = player.getNameFromId(a[0]);
+				playerStatsCore(player, gamename, p_name);
+				goto("wait");
+			}
+			arg1 = string.toLowerCase(arg1);
+			if(arg1 == "top") {
+				color = game.getColor(gamename);
+				if(gamename == "Inverting") {
+					msg.prefix(player, string.concat(color, gamename), "Click for Top Ten");
+					printClick(player, "Inverting 5x5", "/topinvstats 5x5");
+					printClick(player, "Inverting 7x7", "/topinvstats 7x7");
+					printClick(player, "Inverting 10x10", "/topinvstats 10x10");
+					printClick(player, "Inverting Classic 5x5", "/topinvstats 5x5cl");
+					printClick(player, "Inverting Classic 7x7", "/topinvstats 7x7cl");
+					printClick(player, "Inverting Classic 10x10", "/topinvstats 10x10cl");
+					goto("wait");
+				}
+				showTopStats(player, gamename, table);
+				goto("wait");
+			}
+		}
+		arg1 = list.getIndex(args, 1);
+		if(!checkIfEverOnline(arg1)) {
+			msg.prefix(player, stats_prefix, "This player has never been online.");
+			goto("wait");
+		}
+		p_name = player.getName(player.getUuid(arg1));
+		if(size == 2) {
+			playerStatsCore(player, gamename, p_name);
+			goto("wait");
+		}
+		if(size == 3) {
+			arg2 = string.toLowerCase(list.getIndex(args, 2));
+			if(arg2 == "remove") {
+				if(table == "invertranks") {
+					color = game.getColor(gamename);
+					msg.prefix(player, string.concat(color, gamename), string.concat("Click to remove stats from ", p_name));
+					printClick(player, "Inverting 5x5", string.concat("/removeinvstats ", p_name, " 5x5"));
+					printClick(player, "Inverting 7x7", string.concat("/removeinvstats ", p_name, " 7x7"));
+					printClick(player, "Inverting 10x10", string.concat("/removeinvstats ", p_name, " 10x10"));
+					printClick(player, "Inverting Classic 5x5", string.concat("/removeinvstats ", p_name, " 5x5cl"));
+					printClick(player, "Inverting Classic 7x7", string.concat("/removeinvstats ", p_name, " 7x7cl"));
+					printClick(player, "Inverting Classic 10x10", string.concat("/removeinvstats ", p_name, " 10x10cl"));
+					goto("wait");
+				}
+				p_uuid = player.getUuid(p_name);
+				if(p_uuid == null) {
+					p_uuid = player.getUuid(arg1);
+				}
+				p_id = player.getId(p_uuid);
+				game_short = game.getShort(gamename);
+				ranking.removePlayer(p_id, table, game_short);
+				msg.prefix(player, stats_prefix, string.concat("§e", p_name, "§r from statistic removed."));
+				goto("wait");
+			}
+		}
+		goto("statshelp");
+	}
+	if(command == "invstats") {
+		if(size != 2) {
+			goto("wait");
+		}
+		p_name = list.getIndex(args, 0);
+		if(!checkIfEverOnline(p_name)) {
+			goto("wait");
+		}
+		sub_game = list.getIndex(args, 1);
+		if(!list.contains(inverting_list, sub_game)) {
+			goto("wait");
+		}
+		gamename = "Inverting";
+		table = game.getRankingTable(gamename);
+		table = string.concat(table, sub_game);
+		message = game.getMessage(gamename);
+		color = game.getColor(gamename);
+		msg.prefix(player, string.concat(color, gamename), string.concat("§eWertung nach: §r", message));
+		showPlayerStats(player, gamename, table, p_name);
+		goto("wait");
+	}
+	if(command == "topinvstats") {
+		if(size != 1) {
+			goto("wait");
+		}
+		sub_game = list.getIndex(args, 0);
+		if(!list.contains(inverting_list, sub_game)) {
+			goto("wait");
+		}
+		gamename = "Inverting";
+		table = game.getRankingTable(gamename);
+		table = string.concat(table, sub_game);
+		showTopStats(player, gamename, table);
+		goto("wait");
+	}
+	if(command == "removeinvstats") {
+		if(size != 2) {
+			goto("wait");
+		}
+		p_name = list.getIndex(args, 0);
+		if(!checkIfEverOnline(p_name)) {
+			goto("wait");
+		}
+		sub_game = list.getIndex(args, 1);
+		if(!list.contains(inverting_list, sub_game)) {
+			goto("wait");
+		}
+		gamename = "Inverting";
+		p_uuid = player.getUuid(p_name);
+		p_id = player.getId(p_uuid);
+		p_name = player.getNameFromId(p_id);
+		table = game.getRankingTable(gamename);
+		table = string.concat(table, sub_game);
+		game_short = string.concat(game.getShort(gamename), sub_game);
+		ranking.removePlayer(p_id, table, game_short);
+		msg.prefix(player, stats_prefix, string.concat("§e", p_name, "§r from statistic removed."));
+		goto("wait");
+	}
+}
+goto("wait");
+
+function printClick(player, show_text, command) {
+	msg(player, string.getClickText(show_text, command));
+}
+
+function playerStatsCore(player, gamename, p_name) {
+	color = game.getColor(gamename);
+	if(gamename == "Inverting") {
+		msg.prefix(player, string.concat(color, gamename), string.concat("Click for stats from §b", p_name));
+		printClick(player, "Inverting 5x5", string.concat("/invstats ", p_name, " 5x5"));
+		printClick(player, "Inverting 7x7", string.concat("/invstats ", p_name, " 7x7"));
+		printClick(player, "Inverting 10x10", string.concat("/invstats ", p_name, " 10x10"));
+		printClick(player, "Inverting Classic 5x5", string.concat("/invstats ", p_name, " 5x5cl"));
+		printClick(player, "Inverting Classic 7x7", string.concat("/invstats ", p_name, " 7x7cl"));
+		printClick(player, "Inverting Classic 10x10", string.concat("/invstats ", p_name, " 10x10cl"));
+		return;
+	}
+	table = game.getRankingTable(gamename);
+	message = game.getMessage(gamename);
+	msg.prefix(player, string.concat(color, gamename), string.concat("§eWertung nach: §r", message));
+	showPlayerStats(player, gamename, table, p_name);
+}
+
+function showPlayerStats(player, gamename, table, p_name) {
+	p_id = player.getId(player.getUuid(p_name));
+	order = game.getOrder(gamename);
+	order2 = game.getOrder2(gamename);
+	rang = ranking.getPlayerRank(p_id, table, order, order2);
+	if(rang == -1) {
+		msg.prefix(player, $stats_prefix, "No data available.");
+	} else {
+		a = ranking.getPlayerStats(p_id, table, order, order2);
+		points = a[1];
+		if(gamename == "Letters" || gamename == "AmongUs") {
+			sendTimedRank(player, p_name, rang, points);
+		} elseif(gamename == "Parcour") {
+			sendMsTimedRank(player, p_name, rang, points);
+		} elseif(gamename == "JR-Death") {
+			points--;
+			sec_points = a[2];
+			sendJrRank(player, p_name, rang, points, sec_points);
+		} elseif(gamename == "JR-Rooms" || gamename == "JR-Ice") {
+			sec_points = a[2];
+			sendJrRank(player, p_name, rang, points, sec_points);
+		} else {
+			sendRank(player, p_name, rang, points);
+		}
+	}
+}
+
+function showTopStats(player, gamename, table) {
+	message = game.getMessage(gamename);
+	color = game.getColor(gamename);
+	order = game.getOrder(gamename);
+	order2 = game.getOrder2(gamename);
+	list = ranking.getTopTenList(table, order, order2);
+	if(list.getSize(list) == 0) {
+		msg.prefix(player, string.concat(color, gamename), "Nobody played this game.");
+		return;
+	}
+	msg.string(player, "");
+	msg.prefix(player, string.concat(color, gamename), string.concat("§eWertung nach: §r", message));
+	for(i = 0; i < 10; i++) {
+		if(i == list.getSize(list)) {
+			break;
+		}
+		a = list.getIndex(list, i);
+		p_name = player.getNameFromId(a[0]);
+		points = a[1];
+		rang = i + 1;
+		if(gamename == "Letters" || gamename == "AmongUs") {
+			sendTimedRank(player, p_name, rang, points);
+		} elseif(gamename == "Parcour") {
+			sendMsTimedRank(player, p_name, rang, points);
+		} elseif(gamename == "JR-Death") {
+			points--;
+			sec_points = a[2];
+			sendJrRank(player, p_name, rang, points, sec_points);
+		} elseif(gamename == "JR-Rooms" || gamename == "JR-Ice") {
+			sec_points = a[2];
+			sendJrRank(player, p_name, rang, points, sec_points);
+		} else {
+			sendRank(player, p_name, rang, points);
+		}
+	}
+	msg.string(player, "");
+	showPlayerStats(player, gamename, table, player.getName(player));
+}
+
+function ranking.add(colorcode, name, game_short, rankingtable, message, order, order2) {
+	a = array.new(7);
+	a[0] = colorcode;
+	a[1] = name;
+	a[2] = game_short;
+	a[3] = rankingtable;
+	a[4] = message;
+	a[5] = order;
+	a[6] = order2;
+	list.add($games, a);
+	if(rankingtable == "invertranks") {
+		return;
+	}
+	ranking.register(rankingtable);
+}
+
+function game.getArray(gamename) {
+	iter = list.iterator($games);
+	while(hasNext(iter)) {
+		a = next(iter);
+		if(a[1] == gamename) {
+			return a;
+		}
+	}
+	return null;
+}
+
+function game.getColor(gamename) {
+	a = game.getArray(gamename);
+	return a[0];
+}
+
+function game.getShort(gamename) {
+	a = game.getArray(gamename);
+	return a[2];
+}
+
+function game.getRankingTable(gamename) {
+	a = game.getArray(gamename);
+	return a[3];
+}
+
+function game.getMessage(gamename) {
+	a = game.getArray(gamename);
+	return a[4];
+}
+
+function game.getOrder(gamename) {
+	a = game.getArray(gamename);
+	return a[5];
+}
+
+function game.getOrder2(gamename) {
+	a = game.getArray(gamename);
+	return a[6];
+}
+
+function sendRank(player, p_name, rang, points) {
+	msg.string(player, string.concat("§6", string.number(rang), "  §r", p_name, "  §e", string.number(points)));
+}
+
+function sendJrRank(player, p_name, rang, points, sec_points) {
+	msg.string(player, string.concat("§6", string.number(rang), "  §r", p_name, "  §e", string.number(points), " | ", time.getClockString(sec_points / 1000)));
+}
+
+function sendTimedRank(player, p_name, rang, points) {
+	msg.string(player, string.concat("§6", string.number(rang), "  §r", p_name, "  §e", string.number(math.roundDown(points / 60)), " min ", string.number(math.round(points % 60)), " s"));
+}
+
+function sendMsTimedRank(player, p_name, rang, points) {
+	min = string.number(math.roundDown(points / 1000 / 60));
+	sec = math.round(points / 1000 % 60);
+	ms = string.number(points % 1000);
+	if(sec < 10) {
+		msg.string(player, string.concat("§6", string.number(rang), "  §r", p_name, "  §e", min, ":0", string.number(sec), ".", ms, " min"));
+	} else {
+		msg.string(player, string.concat("§6", string.number(rang), "  §r", p_name, "  §e", min, ":", string.number(sec), ".", ms, " min"));
+	}
+}

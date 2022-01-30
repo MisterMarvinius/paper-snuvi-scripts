@@ -1,0 +1,8 @@
+fixsigns = false;
+mapname = "Nature";
+gamesignloc = minigame.getSignLoc("letterssign2");
+gamesworld = world.getGames();
+edge1 = loc.new(gamesworld, 2006, 101, -5005);
+edge2 = loc.new(gamesworld, 2028, 101, -5021);
+spawnloc = loc.new(gamesworld, 2028, 101, -5013, 90, 0);
+maxplayers = 1;

@@ -1,5 +1,6 @@
 event.load("entity_dismount");
 event.load("block_click");
+event.load("server_pre_stop");
 
 sitting = map.new();
 stairs_tag = block.getTag("minecraft:stairs");
@@ -21,6 +22,18 @@ if(isPlayer(entity)) {
 	entity.teleport(player, loc.mod(entity.getLocation(player), 0, 1, 0));
 }
 goto("wait");
+
+@server_pre_stop
+iter = map.iterator(sitting);
+while(hasNext(iter)) {
+	element = next(iter);
+	uuid = map.getKey(element);
+	p = player.get(uuid);
+	if(p != null) {
+		entity.unmount(p);
+	}
+}
+term();
 
 @block_click
 if(block == null) {

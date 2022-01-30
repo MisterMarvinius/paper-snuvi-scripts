@@ -1,10 +1,10 @@
 @simplelobby
 wait();
-if(event == "living_pre_hurt") {
-	if(!isPlayer(living_entity)) {
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
 		goto("simplelobby");
 	}
-	player = living_entity;
+	player = entity;
 	if(!player.hasMinigameId(player, script_id)) {
 		goto("simplelobby");
 	}
@@ -15,10 +15,10 @@ if(event == "living_pre_hurt") {
 	goto("simplelobby");
 }
 if(event == "entity_mount") {
-	if(!isPlayer(rider)) {
+	if(!isPlayer(entity)) {
 		goto("simplelobby");
 	}
-	player = rider;
+	player = entity;
 }
 if(!player.hasMinigameId(player, script_id)) {
 	goto("simplelobby");
@@ -26,13 +26,13 @@ if(!player.hasMinigameId(player, script_id)) {
 if(specific_lobby_handling != null && specific_lobby_handling) {
 	gosub("specificLobbyHandling");
 }
-if(event == "player_join") {
+if(event == "minigame_join") {
 	gosub("lobbycore");
 }
 elseif(event == "block_break" || event == "block_place") {
 	cancel = true;
 }
-elseif(event == "player_logout" || event == "player_giveup") {
+elseif(event == "player_quit" || event == "player_giveup") {
 	gosub("leavelobbycore");
 }
 elseif(event == "custom_command") {
@@ -45,12 +45,11 @@ elseif(event == "custom_command") {
 				}
 				counterindex = 3;
 				goto("startcountdown");
+			}
+			if(perm.has("startgame.jump", player)) {
+				gosub("jumpstart");
 			} else {
-				if(perm.has(player, "startgame.jump")) {
-					gosub("jumpstart");
-				} else {
-					perm.no(player, "startgame.jump");
-				}
+				perm.no("startgame.jump", player);
 			}
 		}
 	}
@@ -58,16 +57,14 @@ elseif(event == "custom_command") {
 goto("simplelobby");
 
 @lobbycore
-minigame.speakAll(gamename, concat("§8", player.getNickName(player), "§r joined the game."));
+minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r joined the game."));
 if(no_lobby_tp == null || !no_lobby_tp) {
 	modTimer.entityTeleport(player, lobbyspawnloc);
 }
 if(no_core_reset == null || !no_core_reset) {
 	resetplayer(player);
 }
-title.setTime(player, 20, 60, 0);
-title.setSub(player, mapname);
-title.send(player, gamename);
+title.send(player, text.new(gamename), text.new(mapname));
 if(manual_start != null && manual_start) {
 	return;
 }
@@ -86,9 +83,9 @@ if(!started) {
 	}
 	waitfor = minplayers - size;
 	if(waitfor == 1) {
-		minigame.speakAll(gamename, concat("Waiting for §b", text.number(waitfor), " §rplayer."));
+		minigame.speakAll(gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayer."));
 	} else {
-		minigame.speakAll(gamename, concat("Waiting for §b", text.number(waitfor), " §rplayers."));
+		minigame.speakAll(gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayers."));
 	}
 }
 return;
@@ -117,8 +114,7 @@ noticetime = list.getIndex(starttimes, counterindex);
 if(noticetime == 5) {
 	for(i = 0; i < size; i++) {
 		p = player.get(list.getIndex(scriptlist, i));
-		title.setSub(p, mapname);
-		title.send(p, gamename);
+		title.send(p, text.new(gamename), text.new(mapname));
 	}
 }
 if(noticetime == 0) {
@@ -127,9 +123,9 @@ if(noticetime == 0) {
 }
 noticetime2 = list.getIndex(starttimes, ++counterindex);
 if(noticetime == 1) {
-	minigame.speakAll(gamename, concat("The game starts in §b", text.number(noticetime), " §rsecond."));
+	minigame.speakAll(gamename, string.concat("The game starts in §b", string.number(noticetime), " §rsecond."));
 } else {
-	minigame.speakAll(gamename, concat("The game starts in §b", text.number(noticetime), " §rseconds."));
+	minigame.speakAll(gamename, string.concat("The game starts in §b", string.number(noticetime), " §rseconds."));
 }
 stime = (noticetime - noticetime2) * 20;
 sgoto(stime, "startcountdown");
@@ -141,7 +137,7 @@ ignoreGoto("checklobby");
 goto("simplelobby");
 
 @leavelobbycore
-minigame.speakAll(gamename, concat("§8", player.getNickName(player), "§r left the game."));
+minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r left the game."));
 script = script.getFromId(script_id);
 if(player.isPartyLeader(player)) {
 	leader_uuid = player.getUuid(player);
@@ -191,23 +187,27 @@ return;
 //Minigame-Utils
 //--------------------------------------------------
 
+function minigame.clearItems(location, radius) {
+	entity.removeAll("org.bukkit.entity.Item", location, radius);
+}
+
 function minigame.setTabName(player, game_tab, team_color) {
 	if(team_color == null) {
 		team_color = "§r";
 	}
 	player_name = player.getName(player);
-	display_name = concat(game_tab, " §7| ", team_color, player_name);
-	player.setDisplayName(player, display_name);
+	display_name = string.concat(game_tab, " §7| ", team_color, player_name);
+	player.setDisplayName(player, text.new(display_name));
 }
 
 function minigame.loadLobbyEvents() {
-	event.load("player_join");
-	event.load("player_logout");
+	event.load("minigame_join");
+	event.load("player_quit");
 	event.load("player_giveup");
 	event.load("block_break");
 	event.load("block_place");
 	event.load("block_click");
-	event.load("living_pre_hurt");
+	event.load("entity_damage");
 	event.load("custom_command");
 }
 
@@ -227,10 +227,10 @@ function minigame.setStarttimesList() {
 function minigame.setupMultiplayer() {
 	$counterindex = 0;
 	$started = false;
-	$sound_category_ambient = sound.getCategory("ambient");
-	$sound_category_player = sound.getCategory("player");
-	$join_sound = sound.get("minecraft:block.note_block.bass");
-	$pling_sound = sound.get("minecraft:block.note_block.pling");
+	$sound_category_ambient = sound.getCategory("AMBIENT");
+	$sound_category_player = sound.getCategory("PLAYERS");
+	$join_sound = sound.get("BLOCK_NOTE_BLOCK_BASS");
+	$pling_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
 	$gamesworldloc = world.getGamesSpawn();
 }
 
@@ -242,8 +242,8 @@ function minigame.getLastPos(player) {
 	return map.getOrDefault(getScriptVar("lobbylastpos"), player.getUuid(player), world.getGamesSpawn());
 }
 
-function minigame.isStarted(sign_loc) {
-	return block.getSign(sign_loc, 3) == "§bStarted";
+function minigame.isStarted(sign_block) {
+	return sign.getString(sign_block, 3) == "§bStarted";
 }
 
 function minigame.getSignLoc(sign_name) {
@@ -271,7 +271,7 @@ function minigame.msgAll(message) {
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		msg(p, message);
+		msg.string(p, message);
 	}
 }
 
@@ -280,7 +280,7 @@ function minigame.displayAll(line, message) {
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		display.add(p, line, message);
+		sb.add(p, line, message);
 	}
 }
 
@@ -289,9 +289,7 @@ function minigame.titleAll(title, subtitle, fadeIn, show, fadeOut) {
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		title.setTime(p, fadeIn, show, fadeOut);
-		title.setSub(p, subtitle);
-		title.send(p, title);
+		title.send(p, text.new(title), text.new(subtitle));
 	}
 }
 
@@ -300,25 +298,16 @@ function minigame.displayRemoveAll(line) {
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		display.remove(p, line);
-	}
-}
-
-function minigame.displayResetAll() {
-	iter = list.iterator(minigame.getPlayers($script_id));
-	while(hasNext(iter)) {
-		p_uuid = next(iter);
-		p = player.get(p_uuid);
-		display.reset(p);
+		sb.remove(p, line);
 	}
 }
 
 function minigame.statsHeader(player, gamename, colorcode) {
-	msg(player, concat("[", gamename, "§r] §r---= ", colorcode, "Statistic §r=---"));
+	msg.string(player, string.concat("[", gamename, "§r] §r---= ", colorcode, "Statistic §r=---"));
 }
 
 function minigame.statsLine(player, colorcode, string, value) {
-	msg(player, concat(colorcode, " -§r ", string, ": ", colorcode, value));
+	msg.string(player, string.concat(colorcode, " -§r ", string, ": ", colorcode, value));
 }
 
 function getTeamWithLowestPeople(team_lists, numberofteams) {
@@ -336,17 +325,26 @@ function getTeamWithLowestPeople(team_lists, numberofteams) {
 	return lowestteam;
 }
 
-function minigame.kickPlayer(script, player) {
+function minigame.kickPlayer(script_or_id, player) {
+	if(isDouble(script_or_id)) {
+		script_id = script_or_id;
+	} else {
+		script_id = script.getId(script_or_id);
+	}
 	resetplayer(player);
 	player.tpGamesLobby(player);
-	script_id = script.getId(script);
 	list = minigame.getPlayers(script_id);
 	list.remove(list, player.getUuid(player));
 	sign.players($gamesignloc, list.getSize(list), $maxplayers);
 	set.remove(player.getMinigameIds(player), script_id);
 }
 
-function minigame.kickAllPlayers(script) {
+function minigame.kickAllPlayers(script_or_id) {
+	if(isDouble(script_or_id)) {
+		script = script.getFromId(script_or_id);
+	} else {
+		script = script_or_id;
+	}
 	player_list = minigame.getPlayers(script.getId(script));
 	list = list.new();
 	//Create copy
@@ -372,30 +370,30 @@ function minigame.getPlayers(script_id) {
 
 function minigame.setWon(player_or_id, game_short, amount) {
 	config = playerdata.getGames(player_or_id);
-	config.set(config, concat("won.", game_short), amount);
+	config.set(config, string.concat("won.", game_short), amount);
 	config.saveAsync(config);
 }
 
 function minigame.getWon(player_or_id, game_short) {
 	config = playerdata.getGames(player_or_id);
-	return config.getDouble(config, concat("won.", game_short), 0);
+	return config.getDouble(config, string.concat("won.", game_short), 0);
 }
 
 function minigame.setPlayed(player_or_id, game_short, amount) {
 	config = playerdata.getGames(player_or_id);
-	config.set(config, concat("played.", game_short), amount);
+	config.set(config, string.concat("played.", game_short), amount);
 	config.saveAsync(config);
 }
 
 function minigame.getPlayed(player_or_id, game_short) {
 	config = playerdata.getGames(player_or_id);
-	return config.getDouble(config, concat("played.", game_short), 0);
+	return config.getDouble(config, string.concat("played.", game_short), 0);
 }
 
 function minigame.addPlayed(player_or_id, game_short, amount) {
 	config = playerdata.getGames(player_or_id);
-	new_amount = config.getDouble(config, concat("played.", game_short), 0) + amount;
-	config.set(config, concat("played.", game_short), new_amount);
+	new_amount = config.getDouble(config, string.concat("played.", game_short), 0) + amount;
+	config.set(config, string.concat("played.", game_short), new_amount);
 	config.saveAsync(config);
 }
 
@@ -407,11 +405,6 @@ function player.tpGamesLobby(player) {
 	modTimer.entityTeleport(player, minigame.getLastPos(player));
 	inv = player.getInv(player);
 	inv.setItem(inv, 0, read.item("minecraft:compass"));
-}
-
-function player.resetMinigames(player) {
-	id_set = player.getMinigameIds(player);
-	set.clear(id_set);
 }
 
 function player.hasMinigameId(player, script_id) {
@@ -426,21 +419,17 @@ function player.hasMinigameId(player, script_id) {
 }
 
 function resetplayer(player) {
-	entity.cleareffects(player);
+	living.cleareffects(player);
 	living.setHealth(player, 20);
 	player.setHunger(player, 20);
 	player.setSaturation(player, 5);
-	display.reset(player);
 	player.clearInventory(player);
-	player.showDefaultStacks(player);
-	status.reset(player);
-	entity.setName(player, player.getName(player));
-	boss.send(player, "REMOVE");
 	player.setSpeed(player, 1);
 	entity.setGravity(player, true);
 	inv.close(player);
 	displayMoney(player, getMoney(player));
 	player.setTabName(player);
+	sb.clearGame(player);
 }
 
 //--------------------------------------------------
@@ -449,12 +438,12 @@ function resetplayer(player) {
 
 //Tabelle in Datenbank registrieren
 function ranking.register(rankingtable) {
-	databank.workerExecute(databank.prepare(concat("CREATE TABLE IF NOT EXISTS ", rankingtable, " (player_id INT NOT NULL PRIMARY KEY, points INT NOT NULL, sec_points INT);")));
+	databank.workerExecute(databank.prepare(string.concat("CREATE TABLE IF NOT EXISTS ", rankingtable, " (player_id INT NOT NULL PRIMARY KEY, points INT NOT NULL, sec_points INT);")));
 }
 
 //Setzt die Rekord-Punkte eines Spielers
 function ranking.setPoints(rankingtable, player_or_id, points) {
-	stmt = databank.prepare(concat("INSERT INTO ", rankingtable, " (points, player_id) VALUES (?,?) ON DUPLICATE KEY UPDATE points = ?;"), false);
+	stmt = databank.prepare(string.concat("INSERT INTO ", rankingtable, " (points, player_id) VALUES (?,?) ON DUPLICATE KEY UPDATE points = ?;"), false);
 	databank.setInt(stmt, 1, points);
 	databank.setInt(stmt, 2, player.getValidId(player_or_id));
 	databank.setInt(stmt, 3, points);
@@ -463,7 +452,7 @@ function ranking.setPoints(rankingtable, player_or_id, points) {
 
 //Setzt die primären und sekundären Rekord-Punkte eines Spielers
 function ranking.setSecPoints(rankingtable, player_or_id, points, sec_points) {
-	stmt = databank.prepare(concat("INSERT INTO ", rankingtable, " (points, sec_points, player_id) VALUES (?,?,?) ON DUPLICATE KEY UPDATE points = ?, sec_points = ?;"), false);
+	stmt = databank.prepare(string.concat("INSERT INTO ", rankingtable, " (points, sec_points, player_id) VALUES (?,?,?) ON DUPLICATE KEY UPDATE points = ?, sec_points = ?;"), false);
 	databank.setInt(stmt, 1, points);
 	databank.setInt(stmt, 2, sec_points);
 	databank.setInt(stmt, 3, player.getValidId(player_or_id));
@@ -476,9 +465,9 @@ function ranking.setSecPoints(rankingtable, player_or_id, points, sec_points) {
 function ranking.getArray(rankingtable, order, order2) {
 	ranking_list = list.new();
 	if(order2 == null) {
-		stmt = databank.prepare(concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ";"));
+		stmt = databank.prepare(string.concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ";"));
 	} else {
-		stmt = databank.prepare(concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ", sec_points ", order2, ";"));
+		stmt = databank.prepare(string.concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ", sec_points ", order2, ";"));
 	}
 	result = databank.execute(stmt);
 	while(databank.next(result)) {
@@ -562,7 +551,7 @@ function ranking.getPlayerRank(player_id, rankingtable, order, order2) {
 
 //Entfernt einen Spieler aus der Statistik
 function ranking.removePlayer(player_id, rankingtable, game_short) {
-	stmt = databank.prepare(concat("DELETE FROM ", rankingtable, " WHERE player_id = ?;"));
+	stmt = databank.prepare(string.concat("DELETE FROM ", rankingtable, " WHERE player_id = ?;"));
 	databank.setInt(stmt, 1, player_id);
 	databank.workerExecute(stmt);
 	if(game_short != null) {
@@ -579,18 +568,53 @@ function ranking.removePlayer(player_id, rankingtable, game_short) {
 //Sign-Utils
 //--------------------------------------------------
 
-function sign.players(sign_loc, amount, max) {
-	return block.setSign(sign_loc, 2, concat(text.number(amount), "/", text.number(max)));
+function sign.players(sign_block, amount, max) {
+	if(!isBlock(sign_block)) {
+		sign_block = block.get(sign_block);
+	}
+	sign.setString(sign_block, 2, string.concat(string.number(amount), "/", string.number(max)));
 }
 
-function sign.ready(sign_loc) {
-	return block.setSign(sign_loc, 3, "§2Ready");
+function sign.ready(sign_block) {
+	if(!isBlock(sign_block)) {
+		sign_block = block.get(sign_block);
+	}
+	sign.setString(sign_block, 3, "§2Ready");
 }
 
-function sign.started(sign_loc) {
-	return block.setSign(sign_loc, 3, "§bStarted");
+function sign.started(sign_block) {
+	if(!isBlock(sign_block)) {
+		sign_block = block.get(sign_block);
+	}
+	sign.setString(sign_block, 3, "§bStarted");
 }
 
-function sign.closed(sign_loc) {
-	return block.setSign(sign_loc, 3, "§cClosed");
+function sign.closed(sign_block) {
+	if(!isBlock(sign_block)) {
+		sign_block = block.get(sign_block);
+	}
+	sign.setString(sign_block, 3, "§cClosed");
+}
+
+//--------------------------------------------------
+//SB-Utils
+//--------------------------------------------------
+
+function sb.getSpacer() {
+	return("§0------------------");
+}
+
+function sb.clearGame(player) {
+	for(i = 81; i < 100; i++) {
+		sb.remove(player, i);
+	}
+}
+
+function sb.clearGameAll() {
+	iter = list.iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		sb.clearGame(p);
+	}
 }

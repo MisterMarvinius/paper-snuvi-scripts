@@ -1,0 +1,19 @@
+mapname = "Battlefield";
+numberofteams = 2;
+teamsize = 10;
+minplayers = 2;
+maxplayers = 20;
+gamesignloc = minigame.getSignLoc("snowsign2");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, -2029.5, 116, -4004.5, 180, 0.0001);
+middleloc = loc.new(gamesworld, -2030, 100, -3954);
+radius = 200;
+nerfradius = 8;
+
+joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
+list.add(joinblocks, loc.new(gamesworld, -2033, 114, -4010));
+list.add(joinblocks, loc.new(gamesworld, -2027, 114, -4010));
+
+spawnlocs = map.new(); //Liste der Spawnlocs der einzelnen Teams
+map.add(spawnlocs, 0, loc.new(gamesworld, -2029.5, 102, -4003.5, 0.0001, 0.0001));
+map.add(spawnlocs, 1, loc.new(gamesworld, -2029.5, 102, -3904.5, 180, 0.0001));

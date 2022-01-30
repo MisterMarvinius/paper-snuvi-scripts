@@ -1,8 +1,14 @@
 error_counter = 0;
+last_error_message = null;
 @on_error
 error_counter++;
 if(error_counter > 1) {
 	snuvi.debug("Error Handler activated");
+	if(last_error_message == error_message) {
+		snuvi.debug("Same error again");
+		term();
+	}
+	last_error_message = error_message;
 	if(event == "custom_command") {
 		snuvi.debug(string.concat("Command ", command, " failed."));
 		set.add(failed_cmds, command);
@@ -10,7 +16,7 @@ if(error_counter > 1) {
 	}
 	snuvi.debug("Restarting script...");
 	error_counter++;
-	if(error_counter >= 100) {
+	if(error_counter >= 5) {
 		snuvi.debug("Script terminated. Endless loop.");
 		term();
 	}
@@ -24,26 +30,14 @@ command.clear();
 //--- Register commands not shown on /help here ---
 command.add("hack");
 //Games
-//command.add("nextplayer");
-//command.add("invstats");
-//command.add("topinvstats");
-//command.add("removeinvstats");
-//command.add("sfstats");
-//command.add("topsfstats");
-//command.add("removesfstats");
+command.add("nextplayer");
+command.add("invstats");
+command.add("topinvstats");
+command.add("removeinvstats");
+command.add("sfstats");
+command.add("topsfstats");
+command.add("removesfstats");
 //command.add("questanswer");
-//command.add("infopoint1");
-//command.add("infopoint2");
-//command.add("infopoint3");
-//command.add("infopoint4");
-//command.add("infopoint5");
-//command.add("infopoint6");
-//command.add("infopoint7");
-//command.add("infopoint8");
-//command.add("infopoint9");
-//command.add("infopoint10");
-//command.add("infopoint11");
-//command.add("infopoint12");
 //Vanilla überschreiben
 command.add("butcher");
 
@@ -75,10 +69,10 @@ command.register("errordebug", "Debug-Logger");
 command.register("feed", "Fills hunger bar");
 command.register("fly", "Toggles fly");
 command.register("friend", "Friend-Commands");
-//command.register("game", "marvs minigame shit");
+command.register("game", "marvs minigame shit");
 command.register("gamemode", "Change gamemode");
 command.register("gamerule", "Manage gamerules");
-//command.register("games", "Teleports to games-spawn");
+command.register("games", "Teleports to games-spawn");
 //command.register("giveup", "Giveup a quest");
 command.register("grow", "Grow seeds");
 command.register("hat", "Be fame with a new hat");
@@ -89,11 +83,12 @@ command.register("home", "Manage your homes");
 command.register("icon", "Shows all icons");
 command.register("live", "Toggles Live-Mode");
 command.register("lag", "Executes a lag test");
-//command.register("leave", "Leaves a minigame");
+command.register("leave", "Leaves a minigame");
 command.register("human", "Human-Commands");
 command.register("inv", "Inv-Commands");
 command.register("iteminfo", "Returns information about an item");
 command.register("jail", "Sends a player to jail");
+command.register("joinme", "Sends a party invitation to all online players");
 command.register("jumpto", "Jumps to a block in sight");
 command.register("kick", "Kicks a player");
 command.register("lastseen", "Shows the last players online");
@@ -117,7 +112,6 @@ command.register("pvp", "Toggles pvp");
 //command.register("quest", "Quest-Commands");
 command.register("rank", "Shows your available ranks");
 command.register("repair", "Repairs your item in mainhand");
-command.register("report", "Report whatever you want");
 command.register("ride", "Rides an entity");
 command.register("say", "[Server] chat message");
 command.register("script", "Script-Commands");
@@ -138,10 +132,12 @@ command.register("skipnight", "Skips the night");
 command.register("spawn", "Teleports to spawn");
 command.register("speed", "Sets your speed");
 command.register("start", "Starts a script");
-//command.register("startgame", "Reduces start-countdown for a minigame");
-//command.register("stats", "Statistics-Commands");
+command.register("startgame", "Reduces start-countdown for a minigame");
+command.register("stats", "Statistics-Commands");
 //command.register("stopadventure", "Stops an adventure");
 command.register("suicide", "Kill yourself");
+command.register("support", "Creates a ticket for support");
+command.register("teammsg", "Sends a message to team");
 command.register("tempban", "Bans a player temporarly");
 command.register("tempfly", "Let a player temporarly fly");
 command.register("ticket", "Ticket-Commands");
@@ -184,8 +180,9 @@ command.registerAlias("colour", "color");
 command.registerAlias("gm", "gamemode");
 command.registerAlias("p", "plot");
 command.registerAlias("dt", "datatools");
-//command.registerAlias("l", "leave");
-//command.registerAlias("hub", "leave");
+command.registerAlias("l", "leave");
+command.registerAlias("hub", "leave");
+command.registerAlias("t", "teammsg");
 command.registerAlias("v", "vanish");
 //command.registerAlias("fuckit", "giveup");
 command.registerAlias("thor", "lightning");
@@ -432,16 +429,16 @@ vote_inv = inv.new("222222222", text.new("§8Voteshop"));
 //inv.setItem(vote_inv, 0, item.new(material.get("km:coin_gold"), 1, "§aMoney Booster", "§fCost: §e6 VP", "Doubles incoming money for 10 minutes."));
 lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e2 VP"));
-list.add(lore_list, text.new("Rickroles every player on the server."));
+list.add(lore_list, text.new("§5Rickroles every player on the server."));
 inv.setItem(vote_inv, 1, item.create("JUKEBOX", 1, "§aRick is in the house", lore_list));
 updateVoteInv();
 lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e2 VP"));
-list.add(lore_list, text.new("Be a kiddie and enjoy it."));
+list.add(lore_list, text.new("§5Be a kiddie and enjoy it."));
 inv.setItem(vote_inv, 3, item.create("JUKEBOX", 1, "§aBi Ba Bobby Car", lore_list));
 lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e1 VP"));
-list.add(lore_list, text.new("Plays a creeper sound for each player."));
+list.add(lore_list, text.new("§5Plays a creeper sound for each player."));
 inv.setItem(vote_inv, 4, item.create("JUKEBOX", 1, "§aFalse Alarm", lore_list));
 vote_inv_id = inv.getId(vote_inv);
 
@@ -451,6 +448,7 @@ set.add(consoleCommands, "help");
 set.add(consoleCommands, "kick");
 set.add(consoleCommands, "lastseen");
 set.add(consoleCommands, "list");
+set.add(consoleCommands, "memory");
 set.add(consoleCommands, "mute");
 set.add(consoleCommands, "say");
 set.add(consoleCommands, "silentban");
@@ -494,6 +492,42 @@ databank.workerExecute(databank.prepare("
 		PRIMARY KEY (player_id, name)
 	);
 "));
+
+databank.workerExecute(databank.prepare("
+	CREATE TABLE IF NOT EXISTS votes (
+		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+		name VARCHAR(20) NOT NULL, 
+		player_id INT, 
+		time BIGINT NOT NULL
+	);
+"));
+
+databank.workerExecute(databank.prepare("
+	CREATE TABLE IF NOT EXISTS newbies (
+		id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+		player_id INT NOT NULL, 
+		time BIGINT NOT NULL
+	);
+"));
+
+//plot ranks cachen
+plot_ranks_map = map.new();
+stmt = databank.prepare("SELECT plot_id, player_id, rank FROM new_plotranks");
+result = databank.execute(stmt);
+while(databank.next(result)) {
+	plot_id = databank.getInt(result, 1);
+	player_id = databank.getInt(result, 2);
+	rank = databank.getString(result, 3);
+	map = map.get(plot_ranks_map, plot_id);
+	if(map == null) {
+		map = map.new();
+	}
+	map.add(map, player_id, rank);
+	map.add(plot_ranks_map, plot_id, map);
+}
+databank.close(result);
+databank.close(stmt);
+setScriptVar("plot_ranks", plot_ranks_map);
 
 last_skip_night = 0;
 skip_night_started = false;
@@ -566,17 +600,17 @@ if(event == "custom_command") {
 	goto("wait");
 }
 if(event == "vote") {
+	now_time = time.getMillis();
+	vote.register(name, now_time);
 	p_uuid = player.getUuid(name);
 	if(p_uuid != null) {
 		p_id = player.getId(p_uuid);
 		player.addVotePoints(p_id, 1);
-		msg.prefix("online", prefix_vote, string.concat("§b", name, "§r hat gerade gevoted!"));
 		if(from == "minecraft-server.eu") {
-			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server.eu", "https://minecraft-server.eu/vote/index/2227F")));
+			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(string.concat(" §b", name, "§r has voted! ")), string.getLinkText("[§cminecraft-server.eu§r]", "https://minecraft-server.eu/vote/index/2227F")));
 		} else {
-			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server-list.com", "https://minecraft-server-list.com/server/478200/vote/")));
+			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(string.concat(" §b", name, "§r has voted! ")), string.getLinkText("[§cminecraft-server-list.com§r]", "https://minecraft-server-list.com/server/478200/vote/")));
 		}
-		now_time = time.getMillis();
 		last_vote_time = player.getLastVoteTime(player);
 		new_streak = player.getVoteStreak(p_id);
 		if(last_vote_time == 0) {
@@ -1096,6 +1130,7 @@ if(event == "snuvi_click") {
 			inv.setItem(inv, inv_slot, item.create("minecraft:compass", 1, "§fShow Coords", item.createLore(new_value)));
 			if(!new_value) {
 				sb.remove(player, 2);
+				sb.remove(player, 3);
 			}
 		}
 		elseif(inv_slot == 3) {
@@ -1183,7 +1218,7 @@ if(arg0 == "remove") {
 		goto("wait");
 	}
 	location = block.getLocation(block);
-	plot.addBlock(location);
+	plot.removeBlock(location);
 	msg.prefix(player, prefix_commands, "Block no longer whitelisted for interaction.");
 	plot.saveBlocks(loc.getWorld(location));
 	goto("wait");
@@ -1340,7 +1375,7 @@ if(arg0 == "send") {
 		goto("wait");
 	}
 	item = living.getHand(player);
-	if(item.getType(item) == material.getAir()) {
+	if(item.isAir(item)) {
 		msg.prefix(player, prefix_commands, "You have to hold an item in your mainhand.");
 		goto("wait");
 	}
@@ -1892,7 +1927,6 @@ if(arg0 == "join") {
 		goto("setmessagehelp");
 	}
 	message = string.concatList(args, " ", 1, size - 1);
-	//string = string.replace(message, "&", "§");
 	player.setJoinMessage(player, message);
 	msg.prefix(player, prefix_commands, "Join-Message set.");
 	goto("wait");
@@ -1902,7 +1936,6 @@ if(arg0 == "leave") {
 		goto("setmessagehelp");
 	}
 	message = string.concatList(args, " ", 1, size - 1);
-	//string = string.replace(message, "&", "§");
 	player.setLeaveMessage(player, message);
 	msg.prefix(player, prefix_commands, "Leave-Message set.");
 	goto("wait");
@@ -2096,7 +2129,8 @@ if(arg0 == "info") {
 	msg.string(sender, table.get(table, "Rank", getRank(p_or_id)));
 	msg.string(sender, table.get(table, "PvP", hasPvpOn(p_or_id)));
 	msg.string(sender, table.get(table, "Quests", string.number(quest.getCounter(p_or_id))));
-	msg.string(sender, table.get(table, "Money", string.number(getMoney(p_or_id))));
+	snuvis = getMoney(p_or_id);
+	msg.string(sender, table.get(table, "Money", string.concat(money.getString(snuvis), " (",string.number(snuvis), ")")));
 	msg.string(sender, table.get(table, "Adventures", string.number(player.getAdventureAmounts(p_or_id))));
 	msg.string(sender, table.getEnd(table));
 	goto("wait");
@@ -2324,14 +2358,28 @@ msg.prefix(player, "§dScript", string.concat(var_name, " = ", var));
 goto("wait");
 
 @vote
-link1 = "https://minecraft-server.eu/vote/index/2227F";
-link2 = "https://minecraft-server-list.com/server/478200/vote/";
 msg.string(player, string.getSpacer());
-msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server.eu", link1)));
-msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server-list.com", link2)));
-msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votepoints: §6", string.number(player.getVotePoints(player))))));
-msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votestreak: §6", string.number(player.getVoteStreak(player))))));
-last_vote_time = player.getLastVoteTime(player);
+if(size == 0) {
+	link1 = "https://minecraft-server.eu/vote/index/2227F";
+	link2 = "https://minecraft-server-list.com/server/478200/vote/";
+	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server.eu", link1)));
+	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server-list.com", link2)));
+	p = player;
+} else {
+	if(!perm.has("user.other", player)) {
+		perm.no("user.other", player);
+		goto("wait");
+	}
+	p_name = list.getIndex(args, 0);
+	if(!checkIfEverOnline(p_name)) {
+		msg.prefix(player, prefix_commands, "This player has never been online.");
+		goto("wait");
+	}
+	p = read.player(p_name);
+}
+msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votepoints: §6", string.number(player.getVotePoints(p))))));
+msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votestreak: §6", string.number(player.getVoteStreak(p))))));
+last_vote_time = player.getLastVoteTime(p);
 if(last_vote_time == 0) {
 	last_vote_time = "-";
 } else {
@@ -2409,7 +2457,7 @@ goto("wait");
 
 @hat
 item = living.getHand(player);
-if(item.getType(item) == material.getAir()) {
+if(item.isAir(item)) {
 	msg.prefix(player, prefix_commands, "You have to hold an item in hand.");
 	goto("wait");
 }
@@ -2592,6 +2640,19 @@ if(silentjoin) {
 }
 goto("wait");
 
+@joinme
+list = players.toList();
+iter = iterator(list);
+while(hasNext(iter)) {
+	invitee = next(iter);
+	if(player == invitee) {
+		continue;
+	}
+	party.invitePlayer(player, invitee);
+}
+msg.prefix(player, prefix_party, "Party invitation sent to all online players.");
+goto("wait");
+
 @jumpto
 block = player.getTargetBlock(player, 100);
 if(block == null) {
@@ -2647,10 +2708,11 @@ for(i = 0; i < size; i++) {
 	p = list.getIndex(list, i);
 	if(player.getShowcoords(p)) {
 		p_loc = entity.getLocation(p);
-		sb.add(p, 2, string.concat("§6X§r ", string.number(loc.getBlockX(p_loc)), " §6Y§r ", string.number(loc.getBlockY(p_loc)), " §6Z§r ", string.number(loc.getBlockZ(p_loc))));
+		sb.add(p, 3, string.concat("§6X§r ", string.number(loc.getBlockX(p_loc)), " §6Y§r ", string.number(loc.getBlockY(p_loc)), " §6Z§r ", string.number(loc.getBlockZ(p_loc))));
+		sb.add(p, 2, string.concat(icon.getCompass(), " ", getDirectionExact(loc.getYaw(p_loc))));
 	}
 }
-sgoto(10, "coordsloop");
+sgoto(15, "coordsloop");
 goto("wait");
 
 @customitems
@@ -2778,6 +2840,7 @@ if(!entity.isArmorstand(entity)) {
 	as = entity.get(location, 3, "org.bukkit.entity.ArmorStand");
 	if(as == null) {
 		msg.action(player, "No armorstand found.");
+		goto("wait");
 	}
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -3017,7 +3080,7 @@ if(arg0 == "set") {
 		msg.prefix(player, prefix_datatools, "/ass set <name>");
 		goto("wait");
 	}
-	name = string.concatList(args, " ", 1, size - 1);
+	name = string.concatList(string_args, " ", 1, size - 1);
 	name = string.replace(name, "&", "§");
 	as = entity.spawn(entity.getLocation(player), "ARMOR_STAND");
 	entity.setGravity(as, false);
@@ -3033,6 +3096,7 @@ if(!entity.isArmorstand(entity)) {
 	as = entity.get(location, 3, "org.bukkit.entity.ArmorStand");
 	if(as == null) {
 		msg.action(player, "No armorstand found.");
+		goto("wait");
 	}
 }
 if(arg0 == "name") {
@@ -3040,7 +3104,7 @@ if(arg0 == "name") {
 		msg.prefix(player, prefix_datatools, "/ass name <name>");
 		goto("wait");
 	}
-	name = string.concatList(args, " ", 1, size - 1);
+	name = string.concatList(string_args, " ", 1, size - 1);
 	name = string.replace(name, "&", "§");
 	entity.setName(as, text.new(name), true);
 	msg.action(player, "Armorstand renamed.");
@@ -3492,6 +3556,16 @@ if(arg0 == "clear" || arg0 == "rain" || arg0 == "thunder") {
 }
 goto("weather_syntax");
 
+@teammsg
+if(size < 1) {
+	msg.prefix(sender, prefix_commands, "/teammsg <message>");
+	goto("wait");
+}
+message = string.concatList(string_args, " ", 0, size - 1);
+message = string.replace(message, "&", "§");
+msg.team(player, message);
+goto("wait");
+
 @time
 if(size == 0) {
 	@time_syntax
@@ -3633,7 +3707,7 @@ if(arg0 == "list") {
 		} else {
 			tipp_loop = string.concat("§c", tipp_loop);
 		}
-		msg.string(player, string.concat(" ", tipp_loop, " §e", tipp_key, "§r : ", tipp_value));
+		msg(player, text.merge(text.new(string.concat(" ", tipp_loop, " §e", tipp_key, "§r : ")), string.getInterpretedText(tipp_value)));
 	}
 	goto("wait");
 }
@@ -3663,8 +3737,7 @@ if(arg0 == "loop") {
 		goto("wait");
 	}
 	tipp_key = list.getIndex(args, 1);
-	tipp_value = tipp.get(tipp_key);
-	if(tipp_value == null) {
+	if(!tipp.exists(tipp_key)) {
 		msg.prefix(player, prefix_tips, "This tip does not exist.");
 		goto("wait");
 	}
@@ -3696,8 +3769,7 @@ if(arg0 == "remove") {
 	goto("wait");
 }
 tipp_key = arg0;
-tipp_value = tipp.get(tipp_key);
-if(tipp_value == null) {
+if(!tipp.exists(tipp_key)) {
 	msg.prefix(player, prefix_tips, "This tip does not exist.");
 	goto("wait");
 }
@@ -3712,12 +3784,8 @@ if(size == 1) {
 	p = read.player(p_name);
 	msg.prefix(player, prefix_tips, string.concat("Tip sent to §7", p_name, "§r."));
 }
-if(string.contains(tipp_value, "https://")) {
-	tipp_value = string.getTextWithLink(tipp_value);
-} else {
-	tipp_value = text.new(tipp_value);
-}
-msg(p, text.merge(text.new(string.concat(string.getPrefix(string.concat("§e", player.getName(player))), " ")), tipp_value));
+tipp_value = tipp.get(tipp_key);
+msg(p, text.merge(text.new(string.concat(string.getPrefix(string.concat("§e", player.getName(player))), " ")), string.getInterpretedText(tipp_value)));
 goto("wait");
 
 @help
@@ -3795,41 +3863,7 @@ goto("wait");
 @start
 if(size != 1) {
 	@starthelp
-	msg.prefix(sender, prefix_commands, "/start ...");
-	msg.string(sender, " - ai");
-	msg.string(sender, " - chat");
-	msg.string(sender, " - commands");
-	msg.string(sender, " - copyisland");
-	msg.string(sender, " - creative");
-	msg.string(sender, " - damage");
-	msg.string(sender, " - doors");
-	msg.string(sender, " - fixitems");
-	msg.string(sender, " - friends");
-	msg.string(sender, " - games");
-	msg.string(sender, " - gemstones");
-	msg.string(sender, " - harvest");
-	msg.string(sender, " - herobrine");
-	msg.string(sender, " - humans");
-	msg.string(sender, " - lectern");
-	msg.string(sender, " - loom");
-	msg.string(sender, " - mails");
-	msg.string(sender, " - market");
-	msg.string(sender, " - mobarena");
-	msg.string(sender, " - perms");
-	msg.string(sender, " - playerdata");
-	msg.string(sender, " - playtime");
-	msg.string(sender, " - pumpkin");
-	msg.string(sender, " - recipes");
-	msg.string(sender, " - scheduler");
-	msg.string(sender, " - shop");
-	msg.string(sender, " - sitting");
-	msg.string(sender, " - stats");
-	msg.string(sender, " - story");
-	msg.string(sender, " - survival");
-	msg.string(sender, " - ticket");
-	msg.string(sender, " - timber");
-	msg.string(sender, " - tiploop");
-	msg.string(sender, " - trader");
+	msg.prefix(sender, prefix_commands, "/start <name>");
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -3896,7 +3930,7 @@ elseif(arg0 == "games") {
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Gamecenter", "utils/u_error", "system/gamecenter", "utils/u_general", "utils/u_games");
+	script.startNamed("Gamecenter", "utils/u_error", "minigames/gamecenter", "utils/u_general", "utils/u_games");
 }
 elseif(arg0 == "gemstones") {
 	script = script.get("Gemstones");
@@ -3996,6 +4030,13 @@ elseif(arg0 == "shop") {
 	}
 	script.startNamed("ChestShops", "utils/u_error", "system/chestshops", "utils/u_general");
 }
+elseif(arg0 == "teleporter") {
+	script = script.get("Teleporter");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("Teleporter", "utils/u_error", "survival/teleporter", "utils/u_general");
+}
 elseif(arg0 == "mails") {
 	script = script.get("Mails");
 	if(script != null) {
@@ -4087,7 +4128,7 @@ if(size != 1) {
 	goto("wait");
 }
 item = living.getHand(player);
-if(item.getType(item) == null) {
+if(item.isAir(item)) {
 	msg.prefix(player, prefix_commands, "You need to hold an item in your hand.");
 	goto("wait");
 }
@@ -4207,18 +4248,12 @@ goto("wait");
 
 @repair
 item = living.getHand(player);
-if(item.getType(item) == null) {
+if(item.isAir(item)) {
 	msg.prefix(player, prefix_commands, "You have to hold an item in your mainhand.");
 	goto("wait");
 }
 item.setDamage(item, 0);
 msg.prefix(player, prefix_commands, "Your item has been repaired.");
-goto("wait");
-
-@report
-msg.prefix(player, prefix_commands, "Want to report a player?");
-msg.string(player, " - §b/ticket <message>");
-msg.string(player, " - §b/mail marvinius <message>");
 goto("wait");
 
 @playtime
@@ -4340,6 +4375,8 @@ if(size == 0) {
 				year = now_year;
 			}
 		}
+		sum_minutes = 0;
+		sum_players = 0;
 		//Von allen Online-Spielern die Onlinezeit abrufen, summieren und zur Heute-Spielzeit addieren
 		since_minutes = playtime.getTotalOnlineMinutes();
 		//Tabelle erstellen
@@ -4354,11 +4391,13 @@ if(size == 0) {
 		//Tages-Spielzeit berechnen
 		for(i = 1; i <= time.getMonthDays(month, year); i++) {
 			players = playtime.getPlayersPerInterval(midnight, midnight + 86400000);
+			sum_players += players;
 			minutes = playtime.getInterval(midnight, midnight + 86400000);
 			midnight += 86400000; //24 Stunden
 			if(i == now_day && month == now_month && year == now_year) {
 				minutes += since_minutes;
 			}
+			sum_minutes += minutes;
 			hours = math.roundDown(minutes / 60);
 			minutes = minutes % 60;
 			if(minutes < 10) {
@@ -4371,6 +4410,18 @@ if(size == 0) {
 				break;
 			}
 		}
+		//Average
+		avg_mins = sum_minutes / i;
+		avg_hours = math.roundDown(avg_mins / 60);
+		avg_mins = avg_mins % 60;
+		if(avg_mins < 10) {
+			avg_time_string = string.concat("§6", string.number(avg_hours), ":0", string.number(avg_mins), " h");
+		} else {
+			avg_time_string = string.concat("§6", string.number(avg_hours), ":", string.number(avg_mins), " h");
+		}
+		avg_players = sum_players / i;
+		msg.string(player, table.getMiddle(table));
+		msg.string(player, table.get(table, "§6Ø", avg_time_string, string.number(math.roundDown(avg_players))));
 		//Tabelle beenden
 		msg.string(player, table.getEnd(table));
 		goto("wait");
@@ -4472,7 +4523,7 @@ if(arg0 == "item-flag") {
 		goto("wait");
 	}
 	item = living.getHand(player);
-	if(item.getType(item) == null) {
+	if(item.isAir(item)) {
 		msg.prefix(player, prefix_datatools, "Hold an item in your hand.");
 		goto("wait");
 	}
@@ -4491,7 +4542,7 @@ if(arg0 == "item-attribute") {
 		goto("wait");
 	}
 	item = living.getHand(player);
-	if(item.getType(item) == null) {
+	if(item.isAir(item)) {
 		msg.prefix(player, prefix_commands, "You have to hold an item in your mainhand.");
 		goto("wait");
 	}
@@ -4525,7 +4576,7 @@ if(arg0 == "item-name") {
 		goto("wait");
 	}
 	item = living.getHand(player);
-	if(item.getType(item) == null) {
+	if(item.isAir(item)) {
 		msg.prefix(player, prefix_datatools, "You need to hold an item in your hand.");
 		goto("wait");
 	}
@@ -4552,7 +4603,7 @@ if(arg0 == "item-lore") {
 		goto("wait");
 	}
 	item = living.getHand(player);
-	if(item.getType(item) == material.getAir()) {
+	if(item.isAir(item)) {
 		msg.prefix(player, prefix_datatools, "You need to hold an item in your hand.");
 		goto("wait");
 	}
@@ -4604,8 +4655,12 @@ if(arg0 == "frame-hide") {
 		goto("wait");
 	}
 	entity = player.getTargetEntity(player, 5);
+	if(entity == null) {
+		msg.prefix(player, prefix_datatools, "Not an item frame.");
+		goto("wait");
+	}
 	entity_type = entity.getType(entity);
-	if(entity == null || (entity_type != "item_frame" && entity_type != "glow_item_frame")) {
+	if(entity_type != "item_frame" && entity_type != "glow_item_frame") {
 		msg.prefix(player, prefix_datatools, "Not an item frame.");
 		goto("wait");
 	}
@@ -4619,8 +4674,12 @@ if(arg0 == "frame-show") {
 		goto("wait");
 	}
 	entity = player.getTargetEntity(player, 5);
+	if(entity == null) {
+		msg.prefix(player, prefix_datatools, "Not an item frame.");
+		goto("wait");
+	}
 	entity_type = entity.getType(entity);
-	if(entity == null || (entity_type != "item_frame" && entity_type != "glow_item_frame")) {
+	if(entity_type != "item_frame" && entity_type != "glow_item_frame") {
 		msg.prefix(player, prefix_datatools, "Not an item frame.");
 		goto("wait");
 	}
@@ -4670,6 +4729,8 @@ if(size == 0) {
 	msg.string(player, string.concat("§6 - set <uuid> §rSets the skin of a human"));
 	msg.string(player, string.concat("§6 - skin <name> §rSets the skin of a human"));
 	msg.string(player, string.concat("§6 - name §rSets the name of a human"));
+	msg.string(player, string.concat("§6 - move <true/false> §rSets if can move"));
+	msg.string(player, string.concat("§6 - ai <value> §rSets the ai of a human"));
 	msg.string(player, string.concat("§6 - remove §rRemoves a human"));
 	goto("wait");
 }
@@ -4684,7 +4745,7 @@ if(arg0 == "spawn") {
 	    name = string.concat(name, " ", list.getIndex(args, i));
 	}
 	human.spawn(entity.getLocation(player), name);
-	msg.prefix(player, prefix_human, "Human spawned.");
+	msg.action(player, "Human spawned.");
 	goto("wait");
 }
 human = player.getTargetEntity(player, 5);
@@ -4697,11 +4758,11 @@ if(arg0 == "set") {
 		name = list.getIndex(args, 1);
 		uuid = read.uuid(name);
 		if(uuid == null) {
-		    msg.prefix(player, prefix_human, "Invalid UUID.");
+		    msg.action(player, "Invalid UUID.");
 	        goto("wait");	
 		}
 		human.setSkinUUID(human, uuid);
-		msg.prefix(player, prefix_human, "Skin set.");
+		msg.action(player, "Skin set.");
 		goto("wait");
 	}
 }
@@ -4710,6 +4771,8 @@ elseif(arg0 == "skin") {
 		name = string.toLowerCase(list.getIndex(args, 1));
 		if(name == "farmer") {
 		    human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYyMDgyMDYyMjYyMiwKICAicHJvZmlsZUlkIiA6ICJkZGVkNTZlMWVmOGI0MGZlOGFkMTYyOTIwZjdhZWNkYSIsCiAgInByb2ZpbGVOYW1lIiA6ICJEaXNjb3JkQXBwIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzEzMTA0MWI1MTlkZmIyNGQ1MDU0ZDRkMzViZjQ4NTlkNmQ0ZjJlNzczMTZjMjM0YWM1YjhlNWE3MDJkY2FiNGEiCiAgICB9CiAgfQp9", "rww+2EGM/HewD/19pK8Z3DdkJZm1rbzTWTuEfUvthK0pxNDPrZ+vQ1z4ilCuw4kHiLGedq65CQg1LKfE4mbTC5y/iHoqiVFz23slu69PNp8w2g0atH3/NmpUI1DGHv2DCxZReNtaHR9pAU8wVAafdk4bK+qlcoYCVEjQGfG7QvrHpD+T+HoWOzdmr3Wd4Hcr4c8NSwNSpJev5MtqZSE4KJFvv9W6/gFRy7jDvHY/W/XDz4mj9S34jrUirfslDJSnmEPhazNlPFXiUvTKftD+GLDbGSar2QAi+9iuPX2iKOkleGpzO3zfKXcvwF69fWIxFBx+6GR4mbA+dCCpxOgk5XVgr/swlzbeIL62+so61r2bvLEsvTGfkhv66yZP5hKAtHgbCyuqNP6l3FOfrOsQms42uqAkzPuKpYA5tjLH1FLL/zFr9f0VkPTrqyADJDbpV8MhxuAYwzaUsO5p2UI5AbA+ZQDSj9hBVC6ULGfiG89kExEvPGF3DXuBbboZN/nYw4oycnL0yYcaIS2CGQPJrs3pioFF/lhCJtCcP0nPfChapQyWu9/x++1pZOzLwe8cV+5bzFy17HNBYI9MyjbWm1vDaFWatZn4VGijSbJYYhuLhu59oBjCuWmDp7r6l3iASMyyHWhCajsPTxxI5eOzbhGJ1VBZ1GKvRzDMg5W6VGM=");
+		} elseif(name == "fisher") {
+		    human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1NjA2MTExODU0ODcsInByb2ZpbGVJZCI6IjkxZmUxOTY4N2M5MDQ2NTZhYTFmYzA1OTg2ZGQzZmU3IiwicHJvZmlsZU5hbWUiOiJoaGphYnJpcyIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTBlMzdjOThhNGNkNGQ5ZDQ4ZDliZmEzNDU2ZWI5ZjliOGM4ZjU3OThhMWVhODc4MDljZTc2MWM4YTk3OGJjOCJ9fX0=", "gPKKLdqtSrO9EbjX3CfJA/wPUlWZq4Jtuvq7ha/BhHMoMOPFUmS44EtpUjeQXvV/d3lDWtYdWZnFgaKdpTu8EC59/pwuWixw702ZdN0ZwXonN37gZuBQgVkhIw+C5Zi5ZPPMVGvxDmA1rQ/ThDgC0SXkRdICi7Cq91oUiKd92wMd/ZEczhUuId2nQeilSybB8+P4+412j3XzZLZi3jwo1yCXQwtVWF7WGNnxudkwY+B1CI649tGntAgOKIlvF+gsLUBv7+fte6q9kS9USZ0FRK8ymH72JoE6bFUHG4+cEmKr8IpDny570GBl5ZUiy+vbTyOI+JIuYeix4o4xmUyeYunw0+RsQiZ5+NF59QAdtTpP2XUbh9G3GaZTT/5t82AQFrKCMg5EF/znNhLO5U6c0lYrCTEYkmKhL4scJwjxgbhrKVQqosrrKx4LnM65HI+6bJK/6l+7Q4aQxzCYeUfmWEVZDxf//Na5+kKX+fibGx8+xYjR+YuevkHw25Pf9NJk1489eRPrUp0WMt7AJNvbR4rbFpH/FZVOZ1RF/jKcNh1cS8JFvgnUSo2ues3riJ5A5WtHhb8C+PwqypCnLvgb6EMh3PnXObpWo6M28JZOhW/BrF4Q0tAnx6XLvTcGecKaVI6rVjxRUQET5xW6BMdNCRsva9BC5yVDTVHvatv1M5M=");
 		} elseif(name == "baker") {
 		    human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYxNDcyMzU0NDIwNSwKICAicHJvZmlsZUlkIiA6ICI4NDMwMDNlM2JlNTY0M2Q5OTQxMTBkMzJhMzU2MTk2MCIsCiAgInByb2ZpbGVOYW1lIiA6ICJHYWJvTWNHYW1lciIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8zZjVkZTQ4ODJiYzBlZDNjOWY5N2RjNDBiN2RkZjdmMGQxMDk3MzM3ODUzZjQwOTFjMmYwZjUwNWE3ZjZkM2E4IiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0=", "K42itRnrloSmCnA4JkVbRMpd1SK11xVjERFyDnDzE3fo+vnhfqumXv1bLFfgDbm6M1pHpSnB3nIHVGiFfHAnPAzScqgr3cvE9QTZRB81utbXZKfs1AyavpbikkoGgwv8zplxVJvBTrYBtFkt1TbNgndkqM7iJY+Q9OquL+WCa1LPJfquXI+0oRMlhJ7pTw7VddxFLPvuqHtGOXiaBi2da0pfM3M9sfZXXerlIpAC6I2oijo8psOJ+/gcdLMlzriCRkB//iEJTYP9fSsZYBWKSN4j4WEW+yvyMZZND0FZBVy5Ee11AEAbEgxUekvsyT3kiE2du9MXErG4URY4Mwvp7AtBZ0y0l4OR4dP23O2ioOqFTTV7DBuHPQmYvaugkSWwDMbiuY2a1N7m6X4wZPSWUTXqvHd2VO12Y+1T285AizxC4qZ7r1oNbpwpUZvZ+x3QF7cGhcqA53WJvYtypr9BYqvzrGduql/kei1I5kyynlSoTExjgwKN+j0g6TDdXf6ty9gzdDN0Y1DyUmk4xlCniSm7HaoSUKkk5fF1brApC216MzB5v9/cZDQAXDnjpWFbtmWALx5ueMhrTlEMnfbIIJfFnhRgmqYiS3ilCsG7I9ObRTR2+4eTlGnInR2TBcSHv8PcIW/vSIN0sOPTX3VHrlpc5kmW8+gc8J4dEt7yYqc=");
 		} elseif(name == "priest") {
@@ -4732,8 +4795,14 @@ elseif(arg0 == "skin") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwNDUzNTM2MTcxMywKICAicHJvZmlsZUlkIiA6ICJjNTBhZmE4YWJlYjk0ZTQ1OTRiZjFiNDI1YTk4MGYwMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJUd29FQmFlIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2Q1ODA2MWRhMGVjMjk0MTcyNGZhNWVhOTMwMDBhYmQzMWMzZDhmOWM0MTZkOWI0MmJkYTRkODEwZGZiNmZjNGQiCiAgICB9CiAgfQp9", "jLahDHyLmgUsNIWuIG53/xh71HcEPWVTA6tNH+cBFy02GZIbtwZHMKaVmOf6BIt/V+gvZlPyspcEpgDxlRmBrv55dahoHBw3UwfD4B3L9rmaSchazltaRYzH4e2AZcs/NJ5VOwI0+uBu6MPqqjg/3uv4dZ/GZ8zG0wcbNr990EIlTa6Nz6tG/x4XTQNBvQjlDoacxe9uqfiunhckTQmuVbS+aHzmvQY86pU7kDs1+ZZsjSj4Q1iTHj5qTOjSTltB7DKBWaBlcWc8/GfT2T8nWjyvgC6cHoS8z1XbsiHRpsOEppqQfi1sgZV3LzbJxNVrokQQKtZTHIreS+HVsGkmM+4giBRxsqvJE3sXw2xKTtwW3W74/K+sCJkAHJSdZ/v//n6TInqVhYVRzKXVz62qMNYpZo2LWt0jCTfIcfK8Z4o1sp/+6ec4s5Z2WC6F7Qk4WClQWhRzBsHT3UyXMoodLdP6G/WN2G6ENGdUViplM+IAMQL16FbIvjLZXICbjL1CIbnwn+4e0eO4EbVIuUxex7wGziWLx4EdXilZkrDNOZv6pU4qkflBjG6hxP+6OvhSQYQzJ6GTEorScFDdyGnEE5NxPXFjbBC1368yh8ukSvw4znfVnNV3UrwnuFMASc8FHw4WWwJqZ8xibwbq2TQnvpsuuZC/bRgXruM+QBm84MY=");
 		} elseif(name == "dark_mage") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYxMzg4NDI0MjQxMCwKICAicHJvZmlsZUlkIiA6ICJkNGY1ZGQ2YzVhYjE0NTNlYmJiNTg2ZTU2NzVkMDUyZSIsCiAgInByb2ZpbGVOYW1lIiA6ICIwMDAwMDAwMDAwMDAwMDBQIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2M2NmQ3N2ExZTlkMDk0ZDI4MThkYjI1YTViMmQ1ZWIzZWYwOGQ4NTBhOGUxNGNiZWE5MjZlMDNhYTI1MTFiNjgiCiAgICB9CiAgfQp9", "nwOMBhB4wmZq0aQXOe38+ekT716r1YSIMVs60F/OrrNQa+vIWlDPSRZFeTjIkAQr5d1pYl7YlVmiXxgIzJGLcZC5LyvihVgEwseAU8CZdTXSfQBu7OJjC/qrhGZnfDuw0fliSBx6S/hFaOjNWsMTbuESqNRbYUzSx0BjuGDeicrbXHme9tsI2/wTfERLuWnXoeruKyHKNy+j7cQ+/76Bpk1KoQmt2pqxv+o7KGYP7EFl1FpsPDZY5/nWT37r2KrFj0e6+kPy1w4nth80dgBN0da8KceW/ykoHXIDkgVr0xZu3eXpI0bl9LT3rROf1/W1YAiA5gABLU22sZTuBBZYMAbUVuXiwUBlbF2T5mEBNKHQF/1wO+q7oNR9mojVgBggBE4aqMrgNWpx5Vdc1cEmlPVmgt/27w880uPuWW51Ri2JCOdLg28ZY0RqLAIHL28j6rqoum3HLDTWLpEZ+9iAMNJ1toJgN34Ni5C2hSzo7SCLn5I4K5Z/jKfvFJKhF1mkt4yc/Rezl+T9z4FT9qTLfvSFTwsAbQRefnCTqYkiDs7I8WFdL1wymjkqgK75oOE3VWb7fASqpHBMpX9hz09nemx7x4lsHxquj0mctidNhDcrIMiCe0BMqbEoDCgil7iUaiMtGqz8U6KBaWR457XIABL8xThhOw0unNknoau7q0k=");
+		} elseif(name == "santa_marv") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYzNzI4NTI1MTMwMiwKICAicHJvZmlsZUlkIiA6ICJmYzUwMjkzYTVkMGI0NzViYWYwNDJhNzIwMWJhMzBkMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJDVUNGTDE3IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzYzYmMzNzczODg5YmRlNWFlZDA0NTliMWE5MWM5OWI1MTI4MDI1YzVmNTEwNDZjZjcxYjAxOWZhMTY2NWEyYTYiCiAgICB9CiAgfQp9", "r4SGS/TGW7tlibNTq4+uKg/v6oNc5eDD3BLbxIzcppll2tA9P4Za+16X968sgXQhrddNfdAh1zDui43WoON2Jrer797S1JzkddddISMiBq8CpjlUX77N6GvBOr5pBGgMKd0qLsDJUQF5Xa5FNun+ymwh1D57d0pb9eD0zNPIfD4V3REC1a9in1SHkoLfic11f8vCqBZ/oQ72eZ51GMYK1HWNSelCPGC1YQOEYI4WOD8suy44jRTrKO68cvmiizRBYykhJPP7Oqmcy2dOwXnDncif2vEEvTQVFp+uHolguIUOvKXy5lX7JIrZXsEgDaUHIAkQtMjO+9mH+qtkg2tniVTAUDFxQSdkbUY7kDfv40NipbiYgLyA4p+WPXr6BJyWGX6CCI8I71u7yUjOTH8pUt4OPVnGYUG0mT9kQO8P+vJIdW+Thg63/cTDHXmf8v+TDEdB2lyvjSdVeFD21C+MXXeM9yAWoZ370P1aLUar7dVUCRREpSBNpLFCo0wqpy1uiNYkO107LXD5wduxQJL1nQHVlym8+cvc7TyoRwEk7z6fL8NU+K8ijG/i9YhEUVPusCNhsbD33vJe2huroYMFx2DKHm9NeyTsTPsUmTu23bO4fZqttTdQohngbWYiDx0y8rDxakErF/gV4Ms38GVM80dAOde3dQpu0txYqGnPHxw=");
+		} elseif(name == "smith") {
+			human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1ODM1NTQzMTAxOTQsInByb2ZpbGVJZCI6IjIzZjFhNTlmNDY5YjQzZGRiZGI1MzdiZmVjMTA0NzFmIiwicHJvZmlsZU5hbWUiOiIyODA3Iiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS84NDQ0NDQzMjlhZWM0OTYxYTJmMWYzZWNiYTBmYjJkZTE1NDU1Mzk5MTFmYjFlODA4ZmM4NzQ2NDNlNTRkZTY2In19fQ==", "qBm2/mxwTcJIEu8r13WohKEiByJQAx1K+5ciGEZQ08PRHbA0hWvuJfLWcAdOERsPARFCAhfzUZOjhOlKr28CNwTYnP7gTf6njP8Q9roSkwGSAH5PDH4mkiS9zmZQwYUJVyzn//srq6XsASNzGFq2ChgRZV+yGAVJFeSFpHAEnhQxhsSM3xltUo37aRjWNI4wlVSqzzQh+oJvB6IDWR6evrK1sNHByhX8/UNcx+XYL6PqN/51g16gJNmhppTu3YFj25dIBSiUTFFGViNMf7eAYrRS36ZkyUHlvAiC8leIOvC6cwtGGngOG6Vun2DtVI+9xyxqQhQURYIl+DrFt1cqSLDfEDVosKsfh3f5ynxaZ61fBZIz0hWxHmWw40SV+1wgfh0XD6jsusdXk/rf9zuRInhAvx/9cBnUNELfDfTeFmpkaZFo2LYwBawcKePVj7yqNborJ30mcyApO68mSIVzYLxO0aKfjRQYzrJx452iBRu4K87DbwvyLPowTzWrBh3HDUXdG4/Qn+W7eR3n7UYTFDeZUXURq6tDX8NEEj2giiBzonlkqpTECAXufabpHo+JvST4L97WKLP5omsKWyzVYTVILBn1On54gra6ZZwga7j+r3o67CQfOh8qDL6ZRoNRA9nBkUZzgjzHcfUAbUsqhYgkBpb/iEkqU6VU2Nc/+tA=");
+		} elseif(name == "casino") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTY0MjkwMTQ3NDQ4OCwKICAicHJvZmlsZUlkIiA6ICJjNTZlMjI0MmNiZWY0MWE2ODdlMzI2MGRjMGNmOTM2MSIsCiAgInByb2ZpbGVOYW1lIiA6ICJMSlI3MzEwMCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8zZTA3OTQ3ZTRhMmNkOGQ1NGVjZGE4N2ZiNTQxNTViODQ4Zjk4ZTE5ZDE1ZTBiOTVhYjAyOTAyNjEyM2JkODM5IgogICAgfQogIH0KfQ==", "H5PIINevEBYikUEDiKw388RE5pxSp07y1LidOW/uZJbBUXFCQoUWZTh3faR5uL51T5EXxyVWbiZD1LA14S3vIrtruW7yR+keJYGw5PCQDWaPi8Qq41wwtQ01GXnGviWIqrJ5CGjHBbSQ0jpfZ+wSs48rByKfoS35SFeYdPvJeAODj9Sz1BBrJ8D9hW+n6w721RkAMGtYHSDgjcjzB1on+li78RvSKa3kUm2jqU5jNdLURHoDJe5Yg3i2vfXGtHdspC6isgH5KVe2prwYlosanun0XIYc6L99u2deN88rF55IXWsE+12cVTzaMDj4/oQqFvyfd92TgCNmuTJvwQKG9bLyt8IXgb/E0sRLN5ymZ0gUIju1ZXeRYDppnxWiZlLV9KK1zpGQ82gLTtamfjpj7z3Sg9N51t3BhGCZ98Y2Rn6UDGJ//v/h0qm/tNP4trQEFp2qGpYW4hM/0sSHA8KvJlfGrHv22JboVNyOlXMEENpcp8KTpJfAD5mpYoLKM3CWFFN/yReTkdTFs3L/qvv1DtNsvunNqAd0NTwD5hzQoigt3Diq9ZyLgnmzCj6OISw6RQLMkdNNpeBgxorXpCJM+mqV5RmPQwU0EhTlnJD0RC8HfqTOmIREJ/aczd3DJ7rMiJpDaPqOpMnNetQR6m85k90pcDHY08UqB4ZfItChL9I=");
 		} else {
-		    msg.prefix(player, prefix_human, "Not supported name.");
+		    msg.action(player, "Not supported name.");
 		}
 		goto("wait");
 	}
@@ -4748,12 +4817,40 @@ elseif(arg0 == "name") {
 	    name = string.concat(name, " ", list.getIndex(args, i));
 	}
 	human.setName(human, name);
-	msg.prefix(player, prefix_human, string.concat("Human named to ", name, "§r."));
+	msg.action(player, string.concat("Human named to ", name, "§r."));
+	goto("wait");
+}
+if(arg0 == "move") {
+	if(size < 2) {
+		msg.prefix(player, prefix_human, "/human move <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	human.canMove(human, bool);
+	msg.action(player, "Move set.");
+	goto("wait");
+}
+if(arg0 == "ai") {
+	if(size < 2) {
+		msg.prefix(player, prefix_human, "/human ai <value>");
+		goto("wait");
+	}
+	value = list.getIndex(args, 1);
+	if(!isDouble(value) || value < 0 || value > 2) {
+		msg.action(player, "Number between 0 and 2 expected.");
+		goto("wait");
+	}
+	human.setAi(human, value);
+	msg.action(player, "Ai set.");
 	goto("wait");
 }
 elseif(arg0 == "remove") {
 	entity.remove(human);
-	msg.prefix(player, prefix_human, "Human removed.");
+	msg.action(player, "Human removed.");
 	goto("wait");
 }
 goto("humanhelp");
@@ -4874,8 +4971,14 @@ if(!isDouble(line)) {
 	goto("wait");
 }
 if(!(line == 1 || line == 2 || line == 3 || line == 4)) {
-	msg.prefix(player, prefix_commands, "Number between 1 and 5 expected.");
+	msg.prefix(player, prefix_commands, "Number between 1 and 4 expected.");
 	goto("wait");
+}
+if(!player.hasBypass(player)) {
+	if(!plot.check(block.getLocation(block), player, 19, true)) {
+		msg.prefix(player, prefix_commands, "Not your plot.");
+		goto("wait");
+	}
 }
 string = "";
 if(size > 1) {
@@ -4909,7 +5012,7 @@ goto("wait");
 
 @mute
 if(size < 1) {
-	msg.prefix(sender, prefix_commands, "/mute <player>");
+	msg.prefix(sender, prefix_commands, "/mute <player> [message]");
 	goto("wait");
 }
 p_name = list.getIndex(args, 0);
@@ -4923,8 +5026,13 @@ if(p_name == "marvinius") {
 	msg.string(sender, "§cSorry §b¯\\_(._.)_/¯");
 	goto("wait");
 }
-msg.string("online", string.concat("§c", p_name, " was muted by ", player.getName(sender), "."));
 player.mute(p, true);
+if(size > 1) {
+	reason = string.concatList(args, " ", 1, size - 1);
+	msg.string("online", string.concat("§c", p_name, " was muted by ", player.getName(sender), ": ", reason));
+} else {
+	msg.string("online", string.concat("§c", p_name, " was muted by ", player.getName(sender), "."));
+}
 goto("wait");
 
 @unmute
@@ -5151,7 +5259,7 @@ if(size == 0) {
 	}
 	msg.string(player, "");
 	msg.string(player, "§d - pos1/pos2 §rSet corner points");
-	msg.string(player, "§d - create §rCreates a (sub-)plot (Y: 0 - 319)");
+	msg.string(player, "§d - create §rCreates a (sub-)plot (Y: -64 to 319)");
 	msg.string(player, "§d - create3D §rCreates a 3D (sub-)plot");
 	msg.string(player, "");
 	msg.string(player, "§d - remove [id] §rRemoves a plot");
@@ -5800,8 +5908,7 @@ if(arg0 == "kick") {
 			msg.prefix(player, prefix_perms, "You have no permission for this in this world.");
 			goto("wait");
 		}
-		player_id = player.getId(player);
-		if(!plot.isLeader(plot, player_id) && !plot.isMod(plot, player_id)) {
+		if(!plot.isLeader(plot, player) && !plot.isMod(plot, player)) {
 			msg.prefix(player, prefix_plot, "You aren´t a plot leader or mod.");
 			goto("wait");
 		}
@@ -5970,10 +6077,10 @@ if(arg0 == "create" || arg0 == "create3d") {
 				msg.prefix(player, prefix_plot, "Free plot (16 x 16) to calculation included.");
 			}
 			if(!hasEnoughMoney(player, snuvis)) {
-				msg.prefix(player, prefix_plot, string.concat("You´ll need §6", string.number(snuvis), "§r snuvis for this."));
+				msg.prefix(player, prefix_plot, string.concat("You´ll need ", money.getString(snuvis), " snuvis for this."));
 				goto("wait");
 			}
-			create_message = string.concat("Plot created. Spent §6", string.number(snuvis), "§r snuvis.");
+			create_message = string.concat("Plot created. Spent ", money.getString(snuvis), " snuvis.");
 			money.sub(player, snuvis);
 			if(!free_plot_used && world_name != "creative") {
 				player.setUsedFreePlot(player_id, true);
@@ -6034,7 +6141,7 @@ if(arg0 == "pos1" || arg0 == "pos2") {
 		if(loc.isCity(loc1) && loc.isCity(loc2)) {
 			snuvis = 0;
 		}
-		msg.prefix(player, prefix_plot, string.concat("This plot will cost §6", string.number(snuvis), "§r snuvis."));
+		msg.prefix(player, prefix_plot, string.concat("This plot will cost ", money.getString(snuvis), " snuvis."));
 	}
 	goto("wait");
 }
@@ -6447,7 +6554,7 @@ if(!isDouble(lvl) || lvl < 1 || lvl > 100) {
 	goto("wait");
 }
 item = living.getHand(player);
-if(item.getType(item) == null) {
+if(item.isAir(item)) {
 	msg.prefix(sender, prefix_commands, "You need to hold an item in your hand.");
 	goto("wait");
 }
@@ -8253,7 +8360,7 @@ entity.setMotion(player, 0, 5, 0);
 goto("wait");
 
 @memory
-msg.prefix(player, prefix_commands, string.concat("Used RAM: ", string.number(usedMemory()), " / ", string.number(math.round(allocatedMemory())), " MB"));
+msg.prefix(sender, prefix_commands, string.concat("Used RAM: ", string.number(usedMemory()), " / ", string.number(math.round(allocatedMemory())), " MB"));
 goto("wait");
 
 @world
@@ -8438,6 +8545,7 @@ if(size != 1) {
 		msg.prefix(player, prefix_jail, "This player is already jailed.");
 		goto("wait");
 	}
+	player_name = player.getName(player);
 	if(player_name == p_name) {
 		msg.prefix(player, prefix_jail, "Self-Jailing isn´t a good idea.");
 		goto("wait");
@@ -8507,6 +8615,27 @@ function setInvItem(inv, slot, item) {
 function rank.add(index, tech_rank, chat_rank) {
 	$rank_array[index, 0] = tech_rank;
 	$rank_array[index, 1] = chat_rank;
+}
+
+//--------------------------------------------------
+//Vote-Utils
+//--------------------------------------------------
+
+function vote.register(name, time) {
+	uuid = player.getUuid(name);
+	if(uuid == null) {
+		stmt = databank.prepare("INSERT INTO votes (name, time) VALUES(?,?);");
+		databank.setString(stmt, 1, name);
+		databank.setLong(stmt, 2, time);
+		databank.workerExecute(stmt);
+		return;
+	}
+	stmt = databank.prepare("INSERT INTO votes (name, player_id, time) VALUES(?,?,?);");
+	id = player.getId(uuid);
+	databank.setString(stmt, 1, name);
+	databank.setInt(stmt, 2, id);
+	databank.setLong(stmt, 3, time);
+	databank.workerExecute(stmt);
 }
 
 //--------------------------------------------------
@@ -8601,12 +8730,25 @@ function tipp.get(tipp_key) {
 	stmt = databank.prepare("SELECT tipp_value FROM tipps WHERE tipp_key = ?;");
 	databank.setString(stmt, 1, tipp_key);
 	result = databank.execute(stmt);
-	while(databank.next(result)) {
+	if(databank.next(result)) {
 		tipp_value = databank.getString(result, 1);
 	}
 	databank.close(result);
 	databank.close(stmt);
 	return tipp_value;
+}
+
+function tipp.exists(tipp_key) {
+	stmt = databank.prepare("SELECT tipp_key FROM tipps WHERE tipp_key = ?;");
+	databank.setString(stmt, 1, tipp_key);
+	result = databank.execute(stmt);
+	temp = false;
+	if(databank.next(result)) {
+		temp = true;
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return temp;
 }
 
 //--------------------------------------------------
@@ -9279,8 +9421,8 @@ function updateVoteInv() {
 	lore_list = list.new();
 	list.add(lore_list, text.new("§fCost: §e1 VP"));
 	list.add(lore_list, text.new(string.concat("§fCounter: §e", string.number(getHomeBoost()))));
-	list.add(lore_list, text.new("Every 20 VP the possible homes increase by one."));
-	list.add(lore_list, text.new("Counter automatically shrinks by one every day."));
+	list.add(lore_list, text.new("§5Every 20 VP the possible homes increase by one."));
+	list.add(lore_list, text.new("§5Counter automatically shrinks by one every day."));
 	inv.setItem($vote_inv, 2, item.create("RED_BED", 1, "§aMore Homes", lore_list));
 }
 

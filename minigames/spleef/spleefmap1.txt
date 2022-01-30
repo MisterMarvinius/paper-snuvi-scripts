@@ -1,0 +1,15 @@
+minplayers = 2;
+maxplayers = 4;
+mapname = "Ygdrasil";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 985.5, 88, 942.5);
+gamesignloc = minigame.getSignLoc("spleefsign1");
+
+spleef_list = list.new();
+list.add(spleef_list, material.get("snow_block"));
+
+startlocs = list.new();
+list.add(startlocs, loc.new(gamesworld, 1004.5, 107, -99.5));
+list.add(startlocs, loc.new(gamesworld, 996.5, 107, -99.5));
+list.add(startlocs, loc.new(gamesworld, 1000.5, 107, -103.5));
+list.add(startlocs, loc.new(gamesworld, 1000.5, 107, -95.5));

@@ -1,0 +1,16 @@
+gamesignloc = minigame.getSignLoc("jr_sign_4D_3");
+
+games = world.getGames();
+Edge_1 = loc.new(games,3, 221 ,-1997);//immer kleiner/negativer
+Edge_2 = loc.new(games, 13, 228,-1987);//als Edge_2
+Edge_3 = loc.new(games,3, 232,-1997);//startpunkt zum pasten (negativster wert)
+
+Start_Pos = loc.new(games, 3.5, 232,-1996.5);
+
+loc1 = loc.new(games, 8, 239,-1992);//Koordinaten vom Checkpoint
+loc2 = loc.new(games, 9, 240,-1991);
+
+Layer_amount = 12;
+Layer_difference_X = 0;
+Layer_difference_Y = 11;
+Layer_difference_Z = 0;

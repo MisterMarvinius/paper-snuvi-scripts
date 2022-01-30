@@ -1,0 +1,220 @@
+event.load("entity_damage");
+event.load("player_move");
+event.load("player_quit");
+event.load("player_giveup");
+event.load("minigame_join");
+
+rankingtable = "jumpranks";
+game_short = "jr";
+
+maxplayers = 1;
+gamesignloc = minigame.getSignLoc("jrmap");
+sign.started(gamesignloc);
+gamename = "§aJump'n'Run";
+jump_sound = sound.get("ENTITY_ITEM_PICKUP");
+sound_category_ambient = sound.getCategory("AMBIENT");
+air = material.getAir();
+
+color_list = list.new();
+list.add(color_list, "blue");
+list.add(color_list, "red");
+list.add(color_list, "yellow");
+list.add(color_list, "green");
+list.add(color_list, "orange");
+list.add(color_list, "purple");
+list.add(color_list, "white");
+list.add(color_list, "black");
+list.add(color_list, "light_gray");
+list.add(color_list, "gray");
+list.add(color_list, "magenta");
+list.add(color_list, "brown");
+list.add(color_list, "lime");
+list.add(color_list, "cyan");
+list.add(color_list, "light_blue");
+list.add(color_list, "pink");
+
+wool_list = list.new();
+concrete_list = list.new();
+iter = list.iterator(color_list);
+while(hasNext(iter)) {
+	color_string = next(iter);
+	list.add(wool_list, material.get(string.concat(color_string, "_wool")));
+	list.add(concrete_list, material.get(string.concat(color_string, "_concrete")));
+}
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@minigame_join
+player_record = ranking.getPoints(rankingtable, player);
+server_record = ranking.getPointsFromRank(rankingtable, 1, "DESC", null);
+goto("newgame");
+
+@newgame
+index = math.random(0, 15);
+wool_block = list.getIndex(wool_list, index);
+concrete_block = list.getIndex(concrete_list, index);
+points = 0;
+sb.add(player, 99, "§6Jump'n'Run");
+sb.add(player, 98, string.concat("Your Points: §e", string.number(points)));
+sb.add(player, 95, sb.getSpacer());
+updateDisplayRecords(player, player_record, server_record);
+
+player.setGamemode(player, "ADVENTURE");
+title.send(player, text.new(gamename), text.new(""));
+player.clearInventory(player);
+living.setHealth(player, 20);
+player.setHunger(player, 20);
+player.setSaturation(player, 5);
+
+x = math.random(5000, 5100);
+z = math.random(5000, 5100);
+previous_loc = loc.new(world.getGames(), x, 15, z);
+entity.teleport(player, loc.mod(previous_loc, 0.5, 1, 0.5));
+previous_block = block.get(previous_loc);
+goto("newblock");
+
+@newblock
+a = getRelativeJumpCoords();
+new_block = getNewLoc(previous_block, a[0], a[1], a[2]);
+block.setMaterial(new_block, wool_block);
+block.setMaterial(previous_block, concrete_block);
+new_loc = block.getLocation(new_block);
+sound.spawn(new_loc, jump_sound, sound_category_ambient);
+setMoveEvent(new_loc, player.getUuid(player));
+goto("wait");
+
+@entity_damage
+cancel = true;
+damage_source_type = damage.getType(damage_source);
+if(damage_source_type == "outOfWorld") {
+	//sollte der spieler durch das auffangnetz MoveData:fall_id durchfallen und im Void landen
+	resetBlocks(previous_block, new_block);
+	showStats(player, points);
+	goto("player_giveup");
+}
+goto("wait");
+
+@player_move
+if(id == fall_id) {
+	resetBlocks(previous_block, new_block);
+	showStats(player, points);
+	goto("newgame");
+}
+block.setMaterial(previous_block, air);
+previous_block = new_block;
+points++;
+sb.add(player, 98, string.concat("Your Points: §e", string.number(points)));
+player.setHunger(player, 20);
+player.setSaturation(player, 5);
+goto("newblock");
+
+@player_giveup
+@player_quit
+resetBlocks(previous_block, new_block);
+showStats(player, points);
+player.setGamemode(player, "SURVIVAL");
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+minigame.term(script, gamesignloc);
+term();
+
+function showStats(player, points) {
+	minigame.addPlayed(player, $game_short, 1);
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Points", string.number(points));
+	if($player_record < points) {
+		ranking.setPoints($rankingtable, player, points);
+		minigame.statsLine(player, "§e", "Beat own record by", string.number(points - $player_record));
+		$player_record = points;
+	}
+	if($player_record > $server_record) {
+		$server_record = $player_record;
+	}
+	minigame.statsLine(player, "§e", "Your Record", string.number($player_record));
+	minigame.statsLine(player, "§e", "Server Record", string.number($server_record));
+	//money.addBoost(player, math.round(points));
+}
+
+function resetBlocks(old_block, new_block) {
+	block.setMaterial(old_block, $air);
+	block.setMaterial(new_block, $air);
+}
+
+function updateDisplayRecords(player, player_record, server_record) {
+	sb.add(player, 97, string.concat("Your Record: §e", string.number(player_record)));
+	sb.add(player, 96, string.concat("Server Record: §e", string.number(server_record)));
+}
+
+function setMoveEvent(loc, player_uuid) {
+	move_loc1 = loc.mod(loc, 0, 1, 0);
+	move_loc2 = loc.mod(loc, 1, 2, 1);
+	event.addMoveData(move_loc1, move_loc2, -1, -1, player_uuid);
+	if($fall_id != null) {
+		event.removeMoveData($fall_id);
+	}
+	fall_loc1 = loc.mod(move_loc1, -10, -10, -10);
+	fall_loc2 = loc.mod(move_loc1, 10, -2, 10);
+	$fall_id = event.addMoveData(fall_loc1, fall_loc2, -1, -1, player_uuid);
+}
+
+function getNewLoc(old_block, x, y, z) {
+	new_block = block.mod(old_block, x, y, z);
+	if(!block.isAir(new_block)) {
+		new_block = getNewLoc(old_block, x, y, z);
+	}
+	new_loc = block.getLocation(new_block);
+	if(loc.getY(new_loc) > 319) {
+		loc.setY(new_loc, 319);
+	}
+	return new_block;
+}
+
+function getRelativeJumpCoords() {
+	y = math.random(0, 1);
+	x = math.random(0, 4);
+	if(y == 0) {
+		if(x < 2) {
+			z = math.random(2, 4);
+		} elseif(x < 4) {
+			z = math.random(0, 4);
+		} elseif(x == 4) {
+			z = math.random(0, 3);
+		}
+	} else {
+		if(x == 0) {
+			z = math.random(2, 4);
+		} elseif(x == 1) {
+			z = math.random(2, 3);
+		} elseif(x < 4) {
+			z = math.random(0, 3);
+		} elseif(x == 4) {
+			z = 0;
+		}
+	}
+	x = randomSign(x);
+	z = randomSign(z);
+	a = array.new(3);
+	a[0] = x;
+	a[1] = y;
+	a[2] = z;
+	return a;
+}
+
+function randomSign(value) {
+	sign = math.random(0, 1);
+	if(sign == 0) {
+		return value *= -1;
+	}
+	return value;
+}

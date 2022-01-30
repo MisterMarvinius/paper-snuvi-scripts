@@ -1,0 +1,1002 @@
+rankingtable = "bwranks";
+game_short = "bw";
+game_tab = "§bBW";
+specific_lobby_handling = true;
+no_core_reset = true;
+
+colorcodes = map.new();
+map.add(colorcodes, 0, "§9");
+map.add(colorcodes, 1, "§c");
+map.add(colorcodes, 2, "§e");
+map.add(colorcodes, 3, "§2");
+map.add(colorcodes, 4, "§6");
+map.add(colorcodes, 5, "§5");
+map.add(colorcodes, 6, "§d");
+map.add(colorcodes, 7, "§0");
+
+teamcolortext = map.new();
+map.add(teamcolortext, 0, "§9blue");
+map.add(teamcolortext, 1, "§cred");
+map.add(teamcolortext, 2, "§eyellow");
+map.add(teamcolortext, 3, "§2green");
+map.add(teamcolortext, 4, "§6orange");
+map.add(teamcolortext, 5, "§5magenta");
+map.add(teamcolortext, 6, "§dpink");
+map.add(teamcolortext, 7, "§0black");
+
+concrete_types = map.new(); //Liste der Bau-Blöcke
+map.add(concrete_types, 0, "minecraft:blue_concrete");
+map.add(concrete_types, 1, "minecraft:red_concrete");
+map.add(concrete_types, 2, "minecraft:yellow_concrete");
+map.add(concrete_types, 3, "minecraft:green_concrete");
+map.add(concrete_types, 4, "minecraft:orange_concrete");
+map.add(concrete_types, 5, "minecraft:magenta_concrete");
+map.add(concrete_types, 6, "minecraft:pink_concrete");
+map.add(concrete_types, 7, "minecraft:black_concrete");
+
+playersinteam = map.new(); //Anzahl der Spieler im Team
+teamidtolist = map.new(); //Map mit Spielerlisten für jedes Team
+placedblocks = list.new(); //Liste aller platzierten Blöcke
+allteams = list.new(); //Alle Teams, die noch im Spiel sind
+waiters = list.new(); //Spieler in der Lobby ohne Teamzugehörigkeit
+players = map.new(); //Alle Spieler (key) des Spiels und deren Teamzugehörigkeit (value)
+
+gamename = "§bBedWars";
+bedtruesymbol = "§2✔";
+bedfalsesymbol = "§4✘";
+coin_copper = item.custom.create("COPPER_COIN", 1, null, null);
+coin_silver = item.custom.create("SILVER_COIN", 1, null, null);
+coin_gold = item.custom.create("GOLD_COIN", 1, null, null);
+glowstone_dust = item.create("GLOWSTONE", 1, null, null);
+warp_powder = item.create("GUNPOWDER", 1, "Warp Powder", "Teleportiert dich in deine Base zurück.");
+blaze_rod = item.create("BLAZE_ROD", 1, "§rRettungsplattform", null);
+bed_tag = block.getTag("minecraft:beds");
+bed_tag2 = item.getTag("minecraft:beds");
+air = material.getAir();
+tripwire = material.get("TRIPWIRE");
+
+for(team = 0; team < numberofteams; team++) {
+	map.add(playersinteam, team, 0);
+	map.add(teamidtolist, team, list.new());
+}
+gosub("setstart");
+goto("simplelobby");
+
+@specificLobbyHandling
+player_name = player.getName(player);
+if(event == "minigame_join") {
+	list.add(waiters, player.getName(player));
+	resetplayer(player);
+	stacks.setActive(player, false);
+	return;
+}
+if(event == "player_quit" || event == "player_giveup") {
+	list.remove(waiters, player_name);
+	if(map.get(players, player_name) != null) {
+		teamlist = map.get(teamidtolist, map.get(players, player_name));
+		list.remove(teamlist, player_name);
+	}
+	map.remove(players, player_name);
+	return;
+}
+if(event == "block_click") {
+	if(slot.isOffHand(hand)) {
+		return;
+	}
+	if(action != "RIGHT_CLICK_BLOCK") {
+		return;
+	}
+	block_loc = block.getLocation(block);
+	if(map.contains(join_blocks, block_loc)) {
+		newteam = map.get(join_blocks, block_loc);
+		newteamlist = map.get(teamidtolist, newteam);
+		if(list.contains(newteamlist, player_name)) {
+			msg.prefix(player, gamename, "§eYou are already in this team.");
+			return;
+		}
+		if(list.getSize(newteamlist) >= teamsize) {
+			msg.prefix(player, gamename, "§eNo space for you in this team.");
+			return;
+		}
+		list.remove(waiters, player_name);
+		yetteam = map.get(players, player_name);
+		if(yetteam != null) {
+			yetteamlist = map.get(teamidtolist, yetteam);
+			list.remove(yetteamlist, player_name);
+		}
+		list.add(newteamlist, player_name);
+		map.add(players, player_name, newteam);
+		msg.prefix(player, gamename, string.concat("§eYou joined the ", map.get(teamcolortext, newteam), " §eteam."));;
+		entity.setName(player, string.concat(map.get(colorcodes, newteam), player.getName(player)));
+	}
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+if(voidedge1 != null) {
+	voidid = event.addMoveData(voidedge1, voidedge2, 3, -1);
+}
+
+trap_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
+newbed_sound = sound.get("BLOCK_ANVIL_USE");
+bed_sound = sound.get("ENTITY_WITHER_DEATH");
+
+allkills = map.new();
+bedkills = map.new();
+deaths = map.new();
+brokenbeds = map.new();
+warpinghome_loc = map.new();
+warpinghome_tick = map.new();
+warpinghome_list = list.new();
+lastdamagers = map.new();
+bedsymbol = map.new();
+newbedused = map.new();
+teambedbroken = map.new();
+traps = map.new();
+shopmenus = map.new();
+
+bed_types = map.new(); //Liste der Betten
+map.add(bed_types, 0, "minecraft:blue_bed");
+map.add(bed_types, 1, "minecraft:red_bed");
+map.add(bed_types, 2, "minecraft:yellow_bed");
+map.add(bed_types, 3, "minecraft:green_bed");
+map.add(bed_types, 4, "minecraft:orange_bed");
+map.add(bed_types, 5, "minecraft:mangenta_bed");
+map.add(bed_types, 6, "minecraft:pink_bed");
+map.add(bed_types, 7, "minecraft:black_bed");
+
+glass_types = map.new(); //Liste für Rettungsplattformen
+map.add(glass_types, 0, "minecraft:blue_stained_glass");
+map.add(glass_types, 1, "minecraft:red_stained_glass");
+map.add(glass_types, 2, "minecraft:yellow_stained_glass");
+map.add(glass_types, 3, "minecraft:green_stained_glass");
+map.add(glass_types, 4, "minecraft:orange_stained_glass");
+map.add(glass_types, 5, "minecraft:mangenta_stained_glass");
+map.add(glass_types, 6, "minecraft:pink_stained_glass");
+map.add(glass_types, 7, "minecraft:black_stained_glass");
+
+clothescode = map.new(); //Liste der Datenwerte für gefärbte Kleidung
+map.add(clothescode, 0, 5592575);
+map.add(clothescode, 1, 16733525);
+map.add(clothescode, 2, 16777045);
+map.add(clothescode, 3, 5635925);
+map.add(clothescode, 4, 16755200);
+map.add(clothescode, 5, 43690);
+map.add(clothescode, 6, 5592405);
+map.add(clothescode, 7, 0);
+
+teamcolortext2 = map.new();
+map.add(teamcolortext2, 0, "§9Blue");
+map.add(teamcolortext2, 1, "§cRed");
+map.add(teamcolortext2, 2, "§eYellow");
+map.add(teamcolortext2, 3, "§2Green");
+map.add(teamcolortext2, 4, "§6Orange");
+map.add(teamcolortext2, 5, "§5Magenta");
+map.add(teamcolortext2, 6, "§dPink");
+map.add(teamcolortext2, 7, "§0Black");
+
+colornames = map.new();
+map.add(colornames, 0, "blue");
+map.add(colornames, 1, "red");
+map.add(colornames, 2, "yellow");
+map.add(colornames, 3, "green");
+map.add(colornames, 4, "orange");
+map.add(colornames, 5, "magenta");
+map.add(colornames, 6, "pink");
+map.add(colornames, 7, "black");
+
+while(list.getSize(waiters) != 0) {
+	team = getTeamWithLowestPeople(teamidtolist, numberofteams);
+	teamlist = map.get(teamidtolist, team);
+	p_name = list.getIndex(waiters, 0);
+	list.add(teamlist, p_name);
+	list.remove(waiters, p_name);
+	map.add(players, p_name, team);
+	entity.setName(read.player(p_name), string.concat(map.get(colorcodes, team), p_name));
+}
+
+event.load("player_post_respawn");
+event.load("living_death");
+event.load("living_pickup");
+event.load("player_drop");
+event.load("entity_click");
+event.load("snuvi_click");
+event.load("player_move");
+starttime = time.getMillis();
+
+for(i = 0; i < numberofteams; i++) {
+	map.add(newbedused, i, false);
+	map.add(teambedbroken, i, false);
+	teamlist = map.get(teamidtolist, i);
+	size = list.getSize(teamlist);
+	map.add(playersinteam, i, size);
+	if(size != 0) {
+		list.add(allteams, i);
+		map.add(bedsymbol, i, bedtruesymbol);
+		for(h = 0; h < size; h++) {
+			pname = list.getIndex(teamlist, h);
+			p = read.player(pname);
+			msg.prefix(p, gamename, "The game has started.");
+			entity.teleport(p, map.get(spawn_locs, i));
+			player.setGamemode(p, "survival");
+			player.setFly(p, false);
+			map.add(allkills, pname, 0);
+			map.add(bedkills, pname, 0);
+			map.add(deaths, pname, 0);
+			map.add(brokenbeds, pname, 0);
+			shopmenu = inv.new("333333333333333333333333333333333333");
+			inv.setItem(shopmenu, 0, read.item("minecraft:nether_star", 1, "§rFavoriten"));
+			inv.setItem(shopmenu, 1, read.item("minecraft:smooth_sandstone", 1, "§rBlöcke"));
+			inv.setItem(shopmenu, 2, read.item("minecraft:chainmail_chestplate", 1, "§rRüstung"));
+			inv.setItem(shopmenu, 3, read.item("minecraft:stone_pickaxe", 1, "§rSpitzhacken"));
+			inv.setItem(shopmenu, 4, read.item("minecraft:golden_sword", 1, "§rWaffen"));
+			inv.setItem(shopmenu, 5, read.item("minecraft:bow", 1, "§rBögen"));
+			inv.setItem(shopmenu, 6, read.item("minecraft:apple", 1, "§rNahrung"));
+			inv.setItem(shopmenu, 7, read.item("minecraft:potion", 1, "§rTränke"));
+			inv.setItem(shopmenu, 8, read.item("minecraft:tnt", 1, "§rSpezial"));
+			map.add(shopmenus, player.getId(p), shopmenu);
+		}
+	}
+	setBed(i);
+}
+minigame.displayAll(0, "§bBedWars");
+gosub("setdisplay");
+
+drop_counter = 0;
+@item_dropper
+for(i = 0; i < list.getSize(copper_locs); i++) {
+	loc = list.getIndex(copper_locs, i);
+	item.drop(loc, coin_copper);
+}
+if(drop_counter == 15) {
+	for(i = 0; i < list.getSize(silver_locs); i++) {
+		loc = list.getIndex(silver_locs, i);
+		item.drop(loc, coin_silver);
+	}
+}
+if(drop_counter == 30) {
+	for(i = 0; i < list.getSize(silver_locs); i++) {
+		loc = list.getIndex(silver_locs, i);
+		item.drop(loc, coin_silver);
+	}
+	for(i = 0; i < list.getSize(gold_locs); i++) {
+		loc = list.getIndex(gold_locs, i);
+		item.drop(loc, coin_gold);
+	}
+	drop_counter = 0;
+}
+minigame.displayAll(1, string.concat("§6Gold §r", string.number(30 - drop_counter)));
+if(drop_counter < 15) {
+	iron_drop_counter = drop_counter + 15;
+} else {
+	iron_drop_counter = drop_counter;
+}
+minigame.displayAll(2, string.concat("§7Silber §r", string.number(30 - iron_drop_counter)));
+drop_counter++;
+sgoto(20, "item_dropper");
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	p_name = player.getName(p);
+	tempteam = map.get(players, p_name);
+	color = bedwars.getTeamColor(p);
+	player.action(p, string.concat(color, "Team ", map.get(teamcolortext2, tempteam)));
+	minigame.setTabName(p, game_tab, color);
+}
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(event == "living_death" || event == "living_pickup") {
+	if(!isPlayer(living_entity)) {
+		goto("checkgame");
+	}
+	player = living_entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	player_name = player.getName(player);
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@entity_click
+if(entity.isHuman(entity)) {
+	shopmenu = map.get(shopmenus, player.getId(player));
+	setShopmenu1(shopmenu);
+	inv.open(shopmenu, player, "§8Shop");
+}
+goto("checkgame");
+
+@snuvi_click
+item_type = item.getType(item);
+factor = 1;
+if(click_type == "QUICK_MOVE") {
+	factor = 8;
+}
+shopmenu = map.get(shopmenus, player.getId(player));
+if(inv_slot < 9) {
+	for(slot = 9; slot < 36; slot++) {
+		inv.setItem(shopmenu, slot, null);
+	}
+	if(inv_slot == 0) {
+		setShopmenu1(shopmenu);
+	}
+	if(inv_slot == 1) {
+		setShopmenu2(shopmenu);
+	}
+	if(inv_slot == 2) {
+		setShopmenu3(shopmenu);
+	}
+	if(inv_slot == 3) {
+		setShopmenu4(shopmenu);
+	}
+	if(inv_slot == 4) {
+		setShopmenu5(shopmenu);
+	}
+	if(inv_slot == 5) {
+		setShopmenu6(shopmenu);
+	}
+	if(inv_slot == 6) {
+		setShopmenu7(shopmenu);
+	}
+	if(inv_slot == 7) {
+		setShopmenu8(shopmenu);
+	}
+	if(inv_slot == 8) {
+		setShopmenu9(shopmenu);
+	}
+	goto("checkgame");
+}
+//buyitem
+if(item_type == "km:coin_copper" || item_type == "km:coin_silver" || item_type == "km:coin_gold" || item_type == "minecraft:air") {
+	goto("checkgame");
+}
+priceitem = item.clone(inv.getItem(shopmenu, inv_slot + 9));
+item.setAmount(priceitem, item.getAmount(priceitem) * factor);
+if(player.getItemAmount(player, false, priceitem) < item.getAmount(priceitem)) {
+	goto("checkgame");
+}
+player.removeItemNbt(player, priceitem);
+if(item_type == "minecraft:red_bed") {
+	goto("setnewbed");
+}
+if(item_type == "minecraft:leather_helmet" || item_type == "minecraft:leather_leggings" || item_type == "minecraft:leather_boots") {
+	clothescolor = map.get(clothescode, map.get(players, player_name));
+	item = read.item(string.concat("{id:\"", item_type, "\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}],display:{color:", clothescolor, "}}}"));
+} elseif(item_type == "minecraft:smooth_sandstone") {
+	team = map.get(players, player_name);
+	item_type = map.get(concrete_types, team);
+	item_amount = item.getAmount(inv.getItem(shopmenu, inv_slot));
+	item = read.item(item_type, item_amount);
+}
+if(click_type == "QUICK_MOVE") {
+	item = item.clone(item);
+	item.setAmount(item, item.getAmount(item) * factor);
+}
+player.safeGiveItem(player, item);
+goto("checkgame");
+
+@breakbed
+if(list.contains(foot_bed_loc, block_loc)) {
+	team = list.getIndexOf(foot_bed_loc, block_loc);
+} elseif(list.contains(head_bed_loc, block_loc)) {
+	team = list.getIndexOf(head_bed_loc, block_loc);
+} else {
+	msg.prefix(player, gamename, "§eThis bed is not part of the game.");
+	goto("checkgame");
+}
+teamlist = map.get(teamidtolist, team);
+if(list.contains(teamlist, player_name)) {
+	cancel = true;
+	msg.prefix(player, gamename, "§eThis is your own bed.");
+	goto("checkgame");
+}
+cancel = false;
+tempcolor = map.get(colornames, team);
+map.add(teambedbroken, team, true);
+map.add(bedsymbol, team, bedfalsesymbol);
+map.add(brokenbeds, player_name, map.get(brokenbeds, player_name) + 1);
+owncolor = map.get(colorcodes, map.get(players, player_name));
+minigame.speakAll(gamename, string.concat("§cThe ", map.get(teamcolortext, team), " §cbed has been destroyed by ", owncolor, player_name, "."));
+gosub("setdisplay");
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	sound.spawnForPlayer(p, bed_sound, sound_category_ambient);
+}
+goto("checkgame");
+
+@setdisplay //Alle Teams mit Bett werden oben angezeigt, danach alle Teams ohne Bett. Ausgelöschte Teams werden gar nicht angezeigt
+bedtrue = list.new();
+bedfalse = list.new();
+index = 10;
+for(i = 0; i < list.getSize(allteams); i++) {
+	tempteam2 = list.getIndex(allteams, i);
+	if(!map.get(teambedbroken, tempteam2)) {
+		list.add(bedtrue, tempteam2);
+	} else {
+		list.add(bedfalse, tempteam2);
+	}
+}
+size = list.getSize(bedtrue);
+if(size != 0) {
+	for(i = 0; i < size; i++) {
+		tempteam2 = list.getIndex(bedtrue, i);
+		minigame.displayAll(++index, string.concat(string.number(map.get(playersinteam, tempteam2)), " §2✔ ", map.get(teamcolortext2, tempteam2)));	
+	}
+}
+size = list.getSize(bedfalse);
+if(size != 0) {
+	for(i = 0; i < size; i++) {
+		tempteam2 = list.getIndex(bedfalse, i);
+		minigame.displayAll(++index, string.concat(string.number(map.get(playersinteam, tempteam2)), " §4✘ ", map.get(teamcolortext2, tempteam2)));	
+	}
+}
+return;
+
+@setnewbed
+team = map.get(players, player_name);
+tempcolor = map.get(colornames, team);
+if(map.get(newbedused, team)) {
+	msg.prefix(player, gamename, "§eYou can only us this once.");
+	goto("checkgame");
+}
+if(!map.get(teambedbroken, team)) {
+	msg.prefix(player, gamename, "§eYour bed is not destroyed yet.");
+	goto("checkgame");
+}
+setBed(team);
+map.add(teambedbroken, team, false);
+map.add(bedsymbol, team, bedtruesymbol);
+map.add(newbedused, team, true);
+minigame.speakAll(gamename, string.concat("§eThe ", map.get(teamcolortext, team), " §ebed has been replaced."));
+gosub("setdisplay");
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	sound.spawnForPlayer(p, newbed_sound, sound_category_ambient);
+}
+goto("checkgame");
+
+@player_drop
+if(item == glowstone_dust) {
+	cancel = true;
+}
+goto("checkgame");
+
+@living_pickup
+if(item.hasTag(item, bed_tag2)) {
+	cancel = true;
+	entity.remove(entity);
+}
+goto("checkgame");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("checkgame");
+}
+if(action != "RIGHT_CLICK_AIR" || action != "RIGHT_CLICK_BLOCK") {
+	goto("checkgame");
+}
+item = living.getHand(player);
+if(item == warp_powder) {
+	if(!map.contains(warpinghome_tick, player)) {
+		player_uuid = player.getUuid(player);
+		player.removeItem(player, warp_powder);
+		player.giveItem(player, glowstone_dust);
+		map.add(warpinghome_loc, player_uuid, entity.getLocation(player));
+		map.add(warpinghome_tick, player_uuid, 0);
+		list.add(warpinghome_list, player_uuid);
+		sgoto(20, "warp_tick");
+		goto("checkgame");
+	}
+}
+if(item == glowstone_dust) {
+	player_uuid = player.getUuid(player);
+	map.remove(warpinghome_loc, player_uuid);
+	map.remove(warpinghome_tick, player_uuid);
+	player.removeItem(player, glowstone_dust);
+	player.giveItem(player, warp_powder);
+	goto("checkgame");
+}
+if(item == blaze_rod) {
+	player_loc = entity.getLocation(player);
+	team = map.get(players, player_name);
+	item_type = map.get(glass_types, team);
+	temp_block = block.get(player_loc);
+	temp_block = block.mod(player_loc, 0, -1, 0);
+	if(block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 1, -1, 0);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, -1, -1, 0);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 0, -1, 1);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 0, -1, -1);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, -1, -1, -1);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 1, -1, 1);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 1, -1, -1);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, -1, -1, 1);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 2, -1, 0);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, -2, -1, 0);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 0, -1, 2);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	temp_block = block.mod(player_loc, 0, -1, -2);
+	if(!block.setIfAir(temp_block, item_type)) {
+		list.add(placedblocks, temp_block);
+	}
+	player.removeItem(player, blaze_rod);
+}
+goto("checkgame");
+
+@warp_tick
+player_uuid = list.getIndex(warpinghome_list, 0);
+player = player.get(player_uuid);
+if(player == null) {
+	goto("checkgame");
+}
+list.removeIndex(warpinghome_list, 0);
+player_loc = entity.getLocation(player);
+warp_loc = map.get(warpinghome_loc, player_uuid);
+if(warp_loc == null) {
+	goto("checkgame");
+}
+if(loc.distance(player_loc, warp_loc) > 1) {
+	map.remove(warpinghome_loc, player_uuid);
+	map.remove(warpinghome_tick, player_uuid);
+	player.removeItem(player, glowstone_dust);
+	player.giveItem(player, warp_powder);
+	goto("checkgame");
+}
+tick = map.get(warpinghome_tick, player_uuid) + 1;
+sound.spawnForPlayer(player, trap_sound, sound_category_ambient);
+if(tick == 5) {
+	map.remove(warpinghome_loc, player_uuid);
+	map.remove(warpinghome_tick, player_uuid);
+	player.removeItem(player, glowstone_dust);
+	player_name = player.getName(player);
+	tempteam = map.get(players, player_name);
+	location = map.get(spawn_locs, tempteam);
+	entity.teleport(player, location);
+	goto("checkgame");
+}
+map.add(warpinghome_tick, player_uuid, tick);
+list.add(warpinghome_list, player_uuid);
+sgoto(20, "warp_tick");
+goto("checkgame");
+
+@player_move
+if(id == voidid) {
+	living.damage(player, 300);
+	goto("checkgame");
+}
+temploc = entity.getLocation(player);
+tempx = math.roundDown(loc.getX(temploc));
+tempy = math.roundDown(loc.getY(temploc));
+tempz = math.roundDown(loc.getZ(temploc));
+temploc = loc.new(gamesworld, tempx, tempy, tempz);
+if(block.getType(block.get(temploc)) != tripwire) { //Für den Fall, dass die Trap bereits abgebaut wurde
+	map.remove(traps, id);
+	event.removeMoveData(id);
+	goto("checkgame");
+}
+tempteam = map.get(players, player_name);
+trapteam = map.get(traps, id);
+if(tempteam == trapteam) {
+	goto("checkgame");
+}
+msg.prefix(player, gamename, "§eYou triggered in a trap!!!");
+sound.spawnForPlayer(p, trap_sound, sound_category_ambient);
+teamlist = map.get(teamidtolist, trapteam);
+for(i = 0; i < list.getSize(teamlist); i++) {
+	p = read.player(list.getIndex(teamlist, i));
+	sound.spawnForPlayer(p, trap_sound, sound_category_ambient);
+	msg.prefix(p, gamename, "§eOne of your traps got triggered!!!");
+}
+living.addEffect(player, "BLINDNESS", 200, 1);
+living.addEffect(player, "SLOW", 200, 4);
+map.remove(traps, id);
+block.setMaterial(temploc, air);
+goto("checkgame");
+
+@block_place
+cancel = true;
+block_type = block.getType(block);
+if(block.hasTag(block, bed_tag)) {
+	goto("checkgame");
+} elseif(block_type == tripwire) {
+	tempid = event.addMoveData(block_loc, loc.mod(block_loc, 1, 0.25, 1), 5, -1);
+	map.add(traps, tempid, map.get(players, player_name));
+}
+if(min_build_high != null && loc.getY(block_loc) <= min_build_high) {
+	goto("checkgame");
+}
+cancel = false;
+list.add(placedblocks, block);
+goto("checkgame");
+
+@block_break
+cancel = true;
+block_loc =
+block_type = block.getType(block);
+if(block_type == "minecraft:cobweb") {
+	block.setMaterial(block, air);
+} elseif(block.hasTag(block, bed_tag)) {
+	goto("breakbed");
+} elseif(block_type == "minecraft:iron_block") {
+	player_item_type = item.getType(living.getEquip(player, "hand"));
+	if(player_item_type == "minecraft:stone_pickaxe" || player_item_type == "minecraft:iron_pickaxe") {
+		cancel = false;
+	}
+} elseif(block_type == "minecraft:string") {
+	cancel = false;
+} elseif(list.contains(placedblocks, block)) {
+	cancel = false;
+}
+goto("checkgame");
+
+@player_post_respawn
+tempteam = map.get(players, player_name);
+entity.setName(player, string.concat(map.get(colorcodes, tempteam), player_name));
+if(map.get(teambedbroken, tempteam)) {
+	gosub("setdisplay");
+	if(!checkPlayability(tempteam)) {
+		goto("colorgameover");
+	}
+}
+location = map.get(spawn_locs, tempteam);
+location2 = loc.mod(location, 0, 1, 0);
+block_type = block.getType(location);
+block_type2 = block.getType(location2);
+while(!(block.isAir(location) && block.isAir(location2))) {
+	loc.add(location, 0, 1, 0);
+	loc.add(location2, 0, 1, 0);
+}
+entity.teleport(player, location);
+goto("checkgame");
+
+@player_giveup
+@player_quit
+minigame.speakAll(gamename, string.concat(map.get(colorcodes, map.get(players, player_name)), player_name, " §ehas left the game."));
+tempteam = map.get(players, player_name);
+teamlist = map.get(teamidtolist, tempteam);
+list.remove(teamlist, player_name);
+map.add(playersinteam, tempteam, map.get(playersinteam, tempteam) - 1);
+map.remove(players, player_name);
+script = script.getFromId(script_id);
+minigame.kickplayer(script, player);
+gosub("setdisplay");
+if(!checkPlayability(tempteam)) {
+	goto("colorgameover");
+}
+goto("checkgame");
+
+@entity_damage
+cancel = true;
+tempplayerteam = map.get(players, player_name);
+tempcolor = map.get(colorcodes, tempplayerteam);
+sec_player = player.getFromDamageSource(damage_source);
+if(sec_player != null) {
+	sec_player_name = player.getName(sec_player);
+	teamlist = map.get(teamidtolist, tempplayerteam);
+	if(!list.contains(teamlist, sec_player_name)) {
+		cancel = false;
+	}
+	map.add(lastdamagers, player, map.new());
+	tempmap = map.get(lastdamagers, player);
+	map.add(tempmap, "sec_player", sec_player);
+	map.add(tempmap, "time", time.getMillis());
+} else {
+	cancel = false;
+}
+goto("checkgame");
+
+@living_death
+map.add(deaths, player_name, map.get(deaths, player_name) + 1);
+player.clearInventory(player);
+tempmap = map.get(lastdamagers, player);
+if(tempmap != null) {
+	nowtime = time.getMillis();
+	hittime = map.get(tempmap, "time");
+	if(nowtime - hittime < 10000) { //Wenn seit Begegnung mehr als 10 Sekunden her sind, zählt sec_player nicht mehr
+		sec_player = map.get(tempmap, "sec_player");
+	}
+} else {
+	sec_player = player.getFromDamageSource(damage_source);
+}
+if(sec_player == null) {
+	minigame.speakAll(gamename, string.concat(tempcolor, string.concat(player_name, " §edied.")));
+} else {
+	sec_player_name = player.getName(sec_player);
+	tempoppcolor = map.get(colorcodes, map.get(players, sec_player_name));
+	minigame.speakAll(gamename, string.concat(tempcolor, player_name, " §ehas been killed by ", tempoppcolor, sec_player_name, "."));
+	map.add(allkills, sec_player_name, map.get(allkills, sec_player_name) + 1);
+}
+if(map.get(teambedbroken, tempplayerteam)) {
+	goto("nobed");
+}
+goto("checkgame");
+
+@nobed
+money.addBoost(player, 32);
+minigame.speakAll(gamename, string.concat(tempcolor, player_name, " §ewoke up from their dream."));
+showstats(player, false, false);
+script = script.getFromId(script_id);
+minigame.kickplayer(script, player);
+teamlist = map.get(teamidtolist, map.get(players, player_name));
+list.remove(teamlist, player_name);
+map.remove(players, player_name);
+map.add(playersinteam, tempplayerteam, map.get(playersinteam, tempplayerteam) - 1);
+if(sec_player != null) {
+	map.add(bedkills, sec_player_name, map.get(bedkills, sec_player_name) + 1);
+}
+if(!checkPlayability(tempplayerteam)) {
+	tempteam = tempplayerteam;
+	goto("colorgameover");
+}
+goto("checkgame");
+
+function checkPlayability(tempteam) {
+	if(map.get($playersinteam, tempteam) == 0) {
+		return false;
+	}
+	return true;
+}
+
+@colorgameover
+tempcolortext = map.get(teamcolortext, tempteam);
+minigame.speakAll(gamename, string.concat("§cThe ", tempcolortext, " §cteam has been eliminated."));
+list.remove(allteams, tempteam);
+if(list.getSize(allteams) == 1) {
+	goto("gameover");
+}
+goto("checkgame");
+
+function showstats(player, show_time, won) { //Player player, Boolean show_time, Boolean won
+	player_name = player.getName(player);
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, playedgames);
+	points = last_record + map.get($bedkills, player_name);
+	ranking.setPoints($rankingtable, player_id, points);
+	p_deaths = map.get($deaths, player_name);
+	p_allkills = map.get($allkills, player_name);
+	p_bedkills = map.get($bedkills, player_name);
+	bw.setAllKills(player, bw.getAllKills(player) + p_allkills);
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	if(show_time) {
+		time = ($endtime - $starttime) / 1000;
+		minigame.statsLine(player, "§e", "Time", string.concat(string.number(math.rounddown(time / 60)), " min ", string.number(math.round(time % 60)), " s"));
+	}
+	minigame.statsLine(player, "§e", "All-Kills", string.number(p_allkills));
+	minigame.statsLine(player, "§e", "Bed-Kills", string.number(p_bedkills));
+	minigame.statsLine(player, "§e", "Deaths", string.number(p_deaths));
+	if(p_deaths != 0) {
+		kd = p_allkills / p_deaths;
+		minigame.statsLine(player, "§e", "K/D", string.number(math.roundComma(kd, 2)));
+	}
+	minigame.statsLine(player, "§e", "Destroyed beds", string.number(map.get($brokenbeds, player_name)));
+	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+	
+	wongames = minigame.getWon(player, "bw");
+	if(won) {
+		wongames++;
+		minigame.setWon(player, "knock", wongames);
+	}
+	minigame.statsLine(player, "§e", "Won games", string.number(wongames));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((wongames / playedgames) * 100, 2)), "%"));
+	}
+}
+
+function bw.setAllKills(player_or_id, amount) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, "allbwkills", amount);
+	config.saveAsync(config);
+}
+
+function bw.getAllKills(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, "allbwkills", 0);
+}
+
+function setBed(team) {
+	facing = map.get($bed_facing, team);
+	bed_type = map.get($bed_types, team);
+	block.setMaterial(block.get(list.getIndex($foot_bed_loc, team)), string.concat(bed_type, "[facing= ", facing, ", part=foot]"));
+	block.setMaterial(block.get(list.getIndex($head_bed_loc, team)), string.concat(bed_type, "[facing= ", facing, ", part=head]"));
+}
+
+@gameover
+endtime = time.getMillis();
+if(list.getSize(placedblocks) != 0) {
+	for(i = 0; i < list.getSize(placedblocks); i++) {
+		block.setMaterial(list.getIndex(placedblocks, i), air);
+	}
+}
+minigame.clearItems(middleloc, radius);
+waitfor(2);
+winningteam = map.get(teamidtolist, list.getIndex(allteams, 0));
+for(i = 0; i < list.getSize(winningteam); i++) {
+	player_name = list.getIndex(winningteam, i);
+	player = read.player(player_name);
+	money.addBoost(player, 128);
+	msg.prefix(player, gamename, "§eYou won this game!");
+	showstats(player, true, true);
+	script = script.getFromId(script_id);
+	minigame.kickplayer(script, player);
+}
+script = script.getFromId(script_id);
+minigame.term(script, gamesignloc);
+term();
+
+function setShopmenu1(shopmenu) {
+	inv.setItem(shopmenu, 19, read.item("{id:\"minecraft:stick\",Count:1b,tag:{HideFlags:2,Enchantments:[{lvl:1s,id:\"minecraft:knockback\"}],display:{Name:'{\"text\":\"§bKnüppel\"}'},}}"));
+	inv.setItem(shopmenu, 20, read.item("{id:\"minecraft:wooden_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
+	inv.setItem(shopmenu, 21, read.item("minecraft:smooth_sandstone", 32));
+	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:leather_helmet\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
+	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
+	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:leather_boots\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
+	inv.setItem(shopmenu, 28, read.item("km:coin_copper", 8));
+	inv.setItem(shopmenu, 29, read.item("km:coin_copper", 4));
+	inv.setItem(shopmenu, 30, read.item("km:coin_copper", 16));
+	inv.setItem(shopmenu, 31, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 32, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 33, read.item("km:coin_copper"));
+}
+
+function setShopmenu2(shopmenu) {
+	inv.setItem(shopmenu, 19, read.item("minecraft:smooth_sandstone", 2));
+	inv.setItem(shopmenu, 20, read.item("minecraft:end_stone"));
+	inv.setItem(shopmenu, 21, read.item("minecraft:iron_block"));
+	inv.setItem(shopmenu, 22, read.item("minecraft:chest"));
+	inv.setItem(shopmenu, 23, read.item("minecraft:glass"));
+	inv.setItem(shopmenu, 28, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 29, read.item("km:coin_copper", 7));
+	inv.setItem(shopmenu, 30, read.item("km:coin_silver", 3));
+	inv.setItem(shopmenu, 31, read.item("km:coin_silver"));
+	inv.setItem(shopmenu, 32, read.item("km:coin_copper", 4));
+}
+
+function setShopmenu3(shopmenu) {
+	inv.setItem(shopmenu, 19, read.item("{id:\"minecraft:leather_helmet\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
+	inv.setItem(shopmenu, 20, read.item("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
+	inv.setItem(shopmenu, 21, read.item("{id:\"minecraft:leather_boots\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
+	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:chainmail_chestplate\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}],display:{Name:'{\"text\":\"§f§bKettenbrust Lvl1\"}'}}}"));
+	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:chainmail_chestplate\",Count:1b,tag:{Enchantments:[{lvl:2s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}],display:{Name:'{\"text\":\"§f§bKettenbrust Lvl2\"}'}}}"));
+	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:chainmail_chestplate\",Count:1b,tag:{Enchantments:[{lvl:3s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}],display:{Name:'{\"text\":\"§f§bKettenbrust Lvl3\"}'}}}"));
+	inv.setItem(shopmenu, 25, read.item("minecraft:shield"));
+	inv.setItem(shopmenu, 28, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 29, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 30, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 31, read.item("km:coin_silver"));
+	inv.setItem(shopmenu, 32, read.item("km:coin_silver", 3));
+	inv.setItem(shopmenu, 33, read.item("km:coin_silver", 7));
+	inv.setItem(shopmenu, 34, read.item("km:coin_silver", 4));
+}
+
+function setShopmenu4(shopmenu) {
+	inv.setItem(shopmenu, 21, read.item("{id:\"minecraft:wooden_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
+	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:stone_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
+	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:iron_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:3s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
+	inv.setItem(shopmenu, 30, read.item("km:coin_copper", 4));
+	inv.setItem(shopmenu, 31, read.item("km:coin_silver", 2));
+	inv.setItem(shopmenu, 32, read.item("km:coin_gold"));
+}
+
+function setShopmenu5(shopmenu) {
+	inv.setItem(shopmenu, 20, read.item("{id:\"minecraft:stick\",Count:1b,tag:{HideFlags:2,Enchantments:[{lvl:1s,id:\"minecraft:knockback\"}],display:{Name:'{\"text\":\"§bKnüppel\"}'},}}"));
+	inv.setItem(shopmenu, 21, read.item("{id:\"minecraft:golden_sword\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2,display:{Name:'{\"text\":\"§f§bGoldschwert Lvl1\"}'}}}"));
+	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:wooden_axe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
+	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:golden_sword\",Count:1b,tag:{Enchantments:[{lvl:2s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2,display:{Name:'{\"text\":\"§f§bGoldschwert Lvl2\"}'}}}"));
+	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:iron_sword\",Count:1b,tag:{Enchantments:[{lvl:2s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"},{lvl:1s,id:\"minecraft:knockback\"}],HideFlags:2}}"));
+	inv.setItem(shopmenu, 29, read.item("km:coin_copper", 8));
+	inv.setItem(shopmenu, 30, read.item("km:coin_silver"));
+	inv.setItem(shopmenu, 31, read.item("km:coin_silver", 2));
+	inv.setItem(shopmenu, 32, read.item("km:coin_silver", 3));
+	inv.setItem(shopmenu, 33, read.item("km:coin_gold", 5));
+}
+
+function setShopmenu6(shopmenu) {
+	inv.setItem(shopmenu, 20, read.item("{id:\"minecraft:bow\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:infinity\"}],display:{Name:'{\"text\":\"§f§bBogen Lvl1\"}'}}}"));
+	inv.setItem(shopmenu, 21, read.item("{id:\"minecraft:bow\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:infinity\"},{lvl:1s,id:\"minecraft:power\"}],display:{Name:'{\"text\":\"§f§bBogen Lvl2\"}'}}}"));
+	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:bow\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:infinity\"},{lvl:1s,id:\"minecraft:power\"},{lvl:1s,id:\"minecraft:punch\"}],display:{\"text\":\"§f§bBogen Lvl3\"}}}"));
+	inv.setItem(shopmenu, 23, read.item("minecraft:arrow"));
+	inv.setItem(shopmenu, 24, read.item("minecraft:spectral_arrow"));
+	inv.setItem(shopmenu, 29, read.item("km:coin_gold", 3));
+	inv.setItem(shopmenu, 30, read.item("km:coin_gold", 7));
+	inv.setItem(shopmenu, 31, read.item("km:coin_gold", 13));
+	inv.setItem(shopmenu, 32, read.item("km:coin_gold"));
+	inv.setItem(shopmenu, 33, read.item("km:coin_silver", 2));
+}
+
+function setShopmenu7(shopmenu) {
+	inv.setItem(shopmenu, 20, read.item("minecraft:apple"));
+	inv.setItem(shopmenu, 21, read.item("minecraft:cooked_porkchop"));
+	inv.setItem(shopmenu, 22, read.item("minecraft:cake"));
+	inv.setItem(shopmenu, 23, read.item("minecraft:golden_apple"));
+	inv.setItem(shopmenu, 29, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 30, read.item("km:coin_copper", 2));
+	inv.setItem(shopmenu, 31, read.item("km:coin_silver"));
+	inv.setItem(shopmenu, 32, read.item("km:coin_gold", 2));
+}
+
+function setShopmenu8(shopmenu) {
+	inv.setItem(shopmenu, 19, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:healing\"}}"));
+	inv.setItem(shopmenu, 20, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:strong_healing\"}}"));
+	inv.setItem(shopmenu, 21, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:strong_leaping\"}}"));
+	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:swiftness\"}}"));
+	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:strength\"}}"));
+	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:splash_potion\",Count:1b,tag:{Potion:\"minecraft:weakness\"}}"));
+	inv.setItem(shopmenu, 28, read.item("km:coin_silver", 3));
+	inv.setItem(shopmenu, 29, read.item("km:coin_silver", 5));
+	inv.setItem(shopmenu, 30, read.item("km:coin_silver", 7));
+	inv.setItem(shopmenu, 31, read.item("km:coin_silver", 16));
+	inv.setItem(shopmenu, 32, read.item("km:coin_gold", 7));
+	inv.setItem(shopmenu, 33, read.item("km:coin_gold", 10));
+}
+
+function setShopmenu9(shopmenu) {
+	inv.setItem(shopmenu, 18, read.item("minecraft:ladder"));
+	inv.setItem(shopmenu, 19, read.item("minecraft:cobweb"));
+	inv.setItem(shopmenu, 20, read.item("minecraft:fishing_rod"));
+	inv.setItem(shopmenu, 21, read.item("minecraft:flint_and_steel"));
+	inv.setItem(shopmenu, 22, read.item("minecraft:ender_pearl"));
+	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:string\",Count:1b,tag:{display:{Lore:['{\"text\":\"Warnt dich vor angreifenden Gegnern\"}'],Name:'{\"text\":\"§rTrap\"}'}}}"));
+	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:red_bed\",Count:1b,tag:{display:{Lore:['{\"text\":\"Setzt dein Bett einmalig neu\"}'],Name:'{\"text\":\"§rNeues Bett\"}'}}}"));
+	inv.setItem(shopmenu, 25, $blaze_rod);
+	inv.setItem(shopmenu, 26, $warp_powder);
+	
+	inv.setItem(shopmenu, 27, read.item("km:coin_copper"));
+	inv.setItem(shopmenu, 28, read.item("km:coin_copper", 16));
+	inv.setItem(shopmenu, 29, read.item("km:coin_silver", 6));
+	inv.setItem(shopmenu, 30, read.item("km:coin_silver", 7));
+	inv.setItem(shopmenu, 31, read.item("km:coin_gold", 13));
+	inv.setItem(shopmenu, 32, read.item("km:coin_silver", 7));
+	inv.setItem(shopmenu, 33, read.item("km:coin_gold", 40));
+	inv.setItem(shopmenu, 34, read.item("km:coin_gold", 3));
+	inv.setItem(shopmenu, 35, read.item("km:coin_silver", 3));
+}
+
+function bedwars.getTeamColor(player) {
+	team = map.get($players, player.getName(player));
+	color = map.get($colorcodes, team);
+	return color;
+}

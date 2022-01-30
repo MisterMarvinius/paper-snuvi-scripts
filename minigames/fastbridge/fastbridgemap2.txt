@@ -1,0 +1,31 @@
+gamesignloc = minigame.getSignLoc("fastbridgesign2");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 2026.5, 101, -2948.5);
+mapname = "Snakes";
+minplayers = 1;
+maxplayers = 4;
+minutes = 2;
+seconds = 0;
+middleloc = loc.new(gamesworld, 2900, 104, -2020);
+radius = 120;
+
+colors = list.new();
+list.add(colors, item.create("minecraft:green_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:yellow_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:blue_terracotta", 1, null, null));
+list.add(colors, item.create("minecraft:red_terracotta", 1, null, null));
+
+spawns = list.new();
+list.add(spawns, loc.new(gamesworld, 3002, 101, -2036));
+list.add(spawns, loc.new(gamesworld, 3002, 101, -2024));
+list.add(spawns, loc.new(gamesworld, 3002, 101, -2012));
+list.add(spawns, loc.new(gamesworld, 3002, 101, -2000));
+
+ycheck_list = list.new();
+list.add(ycheck_list, 101);
+list.add(ycheck_list, 101);
+list.add(ycheck_list, 101);
+list.add(ycheck_list, 101);
+
+//Welche Koordinate verändert sich nicht? x oder z?
+coord = "z";

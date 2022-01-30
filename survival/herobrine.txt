@@ -40,14 +40,13 @@ if(event == "block_break") {
 	}
 	r = math.random(1, 15000);
 	if(r == 1) {
-		spawnHerobrine(player);
+		spawnHerobrine(player_loc);
 	}
 	goto("main");
 }
 goto("main");
 
-function spawnHerobrine(player) {
-	player_loc = entity.getLocation(player);
+function spawnHerobrine(player_loc) {
 	dist = math.random(4, 20);
 	alpha = math.random(0, 360);
 	alpha *= math.pi() / 180;

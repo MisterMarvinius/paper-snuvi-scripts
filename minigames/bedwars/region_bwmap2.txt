@@ -1,0 +1,44 @@
+mapname = "Cube";
+numberofteams = 2;
+teamsize = 1;
+minplayers = teamsize + 1;
+maxplayers = teamsize * numberofteams;
+gamesignloc = minigame.getSignLoc("bwmapsign2");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 956, 85, 1012, -90, 0); //Lobbyspawn
+middleloc = loc.new(gamesworld, -3978, 59, 5979); //Middleloc und Radius zum Resetten der Items
+radius = 100;
+voidedge1 = loc.new(gamesworld, -4019, -30, 5939);
+voidedge2 = loc.new(gamesworld, -3930, -1, 6020);
+
+join_blocks = map.new(); //Block-Locations, um einem Team zu joinen
+map.add(join_blocks, loc.new(gamesworld, 960, 84, 1007), 0);
+map.add(join_blocks, loc.new(gamesworld, 960, 84, 1017), 1);
+
+foot_bed_loc = list.new(); //Liste aller Locs Fußteile der Betten
+list.add(foot_bed_loc, loc.new(gamesworld, -3967, 64, 5979));
+list.add(foot_bed_loc, loc.new(gamesworld, -3984, 64, 5979));
+
+head_bed_loc = list.new(); //Liste aller Locs Kopfteile der Betten
+list.add(head_bed_loc, loc.new(gamesworld, -3968, 64, 5979));
+list.add(head_bed_loc, loc.new(gamesworld, -3983, 64, 5979));
+
+bed_facing = map.new(); //Map in welche Richtung das Bett schaut
+map.add(bed_facing, 0, "WEST");
+map.add(bed_facing, 1, "EAST");
+
+spawn_locs = map.new(); //Liste der Spawnlocs der einzelnen Teams
+map.add(spawn_locs, 0, loc.new(gamesworld, -3966.5, 64, 5981.5, 90, 0));
+map.add(spawn_locs, 1, loc.new(gamesworld, -3983.5, 64, 5977.5, -90, 0));
+
+copper_locs = list.new();
+list.add(copper_locs, loc.new(gamesworld, -3968, 63, 5981));
+list.add(copper_locs, loc.new(gamesworld, -3983, 63, 5977));
+
+silver_locs = list.new();
+list.add(silver_locs, loc.new(gamesworld, -3967, 57, 5977));
+list.add(silver_locs, loc.new(gamesworld, -3984, 57, 5981));
+
+gold_locs = list.new();
+list.add(gold_locs, loc.new(gamesworld, -3973, 59, 5979));
+list.add(gold_locs, loc.new(gamesworld, -3978, 59, 5979));

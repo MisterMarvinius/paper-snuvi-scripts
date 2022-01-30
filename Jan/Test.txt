@@ -1,0 +1,12 @@
+Array = array.new(3);
+List = list.new();
+list.add(List,"LALALA");
+
+Array[0] = "string";
+Array[1] = 1;
+Array[2] = List;
+
+msg("dev", text.new(class(Array[0])));
+msg("dev", text.new(class(Array[1])));
+msg("dev", text.new(class(Array[2])));
+

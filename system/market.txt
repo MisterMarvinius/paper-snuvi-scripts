@@ -15,6 +15,8 @@ inv.setItem(miner, 6, newItem(material.get("REDSTONE")));
 inv.setItem(miner, 7, newItem(material.get("FLINT")));
 inv.setItem(miner, 8, newItem(material.get("EMERALD")));
 inv.setItem(miner, 9, newItem(material.get("QUARTZ")));
+inv.setItem(miner, 10, newItem(material.get("COAL")));
+inv.setItem(miner, 11, newItem(material.get("AMETHYST_SHARD")));
 set.add(openMarkets, inv.getId(miner));
 // Farmer
 farmer = inv.new("222222222", text.new("Farmer"));
@@ -25,6 +27,13 @@ inv.setItem(farmer, 3, newItem(material.get("BEETROOT")));
 inv.setItem(farmer, 4, newItem(material.get("MELON")));
 inv.setItem(farmer, 5, newItem(material.get("PUMPKIN")));
 set.add(openMarkets, inv.getId(farmer));
+// Fisher
+fisher = inv.new("222222222", text.new("Fisher"));
+inv.setItem(fisher, 0, newItem(material.get("COD")));
+inv.setItem(fisher, 1, newItem(material.get("SALMON")));
+inv.setItem(fisher, 2, newItem(material.get("TROPICAL_FISH")));
+inv.setItem(fisher, 3, newItem(material.get("PUFFERFISH")));
+set.add(openMarkets, inv.getId(fisher));
 // Baker
 baker = inv.new("222222222", text.new("Baker"));
 inv.setItem(baker, 0, newItem(material.get("BREAD")));
@@ -81,6 +90,7 @@ inv.setItem(mason, 11, newItem(material.get("CALCITE")));
 inv.setItem(mason, 12, newItem(material.get("TUFF")));
 inv.setItem(mason, 13, newItem(material.get("DRIPSTONE_BLOCK")));
 inv.setItem(mason, 14, newItem(material.get("GRAVEL")));
+inv.setItem(mason, 15, newItem(material.get("AMETHYST_BLOCK")));
 set.add(openMarkets, inv.getId(mason));
 // Mage
 mage = inv.new("222222222", text.new("Mage"));
@@ -140,6 +150,8 @@ inv.setItem(nether, 7, newItem(material.get("BASALT")));
 inv.setItem(nether, 8, newItem(material.get("BLACKSTONE")));
 inv.setItem(nether, 9, newItem(material.get("GLOWSTONE")));
 inv.setItem(nether, 10, newItem(material.get("SHROOMLIGHT")));
+inv.setItem(nether, 11, newItem(material.get("OBSIDIAN")));
+inv.setItem(nether, 12, newItem(material.get("CRYING_OBSIDIAN")));
 set.add(openMarkets, inv.getId(nether));
 
 emerald = material.get("EMERALD");
@@ -301,7 +313,9 @@ if(item.getType(item) == emerald) {
 		inv.open(miner, player);
 	} elseif(title_string == "Farmer") {
 		inv.open(farmer, player);
-	} elseif(title_string == "Baker") {
+	} elseif(title_string == "Fisher") {
+		inv.open(fisher, player);
+	}elseif(title_string == "Baker") {
 		inv.open(baker, player);
 	} elseif(title_string == "Alena") {
 		inv.open(tavern, player);

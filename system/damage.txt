@@ -117,9 +117,12 @@ function setEntityName(living_entity, health, max_health, string_name) {
 			permanent = true;
 		}
 	}
-	if(string_name == null) {
+	if(string_name == null || string_name == "") {
 		entity.setName(living_entity, text.new(string.concat("§c❤§r", health)), permanent);
 		return;
+	}
+	if(string.contains(string_name, "Boss")) {
+		permanent = true;
 	}
 	entity.setName(living_entity, text.merge(text.new(string.trim(string_name)), text.new(string.concat(" §c❤§r", health))), permanent);
 }

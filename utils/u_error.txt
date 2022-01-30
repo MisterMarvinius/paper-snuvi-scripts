@@ -1,10 +1,16 @@
 error_counter = 0;
+last_error_message = null;
 @on_error
 error_counter++;
 if(error_counter > 1) {
 	snuvi.debug("Error Handler activated");
+	if(last_error_message == error_message) {
+		snuvi.debug("Same error again");
+		term();
+	}
+	last_error_message = error_message;
 	snuvi.debug("Restarting script...");
-	if(error_counter >= 100) {
+	if(error_counter >= 5) {
 		snuvi.debug("Script terminated. Endless loop.");
 		term();
 	}

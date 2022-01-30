@@ -1,0 +1,29 @@
+minplayers = 2;
+maxplayers = 4;
+mapname = "Toothpick";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 1011.5, 88, 942.5);
+gamesignloc = minigame.getSignLoc("spleefsign3");
+
+spleef_list = list.new();
+list.add(spleef_list, material.get("minecraft:glass"));
+list.add(spleef_list, material.get("minecraft:white_stained_glass"));
+list.add(spleef_list, material.get("minecraft:gray_stained_glass"));
+list.add(spleef_list, material.get("minecraft:light_gray_stained_glass"));
+list.add(spleef_list, material.get("minecraft:black_stained_glass"));
+list.add(spleef_list, material.get("minecraft:white_wool"));
+list.add(spleef_list, material.get("minecraft:smooth_quartz"));
+list.add(spleef_list, material.get("minecraft:white_concrete"));
+list.add(spleef_list, material.get("km:silver_block"));
+list.add(spleef_list, material.get("minecraft:smooth_stone"));
+list.add(spleef_list, material.get("minecraft:gray_wool"));
+list.add(spleef_list, material.get("minecraft:gray_concrete"));
+list.add(spleef_list, material.get("minecraft:black_wool"));
+list.add(spleef_list, material.get("minecraft:coal_block"));
+list.add(spleef_list, material.get("minecraft:black_concrete"));
+
+startlocs = list.new();
+list.add(startlocs, loc.new(gamesworld, -1000.5, 109, -2001.5, 0.0001, 0.0001));
+list.add(startlocs, loc.new(gamesworld, -998.5, 109, -1997.5, 180, 0.0001));
+list.add(startlocs, loc.new(gamesworld, -998.5, 109, -2001.5, 0.0001, 0.0001));
+list.add(startlocs, loc.new(gamesworld, -1000.5, 109, -1997.5, 180, 0.0001));
