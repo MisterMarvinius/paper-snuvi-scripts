@@ -48,7 +48,7 @@ function skill.hasEnough(player, tech_name) {
 
 function skill.msg(player, tech_name) {
 	skill_name = skill.getName(tech_name);
-	msg.prefix(player, prefix_skill, string.concat("Used ", skill_name, ". New amount: ", text.number(skill.getAmount(player, tech_name))));
+	msg.prefix(player, prefix_skill, string.concat("Used ", skill_name, ". New amount: ", string.number(skill.getAmount(player, tech_name))));
 }
 
 function skill.getAmount(player_or_id, tech_name) {
@@ -133,7 +133,7 @@ function skill.getIndex(tech_name) {
 
 function skill.getShopItem(player_or_id, tech_name) {
 	if(tech_name == null) {
-		return item.getAir();
+		return null;
 	}
 	skill = skill.get(tech_name);
 	amount = skill.getAmount(player_or_id, tech_name);
@@ -145,7 +145,7 @@ function skill.getShopItem(player_or_id, tech_name) {
 			text_property = string.concat("§fBought: §aYes §f(Permanent)");
 		}
 	} else {
-		text_property = string.concat("§fAmount you have: §e", text.number(amount));
+		text_property = string.concat("§fAmount you have: §e", string.number(amount));
 	}
 	active = skill[6];
 	if(active) {
@@ -164,7 +164,13 @@ function skill.getShopItem(player_or_id, tech_name) {
 		tog = "§fNot toggleable";
 	}
 	skill_name = skill.getName(tech_name);
-	item = read.item(skill[2], 1, string.concat("§e§o", skill_name), string.concat("§fCost: §e", text.number(skill[4])), skill[3], type, tog, text_property);
+	lore_list = list.new();
+	list.add(lore_list, text.new(string.concat("§fCost: §e", string.number(skill[4]))));
+	list.add(lore_list, text.new(skill[3]));
+	list.add(lore_list, text.new(type));
+	list.add(lore_list, text.new(tog));
+	list.add(lore_list, text.new(text_property));
+	item = item.create(skill[2], 1, string.concat("§e§o", skill_name), lore_list);
 	return item;
 }
 
@@ -179,12 +185,12 @@ function skill.getName(tech_name) {
 	}
 }
 
-function skill.getTechName(tech_name) {
+function skill.getTechName(skill_name) {
 	skill_list  = skill.getList();
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		array = list.getIndex(skill_list, i);
-		temp_tech_name = array[1];
-		if(temp_tech_name == tech_name) {
+		temp_skill_name = array[0];
+		if(temp_skill_name == skill_name) {
 			return array[1];
 		}
 	}
@@ -290,41 +296,52 @@ function skill.getTime(tech_name) {
 }
 
 function skill.showShop(player, tech_name1, tech_name2, tech_name3, tech_name4, tech_name5, tech_name6, tech_name7, tech_name8, tech_name9, tech_name10, tech_name11, tech_name12, tech_name13, tech_name14, tech_name15, tech_name16, tech_name17, tech_name18) {
-	inv = inv.new("333333333333333333");
-	inv.setItem(inv, 0, skill.getShopItem(player, tech_name1));
-	inv.setItem(inv, 1, skill.getShopItem(player, tech_name2));
-	inv.setItem(inv, 2, skill.getShopItem(player, tech_name3));
-	inv.setItem(inv, 3, skill.getShopItem(player, tech_name4));
-	inv.setItem(inv, 4, skill.getShopItem(player, tech_name5));
-	inv.setItem(inv, 5, skill.getShopItem(player, tech_name6));
-	inv.setItem(inv, 6, skill.getShopItem(player, tech_name7));
-	inv.setItem(inv, 7, skill.getShopItem(player, tech_name8));
-	inv.setItem(inv, 8, skill.getShopItem(player, tech_name9));
-	inv.setItem(inv, 9, skill.getShopItem(player, tech_name10));
-	inv.setItem(inv, 10, skill.getShopItem(player, tech_name11));
-	inv.setItem(inv, 11, skill.getShopItem(player, tech_name12));
-	inv.setItem(inv, 12, skill.getShopItem(player, tech_name13));
-	inv.setItem(inv, 13, skill.getShopItem(player, tech_name14));
-	inv.setItem(inv, 14, skill.getShopItem(player, tech_name15));
-	inv.setItem(inv, 15, skill.getShopItem(player, tech_name16));
-	inv.setItem(inv, 16, skill.getShopItem(player, tech_name17));
-	inv.setItem(inv, 17, skill.getShopItem(player, tech_name18));
-	inv.open(inv, player, "Skillshop");
+	inv = inv.new("222222222222222222", text.new("Skillshop"));
+	skillshop.setItem(inv, 0, player, tech_name1);
+	skillshop.setItem(inv, 1, player, tech_name2);
+	skillshop.setItem(inv, 2, player, tech_name3);
+	skillshop.setItem(inv, 3, player, tech_name4);
+	skillshop.setItem(inv, 4, player, tech_name5);
+	skillshop.setItem(inv, 5, player, tech_name6);
+	skillshop.setItem(inv, 6, player, tech_name7);
+	skillshop.setItem(inv, 7, player, tech_name8);
+	skillshop.setItem(inv, 8, player, tech_name9);
+	skillshop.setItem(inv, 9, player, tech_name10);
+	skillshop.setItem(inv, 10, player, tech_name11);
+	skillshop.setItem(inv, 11, player, tech_name12);
+	skillshop.setItem(inv, 12, player, tech_name13);
+	skillshop.setItem(inv, 13, player, tech_name14);
+	skillshop.setItem(inv, 14, player, tech_name15);
+	skillshop.setItem(inv, 15, player, tech_name16);
+	skillshop.setItem(inv, 16, player, tech_name17);
+	skillshop.setItem(inv, 17, player, tech_name18);
+	inv.open(inv, player);
+}
+
+function skillshop.setItem(inv, index, player, tech_name) {
+	item = skill.getShopItem(player, tech_name);
+	if(item != null) {
+		inv.setItem(inv, index, item);
+	}
 }
 
 function skill.showAll(from_player_or_id, to_player) {
-	inv = inv.new("333333333333333333333333333");
-	skill_list  = skill.getList();
-	for(i = 0; i < list.getSize(skill_list); i++) {
-		a = list.getIndex(skill_list, i);
-		tech_name = a[1];
-		inv.setItem(inv, i, skill.getShopItem(from_player_or_id, tech_name));
-	}
 	from_player_id = player.getValidId(from_player_or_id);
 	if(from_player_id == player.getValidId(to_player)) {
 		inv_name = "Skills";
 	} else {
-		inv_name = string.concat("Skills von ", player.getNameFromId(from_player_id));
+		inv_name = string.concat("Skills from ", player.getNameFromId(from_player_id));
 	}
-	inv.open(inv, to_player, inv_name);
+	
+	inv = inv.new("222222222222222222222222222", text.new(inv_name));
+	skill_list  = skill.getList();
+	for(i = 0; i < list.getSize(skill_list); i++) {
+		a = list.getIndex(skill_list, i);
+		tech_name = a[1];
+		item = skill.getShopItem(from_player_or_id, tech_name);
+		if(item != null) {
+			inv.setItem(inv, i, item);
+		}
+	}
+	inv.open(inv, to_player);
 }

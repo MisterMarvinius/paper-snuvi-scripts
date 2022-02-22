@@ -1,0 +1,127 @@
+event.load("entity_click");
+event.load("snuvi_click");
+
+amber = item.getAmber();
+ruby = item.getRuby();
+sapphire = item.getSapphire();
+air = item.getAir();
+arrow_right = item.custom.create("ARROW_RIGHT", 1, "§fConvert", null);
+prefix_commands = "§6Commands";
+hint_1 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
+hint_2 = item.custom.create("RUBY", 1, "§fGemstone", null);
+item.addFlag(hint_1, "HIDE_ATTRIBUTES");
+item.addFlag(hint_2, "HIDE_ATTRIBUTES");
+anvil_use = sound.get("BLOCK_ANVIL_USE");
+sc_master = sound.getCategory("MASTER");
+snuvis = 4096;
+
+slot_head = slot.getHead();
+slot_chest = slot.getChest();
+slot_legs = slot.getLegs();
+slot_feet = slot.getFeet();
+
+tag_helmet = item.getTag("km:helmet");
+tag_chestplate = item.getTag("km:chestplate");
+tag_leggings = item.getTag("km:leggings");
+tag_boots = item.getTag("km:boots");
+
+msg.string("dev", "§bGemstones §rloaded.");
+@wait
+wait();
+if(event == "entity_click") {
+	if(slot.isOffHand(hand)) {
+		goto("wait");
+	}
+	if(!entity.isHuman(entity)) {
+		goto("wait");
+	}
+	human_name = human.getName(entity);
+	if(human_name != "Ludwig") {
+		goto("wait");
+	}
+	inv = inv.new("011020100022000000", text.new("Gemstone-Anvil"));
+	inv.setItem(inv, 4, arrow_right);
+	inv.setItem(inv, 10, hint_1);
+	inv.setItem(inv, 11, hint_2);
+	inv.open(inv, player);
+	goto("wait");
+}
+if(event == "snuvi_click") {
+	title_string = string.text(inv_title);
+	if(title_string != "Gemstone-Anvil") {
+		goto("wait");
+	}
+	if(inv_slot == 4) {
+		//Ziel-slot muss leer sein
+		item = inv.getItem(inv, 6);
+		if(item != null) {
+			msg.prefix(player, prefix_commands, "Result slot needs to be empty.");
+			goto("wait");
+		}
+		//Quell-slots müssen belegt sein
+		item_0 = inv.getItem(inv, 1);
+		if(item_0 == null) {
+			msg.prefix(player, prefix_commands, "First slot is empty.");
+			goto("wait");
+		}
+		item_1 = inv.getItem(inv, 2);
+		if(item_1 == null) {
+			msg.prefix(player, prefix_commands, "Second slot is empty.");
+			goto("wait");
+		}
+		if(item.hasTag(item_0, tag_helmet)) {
+			slot = slot_head;
+		} elseif(item.hasTag(item_0, tag_chestplate)) {
+			slot = slot_chest;
+		} elseif(item.hasTag(item_0, tag_leggings)) {
+			slot = slot_legs;
+		} elseif(item.hasTag(item_0, tag_boots)) {
+			slot = slot_feet;
+		} else {
+			msg.prefix(player, prefix_commands, "First slot is not an armor part.");
+			goto("wait");
+		}
+		if(item.getAmount(item_0) != 1) {
+			msg.prefix(player, prefix_commands, "Only one armor part allowed.");
+			goto("wait");
+		}
+		//which gemstone
+		if(item.isRuby(item_1)) {
+			gem = ruby;
+			att_type = "GENERIC_MAX_HEALTH";
+			att_amount = 2;
+		}
+		elseif(item.isSapphire(item_1)) {
+			gem = sapphire;
+			att_type = "GENERIC_ARMOR";
+			att_amount = 1;
+		}
+		elseif(item.isAmber(item_1)) {
+			gem = amber;
+			att_type = "GENERIC_MOVEMENT_SPEED";
+			att_amount =  0.02;
+		} else {
+			msg.prefix(player, prefix_commands, "Second slot needs to be one Gemstone (Amber, Ruby, ...).");
+			goto("wait");
+		}
+		if(item.getAmount(item_1) != 1) {
+			msg.prefix(player, prefix_commands, "Second slot needs to be one Gemstone (Amber, Ruby, ...).");
+			goto("wait");
+		}
+		if(!hasEnoughMoney(player, snuvis)) {
+			msg.prefix(player, prefix_plot, string.concat("You need ", money.getString(snuvis), " snuvis for this."));
+			goto("wait");
+		}
+		money.sub(player, snuvis);
+		
+		sound.spawn(entity.getLocation(player), anvil_use, sc_master);
+		if(!item.hasAttributes(item_0)) {
+			item.addDefaultTags(item_0);
+		}
+		item.addAttribute(item_0, att_type, slot, att_amount, "ADD_NUMBER");
+		inv.setItem(inv, 1, air);
+		inv.removeItem(inv, item_1);
+		inv.setItem(inv, 6, item_0);
+	}
+}
+goto("wait");

@@ -1,0 +1,57 @@
+event.load("player_toss");
+//event.load("left_click_air");
+event.load("fishing");
+/*item_list = list.new();
+list.add(item_list, "minecraft:bow");
+list.add(item_list, "minecraft:crossbow");
+list.add(item_list, "km:sling");
+list.add(item_list, "minecraft:trident");
+*/
+level = 2;
+max_level = 5;
+level = max_level+1-level;
+mult = 1;
+
+@wait
+wait();
+/*-if(event == "left_click_air"){
+	mult = -0.25;
+	mult2 = 0;
+	array2 = entity.getMotion(player);
+	if(math,abs(array2[1]) > 0.1){
+		goto("wait");
+	}
+}-*/
+
+name = player.getName(player);
+if(name == "SirTerence7" || name == "Mareeeen"){
+	/*item_type = item.getType(item);
+	if(list.contains(item_list, item_type)){
+		power_level = enchantment.getLevel(enchantment.get("power"), item);
+		multishot_level = enchantment.getLevel(enchantment.get("multishot"), item);
+		piercing_level = enchantment.getLevel(enchantment.get("piercing"), item);
+		impaling_level = enchantment.getLevel(enchantment.get("impaling"), item);
+		strength = 0.2*power_level + 0.6*multishot_level + 0.2*piercing_level + 0.2*impaling_level + 0.1;*/
+		strength = 0.225;
+		array1 = entity.getLook(player);
+		array2 = entity.getMotion(player);
+		if(event == "player_toss"){
+			amount = item.getAmount(item);
+			strength = 0.125 * (1+math.log(amount)/math.log(level));
+		}
+		if(math.abs(array2[1]) > 0.25){
+			x = array2[0]*0.5 - array1[0] * mult * 0.25 * strength;
+			y = array2[1]*0.75 - array1[1] * mult * 0.005 * strength;
+			z = array2[2]*0.5 - array1[2] * mult * 0.25 * strength;
+		}
+		else{
+			x = array2[0] - array1[0] * mult * strength;
+			y = array2[1] - array1[1] * mult * 0.75 * strength;
+			z = array2[2] - array1[2] * mult * strength;
+		}
+		entity.throw(player, x, y, z);
+		//mult = 1;
+	//}
+}
+goto("wait");
+

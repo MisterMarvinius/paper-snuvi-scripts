@@ -1,0 +1,16 @@
+gamesignloc = minigame.getSignLoc("s_sign_4D_1");
+
+games = world.getGames();
+Edge_1 = loc.new(games,-5, 88,-4017);//immer kleiner/negativer
+Edge_2 = loc.new(games, 4, 97,-4008);//als Edge_2
+Edge_3 = loc.new(games,-5, 99,-4017);//startpunkt zum pasten (negativster wert)
+
+Start_Pos = loc.new(games,-4.5, 99,-4016.5);
+
+loc1 = loc.new(games, 4, 107,-4008);
+loc2 = loc.new(games, 5, 108,-4007);
+
+Layer_amount = 10;
+Layer_difference_X = 0;
+Layer_difference_Y = 11;
+Layer_difference_Z = 0;

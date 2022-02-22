@@ -1600,6 +1600,16 @@
             <td>file.isDirectory(file)</td>
         </tr>
     </table>
+    <table>
+        <tr>
+            <th class="command">file.createFolder</th>
+            <th class="desc">creates a folder</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>file.createFolder(file)</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Config">

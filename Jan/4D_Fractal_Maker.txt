@@ -481,7 +481,6 @@ function remove_blocks(Active_Blocks){
 		}
 		element = next(iterator);
 		value = map.getValue(element);
-		//block.getType(value)
 		block.setMaterial(value, $air_material, false);
 	}
 	waitfor(2);
@@ -599,7 +598,7 @@ function place_blocks(current_layer, currently_active_dimensions, Blocks, first_
 function Dim.Fractal.create(Min_Max, Blocks){
 	Max_Block_Amount = 2500;
 	HyperCuboid = array.new(4);
-	for(a = 0; a < 4; a++){
+	for(a = 0; a < 4; a -= -1){
 		HyperCuboid[a] = Min_Max[a,1]-Min_Max[a,0];
 	}
 	Iterations = math.roundDown(math.ln(Max_Block_Amount)/math.ln(map.getSize(Blocks)));

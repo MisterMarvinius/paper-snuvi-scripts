@@ -9,7 +9,7 @@ event.load("block_break");
 
 games = world.getGames();
 
-gamename = "§a4D-Jump'n'Run";
+gamename = "§ashadowjump";
 
 maxplayers = 1;
 
@@ -39,13 +39,6 @@ Dimension_Blocks = list.new();
 event.addMoveData(loc1, loc2, -1, -1);
 
 currently_active_dimensions = 0; //0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
-current_layer = array.new(6);
-current_layer[0] = 0;//0 = W, 1 = X, 2 = Z
-current_layer[1] = 0;//current_layer[a] 0 = W, 1 = X, 2 = Z
-current_layer[2] = 0;
-current_layer[3] = 0;
-current_layer[4] = 0;
-current_layer[5] = 0;
 difference_array = array.new(6);
 difference_array[0] = Layer_amount;
 difference_array[1] = x2-x1;
@@ -56,28 +49,61 @@ difference_array[5] = z2-z2;
 
 @wait
 wait();
+
+if(event == "block_click"){
+	if(slot.isoffhand(hand)){
+		goto("wait");
+	}
+	if(action == "PHYSICAL"){
+		goto("wait");
+	}
+	player_hand = living.getHand(player);
+	if(!item.hasName(player_hand)){
+		goto("wait");
+	}
+	item_name = string.text(item.getName(player_hand));
+	if(item_name == "Turn down"){
+		goto("dimensional_turn_down");
+	}
+	if(item_name == "Turn up"){
+		goto("dimensional_turn_up");
+	}
+	goto("wait");
+}
+
 if(event == "entity_damage") {
 	if(!isPlayer(entity)) {
 		goto("wait");
 	}
 	player = entity;
 }
+
 if(!player.hasMinigameId(player, script_id)) {
 	goto("wait");
 }
+
+if(event == "block_break"){
+	cancel = true;
+	goto("wait");
+}
+
+if(event == "entity_damage") {
+	cancel = true;
+	goto("wait");
+}
+
 if(event == "minigame_join"){
 	msg.prefix(player, $gamename, "Game is Loading, please be patient.");
 	entity.teleport(player, Start_Pos);
 	player.clearInventory(player);
 	player_inv = player.getInv(player);
 	waitfor(10);
-	remove_blocks();
-	$currently_active_dimensions = 0;
-	$current_layer[$currently_active_dimensions] = 0;
+	currently_active_dimensions = 0;
 	inv.setItem(player_inv, 0, item.custom.create("ARROW_LEFT",1,"Turn down","Interdimensionally"));
 	inv.setItem(player_inv, 1, item.custom.create("ARROW_RIGHT",1,"Turn up","Interdimensionally"));
-	inv.setItem(player_inv, 2, item.custom.create("ARROW_DOWN",1,"Move down","background axis"));
-	inv.setItem(player_inv, 3, item.custom.create("ARROW_UP",1,"Move up","background axis"));
+	dim_bossbar = boss.create("XYZ", "GREEN", "SOLID");
+	boss.addPlayer(dim_bossbar, player);
+	boss.setTitle(dim_bossbar, "XYZ");
 	c = 0;
 	for(layer_var = 0; layer_var < Layer_amount; layer_var++){
 		x_d = layer_var * Layer_difference_X;
@@ -107,202 +133,150 @@ if(event == "minigame_join"){
 			}
 		}
 	}
-	place_blocks($current_layer, Dimension_Blocks);
+	Active_Blocks = place_blocks(Dimension_Blocks);
 	msg.prefix(player, $gamename, "Game has loaded.");
 	//snuvi.debug(list.getSize(Dimension_Blocks));
 	goto("wait");
 }
-if(event == "block_break"){
-	cancel = true;
-	goto("wait");
-}
-if(event == "entity_damage") {
-	cancel = true;
-	goto("wait");
-}
-if(event == "block_click"){
-	if(slot.isoffhand(hand)){
-		goto("wait");
-	}
-	if(action == "PHYSICAL"){
-		goto("wait");
-	}
-	player_hand = living.getHand(player);
-	if(!item.hasName(player_hand)){
-		goto("wait");
-	}
-	item_name = string.text(item.getName(player_hand));
-	if(item_name == "Turn down"){
-		goto("dimensional_turn_down");
-	}
-	if(item_name == "Turn up"){
-		goto("dimensional_turn_up");
-	}
-	if(item_name == "Move down"){
-		goto("remove_layer");
-	}
-	if(item_name == "Move up"){
-		goto("add_layer");
-	}
-	goto("wait");
-}
+
 if(event == "player_move"){
 	//if(current_layer[1] == finish_layer){
 	game_stop("You did it!");
 	//}
 	goto("wait");
 }
+
 if(event == "player_quit"){
 	game_stop(null);
 }
+
 if(event == "player_giveup"){
 	game_stop("You left :(");
 }
 goto("wait");
 
-@remove_layer
-temp_player_loc = entity.getLocation(player);
-if(current_layer[currently_active_dimensions] <= 0 || current_layer[currently_active_dimensions] > difference_array[currently_active_dimensions] - 1){
-	if(current_layer[currently_active_dimensions] == 0){
-		current_layer[currently_active_dimensions] = -1;
-		remove_blocks();
-	}
-	if(current_layer[currently_active_dimensions] > difference_array[currently_active_dimensions] - 1){
-		current_layer[currently_active_dimensions]--;
-	}
-}else{
-	remove_blocks();
-	current_layer[currently_active_dimensions]--;
-	place_blocks(current_layer, Dimension_Blocks);
-}
-if(currently_active_dimensions < 3){
-	current_layer[currently_active_dimensions+3] = current_layer[currently_active_dimensions]; 
-}else{
-	current_layer[currently_active_dimensions-3] = current_layer[currently_active_dimensions]; 
-}
-entity.teleport(player,loc.mod(temp_player_loc, 0, 0.1, 0));
-goto("wait");
-
-@add_layer
-temp_player_loc = entity.getLocation(player);
-if(current_layer[currently_active_dimensions] >= difference_array[currently_active_dimensions] - 1 || current_layer[currently_active_dimensions] < -1){
-	if(current_layer[currently_active_dimensions] == difference_array[currently_active_dimensions] - 1){
-		remove_blocks();
-	}
-	if(current_layer[currently_active_dimensions] < -1){
-		current_layer[currently_active_dimensions]++;
-	}
-}else{
-	remove_blocks();
-	current_layer[currently_active_dimensions]++;
-	place_blocks(current_layer, Dimension_Blocks);
-}
-if(currently_active_dimensions < 3){
-	current_layer[currently_active_dimensions+3] = current_layer[currently_active_dimensions]; 
-}else{
-	current_layer[currently_active_dimensions-3] = current_layer[currently_active_dimensions]; 
-}
-entity.teleport(player,loc.mod(temp_player_loc, 0, 0.1, 0));
-goto("wait");
-
 @dimensional_turn_up
-remove_blocks();//0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
-temp_layer = current_layer[currently_active_dimensions];
 temp_player_loc = entity.getLocation(player);
-
+round_x = math.roundDown(loc.getX(temp_player_loc));
+round_y = math.roundDown(loc.getY(temp_player_loc));
+round_z = math.roundDown(loc.getZ(temp_player_loc));
+stood_on_block_loc = loc.new(loc.getWorld(temp_player_loc), round_x, round_y-1, round_z);
+if(block.getType == air_material){
+	goto("wait");
+}
+if(y3 > round_y){
+	goto("wait");
+}
+if(y3 == round_y){
+	if(currently_active_dimensions%2 == 1){
+		temp_layer = round_z-Spawn_Z;
+	}
+	else{
+		temp_layer = round_x-Spawn_X;
+	}
+}
+else{
+	if(map.contains(Active_Blocks, stood_on_block_loc)){
+		temp_layer = map.get(Active_Blocks, stood_on_block_loc);
+	}
+	else{
+		goto("wait");
+	}
+}
 if(currently_active_dimensions == 0){//XYZ to WYZ
 	currently_active_dimensions++;//0 = W, 1 = X, 2 = Z
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getX(temp_player_loc))-Spawn_X;
 	entity.teleport(player, loc.mod(Edge_3, temp_layer+0.5, loc.getY(temp_player_loc)-Spawn_Y, loc.getZ(temp_player_loc)-Spawn_Z));
 }elseif(currently_active_dimensions == 1){//WYZ to WYX
 	currently_active_dimensions++;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getZ(entity.getLocation(player)))-Spawn_Z;
 	entity.teleport(player, loc.mod(Edge_3, loc.getX(temp_player_loc)-Spawn_X, loc.getY(temp_player_loc)-Spawn_Y, temp_layer+0.5));
 }elseif(currently_active_dimensions == 2){//WYX to ZYX
 	currently_active_dimensions++;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getX(entity.getLocation(player)))-Spawn_X;
 	entity.teleport(player, loc.mod(Edge_3, temp_layer+0.5, loc.getY(temp_player_loc)-Spawn_Y, loc.getZ(temp_player_loc)-Spawn_Z));
 }elseif(currently_active_dimensions == 3){//ZYX to ZYW
 	currently_active_dimensions++;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getZ(entity.getLocation(player)))-Spawn_Z;
 	entity.teleport(player, loc.mod(Edge_3, loc.getX(temp_player_loc)-Spawn_X, loc.getY(temp_player_loc)-Spawn_Y, temp_layer+0.5));
 }elseif(currently_active_dimensions == 4){//ZYW to XYW
 	currently_active_dimensions++;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getX(entity.getLocation(player)))-Spawn_X;
 	entity.teleport(player, loc.mod(Edge_3, temp_layer+0.5, loc.getY(temp_player_loc)-Spawn_Y, loc.getZ(temp_player_loc)-Spawn_Z));
 }elseif(currently_active_dimensions == 5){//XYW to XYZ
 	currently_active_dimensions = 0;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getZ(entity.getLocation(player)))-Spawn_Z;
 	entity.teleport(player, loc.mod(Edge_3, loc.getX(temp_player_loc)-Spawn_X, loc.getY(temp_player_loc)-Spawn_Y, temp_layer+0.5));
 }
-if(currently_active_dimensions < 3){//um es nicht bei jedem if-else schreiben zu m?ssen, und die layer aktiv zu halten.
-	current_layer[currently_active_dimensions+3] = current_layer[currently_active_dimensions]; 
-}else{
-	current_layer[currently_active_dimensions-3] = current_layer[currently_active_dimensions]; 
-}
-place_blocks(current_layer, Dimension_Blocks);
+remove_blocks();//0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
+Active_Blocks = place_blocks(Dimension_Blocks);
+dim.bossbar.update(currently_active_dimensions);
 goto("wait");
 
 @dimensional_turn_down
-remove_blocks();//0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
-temp_layer = current_layer[currently_active_dimensions];
 temp_player_loc = entity.getLocation(player);
-
+round_x = math.roundDown(loc.getX(temp_player_loc));
+round_y = math.roundDown(loc.getY(temp_player_loc));
+round_z = math.roundDown(loc.getZ(temp_player_loc));
+stood_on_block_loc = loc.new(loc.getWorld(temp_player_loc), round_x, round_y-1, round_z);
+if(block.getType == air_material){
+	goto("wait");
+}
+if(y3 > round_y){
+	goto("wait");
+}
+if(y3 == round_y){
+	if(currently_active_dimensions%2 == 1){
+		temp_layer = round_x-Spawn_X;
+	}
+	else{
+		temp_layer = round_z-Spawn_Z;
+	}
+}
+else{
+	if(map.contains(Active_Blocks, stood_on_block_loc)){
+		temp_layer = map.get(Active_Blocks, stood_on_block_loc);
+	}
+	else{
+		goto("wait");
+	}
+}
 if(currently_active_dimensions == 0){//XYZ to XYW
-	currently_active_dimensions = 5;//0 = W, 1 = X, 2 = Z, 3 = W, 4 = X, 5 = Z 
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getZ(entity.getLocation(player)))-Spawn_Z;
+	currently_active_dimensions = 5;//0 = W, 1 = X, 2 = Z, 3 = W, 4 = X, 5 = Z
 	entity.teleport(player, loc.mod(Edge_3, loc.getX(temp_player_loc)-Spawn_X, loc.getY(temp_player_loc)-Spawn_Y, temp_layer+0.5));
 }elseif(currently_active_dimensions == 1){//WYZ to XYZ
 	currently_active_dimensions--;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getX(entity.getLocation(player)))-Spawn_X;
 	entity.teleport(player, loc.mod(Edge_3, temp_layer+0.5, loc.getY(temp_player_loc)-Spawn_Y, loc.getZ(temp_player_loc)-Spawn_Z));
 }elseif(currently_active_dimensions == 2){//WYX to WYZ
 	currently_active_dimensions--;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getZ(entity.getLocation(player)))-Spawn_Z;
 	entity.teleport(player, loc.mod(Edge_3, loc.getX(temp_player_loc)-Spawn_X, loc.getY(temp_player_loc)-Spawn_Y, temp_layer+0.5));
 }elseif(currently_active_dimensions == 3){//ZYX to WYX
 	currently_active_dimensions--;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getX(entity.getLocation(player)))-Spawn_X;
 	entity.teleport(player, loc.mod(Edge_3, temp_layer+0.5, loc.getY(temp_player_loc)-Spawn_Y, loc.getZ(temp_player_loc)-Spawn_Z));
 }elseif(currently_active_dimensions == 4){//ZYW to ZYX
 	currently_active_dimensions--;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getZ(entity.getLocation(player)))-Spawn_Z;
 	entity.teleport(player, loc.mod(Edge_3, loc.getX(temp_player_loc)-Spawn_X, loc.getY(temp_player_loc)-Spawn_Y, temp_layer+0.5));
 }elseif(currently_active_dimensions == 5){//XYW to ZYW
 	currently_active_dimensions--;
-	current_layer[currently_active_dimensions] = math.roundDown(loc.getX(entity.getLocation(player)))-Spawn_X;
 	entity.teleport(player, loc.mod(Edge_3, temp_layer+0.5, loc.getY(temp_player_loc)-Spawn_Y, loc.getZ(temp_player_loc)-Spawn_Z));
 }
-if(currently_active_dimensions < 3){
-	current_layer[currently_active_dimensions+3] = current_layer[currently_active_dimensions]; 
-}else{
-	current_layer[currently_active_dimensions-3] = current_layer[currently_active_dimensions]; 
-}
-place_blocks(current_layer, Dimension_Blocks);
+remove_blocks();//0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
+Active_Blocks = place_blocks(Dimension_Blocks);
+dim.bossbar.update(currently_active_dimensions);
 goto("wait");
-
-
 
 function remove_blocks(){
 	c = 0;
-	for(x = $x3; x < $x3 + $x2 - $x1 + 1; x++){
-		for(y = $y3; y < $y3 + $y2 - $y1 + 1; y++){
-			for(z = $z3; z < $z3 + $z2 - $z1 + 1; z++){
-				c++;
-				if(c > 750){
-					c = 0;
-					waitfor(2);
-				}
-				block.setmaterial(block.get(loc.new($games, x, y, z)), $air_material);
-			}
+	iterator = map.iterator($Active_Blocks);
+	while(hasnext(iterator)){
+		if(c > 750){
+			c = 0;
+			waitfor(2);
 		}
+		element = next(iterator);
+		Block = block.get(map.getKey(element));
+		block.setMaterial(Block, $air_material, false);
 	}
 }
 
-function place_blocks(current_layer, Dimension_Blocks){
+function place_blocks(Dimension_Blocks){
 	c = 0;
 	temp_a_d = $currently_active_dimensions;
-	temp_c_l = current_layer[temp_a_d];
+	Active_Blocks = map.new();
 	for(a = 0; a < list.getSize(Dimension_Blocks); a++){
 		c++;
 		if(c > 750){
@@ -317,54 +291,53 @@ function place_blocks(current_layer, Dimension_Blocks){
 		Y_place = -1;
 		Z_place = 0;
 		if(temp_a_d == 0){//0 = XYZ
-			if(D_Array[3] == temp_c_l){
-				X_place = D_Array[0];
-				Y_place = D_Array[1];
-				Z_place = D_Array[2];
-			}
+			X_place = D_Array[0];
+			Y_place = D_Array[1];
+			Z_place = D_Array[2];
+			background_coordinate = D_Array[3];
 		}elseif(temp_a_d == 1){//1 = WYZ
-			if(D_Array[0] == temp_c_l){
-				X_place = D_Array[3];
-				Y_place = D_Array[1];
-				Z_place = D_Array[2];
-			}
+			X_place = D_Array[3];
+			Y_place = D_Array[1];
+			Z_place = D_Array[2];
+			background_coordinate = D_Array[0];
 		}elseif(temp_a_d == 2){//2 = WYX
-			if(D_Array[2] == temp_c_l){
-				X_place = D_Array[3];
-				Y_place = D_Array[1];
-				Z_place = D_Array[0];
-			}
+			X_place = D_Array[3];
+			Y_place = D_Array[1];
+			Z_place = D_Array[0];
+			background_coordinate = D_Array[2];
 		}elseif(temp_a_d == 3){//3 = ZYX
-			if(D_Array[3] == temp_c_l){
-				X_place = D_Array[2];
-				Y_place = D_Array[1];
-				Z_place = D_Array[0];
-			}
+			X_place = D_Array[2];
+			Y_place = D_Array[1];
+			Z_place = D_Array[0];
+			background_coordinate = D_Array[3];
 		}elseif(temp_a_d == 4){//4 = ZYW
-			if(D_Array[0] == temp_c_l){
-				X_place = D_Array[2];
-				Y_place = D_Array[1];
-				Z_place = D_Array[3];
-			}
+			X_place = D_Array[2];
+			Y_place = D_Array[1];
+			Z_place = D_Array[3];
+			background_coordinate = D_Array[0];
 		}elseif(temp_a_d == 5){//5 = XYW
-			if(D_Array[2] == temp_c_l){
-				X_place = D_Array[0];
-				Y_place = D_Array[1];
-				Z_place = D_Array[3];
-			}
+			X_place = D_Array[0];
+			Y_place = D_Array[1];
+			Z_place = D_Array[3];
+			background_coordinate = D_Array[2];
 		}
 		if(Y_place > -1){
 			X_place = X_place + $x3;
 			Y_place = Y_place + $y3;
 			Z_place = Z_place + $z3;
 			if(X_place < $x4+1 && Y_place < $y4+1 && Z_place < $z4+1){
-				block.setmaterial(block.get(loc.new($games,X_place,Y_place,Z_place)), temp_array[1]);
+				temp_loc = loc.new($games,X_place,Y_place,Z_place);
+				block.setmaterial(block.get(temp_loc), temp_array[1]);
+				map.add(Active_Blocks, temp_loc, background_coordinate);
 			}
 		}
 	}
+	return(Active_Blocks);
 }
 
 function game_stop(message){
+	boss.removeAll($dim_bossbar);
+	remove_blocks();
 	if(message != null){
 		msg.prefix($player, $gamename, message);
 	}
@@ -372,4 +345,22 @@ function game_stop(message){
 	minigame.kickPlayer(script, $player);
 	minigame.term(script, $gamesignloc);
 	term();
+}
+
+function dim.bossbar.update(currently_active_dimensions){//0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
+	if(currently_active_dimensions == 0){
+		Dimensions_String = "XYZ";
+	}elseif(currently_active_dimensions == 1){
+		Dimensions_String = "WYZ";
+	}elseif(currently_active_dimensions == 2){
+		Dimensions_String = "WYX";
+	}elseif(currently_active_dimensions == 3){
+		Dimensions_String = "ZYX";
+	}elseif(currently_active_dimensions == 4){
+		Dimensions_String = "ZYW";
+	}elseif(currently_active_dimensions == 5){
+		Dimensions_String = "XYW";
+	}
+	boss_string = (string.concat(Dimensions_String));
+	boss.setTitle($dim_bossbar, boss_string);
 }

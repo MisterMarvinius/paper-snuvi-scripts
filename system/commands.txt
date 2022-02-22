@@ -37,8 +37,8 @@ command.add("removeinvstats");
 command.add("sfstats");
 command.add("topsfstats");
 command.add("removesfstats");
-//command.add("questanswer");
-//Vanilla überschreiben
+command.add("questanswer");
+//Overwrite vanilla
 command.add("butcher");
 
 //--- Register commands shown on /help here ---
@@ -73,7 +73,7 @@ command.register("game", "marvs minigame shit");
 command.register("gamemode", "Change gamemode");
 command.register("gamerule", "Manage gamerules");
 command.register("games", "Teleports to games-spawn");
-//command.register("giveup", "Giveup a quest");
+command.register("giveup", "Giveup a quest");
 command.register("grow", "Grow seeds");
 command.register("hat", "Be fame with a new hat");
 command.register("head", "Gives you the head of a player");
@@ -109,7 +109,7 @@ command.register("playtime", "Shows your playtime");
 command.register("plot", "Plot-Commands");
 command.register("potion", "Adds a potion effects to an item");
 command.register("pvp", "Toggles pvp");
-//command.register("quest", "Quest-Commands");
+command.register("quest", "Quest-Commands");
 command.register("rank", "Shows your available ranks");
 command.register("repair", "Repairs your item in mainhand");
 command.register("ride", "Rides an entity");
@@ -124,10 +124,8 @@ command.register("setservermessage", "Sets the server-message in the serverlist"
 command.register("setspawn", "Changes a spawn");
 command.register("shop", "Shop-Commands");
 command.register("sign", "Edit a sign");
-command.register("silentban", "Silently bans a player");
 command.register("silentjoin", "Toggles your silentjoins");
-command.register("silentkick", "Silently kicks a player");
-//command.register("skills", "Shows all skills");
+command.register("skills", "Shows all skills");
 command.register("skipnight", "Skips the night");
 command.register("spawn", "Teleports to spawn");
 command.register("speed", "Sets your speed");
@@ -167,8 +165,6 @@ command.register("yeet", "Throws you in sight");
 command.registerAlias("as", "armorstand");
 command.registerAlias("h", "home");
 command.registerAlias("skull", "head");
-command.registerAlias("skick", "silentkick");
-command.registerAlias("sban", "silentban");
 command.registerAlias("r", "answer");
 command.registerAlias("pardon", "unban");
 command.registerAlias("j", "jumpto");
@@ -184,7 +180,7 @@ command.registerAlias("l", "leave");
 command.registerAlias("hub", "leave");
 command.registerAlias("t", "teammsg");
 command.registerAlias("v", "vanish");
-//command.registerAlias("fuckit", "giveup");
+command.registerAlias("fuckit", "giveup");
 command.registerAlias("thor", "lightning");
 
 composter_par = particle.get("COMPOSTER");
@@ -349,9 +345,7 @@ set.add(operation_set, "MULTIPLY_SCALAR_1");
 not_blocked_cmd = set.new();
 set.add(not_blocked_cmd, "leave");
 set.add(not_blocked_cmd, "ban");
-set.add(not_blocked_cmd, "silentban");
 set.add(not_blocked_cmd, "kick");
-set.add(not_blocked_cmd, "silentkick");
 set.add(not_blocked_cmd, "warn");
 set.add(not_blocked_cmd, "tempban");
 set.add(not_blocked_cmd, "mute");
@@ -451,8 +445,6 @@ set.add(consoleCommands, "list");
 set.add(consoleCommands, "memory");
 set.add(consoleCommands, "mute");
 set.add(consoleCommands, "say");
-set.add(consoleCommands, "silentban");
-set.add(consoleCommands, "silentkick");
 set.add(consoleCommands, "start");
 set.add(consoleCommands, "tempban");
 set.add(consoleCommands, "tempfly");
@@ -546,7 +538,7 @@ RickRollSoundDists = getRickRollSoundDists();
 rick_sounds_amount = list.getSize(RickRollSoundDists);
 bobbyCarSounds = getBobbyCarSounds();
 bobbyCarSoundDists = getBobbyCarSoundDists();
-rick_sounds_amount = list.getSize(bobbyCarSoundDists);
+bcar_sounds_amount = list.getSize(bobbyCarSoundDists);
 item_flags = getItemFlags();
 
 sound_category_master = sound.getCategory("MASTER");
@@ -607,11 +599,11 @@ if(event == "vote") {
 		p_id = player.getId(p_uuid);
 		player.addVotePoints(p_id, 1);
 		if(from == "minecraft-server.eu") {
-			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(string.concat(" §b", name, "§r has voted! ")), string.getLinkText("[§cminecraft-server.eu§r]", "https://minecraft-server.eu/vote/index/2227F")));
+			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(string.concat(" §b", name, "§r has voted! ")), string.getLinkText("[§bminecraft-server.eu§r]", "https://minecraft-server.eu/vote/index/2227F")));
 		} else {
-			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(string.concat(" §b", name, "§r has voted! ")), string.getLinkText("[§cminecraft-server-list.com§r]", "https://minecraft-server-list.com/server/478200/vote/")));
+			msg("online", text.merge(text.new(string.getPrefix(prefix_vote)), text.new(string.concat(" §b", name, "§r has voted! ")), string.getLinkText("[§bminecraft-server-list.com§r]", "https://minecraft-server-list.com/server/478200/vote/")));
 		}
-		last_vote_time = player.getLastVoteTime(player);
+		last_vote_time = player.getLastVoteTime(p_id);
 		new_streak = player.getVoteStreak(p_id);
 		if(last_vote_time == 0) {
 			new_streak++;
@@ -620,14 +612,11 @@ if(event == "vote") {
 		} elseif(!isSameDay(last_vote_time, now_time)) {
 			new_streak = 1;
 		}
-		/*if(new_streak == 14) {
+		if(new_streak == 7) {
 			new_streak = 0;
-			msg.online(prefix_vote, string.concat(player.getName(p_uuid), " reached a votestreak of 14 and each player online (survival) gets a sapphire."));
-			sapphire = item.getSapphire();
-			world.giveItem(world.getOverWorld(), sapphire);
-			world.giveItem(world.getTheNether(), sapphire);
-			world.giveItem(world.getTheEnd(), sapphire);
-		}*/
+			msg.online(prefix_vote, string.concat(player.getName(p_uuid), " reached a votestreak of 7 and gets a sapphire (§b/mailbox§r)."));
+			mailbox.sendItem(p_id, item.getSapphire());
+		}
 		player.setVoteStreak(p_id, new_streak);
 		player.setLastVoteTime(p_id, now_time);
 	}
@@ -764,7 +753,7 @@ if(event == "player_quit") {
 	map.remove(afk_checker_map, uuid);
 	player.setAfk(player, false);
 	list.remove(jailed_list, player.getUuid(player));
-	/*if(player.hasQuest(player)) {
+	if(player.hasQuest(player)) {
 		script_id = quest.getFromPlayer(player);
 		script = script.getFromId(script_id);
 		if(script == null) {
@@ -775,7 +764,7 @@ if(event == "player_quit") {
 		setScriptVar("player", player);
 		modTimer.scriptCallEvent("quest_term", script);
 		quest.term(script, player);
-	}*/
+	}
 	if(player.isInParty(player)) {
 		party.kickPlayer(player, "logout");
 	}
@@ -955,13 +944,16 @@ if(event == "snuvi_click") {
 		goto("wait");
 	}
 	if(title_string == "Skills") {
-		if(item.getType(item) == null) {
+		if(item == null) {
 			goto("wait");
 		}
-		skill_name = string.removeFormat(item.getName(item));
+		skill_name = string.removeFormat(string.text(item.getName(item)));
+		if(skill_name == "") {
+			goto("wait");
+		}
 		tech_name = skill.getTechName(skill_name);
 		//Toggle skills
-		if(skill.isToggleable(skill_name)) {
+		if(skill.isToggleable(tech_name)) {
 			if(skill.isActivated(player, tech_name)) {
 				skill.setActivated(player, tech_name, false);
 			} else {
@@ -971,13 +963,15 @@ if(event == "snuvi_click") {
 			goto("wait");
 		}
 		//Activate skill
-		if(skill.isActive(skill_name)) {
+		if(skill.isActive(tech_name)) {
 			player_loc = entity.getLocation(player);
 			world_name = world.getName(loc.getWorld(player_loc));
 			if(!world.isSurvName(world_name)) {
 				msg.prefix(player, prefix_skill, "You can´t use this in this world.");
 				goto("wait");
 			}
+			goto("wait");
+			
 			if(tech_name == "skill.fire_arrow") {
 				duration = data.getTimer(player, tech_name);
 				if(duration > 0) {
@@ -991,22 +985,6 @@ if(event == "snuvi_click") {
 					new_amount = amount - 1;
 					skill.setAmount(player, tech_name, new_amount);
 					msg.prefix(player, prefix_skill, string.concat("Used ", skill_name, ". New amount: ", string.number(new_amount)));
-				}
-				goto("wait");
-			}
-			if(tech_name == "skill.timber") {
-				duration = data.getTimer(player, "timber");
-				if(duration > 0) {
-					msg.prefix(player, prefix_skill, "Skill already active.");
-					goto("wait");
-				}
-				amount = skill.getAmount(player, "skill.timber");
-				if(amount > 0) {
-					status.addTimed(player, 53, 1200, "Timber");
-					data.setTimer(player, "timber", 1200);
-					new_amount = amount - 1;
-					skill.setAmount(player, "skill.timber", new_amount);
-					msg.prefix(player, prefix_skill, string.concat("Used Timber. New amount: ", string.number(new_amount)));
 				}
 				goto("wait");
 			}
@@ -1385,13 +1363,11 @@ if(arg0 == "send") {
 		goto("wait");
 	}
 	to_player_id = player.getId(player.getUuid(to_name));
-	index = mailbox.getFreeIndex(to_player_id);
-	if(index == -1) {
+	if(!mailbox.sendItem(to_player_id, item)) {
 		msg.prefix(player, prefix_commands, "No free space in mailbox.");
 		goto("wait");
 	}
 	living.setEquip(player, read.slot("HAND"), null);
-	mailbox.setItem(to_player_id, index, item);
 	msg.send(player, to_name, prefix_commands, string.concat(player.getName(player), " sent you items to your mailbox."), true);
 	msg.prefix(player, prefix_commands, "Item sent to player.");
 	goto("wait");
@@ -1481,7 +1457,7 @@ rickIndex++;
 goto("wait");
 
 @bobbycar_play
-if(bobbycarIndex < rick_sounds_amount) {
+if(bobbycarIndex < bcar_sounds_amount) {
 	pitch = list.getIndex(bobbyCarSounds, bobbycarIndex);
 	PlayVoteSound(pitch);
 	ticks = list.getIndex(bobbyCarSoundDists, bobbycarIndex);
@@ -2201,6 +2177,7 @@ if(arg0 == "see") {
 		msg.prefix(player, prefix_quest, "/quest see");
 		goto("wait");
 	}
+	msg.prefix(player, prefix_quest, "Active quests:");
 	quest_map = quest.getIds();
 	iter = map.iterator(quest_map);
 	while(hasNext(iter)) {
@@ -2211,7 +2188,8 @@ if(arg0 == "see") {
 		if(script == null) {
 			continue;
 		}
-		msg.string(player, player.getName(key), " ", value);
+		q_name = script.getVar(script, "quest_name");
+		msg.string(player, string.concat( "§d- §r", player.getName(key), " ", string.number(value), " ", q_name));
 	}
 	goto("wait");
 }
@@ -2364,7 +2342,7 @@ if(size == 0) {
 	link2 = "https://minecraft-server-list.com/server/478200/vote/";
 	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server.eu", link1)));
 	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server-list.com", link2)));
-	p = player;
+	p_id = player.getId(player);
 } else {
 	if(!perm.has("user.other", player)) {
 		perm.no("user.other", player);
@@ -2375,11 +2353,11 @@ if(size == 0) {
 		msg.prefix(player, prefix_commands, "This player has never been online.");
 		goto("wait");
 	}
-	p = read.player(p_name);
+	p_id = player.getId(player.getUuid(p_name));
 }
-msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votepoints: §6", string.number(player.getVotePoints(p))))));
-msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votestreak: §6", string.number(player.getVoteStreak(p))))));
-last_vote_time = player.getLastVoteTime(p);
+msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votepoints: §6", string.number(player.getVotePoints(p_id))))));
+msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), text.new(string.concat("Votestreak: §6", string.number(player.getVoteStreak(p_id))))));
+last_vote_time = player.getLastVoteTime(p_id);
 if(last_vote_time == 0) {
 	last_vote_time = "-";
 } else {
@@ -3327,6 +3305,11 @@ if(arg0 == "give") {
 		if(rank != null) {
 			offerRank(p, rank.getTechName(rank));
 		}
+		if(perm == "creative") {
+			if(loc.isInCreativeWorld(entity.getLocation(p))) {
+				player.setGamemode(p, "CREATIVE");
+			}
+		}
 	}
 	perm.addGroupToPlayer(p_id, perm_id);
 	msg.prefix(player, prefix_perms, string.concat("§rPerm §7", perm, "§r added to §7", p_name, "§r."));
@@ -4070,7 +4053,7 @@ elseif(arg0 == "timber") {
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general");
+	script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general", "utils/u_skills");
 }
 elseif(arg0 == "tiploop") {
 	script = script.get("tiploop");
@@ -4085,6 +4068,13 @@ elseif(arg0 == "trader") {
 		script.term(script);
 	}
 	script.startNamed("Trader", "utils/u_error", "survival/trader", "utils/u_general");
+}
+elseif(arg0 == "skills") {
+	script = script.get("Skills");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("Skills", "utils/u_error", "survival/skills", "utils/u_general", "utils/u_skills", "utils/u_quest");
 }
 elseif(arg0 == "story") {
 	/*script = script.get("Story");
@@ -4801,6 +4791,12 @@ elseif(arg0 == "skin") {
 			human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1ODM1NTQzMTAxOTQsInByb2ZpbGVJZCI6IjIzZjFhNTlmNDY5YjQzZGRiZGI1MzdiZmVjMTA0NzFmIiwicHJvZmlsZU5hbWUiOiIyODA3Iiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS84NDQ0NDQzMjlhZWM0OTYxYTJmMWYzZWNiYTBmYjJkZTE1NDU1Mzk5MTFmYjFlODA4ZmM4NzQ2NDNlNTRkZTY2In19fQ==", "qBm2/mxwTcJIEu8r13WohKEiByJQAx1K+5ciGEZQ08PRHbA0hWvuJfLWcAdOERsPARFCAhfzUZOjhOlKr28CNwTYnP7gTf6njP8Q9roSkwGSAH5PDH4mkiS9zmZQwYUJVyzn//srq6XsASNzGFq2ChgRZV+yGAVJFeSFpHAEnhQxhsSM3xltUo37aRjWNI4wlVSqzzQh+oJvB6IDWR6evrK1sNHByhX8/UNcx+XYL6PqN/51g16gJNmhppTu3YFj25dIBSiUTFFGViNMf7eAYrRS36ZkyUHlvAiC8leIOvC6cwtGGngOG6Vun2DtVI+9xyxqQhQURYIl+DrFt1cqSLDfEDVosKsfh3f5ynxaZ61fBZIz0hWxHmWw40SV+1wgfh0XD6jsusdXk/rf9zuRInhAvx/9cBnUNELfDfTeFmpkaZFo2LYwBawcKePVj7yqNborJ30mcyApO68mSIVzYLxO0aKfjRQYzrJx452iBRu4K87DbwvyLPowTzWrBh3HDUXdG4/Qn+W7eR3n7UYTFDeZUXURq6tDX8NEEj2giiBzonlkqpTECAXufabpHo+JvST4L97WKLP5omsKWyzVYTVILBn1On54gra6ZZwga7j+r3o67CQfOh8qDL6ZRoNRA9nBkUZzgjzHcfUAbUsqhYgkBpb/iEkqU6VU2Nc/+tA=");
 		} elseif(name == "casino") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTY0MjkwMTQ3NDQ4OCwKICAicHJvZmlsZUlkIiA6ICJjNTZlMjI0MmNiZWY0MWE2ODdlMzI2MGRjMGNmOTM2MSIsCiAgInByb2ZpbGVOYW1lIiA6ICJMSlI3MzEwMCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8zZTA3OTQ3ZTRhMmNkOGQ1NGVjZGE4N2ZiNTQxNTViODQ4Zjk4ZTE5ZDE1ZTBiOTVhYjAyOTAyNjEyM2JkODM5IgogICAgfQogIH0KfQ==", "H5PIINevEBYikUEDiKw388RE5pxSp07y1LidOW/uZJbBUXFCQoUWZTh3faR5uL51T5EXxyVWbiZD1LA14S3vIrtruW7yR+keJYGw5PCQDWaPi8Qq41wwtQ01GXnGviWIqrJ5CGjHBbSQ0jpfZ+wSs48rByKfoS35SFeYdPvJeAODj9Sz1BBrJ8D9hW+n6w721RkAMGtYHSDgjcjzB1on+li78RvSKa3kUm2jqU5jNdLURHoDJe5Yg3i2vfXGtHdspC6isgH5KVe2prwYlosanun0XIYc6L99u2deN88rF55IXWsE+12cVTzaMDj4/oQqFvyfd92TgCNmuTJvwQKG9bLyt8IXgb/E0sRLN5ymZ0gUIju1ZXeRYDppnxWiZlLV9KK1zpGQ82gLTtamfjpj7z3Sg9N51t3BhGCZ98Y2Rn6UDGJ//v/h0qm/tNP4trQEFp2qGpYW4hM/0sSHA8KvJlfGrHv22JboVNyOlXMEENpcp8KTpJfAD5mpYoLKM3CWFFN/yReTkdTFs3L/qvv1DtNsvunNqAd0NTwD5hzQoigt3Diq9ZyLgnmzCj6OISw6RQLMkdNNpeBgxorXpCJM+mqV5RmPQwU0EhTlnJD0RC8HfqTOmIREJ/aczd3DJ7rMiJpDaPqOpMnNetQR6m85k90pcDHY08UqB4ZfItChL9I=");
+		} elseif(name == "anna") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwODY0MTkwMTQwNCwKICAicHJvZmlsZUlkIiA6ICI5MzZmMTA3MTEzOGM0YjMyYTg0OGY2NmE5Nzc2NDJhMiIsCiAgInByb2ZpbGVOYW1lIiA6ICIwMDAwMDAwMDAwMDAwMDB4IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzg1ZjVjZjBhYjIzMjBjYzYzNWRlMzk0ZjI5MGQxOGRiMjQ0OTQxMjE1NzgzM2I4MjBlNTBlNWI5ZGY2ZjAxOWIiLAogICAgICAibWV0YWRhdGEiIDogewogICAgICAgICJtb2RlbCIgOiAic2xpbSIKICAgICAgfQogICAgfQogIH0KfQ==", "EqWlrWpzfw/O8/Z5Lzw46lfSoEXERZT02R44zMSHr/2zzKBOmCt4kkl3COwNfO5Fjpc7el/4YbJya3ZBpmiLuJzPgYVtCt0cWmbxK7NXA2662yFq2Gsr6JX7NweQ2B6vZ573nFIOf7o/bMp2VI0BRRqPDsAlV61A1QS/aGYLJo7Yoz4njBRVYqVnAOXxUz8ETTSSfwxRHZSzXsvJVlci2yCalGcbM8dlGqgC9jRvZ4RjEFivCM7ICZGP9pJy555yOdMQvjkvxhslDNMvgpBR1hHBZA93yhjcTIGjErhIy/YwU9X0rpT9VEVjhQuPP+DBmJDrxj2IkyAESKvrRTG6ziZw8XlbCcDz9Q0Ao9GWp+wRMzntNNeFkMi/oVmDgh2pKFgdD2OGlhpl01286Ixcvw3XU4pQYmkq9khqomwvwjxomE0H52IjHAiFn+fEdVEw5n1ZdKJsvHHs/brqgohpKE5s8C+Lh5KDy76IfCOeiQcbBgpDdm2P9XeiuVkjZX8Sht+e05/ctPQpNXh5jgyjvREbKzbisztkZWzEnYI+uCa15dIIVkS0gTc8kJYX9ZQ6Q5IMUPPVo3R0etWfJ2jVI+M947rtEeJ9tRKslVA1H5MmAh9mndYkbFrMwzS7BLWbp4lhU4L9EsoUpHvf2IxInuLD1sauhGjJmTLtibs9tu4=");
+		} elseif(name == "diver") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU4ODI3MjUxMzM0OSwKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83NmE1OTExN2QwMjljYzY2YTc1ODcwOWZlNjg1M2MzOTAzNDhhMzRlN2U4YWI3MGUzN2YwMDljZDZiMjNjOGM4IgogICAgfQogIH0KfQ==", "llLlXDuFY5yeOkob7ZKTO6CNdENXiZ23aGA6wNSc7FFZ2JyERjCvg6BLz3w0mJhZ4ORaZF0yHdFlmhXtBr/2ICneFtTCuyNjhPKzy3kBMhjAdtXq08cspNhmBZz0Otw0GyBs7hopEs8rqN3N9DtfZbTwVBjfXDW6tH3zUtU3Vv8/zb0l7/lU1NdZpOnkqXQmhv9G+vI/yknOqz4Go9tD+UoLjFP/vdRkor6Xbe9CEd9rqqc15eoSbIIPrPvgjnn8cLSE/OTdfdy4TpEK5GD1fPbZFkRVOC7fvbSNSwlhDq6ybrpbQ4MOhMeXlzGdyxGnGFT/r95qMZzGh1gW1chVu+2Nc8TdBinQ2L3AT2bYOorlNT4AsgBqU21dkm9vmBqsGqInwvUhwmjLt3f7G8wsQiHHswgNUuVUh1sG0HDb0oab7XP6+mEyDtRrIHAqIT4jqSe03vfKGXyEwgBUb97Z9vlRrfIfuFAaaeeRyCqI3s3HnhvsJQRrU2kKwm18+ZRaDOdTJh9KKy/8eLlIChmaZgs+Ied1bMbJIJd9zKsP9MmNRXxhPR7FyV5ffNjLXdmeutLcEurqQVpvV1uQ/4YrwJhT6idoxDhw6P/jef4D4so3fCHZtrrkDYs8q2kBR+tMuRrM83Vgnf2B/pQcgOtu3JeZOGXRC+h+0xDSCJN0I+w=");
+		} elseif(name == "mage_assistant") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU5OTc0MzgxODcxMSwKICAicHJvZmlsZUlkIiA6ICJhMjk1ODZmYmU1ZDk0Nzk2OWZjOGQ4ZGE0NzlhNDNlZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJWaWVydGVsdG9hc3RpaWUiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmE3ODc4MjIxYWQ4MDg3ODkzNjlmMmVkZjRkZmJlNWU5N2UzODJiNzZjODVmZWIzZmQyY2FkODgyYzk1NTJhNyIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9", "g3Ik0BT6M5jeFf7dHJ4hlLSJdiC5ivPcAb7gFP9+tlzH72N3eYrz+irExxpGQUsiro0NVEmlNt1R8aSBcY/wQDdLBOy9LHHt5MNpja72DDlFJUAW2fpXwJgfnCmqHDXzmVu3dfwyE0efZKOscFQzJQ5zbIGrEXjA2tOqEI/ZZMNehF5pNJZnusjGIpE/Abn9PxafnX/rvZAWr0BCip4wCUGbnfbDHlcn561HW50CAE8k3siqc+RJXXbnC24kYmblzuSBcHw33nCHRmlUiddyhzOE6NoWiZu9kNecOAapZmSZXCGMxyfwdy2n2Yg7ydxM8WTO7LOG1/o+ft/Ag24YxtHFkE6T2R03LvVYCTdodLzVQbXLqqMvGYcM7A6b6TPaHkMZhyumfH+GRoCI8kmyDEIqHrDbZOYhTyrpFBdz8WOOj1e5oz8nXQODMAC4ZEccj/5JishwPXxRdc9YFBkPJ63lJNN4boetMTdhDe3xe8tp8CoeNH3CaMn8eN0hkwmzXKx4I2qQPIO4NxW+bhJ1U6+qp8M0yllI2mRpZrTmTIhGHfq3nxJtUU+JcLMIaYiItnKlENH8vRP2UZrGq6SxiK0tE4A4wKGitXK/BAljLoUFLx8a+B/rbnmK8lqpWofaMeTeFw1W7m497ZaT7d3HLL0Jb/OR1vhP1NpJKZYhaLU=");
 		} else {
 		    msg.action(player, "Not supported name.");
 		}
@@ -4816,6 +4812,7 @@ elseif(arg0 == "name") {
 	for(i = 2; i < list.getSize(args); i++) {
 	    name = string.concat(name, " ", list.getIndex(args, i));
 	}
+	name = string.replace(name, "&", "§");
 	human.setName(human, name);
 	msg.action(player, string.concat("Human named to ", name, "§r."));
 	goto("wait");
@@ -5026,12 +5023,13 @@ if(p_name == "marvinius") {
 	msg.string(sender, "§cSorry §b¯\\_(._.)_/¯");
 	goto("wait");
 }
+sender_name = player.getName(sender);
 player.mute(p, true);
 if(size > 1) {
 	reason = string.concatList(args, " ", 1, size - 1);
-	msg.string("online", string.concat("§c", p_name, " was muted by ", player.getName(sender), ": ", reason));
+	msg.team(sender_name, string.concat("§cMuted ", p_name, ": ", reason));
 } else {
-	msg.string("online", string.concat("§c", p_name, " was muted by ", player.getName(sender), "."));
+	msg.team(sender_name, string.concat("§cMuted ", p_name, "."));
 }
 goto("wait");
 
@@ -5051,7 +5049,7 @@ if(p_name == "marvinius") {
 	msg.string(sender, "§cSorry §b¯\\_(._.)_/¯");
 	goto("wait");
 }
-msg.string("online", string.concat("§c", p_name, " was unmuted by ", player.getName(sender), "."));
+msg.team(player.getName(sender), string.concat("§cUnmuted ", p_name, "."));
 player.mute(p, false);
 goto("wait");
 
@@ -5071,38 +5069,13 @@ if(p_name == "marvinius") {
 	msg.string(sender, "§cSorry §b¯\\_(._.)_/¯");
 	goto("wait");
 }
+sender_name = player.getName(sender);
 if(size > 1) {
 	reason = string.concatList(args, " ", 1, size - 1);
-	msg.string("online", string.concat("§c", p_name, " was kicked by ", player.getName(sender), ": ", reason));
+	msg.team(sender_name, string.concat("§c", p_name, " got kicked: ", reason));
 } else {
 	reason = "You got kicked";
-	msg.string("online", string.concat("§c", p_name, " was kicked by ", player.getName(sender), "."));
-}
-ban.kick(p, text.new(reason));
-goto("wait");
-
-@silentkick
-if(size < 1) {
-	msg.prefix(sender, prefix_commands, "/silentkick <player> [reason]");
-	goto("wait");
-}
-p_name = list.getIndex(args, 0);
-if(!isOnline(p_name)) {
-	msg.prefix(sender, prefix_commands, "This player is not online.");
-	goto("wait");
-}
-p = read.player(p_name);
-p_name = player.getName(p);
-if(p_name == "marvinius") {
-	msg.string(sender, "§cSorry §b¯\\_(._.)_/¯");
-	goto("wait");
-}
-if(size > 1) {
-	reason = string.concatList(args, " ", 1, size - 1);
-	msg.string(sender, string.concat("§cYou silently kicked ", p_name, ": ", reason));
-} else {
-	reason = "You got kicked.";
-	msg.string(sender, string.concat("§cYou silently kicked ", p_name, "."));
+	msg.team(sender_name, string.concat("§c", p_name, " got kicked."));
 }
 ban.kick(p, text.new(reason));
 goto("wait");
@@ -5145,41 +5118,12 @@ if(p_name == "marvinius") {
 sender_name = player.getName(sender);
 if(size > 1) {
 	reason = string.concatList(args, " ", 1, size - 1);
-	msg.string("online", string.concat("§c", p_name, " got banned by ", sender_name, ". Reason: ", reason));
+	msg.team(sender_name, string.concat("§c", p_name, " got banned: ", reason));
 } else {
 	reason = "You got banned.";
-	msg.string("online", string.concat("§c", p_name, " got banned by ", sender_name, "."));
+	msg.team(sender_name, string.concat("§c", p_name, " got banned."));
 }
 ban.add(player.getUuid(p_name), reason, sender_name);
-if(isOnline(p_name)) {
-	p = read.player(p_name);
-	ban.kick(p, text.new(reason));
-}
-goto("wait");
-
-@silentban
-if(size < 1) {
-	msg.prefix(sender, prefix_commands, "/silentban <player> [reason]");
-	goto("wait");
-}
-p_name = list.getIndex(args, 0);
-if(!checkIfEverOnline(p_name)) {
-	msg.prefix(sender, prefix_commands, "This player has never been online.");
-	goto("wait");
-}
-p_name = player.getName(player.getUuid(p_name));
-if(p_name == "marvinius") {
-	msg.string(sender, "§cSorry §b¯\\_(._.)_/¯");
-	goto("wait");
-}
-if(size > 1) {
-	reason = string.concatList(args, " ", 1, size - 1);
-	msg.string(sender, string.concat("§cYou silently banned ", p_name, ": ", reason));
-} else {
-	reason = "You got banned.";
-	msg.string(sender, string.concat("§cYou silently banned ", p_name, "."));
-}
-ban.add(player.getUuid(p_name), reason, player.getName(sender));
 if(isOnline(p_name)) {
 	p = read.player(p_name);
 	ban.kick(p, text.new(reason));
@@ -5198,7 +5142,7 @@ if(!checkIfEverOnline(p_name)) {
 }
 p_name = player.getName(player.getUuid(p_name));
 ban.remove(player.getUuid(p_name));
-msg.string(sender, string.concat("§cYou unbanned ", p_name, "."));
+msg.team(player.getName(sender), string.concat("§cUnbanned ", p_name, "."));
 goto("wait");
 
 @tempban
@@ -5232,10 +5176,10 @@ timestring = getTimeString(endtime);
 sender_name = player.getName(sender);
 if(size > 4) {
 	reason = string.concatList(args, " ", 4, size - 1);
-	msg.string("online", string.concat("§c", p_name, " got banned by ", sender_name, " until ", timestring, ". Reason: ", reason));
+	msg.team(sender_name, string.concat("§c", p_name, " got banned until ", timestring, ". Reason: ", reason));
 } else {
 	reason = "You got banned.";
-	msg.string("online", string.concat("§c", p_name, " got banned by ", sender_name, " until ", timestring, "."));
+	msg.team(sender_name, string.concat("§c", p_name, " got banned until ", timestring, "."));
 }
 calendar = time.new(endtime);
 ban.add(player.getUuid(p_name), reason, sender_name, calendar);
@@ -5358,7 +5302,7 @@ if(arg0 == "sell") {
 	}
 	block.setSign(sign_loc, 3, string.number(player.getId(player)));
 	msg.prefix(player, prefix_plot, "Free plot for selling created.");
-	world = lock.getWorld(sign_loc);
+	world = loc.getWorld(sign_loc);
 	plot.savePlots(world);
 	goto("wait");
 }
@@ -5404,7 +5348,7 @@ if(arg0 == "raise") {
 	money.sub(player, snuvis);
 	plot.setCity(plot, true);
 	msg.prefix(player, prefix_plot, string.concat("City created. Spent §6", string.number(snuvis), "§r snuvis."));
-	world = lock.getWorld(location);
+	world = loc.getWorld(location);
 	plot.savePlots(world);
 	goto("wait");
 }
@@ -9165,7 +9109,7 @@ function party.invitePlayer(inviter, invitee) {
 	map.add($party_invite_ids, inviter_uuid, party_id);
 	inviter_name = player.getName(inviter);
 	msg.prefix(invitee, $prefix_party, string.concat(inviter_name, " invites you to a party."));
-	msg(invitee, text.merge(text.new(" §5=> §rAccept ? "), string.getClickText("[§aYes§r] ", string.concat("/party accept ", inviter_name)), string.getClickText("[§cNo§r]", text.new(string.concat("/party deny ", inviter_name)))));
+	msg(invitee, text.merge(text.new(" §5=> §rAccept ? "), string.getClickText("[§aYes§r] ", string.concat("/party accept ", inviter_name)), string.getClickText("[§cNo§r]", string.concat("/party deny ", inviter_name))));
 	sgoto(200, "deletePartyInvitation"); //Einladung bleibt 1 Minute lang erhalten
 	return true;
 }
@@ -9343,6 +9287,15 @@ function tpBottom(player) {
 //--------------------------------------------------
 //Mailbox-Utils
 //--------------------------------------------------
+
+function mailbox.sendItem(player_id, item) {
+	index = mailbox.getFreeIndex(player_id);
+	if(index == -1) {
+		return false;
+	}
+	mailbox.setItem(player_id, index, item);
+	return true;
+}
 
 function mailbox.clear(player_id) {
 	pfad = "scripts/configs/inv_data/mailbox";

@@ -1,0 +1,122 @@
+event.load("block_place");
+wet_sponge = material.get("WET_SPONGE");
+lava = material.get("LAVA");
+obsidian_material = material.get("OBSIDIAN");
+//max_radius = 1.5;
+//block_remover_max = 343;
+block_to_destroy = lava;
+
+@wait
+wait();
+if(block.getType(block) != wet_sponge){
+	goto("wait");
+}
+if(player.getName(player) == "SirTerence7"){
+		block_loc = block.getLocation(block);
+		block_remover.get(block_loc);
+}
+goto("wait");
+
+function block_remover.get(block_loc){
+	c = 0;
+	original_block_loc = block_loc;
+	lava_counter = 0;
+	$lava_locs = list.new();
+	list.add($lava_locs, block_loc);
+	while(list.getSize($lava_locs) != 0){
+		c++;
+		block_loc = list.getIndex($lava_locs, 0);
+		list.removeIndex($lava_locs, 0);
+		distance = loc.distance(block_loc, original_block_loc);
+		if(distance < 1.9){
+			block_remover.add_block(loc.mod(block_loc,1,0,0));
+			block_remover.add_block(loc.mod(block_loc,-1,0,0));
+			block_remover.add_block(loc.mod(block_loc,0,1,0));
+			block_remover.add_block(loc.mod(block_loc,0,-1,0));
+			block_remover.add_block(loc.mod(block_loc,0,0,1));
+			block_remover.add_block(loc.mod(block_loc,0,0,-1));
+			
+			lava_counter++;
+			if(c > 5){
+				waitfor(2);
+				c = 0;
+			}
+			if(lava_counter > 343 - 1) {
+				break;
+			}
+		}
+	}
+}
+
+function block_remover.add_block(temp_loc){
+	temp_block = block.get(temp_loc);
+	if(block.getType(temp_block) == $block_to_destroy){
+		list.add($lava_locs, temp_loc);
+		block.setMaterial(block.get(temp_loc), $obsidian_material);
+	}
+}
+
+//Zentraler befehl:
+/*
+function block_remover.get(block_loc, block_to_replace, material_to_place, max_distance){
+	c = 0;
+	original_block_loc = block_loc;
+	block_counter = 0;
+	block_locs = list.new();
+	list.add(block_locs, block_loc);
+	while(list.getSize(block_locs) != 0){
+		c++;
+		block_loc = list.getIndex(block_locs, 0);
+		list.removeIndex(block_locs, 0);
+		distance = loc.distance(block_loc, original_block_loc);
+		if(distance < max_distance){
+			
+			temp_loc = loc.mod(block_loc,1,0,0);
+			if(block.getType(temp_block) == block_to_replace){
+				block.setMaterial(block.get(temp_loc), material_to_place);
+				list.add(block_locs, temp_loc);
+			}
+			temp_loc = loc.mod(block_loc,-1,0,0);
+			if(block.getType(temp_block) == block_to_replace){
+				block.setMaterial(block.get(temp_loc), material_to_place);
+				list.add(block_locs, temp_loc);
+			}
+			temp_loc = loc.mod(block_loc,0,1,0);
+			if(block.getType(temp_block) == block_to_replace){
+				block.setMaterial(block.get(temp_loc), material_to_place);
+				list.add(block_locs, temp_loc);
+			}
+			temp_loc = loc.mod(block_loc,0,-1,0);
+			if(block.getType(temp_block) == block_to_replace){
+				block.setMaterial(block.get(temp_loc), material_to_place);
+				list.add(block_locs, temp_loc);
+			}
+			temp_loc = loc.mod(block_loc,0,0,1);
+			if(block.getType(temp_block) == block_to_replace){
+				block.setMaterial(block.get(temp_loc), material_to_place);
+				list.add(block_locs, temp_loc);
+			}
+			temp_loc = loc.mod(block_loc,0,0,-1);
+			if(block.getType(temp_block) == block_to_replace){
+				block.setMaterial(block.get(temp_loc), material_to_place);
+				list.add(block_locs, temp_loc);
+			}
+			
+			block_remover.add_block(loc.mod(block_loc,1,0,0));
+			block_remover.add_block(loc.mod(block_loc,-1,0,0));
+			block_remover.add_block(loc.mod(block_loc,0,1,0));
+			block_remover.add_block(loc.mod(block_loc,0,-1,0));
+			block_remover.add_block(loc.mod(block_loc,0,0,1));
+			block_remover.add_block(loc.mod(block_loc,0,0,-1));
+			
+			block_counter++;
+			if(c > 100){
+				waitfor(2);
+				c = 0;
+			}
+			if(block_counter > 2500) {
+				break;
+			}
+		}
+	}
+}*/

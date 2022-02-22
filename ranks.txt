@@ -1,0 +1,18 @@
+event.load("player_item_held");
+
+//du hast es gefunden
+
+@wait
+wait();
+player_name = player.getName(player);
+if(player_name == "marvinius"){
+	if(math.random(0,10)>0){
+		goto("wait");
+	}
+	inv = player.getInv(player);
+	item1 = inv.getItem(inv, from);
+	item2 = inv.getItem(inv, to);
+	inv.setItem(inv, to, item1);
+	inv.setItem(inv, from, item2);
+}
+goto("wait");

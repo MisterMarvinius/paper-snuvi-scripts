@@ -102,6 +102,7 @@ inv.setItem(mage, 4, newSellItem(item.new(material.get("AXOLOTL_SPAWN_EGG")), 1,
 inv.setItem(mage, 5, newSellItem(item.new(material.get("FOX_SPAWN_EGG")), 1, 256));
 inv.setItem(mage, 6, newSellItem(item.new(material.get("HORSE_SPAWN_EGG")), 1, 256));
 inv.setItem(mage, 7, newSellItem(item.new(material.get("STRIDER_SPAWN_EGG")), 1, 256));
+inv.setItem(mage, 8, newItem(material.get("SHULKER_BOX")));
 set.add(openMarkets, inv.getId(mage));
 // Lumberjack
 lumberjack = inv.new("222222222222222222", text.new("Lumberjack"));
@@ -138,7 +139,7 @@ inv.setItem(librarian, 2, newItem(material.get("BOOK")));
 inv.setItem(librarian, 3, newItem(material.get("BOOKSHELF")));
 set.add(openMarkets, inv.getId(librarian));
 // Nether Merchant
-nether = inv.new("222222222222222222", text.new("Librarian"));
+nether = inv.new("222222222222222222", text.new("Nether Merchant"));
 inv.setItem(nether, 0, newItem(material.get("BLAZE_ROD")));
 inv.setItem(nether, 1, newItem(material.get("GHAST_TEAR")));
 inv.setItem(nether, 2, newItem(material.get("NETHER_WART")));
@@ -152,7 +153,30 @@ inv.setItem(nether, 9, newItem(material.get("GLOWSTONE")));
 inv.setItem(nether, 10, newItem(material.get("SHROOMLIGHT")));
 inv.setItem(nether, 11, newItem(material.get("OBSIDIAN")));
 inv.setItem(nether, 12, newItem(material.get("CRYING_OBSIDIAN")));
+inv.setItem(nether, 13, newItem(material.get("WITHER_SKELETON_SKULL")));
 set.add(openMarkets, inv.getId(nether));
+// Diver
+diver = inv.new("222222222222222222222222222", text.new("Diver"));
+inv.setItem(diver, 0, newItem(material.get("TUBE_CORAL_BLOCK")));
+inv.setItem(diver, 1, newItem(material.get("BRAIN_CORAL_BLOCK")));
+inv.setItem(diver, 2, newItem(material.get("BUBBLE_CORAL_BLOCK")));
+inv.setItem(diver, 3, newItem(material.get("FIRE_CORAL_BLOCK")));
+inv.setItem(diver, 4, newItem(material.get("HORN_CORAL_BLOCK")));
+inv.setItem(diver, 5, newItem(material.get("TUBE_CORAL")));
+inv.setItem(diver, 6, newItem(material.get("BRAIN_CORAL")));
+inv.setItem(diver, 7, newItem(material.get("BUBBLE_CORAL")));
+inv.setItem(diver, 8, newItem(material.get("FIRE_CORAL")));
+inv.setItem(diver, 9, newItem(material.get("HORN_CORAL")));
+inv.setItem(diver, 10, newItem(material.get("TUBE_CORAL_FAN")));
+inv.setItem(diver, 11, newItem(material.get("BRAIN_CORAL_FAN")));
+inv.setItem(diver, 12, newItem(material.get("BUBBLE_CORAL_FAN")));
+inv.setItem(diver, 13, newItem(material.get("FIRE_CORAL_FAN")));
+inv.setItem(diver, 14, newItem(material.get("HORN_CORAL_FAN")));
+inv.setItem(diver, 15, newItem(material.get("SEA_PICKLE")));
+inv.setItem(diver, 16, newItem(material.get("KELP")));
+inv.setItem(diver, 17, newItem(material.get("LILY_PAD")));
+inv.setItem(diver, 18, newItem(material.get("TRIDENT")));
+set.add(openMarkets, inv.getId(diver));
 
 emerald = material.get("EMERALD");
 
@@ -333,6 +357,8 @@ if(item.getType(item) == emerald) {
 		inv.open(librarian, player);
 	} elseif(title_string == "Nether Merchant") {
 		inv.open(nether, player);
+	} elseif(title_string == "Diver") {
+		inv.open(diver, player);
 	}
 }
 if(!set.contains(openMarkets, inv.getId(inv))) {

@@ -1,0 +1,23 @@
+specific_lobby_handling = true;
+gamesworld = world.getGames();
+spawn_loc = loc.new(gamesworld, -6897, 63, -111, -90, 0);
+gamesignloc = minigame.getSignLoc("sfsign3");
+radius = 200;
+middleloc = loc.new(gamesworld, -6897, 63, -111);
+mapname = "Free Settings";
+lobbyspawnloc = loc.new(gamesworld, 1013.5, 85, 991.5, 180, 0.0001);
+minplayers = 1;
+maxplayers = 4;
+min = 16;
+sec = 0;
+max_mins = 30;
+amount_nextitems = 3;
+max_nextitems = 10;
+
+plus_min_loc = loc.new(gamesworld, 1012, 86, 985);
+minus_min_loc = loc.new(gamesworld, 1012, 84, 985);
+sign_min_loc = loc.new(gamesworld, 1012, 85, 985);
+
+plus_amount_loc = loc.new(gamesworld, 1013, 86, 985);
+minus_amount_loc = loc.new(gamesworld, 1013, 84, 985);
+sign_amount_loc = loc.new(gamesworld, 1013, 85, 985);

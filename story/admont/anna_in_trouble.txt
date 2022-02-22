@@ -4,8 +4,8 @@ event.load("living_death");
 
 stage = 0;
 all_stages = 1;
-quest_name = "Merle in Nöten";
-cave_spider_loc = loc.new(world.get("story"), -1625, 71, 37);
+quest_name = "Anna in Trouble";
+spider_loc = loc.new(world.getOverworld(), 106, 84, 9);
 
 @wait
 wait();
@@ -24,13 +24,12 @@ if(event == "quest_term") {
 }
 if(event == "quest_start") {
 	quest.display(player, quest_name, stage, all_stages);
-	msg.prefix(player, "§dMerle", "HILFE!!! HIER IST IRGENDWO EINE SPINNE. ICH WERDE NIE WIEDER SCHLAFEN KÖNNEN!!!");
-	scheduler.msgPrefix(30, player, concat("§d", player.getName(player)), "Keine Panik ich kümmere mich darum.");
-	entity.spawn("spider", cave_spider_loc);
-	player.giveSingleItem(player, read.item("minecraft:stone_sword"), false);
+	msg.prefix(player, "§dAnna", "HELP!!! THERE IS A SPIDER HERE SOMEWHERE. I WILL NEVER BE ABLE TO SLEEP AGAIN!!!");
+	scheduler.msgPrefix(30, player, string.concat("§d", player.getName(player)), "Don't panic I'll take care of it.");
+	entity.spawn(spider_loc, "SPIDER");
 	goto("wait");
 }
-label = concat("stage", text.number(stage));
+label = string.concat("stage", string.number(stage));
 goto(label);
 
 @stage0
@@ -38,9 +37,9 @@ if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
 	if(entity_type == "spider") {
 		mob_killed = true;
-		msg.prefix(player, "§dMerle", "Danke! Jetzt kann ich wieder beruhigt einschlafen.");
-		msg(player, "§dQuest abgeschlossen. Belohnung: 9 Snuvis!");
-		money.addBoost(player, 9);
+		msg.prefix(player, "§dAnna", "Thank you! Now I can fall asleep again calmly.");
+		msg(player, text.new("§dQuest finished. Reward: 1 snuvis!"));
+		money.addBoost(player, 1);
 		quest.finish(script, player);
 	}
 }

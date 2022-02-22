@@ -108,6 +108,11 @@ if(block.getType(block) == dispenser_mat) {
 			msg.prefix(player, "§5Teleport", "No receiver found!");
 			goto("main");
 		}
+		teleporter_world = loc.getWorld(block_loc);
+		if(!world.isSurvName(world.getName(teleporter_world))) {
+			msg.prefix(player, "§5Teleport", "Not allowed in this world!");
+			goto("main");
+		}
 		world = world.get(string.text(list.getIndex(lore_list, 1)));
 		x = read.number(string.text(list.getIndex(lore_list, 2)));
 		y = read.number(string.text(list.getIndex(lore_list, 3)));

@@ -1,11 +1,9 @@
-event.load("human_damage");
-event.load("entity_click");
 event.load("snuvi_click");
-//event.load("skill_showshop");
 
-timestamp = map.new(); //TimeStamp for Felsmagier-SkillShop
+quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 //stable_loc = loc.new(world.getStory(), -1584, 66, -57);
 prefix_skill = "§2Skill";
+prefix_quest = "§dQuest";
 
 oma_inv = inv.new("333333333", text.new("Quests: Oma"));
 inv.setItem(oma_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDer Anfang...", "§e...beginnt immer mit einer netten Oma."));
@@ -17,16 +15,16 @@ inv.setItem(dieter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fGaumen
 zauberlehrling_inv = inv.new("333333333", text.new("Quests: Zauberlehrling"));
 inv.setItem(zauberlehrling_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDer Felsmagier...", "§e...hat zauberhafte Skills für dich."));
 
-peter_inv = inv.new("333333333", text.new("Quests: Peter"));
-inv.setItem(peter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fErstes Date", null));
-inv.setItem(peter_inv, 1, item.create("minecraft:enchanted_book", 1, "§fNeue Hose", null));
+farmer_inv = inv.new("200000000", text.new("Quests: Farmer"));
+inv.setItem(farmer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFirst Date", null));
+//inv.setItem(farmer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fNeue Hose", null));
 
-merle_inv = inv.new("333333333", text.new("Quests: Merle"));
-inv.setItem(merle_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMerle in Nöten", null));
+anna_inv = inv.new("200000000", text.new("Quests: Anna"));
+inv.setItem(anna_inv, 0, item.create("minecraft:enchanted_book", 1, "§fAnna in Trouble", null));
 
-herbert_inv = inv.new("333333333", text.new("Quests: Herbert"));
-inv.setItem(herbert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fSchatz von Admont", null));
-inv.setItem(herbert_inv, 1, item.create("minecraft:enchanted_book", 1, "§fAlbtraum", null));
+miner_inv = inv.new("200000000", text.new("Quests: Miner"));
+inv.setItem(miner_inv, 0, item.create("minecraft:enchanted_book", 1, "§fNightmare", null));
+//inv.setItem(miner_inv, 1, item.create("minecraft:enchanted_book", 1, "§fSchatz von Admont", null));
 
 gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
 inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand", null));
@@ -60,8 +58,8 @@ inv.setItem(rolf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTücher"
 schmied_inv = inv.new("333333333", text.new("Quests: Schmied"));
 inv.setItem(schmied_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDie Uhr tickt", null));
 
-foerster_inv = inv.new("333333333", text.new("Quests: Förster"));
-inv.setItem(foerster_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIch und mein Holz", null));
+lumberjack_inv = inv.new("200000000", text.new("Quests: Lumberjack"));
+inv.setItem(lumberjack_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMe and my wood", null));
 
 msg.string("dev", "§bQuests: §rAdmont loaded.");
 @main
@@ -69,145 +67,60 @@ wait();
 ignoreGoto(event);
 goto("main");
 
-@human_damage
-player = player.getFromDamageSource(damage_source);
-if(player == null) {
-	goto("main");
-}
-goto("human_core");
-
-@entity_click
-if(slot.isOffHand(hand)) {
-	goto("main");
-}
-if(!entity.isHuman(entity)) {
-	goto("main");
-}
-human = entity;
-goto("human_core");
-
-@human_core
-//checkAdmontStable();
-if(player.hasQuest(player)) {
-	goto("main");
-}
-if(quest.isPlayerBlocked(player)) {
-	quest.removeCooldown(player);
-	goto("main");
-}
-entity_name = human.getName(human);
-if(entity_name == "Oma") {
-	inv.open(oma_inv, player);
-	goto("main");
-}
-if(entity_name == "Dieter") {
-	inv.open(dieter_inv, player);
-	goto("main");
-}
-if(entity_name == "Zauberlehrling") {
-	inv.open(zauberlehrling_inv, player);
-	goto("main");
-}
-if(entity_name == "Felsmagier") {
-	if(time.getMillis() - map.getOrDefault(timestamp, player.getUuid(player), 0) < 120000) { //2 Minutes
-		skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
-	} else {
-		msg.prefix(player, "§dFelsmagier", "Du musst zuerst ein paar Aufgaben für mich erledigen. Finde meinen Zauberlehrling, der hilft dir weiter.");
+@snuvi_click
+item = inv.getItem(inv, inv_slot);
+item.removeFlag(item, "HIDE_DESTROYS");
+title_string = string.text(inv_title);
+if(item == quest_book) {
+	//checkAdmontStable();
+	if(player.hasQuest(player)) {
+		msg.prefix(player, prefix_quest, "You already have a quest.");
+		goto("main");
+	}
+	if(entity_name == "Oma") {
+		inv.open(oma_inv, player);
+	} elseif(entity_name == "Dieter") {
+		inv.open(dieter_inv, player);
+	} elseif(entity_name == "Zauberlehrling") {
+		inv.open(zauberlehrling_inv, player);
+	} elseif(entity_name == "Felsmagier") {
+		/*if() {
+			skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
+		} else {
+			msg.prefix(player, "§dFelsmagier", "Du musst zuerst ein paar Aufgaben für mich erledigen. Finde meinen Zauberlehrling, der hilft dir weiter.");
+		}*/
+		goto("main");
+	} elseif(title_string == "Farmer") {
+		inv.open(farmer_inv, player);
+	} elseif(title_string == "Anna") {
+		inv.open(anna_inv, player);
+	} elseif(title_string == "Miner") {
+		inv.open(miner_inv, player);
+	} elseif(entity_name == "Gustav") {
+		inv.open(gustav_inv, player);
+	} elseif(entity_name == "Gertrude") {
+		inv.open(gertrude_inv, player);
+	} elseif(entity_name == "Bernd") {
+		inv.open(bernd_inv, player);
+	} elseif(entity_name == "Kunibert") {
+		inv.open(kunibert_inv, player);
+	} elseif(entity_name == "Bauer") {
+		inv.open(bauer_inv, player);
+	} elseif(entity_name == "Ulf") {
+		inv.open(ulf_inv, player);
+	} elseif(entity_name == "Isabell") {
+		inv.open(isabell_inv, player);
+	} elseif(entity_name == "Olaf") {
+		inv.open(olaf_inv, player);
+	} elseif(entity_name == "Rolf") {
+		inv.open(rolf_inv, player);
+	} elseif(entity_name == "Schmied") {
+		inv.open(schmied_inv, player);
+	} elseif(title_string == "Lumberjack") {
+		inv.open(lumberjack_inv, player);
 	}
 	goto("main");
 }
-if(entity_name == "Peter") {
-	peter_inv = inv.new("333333333", text.new("Quests: Peter"));
-	inv.setItem(peter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fErstes Date"));
-	inv.setItem(peter_inv, 1, item.create("minecraft:enchanted_book", 1, "§fNeue Hose"));
-	inv.open(peter_inv, player);
-	goto("main");
-}
-if(entity_name == "Merle") {
-	merle_inv = inv.new("333333333", text.new("Quests: Merle"));
-	inv.setItem(merle_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMerle in Nöten"));
-	inv.open(merle_inv, player);
-	goto("main");
-}
-if(entity_name == "Herbert") {
-	herbert_inv = inv.new("333333333", text.new("Quests: Herbert"));
-	inv.setItem(herbert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fSchatz von Admont"));
-	inv.setItem(herbert_inv, 1, item.create("minecraft:enchanted_book", 1, "§fAlbtraum"));
-	inv.open(herbert_inv, player);
-	goto("main");
-}
-if(entity_name == "Gustav") {
-	gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
-	inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand"));
-	inv.open(gustav_inv, player);
-	goto("main");
-}
-if(entity_name == "Gertrude") {
-	gertrude_inv = inv.new("333333333", text.new("Quests: Gertrude"));
-	inv.setItem(gertrude_inv, 0, item.create("minecraft:enchanted_book", 1, "§fZauberlehrling"));
-	inv.open(gertrude_inv, player);
-	goto("main");
-}
-if(entity_name == "Bernd") {
-	bernd_inv = inv.new("333333333", text.new("Quests: Bernd"));
-	inv.setItem(bernd_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHide and Seek"));
-	inv.open(bernd_inv, player);
-	goto("main");
-}
-if(entity_name == "Kunibert") {
-	kunibert_inv = inv.new("333333333", text.new("Quests: Kunibert"));
-	inv.setItem(kunibert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fKräutermeister"));
-	inv.open(kunibert_inv, player);
-	goto("main");
-}
-if(entity_name == "Bauer") {
-	bauer_inv = inv.new("333333333", text.new("Quests: Bauer"));
-	inv.setItem(bauer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fErntezeit"));
-	inv.setItem(bauer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fSpezialwunsch"));
-	inv.open(bauer_inv, player);
-	goto("main");
-}
-if(entity_name == "Ulf") {
-	ulf_inv = inv.new("333333333", text.new("Quests: Ulf"));
-	inv.setItem(ulf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIn Eile"));
-	inv.open(ulf_inv, player);
-	goto("main");
-}
-if(entity_name == "Isabell") {
-	isabell_inv = inv.new("333333333", text.new("Quests: Isabell"));
-	inv.setItem(isabell_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFür die Wissenschaft!"));
-	inv.open(isabell_inv, player);
-	goto("main");
-}
-if(entity_name == "Olaf") {
-	olaf_inv = inv.new("333333333", text.new("Quests: Olaf"));
-	inv.setItem(olaf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fReinigung"));
-	inv.setItem(olaf_inv, 1, item.create("minecraft:enchanted_book", 1, "§fMitbringsel"));
-	inv.open(olaf_inv, player);
-	goto("main");
-}
-if(entity_name == "Rolf") {
-	rolf_inv = inv.new("333333333", text.new("Quests: Rolf"));
-	inv.setItem(rolf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTücher"));
-	inv.open(rolf_inv, player);
-	goto("main");
-}
-if(entity_name == "Schmied") {
-	schmied_inv = inv.new("333333333", text.new("Quests: Schmied"));
-	inv.setItem(schmied_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDie Uhr tickt"));
-	inv.open(schmied_inv, player);
-	goto("main");
-}
-if(entity_name == "Förster") {
-	foerster_inv = inv.new("333333333", text.new("Quests: Förster"));
-	inv.setItem(foerster_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIch und mein Holz"));
-	inv.open(foerster_inv, player);
-	goto("main");
-}
-goto("main");
-
-@snuvi_click
-title_string = string.text(inv_title);
 if(title_string == "Quests: Oma") {
 	if(inv_slot == 0) {
 		quest.start(player, "story/admont/der_anfang");
@@ -238,35 +151,35 @@ if(title_string == "Quests: Zauberlehrling") {
 	}
 	goto("main");
 }
-if(title_string == "Quests: Peter") {
+if(title_string == "Quests: Farmer") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/erstes_date");
+		quest.start(player, "story/admont/first_date");
 		goto("main");
 	}
 	if(inv_slot == 1) {
-		quest.start(player, "story/admont/neue_hose");
+		//quest.start(player, "story/admont/neue_hose");
 		goto("main");
 	}
 	goto("main");
 }
-if(title_string == "Quests: Merle") {
+if(title_string == "Quests: Anna") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/merle_in_noeten");
+		quest.start(player, "story/admont/anna_in_trouble");
 		goto("main");
 	}
 	goto("main");
 }
-if(title_string == "Quests: Herbert") {
+if(title_string == "Quests: Miner") {
 	if(inv_slot == 0) {
+		quest.start(player, "story/admont/nightmare");
+		goto("main");
+	}
+	if(inv_slot == 1) {
 		if(script.isActiveName("scripts/story/admont/schatz_von_admont.txt")) {
-			msg.prefix(player, "§dHerbert", "Diese Quest ist momentan aktiv und kann nicht vergeben werden.");
+			msg.prefix(player, "§dMiner", "Diese Quest ist momentan aktiv und kann nicht vergeben werden.");
 			goto("main");
 		}
 		quest.start(player, "story/admont/schatz_von_admont");
-		goto("main");
-	}
-	if(inv_slot == 1) {
-		quest.start(player, "story/admont/albtraum");
 		goto("main");
 	}
 	goto("main");
@@ -349,45 +262,12 @@ if(title_string == "Quests: Schmied") {
 	}
 	goto("main");
 }
-if(title_string == "Quests: Förster") {
+if(title_string == "Quests: Lumberjack") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/ich_und_mein_holz");
+		quest.start(player, "story/admont/me_and_my_wood");
 		goto("main");
 	}
 	goto("main");
-}
-if(title_string == "Skillshop") {
-	if(item.getType(item) == "minecraft:air") {
-		goto("main");
-	}
-	skill_name = removeFormat(item.getName(item));
-	tech_name = skill.getTechName(skill_name);
-	if(skill.isPermanent(skill_name)) {
-		amount = skill.getAmount(player, tech_name);
-		if(amount >= 1) {	
-			goto("main");
-		}
-	}
-	cost = skill.getCost(skill_name);
-	if(!hasEnoughMoney(player, cost)) {
-		msg.prefix(player, prefix_skill, "Du hast nicht genug Snuvis.");
-		goto("main");
-	}
-	money.sub(player, cost);
-	skill.addAmount(player, tech_name, 1);
-	inv.setItem(inv, inv_slot, skill.getShopItem(player, tech_name));
-}
-goto("main");
-
-@skill_showshop
-player = getScriptVar("player");
-shop_type = getScriptVar("shop_type");
-if(shop_type == "foerster") {
-	skill.showShop(player, "skill.timber", "skill.better_shears", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-	goto("main");
-}
-if(shop_type == "felsmagier") {
-	skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
 }
 goto("main");
 

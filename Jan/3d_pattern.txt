@@ -1,0 +1,94 @@
+//Events:
+event.load("block_break");
+//
+random_Blocks_Array = array.new(4);
+random_Blocks_Array[0] = material.get("RED_WOOL");
+random_Blocks_Array[1] = material.get("BLUE_WOOL");
+random_Blocks_Array[2] = material.get("YELLOW_WOOL");
+random_Blocks_Array[3] = material.get("GREEN_WOOL");
+random_Blocks_Array_Size = array,getSize(random_Blocks_Array);
+
+
+//Place Pattern
+pattern.place();
+
+//wait
+@wait
+wait();
+
+goto("wait");
+
+//Functions:
+
+//Lines
+function line.new(){
+	Line_Array = array.new(4);
+	for(a = 0; a < 3; a++){
+		Liine_Array[a] = math.random(0,2) - 1;
+	}
+	Line_Array[3] = 1;
+	return(Line_Array);
+}
+
+function line.set(All_Lines_In_Array){
+	for(a = 0; a < array.getSize(All_Lines_In_Array); a++){
+		Line_a = All_Lines_In_Array[a];
+		key = ;
+		value = $random_Blocks_Array[math.random(0, $random_Blocks_Array_Size)];
+		map.add($Pattern_Blocks, key, value);
+	}
+	retrun();
+}
+
+//Pattern
+function pattern.make(){
+	Rotate_Amount = math.random(0,3);
+	Mirror_1_Amount = math.random(0,1);
+	Mirror_2_Amount = math.random(0,1);
+	for(a = 0; a < Space_Amount; a++){
+		for(b = 0; b < a * Rotate_Amount; b++){
+			Space.rotate();
+		}
+		for(b = 0; b < a * Mirror_1_Amount; b++){
+			Space.Mirror_1(Mirror_Axis);
+		}
+		for(b = 0; b < a * Mirror_2_Amount; b++){
+			Space.Mirror_2();
+		}
+	}
+	return();
+}
+
+function pattern.place(){
+	
+	return();
+}
+
+//Mirror 1
+function Space.Mirror_1(Mirror_Axis){
+	if(Mirror_Axis = 1){ //x Mirror
+		for(a = 0; a < x_axis_length; a++){
+			
+		}
+	}
+	if(Mirror_Axis = 2){ //y Mirror
+		
+	}
+	if(Mirror_Axis = 3){ //z Mirror
+		
+	}
+	return();
+}
+
+//Mirror 2 
+function Space.Mirror_2(){
+	
+	return();
+}
+
+//Rotate 
+function Space.rotate(){
+	Space.Mirror_1(Mirror_Axis);
+	Space.Mirror_2();
+	return();
+}

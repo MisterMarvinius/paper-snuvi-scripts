@@ -99,7 +99,7 @@ if(damage_type == "outOfWorld") {
 	gosub("updatedisplay");
 	if(new_lifes == 0) {
 		minigame.speakAll(gamename, string.concat("§6", player_name, " §rhas been eliminated."));
-		money.addBoost(player, 32);
+		//money.addBoost(player, 32);
 		goto("leavegame");
 	}
 }
@@ -175,7 +175,7 @@ gosub("updatedisplay");
 showstats(player, false);
 if(list.getSize(player_list) < minplayers) {
 	winner = player.get(list.getIndex(player_list, 0));
-	money.addBoost(winner, 128);
+	//money.addBoost(winner, 128);
 	showstats(winner, true);
 	minigame.kickPlayer(script, winner);
 	minigame.term(script, gamesignloc);

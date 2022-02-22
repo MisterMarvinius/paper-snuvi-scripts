@@ -1,16 +1,16 @@
 function stage.increase(player) {
 	$stage++;
 	quest.display(player, $quest_name, $stage, $all_stages);
-	sound = sound.get("entity.experience_orb.pickup");
-	category = sound.getCategory("master");
+	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+	category = sound.getCategory("MASTER");
 	sound.spawnForPlayer(player, sound, category);
 }
 
 function quest.start(player, path) {
-	modTimer(-5);
+	modTimer(-45);
 	script = script.start(path, "utils/u_quest", "utils/u_general");
 	if(script == null) {
-		msg("dev", "quest not started");
+		snuvi.debug("quest not started");
 		return;
 	}
 	quest.addPlayer(script, player);
@@ -20,13 +20,24 @@ function quest.start(player, path) {
 	inv.close(player);
 }
 
+function player.unlockedLumberjack(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "skillshop.lumberjack", false);
+}
+
+function player.unlockLumberjack(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "skillshop.lumberjack", true);
+	config.saveAsync(config);
+}
+
 function player.getShipProgress(player_or_id) {
-	config = playerdata.getStory(player_or_id);
+	config = playerdata.getSurvival(player_or_id);
 	return config.getDouble(config, "ship.progress", 0);
 }
 
 function player.setShipProgress(player_or_id, progress) {
-	config = playerdata.getStory(player_or_id);
+	config = playerdata.getSurvival(player_or_id);
 	old_progress = config.getDouble(config, "ship.progress", 0);
 	if(progress > old_progress) {
 		config.set(config, "ship.progress", progress);
@@ -38,50 +49,48 @@ function human.giveItem(human_name, player, needed_type_or_tag, needed_amount) {
 	if(needed_amount == 0) {
 		return -1;
 	}
-	item = living.getEquip(player, "hand");
-	item_type = item.getType(item);
-	if(item_type == "minecraft:air") {
+	item = living.getHand(player);
+	if(item == null) {
 		return needed_amount;
 	}
-	human_name = concat("§d", human_name);
+	item_type = item.getType(item);
+	human_name = string.concat("§d", human_name);
 	needed = false;
 	tag_check = false;
-	if(text.class(needed_type_or_tag) == "String") {
+	if(isMaterial(needed_type_or_tag)) {
 		if(item_type == needed_type_or_tag) {
 			needed = true;
 		}
 	} else {
-		if(item.hasTag(needed_type_or_tag, item)) {
+		if(item.hasTag(item, needed_type_or_tag)) {
 			needed = true;
 			tag_check = true;
 		}
 	}
 	if(needed) {
-		rest_item = player.removeItem(player, read.item(item_type, needed_amount));
+		rest_item = player.removeItem(player, item.new(item_type, needed_amount));
+		if(rest_item == 0) {
+			return 0;
+		}
+		amount_not_removed = item.getAmount(rest_item);
+		player.removeItem(player, item.new(item_type, amount_not_removed));
+		rest_item_amount = needed_amount - amount_not_removed;
+		
+		rest_item = player.removeItemNbt(player, rest_item);
 		rest_item_amount = item.getAmount(rest_item);
 		if(rest_item_amount > 0) {
-			rest_item = player.removeItemNbt(player, rest_item);
-			rest_item_amount = item.getAmount(rest_item);
-			if(rest_item_amount > 0) {
-				if(tag_check) {
-					rest_item = player.removeItemTag(player, needed_type_or_tag, rest_item_amount);
-					rest_item_amount = item.getAmount(rest_item);
-					if(rest_item_amount > 0) {
-						msg.prefix(player, human_name, concat("Ich brauche bitte noch ", text.number(rest_item_amount), " Stück davon."));
-					}
-				} else {
-					msg.prefix(player, human_name, concat("Ich brauche bitte noch ", text.number(rest_item_amount), " Stück davon."));
+			if(tag_check) {
+				rest_item = player.removeItemTag(player, needed_type_or_tag, rest_item_amount);
+				rest_item_amount = item.getAmount(rest_item);
+				if(rest_item_amount > 0) {
+					msg.prefix(player, human_name, string.concat("I need ", text.number(rest_item_amount), " more of these please."));
 				}
+			} else {
+				msg.prefix(player, human_name, string.concat("I need ", text.number(rest_item_amount), " more of these please."));
 			}
 		}
 		return rest_item_amount;
 	}
-	msg.prefix(player, human_name, "Das kann ich nicht gebrauchen.");
+	msg.prefix(player, human_name, "I do not need this.");
 	return needed_amount;
-}
-
-function quest.callShowShop(player, shop_type) {
-	setScriptVar("player", player);
-	setScriptVar("shop_type", shop_type);
-	script.callEvent("skill_showshop");
 }

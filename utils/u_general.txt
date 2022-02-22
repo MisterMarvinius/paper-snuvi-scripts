@@ -176,7 +176,7 @@ function correctTimeFormat(textnumber) {
 }
 
 function player.giveSingleItem(player, item) {
-	amount = player.getItemAmount(player, item);
+	amount = inv.getItemAmount(player.getInv(player), item.getType(item));
 	if(amount == 0) {
 		player.safeGiveItem(player, item);
 	}
@@ -974,16 +974,40 @@ function string.getTextWithLink(string) {
 	}
 }
 
+function string.intelligentSplit(string) {
+	list = list.new();
+	from_index = 0;
+	to_index = 0;
+	split_after = 25;
+	split_index = split_after;
+	whole_length = string.length(string);
+	
+	while(true) {
+		to_index = string.indexOf(string, " ", split_index);
+		if(to_index == -1) {
+			sub_string = string.subString(string, from_index, string.length(string));
+			list.add(list, text.new(sub_string));
+			break;
+		}
+		sub_string = string.subString(string, from_index, to_index);
+		list.add(list, text.new(sub_string));
+		from_index = to_index + 1;
+		split_index += split_after;
+	}
+	
+	return list;
+}
+
 //--------------------------------------------------
 //Quest-Utils
 //--------------------------------------------------
 
 function quest.display(player, quest_name, stage, all_stages) {
-	sb.add(player, 1, string.concat("§dQuest: ", quest_name, " [", string.number(stage), "/", string.number(all_stages), "]"));
+	sb.add(player, 10, string.concat("§dQuest: ", quest_name, " [", string.number(stage), "/", string.number(all_stages), "]"));
 }
 
 function quest.removeDisplay(player) {
-	sb.remove(player, 1);
+	sb.remove(player, 10);
 }
 
 function quest.getIds() {
@@ -1047,40 +1071,11 @@ function quest.addCounter(player, amount) {
 	}
 }
 
-function quest.getBlockList() {
-	list = getScriptVar("quest_block_list");
-	if(list == null) {
-		list = list.new();
-		quest.setBlockList(list);
-	}
-	return list;
-}
-
-function quest.setBlockList(list) {
-	setScriptVar("quest_block_list", list);
-}
-
-function quest.setCooldown(player) {
-	list = quest.getBlockList();
-	list.add(list, player.getUuid(player));
-}
-
-function quest.removeCooldown(player) {
-	list = quest.getBlockList();
-	list.remove(list, player.getUuid(player));
-}
-
-function quest.isPlayerBlocked(player) {
-	list = quest.getBlockList();
-	return list.contains(list, player.getUuid(player));
-}
-
 function quest.finish(script, player) {
-	sound = sound.get("entity.experience_orb.pickup");
-	category = sound.getCategory("master");
+	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+	category = sound.getCategory("MASTER");
 	sound.spawnForPlayer(player, sound, category);
 	quest.addCounter(player, 1);
-	quest.setCooldown(player);
 	quest.term(script, player);
 }
 
@@ -1163,6 +1158,10 @@ function player.teleport(player, location, setBackPos) {
 	if(player.hasMinigame(player)) {
 		return false;
 	}
+	/*mount = entity.getMount(player);
+	if(mount != null) {
+		entity.unmount(mount);
+	}*/
 	if(setBackPos) {
 		player.setBackPos(player);
 	}
@@ -1313,7 +1312,11 @@ function msg.action(receiver, string) {
 }
 
 function msg.team(from, string) {
-	from_name = player.getName(from);
+	if(isString(from)) {
+		from_name = from;
+	} else {
+		from_name = player.getName(from);
+	}
 	online_list = players.toList();
 	iter = iterator(online_list);
 	while(hasNext(iter)) {
@@ -1326,6 +1329,7 @@ function msg.team(from, string) {
 			}
 		}
 	}
+	msg.prefix("SERVER", "§4Team", string.concat("§c", from_name, "§r: ", string));
 }
 
 function msg.string(receiver, string) {
@@ -1519,27 +1523,33 @@ function item.getAirString() {
 }
 
 function item.isAmber(item) {
-	return string.item(item) == "{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:64,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fAmber'}'}}}";
+	return item.custom.get("AMBER") == item.getCustom(item);
 }
 
 function item.isSapphire(item) {
-	return string.item(item) == "{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:66,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fSapphire'}'}}}";
+	return item.custom.get("SAPPHIRE") == item.getCustom(item);
 }
 
 function item.isRuby(item) {
-	return string.item(item) == "{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:62,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fRuby'}'}}}";
+	return item.custom.get("RUBY") == item.getCustom(item);
 }
 
 function item.getAmber() {
-	return read.item("{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:64,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fAmber'}'}}}");
+	return item.custom.new(item.custom.get("AMBER"));
 }
 
 function item.getSapphire() {
-	return read.item("{Count:1b,id:'minecraft:netherite_hoe',tag:{AttributeModifiers:[{Amount:0.0d,AttributeName:'minecraft:generic.attack_damage',Name:'custom',Operation:0,Slot:'mainhand',UUID:[I;0,3242,0,42343]}],Damage:66,HideFlags:14,Unbreakable:1b,display:{Name:'{'text':'§fSapphire'}'}}}");
+	return item.custom.new(item.custom.get("SAPPHIRE"));
 }
 
 function item.getRuby() {
 	return item.custom.new(item.custom.get("RUBY"));
+}
+
+function item.isDigit(item) {
+	c = item.getCustom(item);
+	set = getScriptVar("digits");
+	return set.contains(set, c);
 }
 
 //--------------------------------------------------
@@ -1704,11 +1714,14 @@ function player.removeItemNbt(player, itemstack) {
 	//Make a copy
 	item_type = item.getType(itemstack);
 	amount = item.getAmount(itemstack);
-	my_item = read.item(item_type, amount);
+	my_item = item.new(item_type, amount);
 	//Loop the inventory
 	inv = player.getInv(player);
 	for(slot = 0; slot < inv.getSize(inv); slot++) {
 		item = inv.getItem(inv, slot);
+		if(item == null) {
+			continue;
+		}
 		if(item.getType(item) == item_type) {
 			diff = amount - item.getAmount(item);
 			if(diff > 0) {
@@ -1731,6 +1744,9 @@ function player.removeItemTag(player, tag, amount) {
 	inv = player.getInv(player);
 	for(slot = 0; slot < inv.getSize(inv); slot++) {
 		item = inv.getItem(inv, slot);
+		if(item == null) {
+			continue;
+		}
 		if(item.hasTag(item, tag)) {
 			diff = amount - item.getAmount(item);
 			if(diff > 0) {
@@ -2023,6 +2039,17 @@ function player.isMuted(player_or_id) {
 function player.mute(player_or_id, boolean) {
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "muted", boolean);
+	config.saveAsync(config);
+}
+
+function player.isGameMuted(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getBool(config, "game_muted", false);
+}
+
+function player.gameMute(player_or_id, boolean) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, "game_muted", boolean);
 	config.saveAsync(config);
 }
 
@@ -3819,7 +3846,7 @@ function scheduler.msgPrefix(ticks, player, prefix, message) {
 	scheduler.add(a);
 }
 
-function scheduler.msg.string(ticks, player, message) {
+function scheduler.msg(ticks, player, message) {
 	a = array.new(4);
 	a[0] = 2;
 	a[1] = ticks;

@@ -20,24 +20,9 @@ afk_loop_map = map.new();
 survival_respawn = set.new();
 
 overworld = world.getOverWorld();
-moveid_gamesspawn = event.addMoveData(loc.new(overworld, 219, 66, 253), loc.new(overworld, 223, 69, 258), 5, -1);
-moveid_mobarena = event.addMoveData(loc.new(overworld, 89, 71, -1), loc.new(overworld, 93, 72.9, -5), 5, -1);
-
-move_id_afk_loop = event.addMoveData(loc.new(overworld, 208, 69, 226), loc.new(overworld, 209, 69.5, 227), 5, -1);
-move_id_afk_loop_2 = event.addMoveData(loc.new(overworld, 208, 62, 242), loc.new(overworld, 209, 62.5, 243), 5, -1);
-move_id_afk_loop_3 = event.addMoveData(loc.new(overworld, 210, 62, 242), loc.new(overworld, 211, 62.5, 243), 5, -1);
-move_id_afk_loop_4 = event.addMoveData(loc.new(overworld, 206, 62, 246), loc.new(overworld, 207, 62.5, 247), 5, -1);
-move_id_afk_loop_5 = event.addMoveData(loc.new(overworld, 212, 62, 246), loc.new(overworld, 213, 62.5, 247), 5, -1);
-
-afk_loop_ids = set.new();
-set.add(afk_loop_ids, move_id_afk_loop);
-set.add(afk_loop_ids, move_id_afk_loop_2);
-set.add(afk_loop_ids, move_id_afk_loop_3);
-set.add(afk_loop_ids, move_id_afk_loop_4);
-set.add(afk_loop_ids, move_id_afk_loop_5);
-
-pvp_banned = set.new();
-set.add(pvp_banned, read.uuid("ff03a205-6f11-4d77-a70f-88dacc3938b1"));
+moveid_gamesspawn = event.addMoveData(loc.new(overworld, 93, 61, -31), loc.new(overworld, 97, 65, -30), 5, -1);
+moveid_creaspawn = event.addMoveData(loc.new(overworld, 102, 60, -20), loc.new(overworld, 103, 64, -16), 5, -1);
+moveid_mobarena = event.addMoveData(loc.new(overworld, 81, 59, -28), loc.new(overworld, 82, 63, -24), 5, -1);
 
 config = getScriptVar("server_config");
 adventure_chest_loc = loc.new(overworld, 177, 74, 237);
@@ -45,6 +30,11 @@ adventure_aim_loc = loc.new(overworld, 180, 70, 241);
 mobarena_spawn = loc.new(overworld, 1150.5, -5, 1087, 90, 0);
 prefix_money = "§2Money";
 death_loc_map = map.new();
+
+redstone_mat = material.get("redstone");
+ice_mat = material.get("ice");
+blue_ice_mat = material.get("blue_ice");
+packed_ice_mat = material.get("packed_ice");
 
 ench_flame = enchantment.get("flame");
 ench_unbreaking = enchantment.get("unbreaking");
@@ -102,20 +92,14 @@ if(event == "player_move") {
 		player.teleport(player, mobarena_spawn, false);
 		goto("wait");
 	}
-	goto("wait");
 	if(id == moveid_gamesspawn) {
 		player.setBackPosLoc(player, world.getServerSpawn());
 		player.teleport(player, world.getGamesSpawn(), false);
 		goto("wait");
 	}
-	if(set.contains(afk_loop_ids, id)) {
-		player_uuid = player.getUuid(player);
-		now_time = time.getMillis();
-		time = map.getOrDefault(afk_loop_map, player_uuid, 0);
-		if(now_time - time > 9000) { //9 Sekunden
-			map.add(afk_loop_map, player_uuid, now_time);
-			money.addBoost(player, 1);
-		}
+	if(id == moveid_creaspawn) {
+		player.setBackPosLoc(player, world.getServerSpawn());
+		player.teleport(player, world.getCreativeSpawn(), false);
 		goto("wait");
 	}
 	goto("wait");
@@ -197,11 +181,6 @@ if(!hasPvpOn(damager)) {
 	msg.prefix(damager, "§5PvP", "You have PvP disabled.");
 	goto("wait");
 }
-if(set.contains(pvp_banned, player.getUuid(damager))) {
-	cancel = true;
-	msg.prefix(damager, "§5PvP", "PvP is permanently disabled for you.");
-	goto("wait");
-}
 if(!hasPvpOn(player)) {
 	cancel = true;
 	msg.prefix(damager, "§5PvP", string.concat(player.getName(player), " has PvP disabled."));
@@ -224,25 +203,23 @@ if(human_name == "Banker") {
 	inv.open(bankmenu, player);
 	goto("wait");
 }
-goto("wait");
-if(entity_name == "Administrator\n§cmarvinius") {
+if(human_name == "§cMarvin") {
 	item = living.getHand(player);
 	item_name = item.getName(item);
-	if(removeFormat(item_name) == "Beer") {
+	if(item_name != null && string.text(item_name) == "§fBeer") {
 		sound.spawnForPlayer(player, $sound_drink_milk, $sound_category_master, 1, 1);
 		msg.prefix(player, "§cmarvinius", "Prost!");
-	}
-	else{
+	} else {
 		msg.prefix(player, "§cmarvinius", "Ich mag Gösser.");
 	}
 	goto("wait");
 }
-if(entity_name == "Owner\n§4kajetanjohannes") {
+if(human_name == "§4Kajetan") {
 	item = living.getHand(player);
 	item_type = item.getType(item);
 	sound.spawnForPlayer(player, $sound_slime_place, $sound_category_master, 1, 1);
-	if(item_type == "minecraft:redstone") {
-		rand_number = math.roundup(math.random(0,3));
+	if(item_type == redstone_mat) {
+		rand_number = math.random(0, 3);
 		if(rand_number == 0){
 			temp_message = "WUSIWUSIWUSIWUSIWUSIWUSIWUSIWUSI";
 		}
@@ -258,15 +235,15 @@ if(entity_name == "Owner\n§4kajetanjohannes") {
 		msg.prefix(player, "§4kajetanjohannes", temp_message);
 		goto("wait");
 	}
-	if(item_type == "minecraft:ice" || item_type == "minecraft:blue_ice" || item_type == "minecraft:packed_ice"){
+	if(item_type == ice_mat || item_type == blue_ice_mat || item_type == packed_ice_mat){
 		msg.prefix(player, "§4kajetanjohannes", "§bDas sieht nach mir aus.");
 	}else{
 		msg.prefix(player, "§4kajetanjohannes", "wusi");
 	}
 	goto("wait");
 }
-if(entity_name == "Supporter\n§bImKillerKatze") {
-	rand_number = math.roundup(math.random(0,25));
+if(human_name == "§bNico") {
+	rand_number = math.random(0, 25);
 	if(rand_number > 13){
 		sound.spawnForPlayer(player, $sound_cat, $sound_category_master, 1, 1);
 		msg.prefix(player, "§bImKillerKatze", "Miau");
@@ -276,29 +253,34 @@ if(entity_name == "Supporter\n§bImKillerKatze") {
 		sound.spawnForPlayer(player, $sound_stray_cat, $sound_category_master, 1, 1);
 		msg.prefix(player, "§bImKillerKatze", "Miau!");
 		goto("wait");
-	}else{
+	} else {
 		sound.spawnForPlayer(player, $sound_purreow, $sound_category_master, 1, 1);
 		msg.prefix(player, "§bImKillerKatze", "Schnurrr!");
 		goto("wait");
 	}
+	goto("wait");
 }
-if(entity_name == "Administrator\n§cwertibaldi") {
+if(human_name == "§cFabio") {
 	msg.prefix(player, "§cwertibaldi", "Kann grad nicht, bin im Einsatz für den Katastrophenschutz.");
 	goto("wait");
 }
-if(entity_name == "Administrator\n§cMentorMentos") {
+if(human_name == "§cLucas") {
 	item = living.getHand(player);
 	item_name = item.getName(item);
-	if(removeFormat(item_name) == "Beer") {
+	if(item_name != null && string.text(item_name) == "§fBeer") {
 		msg.prefix(player, "§cMentorMentos", "Folg mir auf Twitch! ");
 		msg(player, string.getLinkText("Klick mich an :D","https://www.twitch.tv/Mentor_Mentos"));
-	}else{
+	} else {
 		msg.prefix(player, "§cMentorMentos", "Ich mag Kölsch.");
 	}
 	goto("wait");
 }
-if(entity_name == "Moderator\n§9SirTerence7") {
-	rand_number = math.roundup(math.random(0,7));
+if(human_name == "§9Jan") {
+	if(player.isSneaking(player)){
+		msg.prefix(player, "§9SirTerence7", "Very secretive yes yes.");
+		goto("wait");
+	}
+	rand_number = math.random(0, 7);
 	if(rand_number < 4){
 		msg.prefix(player, "§9SirTerence7", "Mathe bla... bla... bla...");
 	}
@@ -314,18 +296,16 @@ if(entity_name == "Moderator\n§9SirTerence7") {
 	if(rand_number == 7){
 		msg.prefix(player, "§9SirTerence7", "*wechselt voller Faszination zwischen scheinbar zusammenhangslosen Themen hin und her*");
 	}
-
-
-	rand_number = math.roundup(math.random(0,500));
+	rand_number = math.random(0, 500);
 	if(rand_number <= 2){
 		sound.spawnForPlayer(player, $music_chirp, $sound_category_master, 1, 1);
-	}else{
-		rand_pitch = math.roundup(math.random(4, list.getSize(Sound_Pitch_List)-5));
+	} else {
+		rand_pitch = math.random(4, list.getSize(Sound_Pitch_List) - 5);
 		if(rand_number < 200){
 			pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-4);
 			pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
 			pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+3);
-		}else{
+		} else {
 			if(rand_number < 300){
 				pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-4);
 				pitch1_2 = list.getIndex(Sound_Pitch_List, rand_pitch-2);
@@ -336,7 +316,7 @@ if(entity_name == "Moderator\n§9SirTerence7") {
 				sound.spawnForPlayer(player, $sound_harp, $sound_category_master, 0.5, pitch3_2);
 				sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.75, pitch1_2);
 				sound.spawnForPlayer(player, $sound_flute, $sound_category_master, 0.75, pitch3_2);
-			}else{
+			} else {
 				pitch1 = list.getIndex(Sound_Pitch_List, rand_pitch-3);
 				pitch2 = list.getIndex(Sound_Pitch_List, rand_pitch);
 				pitch3 = list.getIndex(Sound_Pitch_List, rand_pitch+4);
@@ -351,8 +331,8 @@ if(entity_name == "Moderator\n§9SirTerence7") {
 	}
 	goto("wait");
 }
-if(entity_name == "Moderator\n§9Mareeeen") {
-	rand_number = math.roundup(math.random(0,5));
+if(human_name == "§9Mareen") {
+	rand_number = math.random(0, 5);
 	if(rand_number > 1){
 		msg.prefix(player, "§9Mareeeen", "Wo ist die Schokolade versteckt!?");
 	}else{
@@ -361,6 +341,7 @@ if(entity_name == "Moderator\n§9Mareeeen") {
 	}
 	goto("wait");
 }
+goto("wait");
 if(entity_name == "Info-Point") {
 	msg(player, string.getSpacer());
 	msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));

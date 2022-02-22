@@ -8,7 +8,6 @@ gamesworld = world.getGames();
 lobbyspawnloc = loc.new(gamesworld, -2029.5, 116, -4004.5, 180, 0.0001);
 middleloc = loc.new(gamesworld, -2030, 100, -3954);
 radius = 200;
-nerfradius = 8;
 
 joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
 list.add(joinblocks, loc.new(gamesworld, -2033, 114, -4010));

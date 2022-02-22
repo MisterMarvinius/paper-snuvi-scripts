@@ -1,0 +1,63 @@
+event.load("player_join");
+event.load("player_quit");
+
+databank.workerExecute(databank.prepare("
+	CREATE TABLE IF NOT EXISTS playtime (
+		id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+		player_id INT NOT NULL, 
+		current_time BIGINT NOT NULL,
+        total_time BIGINT
+	);
+"));
+
+msg.string("dev", "§bPlaytime §rloaded.");
+
+
+@wait
+wait();
+player_id = player.getId(player);
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+deleteDefectPlaytime(player_id);
+goto("wait");
+
+@player_quit
+calculateTotalPlaytime(player_id);
+resetCurrentTime(player_id);
+goto("wait");
+
+function deleteDefectPlaytime(player_id) {
+    stmt = databank.prepare("DELETE FROM playtime WHERE player_id = ? AND current_time IS NOT 0 OR current_time IS NULL;", false);
+	databank.setInt(stmt, 1, player_id);
+	databank.workerExecute(stmt);
+}
+
+function insertPlaytimeLeave(player_id) {
+	stmt = databank.prepare("UPDATE playtime SET leave_time = ? WHERE player_id = ? AND leave_time IS NULL;", false);
+	databank.setLong(stmt, 1, time.getMillis());
+	databank.setInt(stmt, 2, player_id);
+	databank.workerExecute(stmt);
+}
+
+function calculateTotalPlaytime(player_id) {
+    stmt = databank.prepare("UPDATE playtime 
+                             SET total_time 
+                             WHEN total_time IS NULL 
+                                OR total_time = ' ' THEN ? 
+                             ElSE total_time + ? END 
+                             WHERE player_id = ?;", false);
+	databank.setLong(stmt, 1, time.getMillis());
+    databank.setLong(stmt, 2, time.getMillis());
+    databank.setInt(stmt, 3, player_id);
+    databank.workerExecute(stmt);
+}
+
+function resetCurrentTime(player_id) {
+    stmt = databank.prepare("UPDATE playtime 
+                             SET current_time = 0
+                             WHERE player_id = ?;", false);
+    databank.setInt(stmt, 1, player_id);
+    databank.workerExecute(stmt);
+}

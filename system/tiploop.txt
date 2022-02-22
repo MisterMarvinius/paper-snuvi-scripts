@@ -20,18 +20,13 @@ if(index >= size) {
 }
 a = list.getIndex(list, index);
 tipp_value = a[1];
-if(string.contains(tipp_value, "https://")) {
-	tipp_value = string.getTextWithLink(tipp_value);
-} else {
-	tipp_value = text.new(tipp_value);
-}
 //loop online players
 online_list = players.toList();
 iter = iterator(online_list);
 while(hasNext(iter)) {
 	p = next(iter);
 	if(player.getTipLoop(p)) {
-		msg(p, text.merge(text.new(string.concat(string.getPrefix(prefix_tips), " ")), tipp_value));
+		msg(p, text.merge(text.new(string.concat(string.getPrefix(prefix_tips), " ")), string.getInterpretedText(tipp_value)));
 	}
 }
 sgoto(12000, "tip_loop");

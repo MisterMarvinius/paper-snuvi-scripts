@@ -994,7 +994,7 @@
 	<table>
         <tr>
             <th class="command">block.isLeaves</th>
-            <th class="desc">returns true if a block is a leave</th>
+            <th class="desc">returns true if a block is a leaf</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -1286,6 +1286,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>material.setCooldown(material, player, ticks)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">material.getSlot</th>
+            <th class="desc">returns the slot to use for an item attribute</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>material.getSlot(material)</td>
         </tr>
     </table>
 </section>
@@ -2262,6 +2272,16 @@
             <td>text.item(show_text, itemstack)</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">text.chest</th>
+            <th class="desc">returns a clickable text for chat/command line insertion</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>text.chest(show_text, chest_text)</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Plot">
@@ -3031,6 +3051,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>perm.add(perm, player)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">perm.remove</th>
+            <th class="desc">removes a permission from a player</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>perm.remove(perm, player)</td>
         </tr>
     </table>
     <table>
@@ -3960,6 +3990,56 @@
             <td>world.unload(world)</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">world.getLoadedChunks</th>
+            <th class="desc">returns a list with all loaded chunks</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>world.getLoadedChunks(world)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">world.unloadChunk</th>
+            <th class="desc">returns true if unloading a chunk is successful</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>world.unloadChunk(chunk)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">world.getChunkX</th>
+            <th class="desc">returns the x chunk coordinate</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>world.getChunkX(chunk)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">world.getChunkZ</th>
+            <th class="desc">returns the x chunk coordinate</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>world.getChunkZ(chunk)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">world.isForceLoadedChunk</th>
+            <th class="desc">returns true if a chunk is forced to be loaded</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>world.isForceLoadedChunk(chunk)</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Entity">
@@ -4085,6 +4165,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>entity.unmount(entity)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity.getMount</th>
+            <th class="desc">returns the mount of an entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.getMount(entity)</td>
         </tr>
     </table>
     <table>

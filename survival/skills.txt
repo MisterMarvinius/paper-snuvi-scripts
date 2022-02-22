@@ -1,29 +1,31 @@
 //Hier werden alle Events abgefangen und beeinflusst, je nachdem ob ein Skill aktiv ist oder nicht
 
-event.load("projectile_hit");
-event.load("living_death");
+//event.load("projectile_hit");
+//event.load("living_death");
 event.load("block_break");
-event.load("player_data_tick");
+//event.load("player_data_tick");
+event.load("snuvi_click");
 
 prefix_skill = "§2Skill";
+scroll_menu_item = item.custom.create("SCROLL", 1, "§2Skills", null);
 
 setScriptVar("skills", list.new());
-skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true, 0, 0, null);
-skill.add("Comeback", "skill.comeback", "km:skill55", "Respawn at your death location", 100, false, false, true, 0, 0, null);
-skill.add("Head Hunter", "skill.head_human", "minecraft:player_head", "Drops a player's head with a 20% chance if you kill a player (5% if a staff member is killed)", 1000, true, false, false, 0, 0, null);
-skill.add("Mobheads", "skill.head_monster", "minecraft:zombie_head", "Drops a mobs's head with a 20% chance (zombie / skeleton / creeper)", 500, true, false, false, 0, 0, null);
-skill.add("Fly 10min", "skill.fly10min", "minecraft:elytra", "You can fly for 10 minutes", 500, false, true, false, 0, 0, 600);
-skill.add("Grow", "skill.grow", "minecraft:farmland", "Grow seeds in radius 5", 25, false, true, false, 0, 0, null);
+//skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true, 0, 0, null);
+//skill.add("Comeback", "skill.comeback", "km:skill55", "Respawn at your death location", 100, false, false, true, 0, 0, null);
+//skill.add("Head Hunter", "skill.head_human", "minecraft:player_head", "Drops a player's head with a 20% chance if you kill a player (5% if a staff member is killed)", 1000, true, false, false, 0, 0, null);
+//skill.add("Mobheads", "skill.head_monster", "minecraft:zombie_head", "Drops a mobs's head with a 20% chance (zombie / skeleton / creeper)", 500, true, false, false, 0, 0, null);
+//skill.add("Fly 10min", "skill.fly10min", "minecraft:elytra", "You can fly for 10 minutes", 500, false, true, false, 0, 0, 600);
+//skill.add("Grow", "skill.grow", "minecraft:farmland", "Grow seeds in radius 5", 25, false, true, false, 0, 0, null);
 //skill.add("Haste", "skill.haste", "minecraft:iron_pickaxe", "Haste for 2 minutes", 25, false, true, false, 0, 0, 120);
 //skill.add("Speed", "skill.speed", "minecraft:iron_boots", "Speed for 2 minutes", 25, false, true, false, 0, 0, 120);
 //skill.add("Jump Boost", "skill.jump_boost", "minecraft:rabbit_foot", "JumpBoost Lvl.2 for 2 minutes", 25, false, true, false, 0, 0, 120);
-skill.add("Dolphin", "skill.dolphin", "minecraft:fire_coral", "Swim like a dolphin for a minute", 25, false, true, false, 0, 0, 60);
-skill.add("Block Up", "skill.block_up", "minecraft:diamond_pickaxe", "Break a block and the block above for a minute", 25, false, true, false, 0, 0, 60);
-skill.add("Block Down", "skill.block_down", "minecraft:diamond_pickaxe", "Break a block and the block below for a minute", 25, false, true, false, 0, 0, 60);
-skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees with an axe for a minute", 128, false, true, false, 0, 0, 60);
-skill.add("Fire Arrow", "skill.fire_arrow", "minecraft:arrow", "For a minute with an flame enchanted bow your arrows ignite hit blocks", 50, false, true, false, 0, 0, 60);
-skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 500, true, false, true, 0, 0, null);
-skill.add("Cobweb Miner", "skill.cobweb_miner", "minecraft:cobweb", "Swords increase the radius for destruction of cobwebs", 250, true, false, true, 0, 0, null);
+//skill.add("Dolphin", "skill.dolphin", "minecraft:fire_coral", "Swim like a dolphin for a minute", 25, false, true, false, 0, 0, 60);
+//skill.add("Block Up", "skill.block_up", "minecraft:diamond_pickaxe", "Break a block and the block above for a minute", 25, false, true, false, 0, 0, 60);
+//skill.add("Block Down", "skill.block_down", "minecraft:diamond_pickaxe", "Break a block and the block below for a minute", 25, false, true, false, 0, 0, 60);
+skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees with an axe", 4096, true, false, true, 0, 0, null);
+//skill.add("Fire Arrow", "skill.fire_arrow", "minecraft:arrow", "For a minute with an flame enchanted bow your arrows ignite hit blocks", 50, false, true, false, 0, 0, 60);
+skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 1024, true, false, true, 0, 0, null);
+//skill.add("Cobweb Miner", "skill.cobweb_miner", "minecraft:cobweb", "Swords increase the radius for destruction of cobwebs", 250, true, false, true, 0, 0, null);
 
 death_loc_map = map.new();
 
@@ -32,7 +34,7 @@ death_loc_map = map.new();
 leaves_tag = block.getTag("minecraft:leaves");
 //prop_persistent = block.getProperty("persistent");
 
-msg("dev", "§bSurvival §rloaded.");
+msg("dev", text.new("§bSkills §rloaded."));
 @wait
 wait();
 //Wenn Event aus Survival-Welten, dann wird er verarbeitet
@@ -44,6 +46,51 @@ if(event == "living_death") {
 world_name = world.getName(loc.getWorld(loc));
 if(world.isSurvName(world_name)) {
 	ignoreGoto(event);
+}
+goto("wait");
+
+@snuvi_click
+item = inv.getItem(inv, inv_slot);
+item.removeFlag(item, "HIDE_DESTROYS");
+title_string = string.text(inv_title);
+if(item == scroll_menu_item) {
+	if(title_string == "Lumberjack") {
+		if(!player.unlockedLumberjack(player)) {
+			msg.prefix(player, prefix_skill, "Skillshop is locked. Do a quest first.");
+			goto("wait");
+		}
+		skill.showShop(player, "skill.timber", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		//skill.showShop(player, "skill.timber", "skill.better_shears", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		goto("wait");
+	}
+	if(title_string == "Mage") {
+		//skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
+	}
+	goto("wait");
+}
+if(title_string == "Skillshop") {
+	if(item == null) {
+		goto("wait");
+	}
+	skill_name = string.removeFormat(string.text(item.getName(item)));
+	if(skill_name == "") {
+		goto("wait");
+	}
+	tech_name = skill.getTechName(skill_name);
+	if(skill.isPermanent(tech_name)) {
+		amount = skill.getAmount(player, tech_name);
+		if(amount >= 1) {	
+			goto("wait");
+		}
+	}
+	cost = skill.getCost(tech_name);
+	if(!hasEnoughMoney(player, cost)) {
+		msg.prefix(player, prefix_skill, "Not enough snuvis.");
+		goto("wait");
+	}
+	money.sub(player, cost);
+	skill.addAmount(player, tech_name, 1);
+	inv.setItem(inv, inv_slot, skill.getShopItem(player, tech_name));
 }
 goto("wait");
 
@@ -89,7 +136,7 @@ if(isPlayer(living_entity)) {
 	if(skill.isActivated(player, "skill.subcu_inv") && amount > 0) {
 		new_amount = amount - 1;
 		skill.setAmount(player, "skill.subcu_inv", new_amount);
-		msg.prefix(player, prefix_skill, string.concat("Used Subcutaneous Inventory. New amount: ", text.number(new_amount)));
+		msg.prefix(player, prefix_skill, string.concat("Used Subcutaneous Inventory. New amount: ", string.number(new_amount)));
 	} else {
 		player.dropInventory(player, loc);
 	}
@@ -134,6 +181,7 @@ if(isPlayer(killer)) {
 goto("wait");
 
 @block_break
+goto("wait");
 duration = data.getTimer(player, "block_down");
 if(duration > 0) {
 	do = true;
@@ -169,7 +217,7 @@ if(block_type == "minecraft:cobweb") {
 		goto("wait");
 	}
 	hand_item = living.getHand(player);
-	if(!item.hasTag(sword_tag, hand_item)) {
+	if(!item.hasTag(hand_item, sword_tag)) {
 		goto("wait");
 	}
 	amount = skill.getAmount(player, "skill.cobweb_miner");
@@ -199,7 +247,7 @@ if(block_type == "minecraft:cobweb") {
 	}
 	goto("wait");
 }
-if(block.hasTag(leaves_tag, block)) {
+if(block.isLeaves(block)) {
 	if(cancel) {
 		goto("wait");
 	}

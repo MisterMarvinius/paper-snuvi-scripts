@@ -20,6 +20,12 @@ if(event == "entity_mount") {
 	}
 	player = entity;
 }
+if(event == "custom_command") {
+	if(!isPlayer(sender)) {
+		goto("simplelobby");
+	}
+	player = sender;
+}
 if(!player.hasMinigameId(player, script_id)) {
 	goto("simplelobby");
 }
@@ -36,21 +42,19 @@ elseif(event == "player_quit" || event == "player_giveup") {
 	gosub("leavelobbycore");
 }
 elseif(event == "custom_command") {
-	if(player != null) {
-		if(command == "startgame") {
-			if(manual_start != null && manual_start) {
-				if(started) {
-					msg.prefix(player, gamename, "Already started.");
-					goto("simplelobby");
-				}
-				counterindex = 3;
-				goto("startcountdown");
+	if(command == "startgame") {
+		if(manual_start != null && manual_start) {
+			if(started) {
+				msg.prefix(player, gamename, "Already started.");
+				goto("simplelobby");
 			}
-			if(perm.has("startgame.jump", player)) {
-				gosub("jumpstart");
-			} else {
-				perm.no("startgame.jump", player);
-			}
+			counterindex = 3;
+			goto("startcountdown");
+		}
+		if(perm.has("startgame.jump", player)) {
+			gosub("jumpstart");
+		} else {
+			perm.no("startgame.jump", player);
 		}
 	}
 }
@@ -143,7 +147,7 @@ if(player.isPartyLeader(player)) {
 	leader_uuid = player.getUuid(player);
 	scriptlist = minigame.getPlayers(script_id);
 	list = party.getList(player.getPartyId(player));
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
@@ -258,7 +262,7 @@ function minigame.term(script, gamesignloc) {
 }
 
 function minigame.speakAll(prefix, message) {
-	iter = list.iterator(minigame.getPlayers($script_id));
+	iter = iterator(minigame.getPlayers($script_id));
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
@@ -267,16 +271,18 @@ function minigame.speakAll(prefix, message) {
 }
 
 function minigame.msgAll(message) {
-	iter = list.iterator(minigame.getPlayers($script_id));
+	iter = iterator(minigame.getPlayers($script_id));
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		msg.string(p, message);
+		if(p != null) {
+			msg.string(p, message);
+		}
 	}
 }
 
 function minigame.displayAll(line, message) {
-	iter = list.iterator(minigame.getPlayers($script_id));
+	iter = iterator(minigame.getPlayers($script_id));
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
@@ -285,7 +291,7 @@ function minigame.displayAll(line, message) {
 }
 
 function minigame.titleAll(title, subtitle, fadeIn, show, fadeOut) {
-	iter = list.iterator(minigame.getPlayers($script_id));
+	iter = iterator(minigame.getPlayers($script_id));
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
@@ -294,7 +300,7 @@ function minigame.titleAll(title, subtitle, fadeIn, show, fadeOut) {
 }
 
 function minigame.displayRemoveAll(line) {
-	iter = list.iterator(minigame.getPlayers($script_id));
+	iter = iterator(minigame.getPlayers($script_id));
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
@@ -348,11 +354,11 @@ function minigame.kickAllPlayers(script_or_id) {
 	player_list = minigame.getPlayers(script.getId(script));
 	list = list.new();
 	//Create copy
-	iter = list.iterator(player_list);
+	iter = iterator(player_list);
 	while(hasNext(iter)) {
 		list.add(list, next(iter));
 	}
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		minigame.kickPlayer(script, player.get(next(iter)));
 	}
@@ -611,7 +617,7 @@ function sb.clearGame(player) {
 }
 
 function sb.clearGameAll() {
-	iter = list.iterator(minigame.getPlayers($script_id));
+	iter = iterator(minigame.getPlayers($script_id));
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);

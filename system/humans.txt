@@ -1,20 +1,26 @@
 event.load("entity_click");
 
-emerald = item.create("EMERALD", 1, "§fMarket", null);
+lore_list = list.new();
+list.add(lore_list, text.new("§aLeftclick §f= §eBuy"));
+list.add(lore_list, text.new("§cRightclick §f= §eSell"));
+emerald = item.create("EMERALD", 1, "§fMarket", lore_list);
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
+scroll = item.custom.create("SCROLL", 1, "§2Skills", null);
 
-farmer_inv = createMainMenu("Farmer", true, false);
-fisher_inv = createMainMenu("Fisher", true, false);
-miner_inv = createMainMenu("Miner", true, false);
-baker_inv = createMainMenu("Baker", true, false);
-alena_inv = createMainMenu("Alena", true, false);
-mason_inv = createMainMenu("Mason", true, false);
-priest_inv = createMainMenu("Priest", true, false);
-mage_inv = createMainMenu("Mage", true, false);
-lumberjack_inv = createMainMenu("Lumberjack", true, false);
-butcher_inv = createMainMenu("Butcher", true, false);
-librarian_inv = createMainMenu("Librarian", true, false);
-nether_inv = createMainMenu("Nether Merchant", true, false);
+anna_inv = createMainMenu("Anna", false, true, false);
+farmer_inv = createMainMenu("Farmer", true, true, false);
+fisher_inv = createMainMenu("Fisher", true, false, false);
+miner_inv = createMainMenu("Miner", true, true, false);
+baker_inv = createMainMenu("Baker", true, false, false);
+alena_inv = createMainMenu("Alena", true, false, false);
+mason_inv = createMainMenu("Mason", true, false, false);
+priest_inv = createMainMenu("Priest", true, false, false);
+mage_inv = createMainMenu("Mage", true, false, false);
+lumberjack_inv = createMainMenu("Lumberjack", true, true, true);
+butcher_inv = createMainMenu("Butcher", true, false, false);
+librarian_inv = createMainMenu("Librarian", true, false, false);
+nether_inv = createMainMenu("Nether Merchant", true, false, false);
+diver_inv = createMainMenu("Diver", true, false, false);
 
 msg.string("dev", "§bHumans §rloaded.");
 @main
@@ -32,6 +38,8 @@ if(!entity.isHuman(entity)) {
 entity_name = human.getName(entity);
 if(entity_name == "Farmer") {
 	inv.open(farmer_inv, player);
+} elseif(entity_name == "Anna") {
+	inv.open(anna_inv, player);
 } elseif(entity_name == "Miner") {
 	inv.open(miner_inv, player);
 } elseif(entity_name == "Fisher") {
@@ -54,16 +62,22 @@ if(entity_name == "Farmer") {
 	inv.open(librarian_inv, player);
 } elseif(entity_name == "Nether Merchant") {
 	inv.open(nether_inv, player);
+} elseif(entity_name == "Diver") {
+	inv.open(diver_inv, player);
 }
 goto("main");
 
-function createMainMenu(inv_name, market, quests) {
+function createMainMenu(inv_name, market, quests, skills) {
 	inv = inv.new("222222222", text.new(inv_name));
+	index = 0;
 	if(market) {
-		inv.setItem(inv, 0, $emerald);
+		inv.setItem(inv, index++, $emerald);
 	}
 	if(quests) {
-		inv.setItem(inv, 1, $quest_book);
+		inv.setItem(inv, index++, $quest_book);
+	}
+	if(skills) {
+		inv.setItem(inv, index++, $scroll);
 	}
 	return inv;
 }

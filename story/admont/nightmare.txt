@@ -1,0 +1,103 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("custom_command");
+event.load("living_death");
+
+world = world.getOverworld();
+mob_loc_1 = loc.new(world, 126.5, 80, 11.5);
+mob_loc_2 = loc.new(world, 128.5, 80, 11.5);
+
+zombie_count = 0;
+stage = 0;
+all_stages = 2;
+quest_name = "Nightmare";
+
+@wait
+wait();
+if(event == "custom_command") {
+	if(!isPlayer(sender)) {
+		goto("wait");
+	}
+	player = sender;
+}
+if(event == "living_death") {
+	if(isPlayer(living_entity)) {
+		if(zombie == 0) {
+			entity.remove(zombie1);
+			entity.remove(zombie2);
+			entity.remove(zombie3);
+			entity.remove(zombie4);
+			entity.remove(zombie5);
+		}	
+		player = living_entity;
+		msg.prefix(player, "§dQuest", "Quest termed.");
+		quest.term(script, player);
+		goto("wait");
+	}
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	if(zombie1 != null) {
+		entity.remove(zombie1);
+		entity.remove(zombie2);
+		entity.remove(zombie3);
+		entity.remove(zombie4);
+		entity.remove(zombie5);
+	}
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dMiner", "MONSTER! LOTS AND LOTS OF MONSTERS!");
+	scheduler.msgPrefix(30, player, "§dMiner", "I HAVE SEEN THEM WITH MY OWN EYES!");
+	scheduler.msg(60, player, text.new("§dAnswer options:"));
+	scheduler.msg(60, player, string.getClickText("[§dA§r] §eCalm down, what's going on?", "/questanswer A"));
+	scheduler.msg(60, player, string.getClickText("[§dB§r] §eHow? Where? What?", "/questanswer B"));
+	goto("wait");
+}
+
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dMiner", "Oh, sorry, I didn't mean to shout. I ran away as fast as I could. From...from the m...monsters.");
+		scheduler.msgprefix(30, player, "§dMiner", "They were in the watchtower, please do something!");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dMiner", "CREEPY! IN THE WATCHTOWER! MONSTER! HELP!");
+	}
+	if(option == "A" || option == "B"){
+		zombie1 = entity.spawn(mob_loc_1, "ZOMBIE");
+		zombie2 = entity.spawn(mob_loc_1, "ZOMBIE");
+		zombie3 = entity.spawn(mob_loc_2, "ZOMBIE");
+		zombie4 = entity.spawn(mob_loc_2, "ZOMBIE");
+		zombie5 = entity.spawn(mob_loc_2, "ZOMBIE");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "living_death"){
+	entity_type = entity.getType(living_entity);
+	if(entity_type == "zombie") {
+		zombie_count++;
+		if(zombie_count == 5) {
+			msg.prefix(player, "§dMiner", "You are my rescue.");
+			msg(player, text.new("§dQuest finished. Reward: 3 snuvis!"));
+			money.addBoost(player, 3);
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

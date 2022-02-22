@@ -1,0 +1,208 @@
+event.load("block_break");
+
+tag_log_burn = block.getTag("minecraft:logs_that_burn");
+axe_tag = item.getTag("km:axe");
+
+oak_mat = material.get("OAK_LOG");
+spruce_mat = material.get("SPRUCE_LOG");
+birch_mat = material.get("BIRCH_LOG");
+jungle_mat = material.get("JUNGLE_LOG");
+acacia_mat = material.get("ACACIA_LOG");
+dark_oak_mat = material.get("DARK_OAK_LOG");
+vine_mat = material.get("VINE");
+
+horizontal_dist_map = map.new();
+map.add(horizontal_dist_map, oak_mat, 8);
+map.add(horizontal_dist_map, spruce_mat, 8);
+map.add(horizontal_dist_map, birch_mat, 2);
+map.add(horizontal_dist_map, jungle_mat, 8);
+map.add(horizontal_dist_map, acacia_mat, 8);
+map.add(horizontal_dist_map, dark_oak_mat, 5);
+
+msg.string("dev", "§bTimber §rloaded.");
+@wait
+wait();
+loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(loc));
+if(world.isCreativeName(world_name)) {
+	goto("wait");
+}
+if(event == "block_break") {
+	if(cancel) {
+		goto("wait");
+	}
+	if(!skill.hasEnough(player, "skill.timber")) {
+		goto("wait");
+	}
+	if(!skill.isActivated(player, "skill.timber")) {
+		goto("wait");
+	}
+	if(!player.checkHandsForTag(player, axe_tag)) {
+		goto("wait");
+	}
+	tree_type = block.getType(block);
+	horizontal_spec_dist = map.getOrDefault(horizontal_dist_map, tree_type, 2);
+	block_loc = block.getLocation(block);
+	origin_x = loc.getX(block_loc);
+	origin_z = loc.getZ(block_loc);
+	if(block.isTree(block_loc)) {
+		block.removeTree(block_loc);
+	}
+}
+goto("wait");
+
+function block.isTree(break_loc) {
+	block = block.get(break_loc);
+	if(!block.hasTag(block, $tag_log_burn)) {
+		return false;
+	}
+	//neighbours on same level found? return false
+	mod_block = block.mod(block, 1, 0, 0);
+	if(block.getType(mod_block) == $tree_type) {
+		return false;
+	}
+	mod_block = block.mod(mod_block, -2, 0, 0);
+	if(block.getType(mod_block) == $tree_type) {
+		return false;
+	}
+	mod_block = block.mod(mod_block, 1, 0, 1);
+	if(block.getType(mod_block) == $tree_type) {
+		return false;
+	}
+	mod_block = block.mod(mod_block, 0, 0, -2);
+	if(block.getType(mod_block) == $tree_type) {
+		return false;
+	}
+	mod_block = block.mod(mod_block, 0, 0, 1);
+	//search top logs
+	mod_block = block.mod(mod_block, 0, 1, 0);
+	while(block.getType(mod_block) == $tree_type) {
+		mod_block = block.mod(mod_block, 0, 1, 0);
+	}
+	if(block.isLeaves(mod_block)) {
+		if(!block.isPersistent(mod_block)){
+			return true;
+		}
+		return false;
+	}
+	else{
+		if($tree_type == "minecraft:acacia_log") {
+			for(i = 0; i < 5; i++) {
+				if(block.isLeaves(mod_block) && !block.isPersistent(mod_block)) {
+					return true;
+				}
+				mod_block = block.mod(mod_block, 0, 1, 0);
+			}
+		}
+		return false;
+	}
+	return true;
+}
+
+function block.removeTree(break_loc) {
+	c = 0;
+	$tree_list = list.new();
+	$tree_set = set.new();
+	list.add($tree_list, break_loc);
+	while(list.getSize($tree_list) != 0) {
+		index = list.getSize($tree_list) - 1;
+		loc = list.getIndex($tree_list, index);
+		list.removeIndex($tree_list, index);
+		mod_loc = loc.mod(loc, 1, 0, 0);
+		block.addIfTreePart(mod_loc);
+		mod_loc = loc.mod(mod_loc, -2, 0, 0);
+		block.addIfTreePart(mod_loc);
+		mod_loc = loc.mod(mod_loc, 1, 0, 1);
+		block.addIfTreePart(mod_loc);
+		mod_loc = loc.mod(mod_loc, 0, 0, -2);
+		block.addIfTreePart(mod_loc);
+		mod_loc = loc.mod(mod_loc, 0, 1, 1);
+		block.addIfTreePart(mod_loc);
+		if($tree_type == acacia_mat) {
+			mod_loc = loc.mod(mod_loc, 1, 0, 0);
+			block.addIfTreePart(mod_loc);
+			mod_loc = loc.mod(mod_loc, -2, 0, 0);
+			block.addIfTreePart(mod_loc);
+			mod_loc = loc.mod(mod_loc, 1, 0, 1);
+			block.addIfTreePart(mod_loc);
+			mod_loc = loc.mod(mod_loc, 0, 0, -2);
+			block.addIfTreePart(mod_loc);
+		}
+		if($tree_type == dark_oak_mat) {
+			mod_loc = loc.mod(mod_loc, 1, 0, 1);
+			block.addIfLog(mod_loc);
+			mod_loc = loc.mod(mod_loc, -2, 0, 0);
+			block.addIfLog(mod_loc);
+			mod_loc = loc.mod(mod_loc, 0, 0, -2);
+			block.addIfLog(mod_loc);
+			mod_loc = loc.mod(mod_loc, 2, 0, 0);
+			block.addIfLog(mod_loc);
+		}
+		c++;
+		if(c > 1000) {
+			break;
+		}
+	}
+	return;
+}
+
+function block.addIfLog(location) {
+	if(block.isLog(location)) {
+		block.addTreePart(location);
+	}
+}
+
+function block.isLog(location) {
+	horizontal_dist = math.abs($origin_x - loc.getX(location));
+	if(horizontal_dist > $horizontal_spec_dist) {
+		return false;
+	}
+	horizontal_dist = math.abs($origin_z - loc.getZ(location));
+	if(horizontal_dist > $horizontal_spec_dist) {
+		return false;
+	}
+	temp_type = block.getType(location);
+	if(temp_type == $tree_type) {
+		return true;
+	}
+	set.add($tree_set, location);
+	return false;
+}
+
+function block.addIfTreePart(location) {
+	if(block.isTreePart(location)) {
+		block.addTreePart(location);
+	}
+}
+
+function block.isTreePart(location) {
+	horizontal_dist = math.abs($origin_x - loc.getX(location));
+	if(horizontal_dist > $horizontal_spec_dist) {
+		return false;
+	}
+	horizontal_dist = math.abs($origin_z - loc.getZ(location));
+	if(horizontal_dist > $horizontal_spec_dist) {
+		return false;
+	}
+	block = block.get(location);
+	temp_type = block.getType(block);
+	if(temp_type == $tree_type) {
+		return true;
+	}
+	/*if(temp_type == vine_mat) {
+		return true;
+	}
+	if(block.isLeaves(block) && !block.isPersistent(block)) {
+		return true;
+	}*/
+	set.add($tree_set, location);
+	return false;
+}
+
+function block.addTreePart(location) {
+	if(!set.contains($tree_set, location)) {
+		list.add($tree_list, location);
+		set.add($tree_set, location);
+		block.break(block.get(location), $player);
+	}
+}

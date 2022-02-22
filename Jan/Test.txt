@@ -1,12 +1,217 @@
-Array = array.new(3);
-List = list.new();
-list.add(List,"LALALA");
+event.load("projectile_hit");
+event.load("block_click");
+event.load("player_drop");
+event.load("player_teleport");
+//event.load("player_item_held");
+event.load("missing_command");
+event.load("missing_perm");
+event.load("player_elytra_start");
+//event.load("entity_click");
+//event.load("entity_damage");
 
-Array[0] = "string";
-Array[1] = 1;
-Array[2] = List;
 
-msg("dev", text.new(class(Array[0])));
-msg("dev", text.new(class(Array[1])));
-msg("dev", text.new(class(Array[2])));
+item_list = list.new();
+list.add(item_list, material.get("SNOWBALL"));
+list.add(item_list, material.get("EGG"));
+list.add(item_list, material.get("FISHING_ROD"));
+list.add(item_list, material.get("TRIDENT"));
+list.add(item_list, material.get("SPLASH_POTION"));
+
+Particle_Soul = particle.get("SOUL_FIRE_FLAME");
+Particle_Table = particle.get("ENCHANTMENT_TABLE");
+Particle_Smoke = particle.get("CAMPFIRE_COSY_SMOKE");
+Particle_Slime = particle.get("SLIME");
+
+Slime_Itemstack = item.new("SLIME_BALL", 1);
+Small_Slime = "SLIME";
+Sound_Slimeblock_place = sound.get("BLOCK_SLIME_BLOCK_PLACE");
+Sound_Cat_Hostile = sound.getCategory("HOSTILE");
+
+@wait
+wait();
+
+if(event == "block_click") {
+	if(action != "RIGHT_CLICK_AIR"){
+		goto("wait");
+	}
+	player_name = player.getName(player);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	equip = living.getEquip(player, hand);
+	Item_Type = item.getType(equip);
+	if(list.contains(item_list, Item_Type)){
+		player_look = entity.getLook(player);
+		player_motion = entity.getMotion(player);
+		x = player_motion[0] - 0.025*player_look[0];
+		z = player_motion[2] - 0.025*player_look[2];
+		entity.setMotion(player, x, player_motion[1], z);
+		goto("wait");
+	}
+	if(Item_Type == "SLIME_BALL"){
+		player_loc = player.getLocation(player);
+		player_look = entity.getLook(player);
+		player_motion = entity.getMotion(player);
+		Slime = entity.spawn(player_loc, Small_Slime);
+		x = player_motion[0] + player_look[0];
+		y = player_motion[1] + player_look[1];
+		z = player_motion[2] + player_look[2];
+		entity.setMotion(Slime, x,y,z);
+		sound.spawn(player_loc, Sound_Slimeblock_place, Sound_Cat_Hostile, 1, 1);
+		particle.spawn(player_loc, Particle_Slime, 3, 0.1, 0.125, 1.2, 0.125);
+	}
+	goto("wait");
+}
+
+if(event == "entity_damage"){
+	if(entity.getType(entity) != Slime){
+		goto("wait");
+	}
+	if(cause != "FALL"){
+		goto("wait");
+	}
+	cancel = true;
+}
+
+if(event == "entity_click"){
+	player_name = player.getName(player);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	entity_Type = entity.getType(entity);
+	if(entity_Type == Slime){
+		entity_loc = entity.getLocation(entity);
+		entity.remove(entity);
+		sound.spawn(player_loc, Sound_Slimeblock_place, Sound_Cat_Hostile, 1, 1);
+		item.drop(Slime_Itemstack, entity_loc);
+	}
+	
+	goto("wait");
+}
+
+if(event == "player_drop"){
+	player_name = player.getName(player);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	amount = item.getAmount(item.entity.get(item_entity));
+	strength = 0.05 * (1+math.log(amount)/math.log(1.5));
+	player_look = entity.getLook(player);
+	player_motion = entity.getMotion(player);
+	x = player_motion[0] - strength*player_look[0];
+	z = player_motion[2] - strength*player_look[2];
+	entity.setMotion(player, x, player_motion[1], z);
+	goto("wait");
+}
+
+if(event == "projectile_hit") {
+	if(shooter == null) {
+		goto("wait");
+	}
+	if(entity_hit == null) {
+		goto("wait");
+	}
+	if(!isPlayer(entity_hit)){
+		goto("wait");
+	}
+	if(!isPlayer(shooter)){
+		goto("wait");
+	}
+	if(shooter == entity_hit){
+		goto("wait");
+	}
+	entity_hit_name = player.getName(entity_hit);
+	if(entity_hit_name == "SirTerence7" || entity_hit_name == "marvinius" || entity_hit_name == "Mareeeen" || entity_hit_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	shooter_loc = entity.getLocation(shooter);
+	hit_player_loc = entity.getLocation(entity_hit);
+	if(loc.getWorld(shooter_loc) != loc.getWorld(hit_player_loc)){
+		goto("wait");
+	}
+	shooter_loc_X = loc.GetX(shooter_loc);
+	shooter_loc_Y = loc.GetY(shooter_loc);
+	shooter_loc_Z = loc.GetZ(shooter_loc);
+	hit_player_loc_X = loc.GetX(hit_player_loc);
+	hit_player_loc_Y = loc.GetY(hit_player_loc);
+	hit_player_loc_Z = loc.GetZ(hit_player_loc);
+	entity_hit_motion = entity.getMotion(entity_hit);
+	
+	distance = math.abs(loc.distance(shooter_loc, hit_player_loc));
+	
+	x = entity_hit_motion[0] + (hit_player_loc_X - shooter_loc_X+1)/math.pow(distance+1,2);
+	y = entity_hit_motion[1] + 0.25*(hit_player_loc_Y - shooter_loc_Y+1)/math.pow(distance+1,2);
+	z = entity_hit_motion[2] + (hit_player_loc_Z - shooter_loc_Z+1)/math.pow(distance+1,2);
+	entity.setMotion(entity_hit, x, y, z);
+	goto("wait");
+}
+
+if(event == "player_teleport"){
+	player_name = player.getName(player);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	particle.spawn(from, Particle_Table, 25, 0.125, 0.25, 0.5, 0.25);
+	particle.spawn(to, Particle_Soul, 7, 0.5, 0.25, 0.5, 0.25);
+	particle.spawn(to, Particle_Table, 25, 0.5, 0.5, 0.75, 0.5);
+	living.addEffect(player, "BLINDNESS", 20, 1, false);
+	//living.addEffect(player, "CONFUSION", 100, 5, false);
+	//living.addEffect(player, "LEVITATION", 5, 255, false);
+	goto("wait");
+}
+
+if(event == "player_item_held"){
+	player_name = player.getName(player);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	inv = player.getInv(player);
+	item1 = inv.getItem(inv, from);
+	item2 = inv.getItem(inv, to);
+	inv.setItem(inv, to, item1);
+	inv.setItem(inv, from, item2);
+}
+
+if(event == "player_elytra_start"){
+	player_name = player.getName(player);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	if(!player.isSneaking(player)){
+		goto("wait");
+	}
+	player_look = entity.getLook(player);
+	player_motion = entity.getMotion(player);
+	x = player_motion[0] + 0.25*player_look[0];
+	z = player_motion[2] + 0.25*player_look[2];
+	y = math.abs(player_motion[1]) + 0.0125*math.abs(player_look[1]) + 0.5*(math.abs(x) + math.abs(z));
+	entity.setMotion(player, x, y, z);
+	
+}
+
+if(event == "missing_perm"){
+	player_name = player.getName(sender);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	particle.spawn(entity.getLocation(sender), Particle_Smoke, 7, 0.1, 0.125, 1.2, 0.125);
+}
+
+if(event == "missing_command"){
+	player_name = player.getName(sender);
+	if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+	}else{
+		goto("wait");
+	}
+	particle.spawn(entity.getLocation(sender), Particle_Smoke, 7, 0.1, 0.125, 1.2, 0.125);
+}
+goto("wait");
 

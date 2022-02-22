@@ -1,0 +1,65 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_break");
+event.load("entity_click");
+
+stage = 0;
+all_stages = 2;
+quest_name = "Me and my wood";
+
+spruce_log = 0;
+spruce_log_mat = material.get("SPRUCE_LOG");
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dLumberjack", "The new wood delivery is late...");
+	scheduler.msgPrefix(30, player, "§dLumberjack", "I'm pretty much behind.");
+	scheduler.msgPrefix(60, player, "§dLumberjack", "I need 32 spruce logs to give the workman his necessary resources.");
+	goto("wait");
+}
+
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_break") {
+	block_type = block.getType(block);
+	if(block_type == spruce_log_mat && !cancel) {
+		spruce_log++;
+		if(spruce_log == 32) {
+			stage.increase(player);
+		}
+	}
+	goto("wait");
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
+	entity_name = human.getName(entity);
+	if(entity_name == "Lumberjack") {
+		rest_amount = human.giveItem(entity_name, player, spruce_log_mat, spruce_log);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dLumberjack", "Thank you, I will hand it over for processing.");
+			msg(player, text.new("§dQuest finished. Reward: 4 snuvis!"));
+			money.addBoost(player, 4);
+			if(!player.unlockedLumberjack(player)) {
+				player.unlockLumberjack(player);
+				msg.prefix(player, "§2Skill", "Unlocked skillshop: Lumberjack");
+			}
+			quest.finish(script, player);
+		} else {
+			spruce_log = rest_amount;
+		}
+	}
+}
+goto("wait");

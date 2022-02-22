@@ -1,0 +1,143 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("block_break");
+event.load("block_click");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 2;
+quest_name = "First Date";
+tulips = 0;
+tulips_needed = 3;
+pink_tulip_mat = material.get("pink_tulip");
+writable_book_mat = material.get("writable_book");
+written_book_mat = material.get("written_book");
+book_chest_block = block.get(loc.new(world.getOverworld(), 128, 72, -32));
+
+wusi_p = read.player("kajetanjohannes");
+
+@wait
+wait();
+if(event == "block_break" && player == wusi_p) {
+	msg(player, text.new("Quest: block_break"));
+}
+if(event == "custom_command") {
+	if(!isPlayer(sender)) {
+		goto("wait");
+	}
+	player = sender;
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	if(stage == 1) {
+		rest_item = player.removeItemNbt(player, item.new(writable_book_mat));
+		rest_amount = item.getAmount(rest_item);
+		if(rest_amount != 0) {
+			player.removeItemNbt(player, item.new(written_book_mat));
+		}
+	}
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dFarmer", "Hi you! I have a meeting with Anna tonight and I'm super nervous...");
+	scheduler.msgPrefix(30, player, "§dFarmer", "Uh, you look like you have experience or something, what should I take as a gift?");
+	scheduler.msg(60, player, text.new("§dAnswer options:"));
+	scheduler.msg(60, player, string.getClickText("[§dA§r] §eFlowers are never wrong.", "/questanswer A"));
+	scheduler.msg(60, player, string.getClickText("[§dB§r] §eA few kind words are enough.", "/questanswer B"));
+	goto("wait");
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dFarmer", "That's a great idea! I'm going to get dressed up!");
+		scheduler.msgPrefix(30, player, "§dFarmer", "In the meantime, why don't you get me three pink tulips from the tree at the spawn?");
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dFarmer", "That's right! I think a poem would be a fitting gift for her.");
+		scheduler.msgPrefix(30, player, "§dFarmer", "Unfortunately, I'm not that creative, so please take over.");
+		scheduler.msgPrefix(60, player, "§dFarmer", "Write me a poem and sign the book then.");
+		player.giveSingleItem(player, item.create("writable_book", 1, "§fFor Anna", null));
+	}
+}
+goto("wait");
+
+@stage1
+if(option == "A") {
+	if(event == "block_click") {
+		if(block == null) {
+			goto("wait");
+		}
+		block_type = block.getType(block);
+		if(block_type == pink_tulip_mat) {
+			cancel = false;
+		}
+		goto("wait");
+	}
+	if(event == "block_break") {
+		block_type = block.getType(block);
+		if(block_type == pink_tulip_mat) {
+			cancel = false;
+			scheduler.setBlockMaterial(5, block, pink_tulip_mat, false);
+			tulips++;
+			if(tulips == 3) {
+				msg.prefix(player, "§dFarmer", "Perfect! Now come back to me and give me the flowers.");
+				stage.increase(player);
+			}
+		}
+	}
+	goto("wait");
+}
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
+	entity_name = human.getName(entity);
+	if(entity_name == "Farmer") {
+		item = living.getHand(player);
+		item_type = item.getType(item);
+		if(item_type == writable_book_mat) {
+			cancel = true;
+			msg.prefix(player, "§dFarmer", "Please sign the book for me!");
+			goto("wait");
+		}
+		if(item_type == written_book_mat) {
+			cancel = true;
+			item_name = string.text(item.getName(item));
+			if(item_name != null && item_name == "§fFor Anna") {
+				inv.addItem(block.getInventory(book_chest_block), item);
+				living.setHand(player, item.getAir());
+				msg.prefix(player, "§dFarmer", "Thank you!");
+				msg(player, text.new("§dQuest finished. Reward: 2 snuvis!"));
+				money.addBoost(player, 2);
+				quest.finish(script, player);
+			}
+		}
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
+	entity_name = human.getName(entity);
+	if(entity_name == "Farmer") {
+		rest_amount = human.giveItem(entity_name, player, pink_tulip_mat, tulips_needed);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dFarmer", "Thank you!");
+			msg(player, text.new("§dQuest finished. Reward: 2 snuvis!"));
+			money.addBoost(player, 2);
+			quest.finish(script, player);
+		} else {
+			tulips_needed = rest_amount;
+		}
+	}
+}
+goto("wait");

@@ -72,6 +72,9 @@ if(countdown == 0) {
 
 @checkstart
 wait();
+if(!player.hasMinigameId(player, script_id)) {
+	goto("checkstart");
+}
 if(event == "block_click") {
 	cancel = true;
 	goto("checkstart");

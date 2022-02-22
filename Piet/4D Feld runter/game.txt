@@ -1,10 +1,10 @@
 
 
-//-------------------Global_Variables------------------------
+//-------------------Global_Variables-----------------------
 fieldSize = 4;
 field = array.new(fieldSize, fieldSize, fieldSize);
 gravityLayer = 0;
-displayCoordinates = array.new(3);
+coordinates = array.new(3);
 //----------------------------------------------------------
 
 
@@ -35,15 +35,13 @@ LayerBlocks[3] = fieldLayerFourBlock;
 
 
 //------------------Commands--------------------------------
-
 //TODO add commands to run the game / interactions with items
 command.add("");
-
 //----------------------------------------------------------
 
 
 //------------------Functions-------------------------------
-function setBlockIn$field(x, y, z, block) {
+function setBlockInfield(x, y, z, block) {
 	//sets a players block at the coordinates
 	$field[x, y, z] = block;
 	enableGravity();
@@ -53,14 +51,14 @@ function setBlockIn$field(x, y, z, block) {
  * generates the $field in Minecraft 	
  * starting at the block x y z and up
  */
-function display$field() {
+function displayField() {
 	//TODO fix loc
 	loc = array.new(3);
 	for (i = 0;  i <= $fieldSize; i++) {
 		for (j = 0;  j <= $fieldSize; j++) {
 			for (k = 0;  k <= $fieldSize; k++) {
-				loc = ($displayCoordinates[0] + i, $displayCoordinates[1] + j, $displayCoordinates[2] + k);
-				block.set(loc, getBlockFrom$field(i, j, k), true);
+				loc = ($coordinates[0] + i, $coordinates[1] + j, $coordinates[2] + k);
+				block.set(loc, getBlockFromfield(i, j, k), true);
 			}
 		}
 	}
@@ -69,7 +67,7 @@ function display$field() {
 /*
  * returns the block at the x, y, z values of $field
  */
-function getBlockFrom$field(x, y, z, block) {
+function getBlockFromfield(x, y, z, block) {
 	for (i = 0; i <= $fieldSize; i++) {
 		if ($field[x, y, z] == i) {
 			return blocks[i];
@@ -83,7 +81,7 @@ function getNumberInBounds(number) {
 }
 
 
-function move$fieldInX() {
+function moveFieldInX() {
 	disposable$field = $field;
 	for (i = 0;  i <= $fieldSize; i++) {
 		for (j = 0;  j <= $fieldSize; j++) {
@@ -93,10 +91,10 @@ function move$fieldInX() {
 		}
 	}
 	$field = disposable$field;
-	display$field();
+	displayfield();
 }
 
-function move$fieldInY() {
+function moveFieldInY() {
 	disposable$field = $field;
 	for (i = 0;  i <= $fieldSize; i++) {
 		for (j = 0;  j <= $fieldSize; j++) {
@@ -106,10 +104,10 @@ function move$fieldInY() {
 		}
 	}
 	$field = disposable$field;
-	display$field();
+	displayField();
 }
 
-function move$fieldInZ() {
+function moveFieldInZ() {
 	disposable$field = $$field;
 	for (i = 0;  i <= $fieldSize; i++) {
 		for (j = 0;  j <= $fieldSize; j++) {
@@ -119,12 +117,12 @@ function move$fieldInZ() {
 		}
 	}
 	$field = disposable$field;
-	display$field();
+	displayfield();
 }
 
-function set$gravityLayer(layer) {
+function setGravityLayer(layer) {
 	while (layer != $gravityLayer) {
-		move$fieldInZ();
+		moveFieldInZ();
 		$gravityLayer++;
 		$gravityLayer = $gravityLayer % $fieldSize;
 	}
@@ -144,3 +142,4 @@ function enableGravity() {
 	}	
 }
 //----------------------------------------------------------
+

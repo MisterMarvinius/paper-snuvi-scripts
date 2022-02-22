@@ -37,7 +37,6 @@ list.add(bosses, "MAGMA_CUBE");
 entities_list = list.new();
 iron_sword = item.create("IRON_SWORD", 1, null, null);
 copper_coin = item.custom.create("COPPER_COIN", 1, null, null);
-silver_coin = item.custom.create("SILVER_COIN", 1, null, null);
 ruby = item.getRuby();
 
 msg.string("dev", "§bMobarena §rloaded.");
@@ -93,9 +92,9 @@ if(event == "living_death") {
 		if(r == 1) {
 			item.drop(ruby, ent_loc);
 		}
-	//	item.drop(silver_coin, ent_loc);
-	} else {
-	//	item.drop(copper_coin, ent_loc);
+		r = math.random(3, 5);
+		item.setAmount(copper_coin, r);
+		item.drop(copper_coin, ent_loc);
 	}
 	goto("main");
 }

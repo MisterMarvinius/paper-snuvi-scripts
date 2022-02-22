@@ -1,0 +1,5395 @@
+/*
+TODO
+
+event function_key
+status.
+stacks.
+display.
+//TODO
+
+--- Version 2 ---
+Hüte
+Door Closing
+Visual Tasks
+Stay in lobby after win
+Trailer musik. JPB - Defeat the night (feat Ashley appollodor) _NCS Release
+rauswerf animation. mit no gravity stufenweise in die mitte tpen?
+vision durch rauch-partikel rund um den spieler (zylinder)
+geister vanishen, auch bei sich ändernden effekten
+
+*/
+
+cross_red_ = custom;
+
+@game_core
+event.load("entity_dismount");
+event.load("snuvi_click");
+event.load("function_key");
+event.load("player_drop");
+
+player_colors = map.new();
+specific_lobby_handling = true;
+no_lobby_tp = true;
+no_core_reset = true;
+gamename = "§cAmong Us";
+game_short = "among_us";
+rankingtable = "among_us_ranks";
+
+settings_inv = inv.new("222222222222222222222222222222222222222222222222222222", text.new("§cSettings"));
+for(i = 0; i < 9; i++) {
+	inv.setItem(settings_inv, i, item_arrow_up);
+}
+inv.setItem(settings_inv, 9, item.custom.create("GEAR", 1, string.concat("§rImpostors: ", string.number(amount_impostors)), null));
+inv.setItem(settings_inv, 10, item.custom.create("GEAR", 1, string.concat("§rShort Tasks: ", string.number(amount_short)), null));
+inv.setItem(settings_inv, 11, item.custom.create("GEAR", 1, string.concat("§rCommon Tasks: ", string.number(amount_common)), null));
+inv.setItem(settings_inv, 12, item.custom.create("GEAR", 1, string.concat("§rLong Tasks: ", string.number(amount_long)), null));
+inv.setItem(settings_inv, 13, item.custom.create("GEAR", 1, string.concat("§rAmount Meetings: ", string.number(amount_meetings)), null));
+inv.setItem(settings_inv, 14, item.custom.create("GEAR", 1, string.concat("§rMeeting Cooldown: ", string.number(meeting_cooldown)), null));
+inv.setItem(settings_inv, 15, item.custom.create("GEAR", 1, string.concat("§rDiscussion Time: ", string.number(discuss_time)), null));
+inv.setItem(settings_inv, 16, item.custom.create("GEAR", 1, string.concat("§rVoting Time: ", string.number(vote_time)), null));
+inv.setItem(settings_inv, 17, item.custom.create("GEAR", 1, string.concat("§rSpeed: ", string.number(move_speed)), null));
+for(i = 18; i < 27; i++) {
+	inv.setItem(settings_inv, i, item_arrow_down);
+}
+for(i = 27; i < 29; i++) {
+	inv.setItem(settings_inv, i, item_arrow_up);
+}
+inv.setItem(settings_inv, 36, item.custom.create("GEAR", 1, string.concat("§rKill Cooldown: ", string.number(kill_cooldown)), null));
+inv.setItem(settings_inv, 37, item.custom.create("GEAR", 1, string.concat("§rConfirm Ejects: ", confirm_ejects), null));
+//inv.setItem(settings_inv, 38, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+//inv.setItem(settings_inv, 39, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+//inv.setItem(settings_inv, 40, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+//inv.setItem(settings_inv, 41, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+//inv.setItem(settings_inv, 42, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+//inv.setItem(settings_inv, 43, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+//inv.setItem(settings_inv, 44, item.custom.create("GEAR", 1, string.concat("§r: ", string.number()), null));
+for(i = 45; i < 47; i++) {
+	inv.setItem(settings_inv, i, item_arrow_down);
+}
+
+color_list = list.new();
+list.add(color_list, "dark_gray");
+list.add(color_list, "cyan");
+list.add(color_list, "red");
+list.add(color_list, "blue");
+list.add(color_list, "orange");
+list.add(color_list, "green");
+list.add(color_list, "gray");
+list.add(color_list, "white");
+list.add(color_list, "pink");
+list.add(color_list, "purple");
+list.add(color_list, "yellow");
+list.add(color_list, "lime");
+
+cloth_code_map = map.new();
+map.add(cloth_code_map, "dark_gray", 4673362);
+map.add(cloth_code_map, "cyan", 1481884);
+map.add(cloth_code_map, "red", 11546150);
+map.add(cloth_code_map, "blue", 3949738);
+map.add(cloth_code_map, "orange", 16351261);
+map.add(cloth_code_map, "green", 6192150);
+map.add(cloth_code_map, "gray", 10329495);
+map.add(cloth_code_map, "white", 16383998);
+map.add(cloth_code_map, "pink", 15961002);
+map.add(cloth_code_map, "purple", 8991416);
+map.add(cloth_code_map, "yellow", 16701501);
+map.add(cloth_code_map, "lime", 8439583);
+
+color_code_map = map.new();
+map.add(color_code_map, "dark_gray", "§8");
+map.add(color_code_map, "cyan", "§b");
+map.add(color_code_map, "red", "§c");
+map.add(color_code_map, "blue", "§9");
+map.add(color_code_map, "orange", "§6");
+map.add(color_code_map, "green", "§2");
+map.add(color_code_map, "gray", "§7");
+map.add(color_code_map, "white", "§f");
+map.add(color_code_map, "pink", "§d");
+map.add(color_code_map, "purple", "§5");
+map.add(color_code_map, "yellow", "§e");
+map.add(color_code_map, "lime", "§a");
+
+//color_choose_inv = inv.new("000000000 033333300 033333300 000000000");
+color_choose_inv = inv.new("000000000033333300033333300000000000");
+index = 0;
+iter = iterator(color_list);
+while(hasNext(iter)) {
+	color_name = next(iter);
+	cloth_code = map.get(cloth_code_map, color_name);
+	color_name = string.upperFirstLetter(color_name);
+	item = read.item(string.concat("{id:\"minecraft:leather_chestplate\",Count:1b,tag:{Damage:0,display:{color:", cloth_code, ",Name:'{\"text\":\"§r", color_name, "\"}'}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	inv.setItem(color_choose_inv, index++, item);
+}
+
+gosub("setstart");
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "player_join") {
+	resetplayer(player);
+	assignSeat(player);
+	if(lobby_leader == null) {
+		lobby_leader = player.getUuid(player);
+		stacks.set(player, 1, "km:gear");
+	}
+	sb.add(player, 99, "Lobby-Leader: ", player.getName(lobby_leader));
+	sb.add(player, 98, gamename);
+	sb.add(player, 97, "Impostors: ", string.number(amount_impostors));
+	sb.add(player, 96, "Short Tasks: ", string.number(amount_short));
+	sb.add(player, 95, "Common Tasks: ", string.number(amount_common));
+	sb.add(player, 94, "Long Tasks: ", string.number(amount_long));
+	sb.add(player, 93, "Amount Meetings: ", string.number(amount_meetings));
+	sb.add(player, 92, "Meeting Cooldown: ", string.number(meeting_cooldown), " s");
+	sb.add(player, 91, "Discussion Time: ", string.number(discuss_time), " s");
+	sb.add(player, 90, "Voting Time: ", string.number(vote_time), " s");
+	sb.add(player, 89, "Speed: ", string.number(move_speed));
+	sb.add(player, 88, "Kill Cooldown: ", string.number(kill_cooldown), " s");
+	sb.add(player, 87, "Confirm Ejects: ", confirm_ejects);
+	sb.add(player, 86, sb.getSpacer());
+	//TODO stacks.set(player, 0, "minecraft:leather_chestplate");
+	player.setSpeed(player, move_speed);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 100);
+	return;
+}
+if(event == "player_drop") {
+	cancel = true;
+	return;
+}
+if(event == "block_click") {
+	if(block_loc == start_sign_loc) {
+		if(player.getUuid(player) != lobby_leader) {
+			msg.prefix(player, gamename, "You are not the Lobby-Leader.");
+			return;
+		}
+		if(!started) {
+			counterindex = 3;
+			goto("startcountdown");
+		}
+	}
+	return;
+}
+if(event == "snuvi_click") {
+	inv_name = string.text(inv_title);
+	if(inv_name == "§cSettings") {
+		//amount_impostors
+		if(inv_slot == 0 || inv_slot == 9 || inv_slot == 18) {
+			if(inv_slot == 0 || inv_slot == 9) {
+				if(amount_impostors < amount_impostors_max) {
+					amount_impostors++;
+				}
+			} elseif(inv_slot == 18) {
+				if(amount_impostors > amount_impostors_min) {
+					amount_impostors--;
+				}
+			}	
+			minigame.displayAll(2, string.concat("Impostors: ", string.number(amount_impostors)));
+			inv.setItem(settings_inv, 9, item.custom.create("GEAR", 1, string.concat("§rImpostors: ", string.number(amount_impostors)), null));
+			return;
+		}
+		//short_tasks
+		if(inv_slot == 1 || inv_slot == 10 || inv_slot == 19) {
+			if(inv_slot == 1 || inv_slot == 10) {
+				if(amount_short < amount_short_max) {
+					amount_short++;
+				}
+			} elseif(inv_slot == 19) {
+				if(amount_short > amount_short_min) {
+					amount_short--;
+				}
+			}	
+			minigame.displayAll(3, string.concat("Short Tasks: ", string.number(amount_short)));
+			inv.setItem(settings_inv, 10, item.custom.create("GEAR", 1, string.concat("§rShort Tasks: ", string.number(amount_short)), null));
+			return;
+		}
+		//common_tasks
+		if(inv_slot == 2 || inv_slot == 11 || inv_slot == 20) {
+			if(inv_slot == 2 || inv_slot == 11) {
+				if(amount_common < amount_common_max) {
+					amount_common++;
+				}
+			} elseif(inv_slot == 20) {
+				if(amount_common > amount_common_min) {
+					amount_common--;
+				}
+			}	
+			minigame.displayAll(4, string.concat("Common Tasks: ", string.number(amount_common)));
+			inv.setItem(settings_inv, 11, item.custom.create("GEAR", 1, string.concat("§rCommon Tasks: ", string.number(amount_common)), null));
+			return;
+		}
+		//long_tasks
+		if(inv_slot == 3 || inv_slot == 12 || inv_slot == 21) {
+			if(inv_slot == 3 || inv_slot == 12) {
+				if(amount_long < amount_long_max) {
+					amount_long++;
+				}
+			} elseif(inv_slot == 21) {
+				if(amount_long > amount_long_min) {
+					amount_long--;
+				}
+			}	
+			minigame.displayAll(5, string.concat("Long Tasks: ", string.number(amount_long)));
+			inv.setItem(settings_inv, 12, item.custom.create("GEAR", 1, string.concat("§rLong Tasks: ", string.number(amount_long)), null));
+			return;
+		}
+		//amount_meetings
+		if(inv_slot == 4 || inv_slot == 13 || inv_slot == 22) {
+			if(inv_slot == 4 || inv_slot == 13) {
+				if(amount_meetings < amount_meetings_max) {
+					amount_meetings++;
+				}
+			} elseif(inv_slot == 22) {
+				if(amount_meetings > amount_meetings_min) {
+					amount_meetings--;
+				}
+			}	
+			minigame.displayAll(6, string.concat("Amount Meetings: ", string.number(amount_meetings)));
+			inv.setItem(settings_inv, 13, item.custom.create("GEAR", 1, string.concat("§rAmount Meetings: ", string.number(amount_meetings)), null));
+			return;
+		}
+		//meeting_cooldown
+		if(inv_slot == 5 || inv_slot == 14 || inv_slot == 23) {
+			if(inv_slot == 5 || inv_slot == 14) {
+				if(meeting_cooldown < meeting_cooldown_max) {
+					meeting_cooldown += 5;
+				}
+			} elseif(inv_slot == 23) {
+				if(meeting_cooldown > meeting_cooldown_min) {
+					meeting_cooldown -= 5;
+				}
+			}	
+			minigame.displayAll(7, string.concat("Meeting Cooldown: ", string.number(meeting_cooldown), " s"));
+			inv.setItem(settings_inv, 14, item.custom.create("GEAR", 1, string.concat("§rMeeting Cooldown: ", string.number(meeting_cooldown)), null));
+			return;
+		}
+		//discuss_time
+		if(inv_slot == 6 || inv_slot == 15 || inv_slot == 24) {
+			if(inv_slot == 6 || inv_slot == 15) {
+				if(discuss_time < discuss_time_max) {
+					discuss_time += 5;
+				}
+			} elseif(inv_slot == 24) {
+				if(discuss_time > discuss_time_min) {
+					discuss_time -= 5;
+				}
+			}	
+			minigame.displayAll(8, string.concat("Discussion Time: ", string.number(discuss_time), " s"));
+			inv.setItem(settings_inv, 15, item.custom.create("GEAR", 1, string.concat("§rDiscussion Time: ", string.number(discuss_time)), null));
+			return;
+		}
+		//vote_time
+		if(inv_slot == 7 || inv_slot == 16 || inv_slot == 25) {
+			if(inv_slot == 7 || inv_slot == 16) {
+				if(vote_time < vote_time_max) {
+					vote_time += 5;
+				}
+			} elseif(inv_slot == 25) {
+				if(vote_time > vote_time_min) {
+					vote_time -= 5;
+				}
+			}	
+			minigame.displayAll(9, string.concat("Voting Time: ", string.number(vote_time), " s"));
+			inv.setItem(settings_inv, 16, item.custom.create("GEAR", 1, string.concat("§rVoting Time: ", string.number(vote_time)), null));
+			return;
+		}
+		//move_speed
+		if(inv_slot == 8 || inv_slot == 17 || inv_slot == 26) {
+			if(inv_slot == 8 || inv_slot == 17) {
+				if(move_speed < move_speed_max) {
+					move_speed += 0.25;
+				}
+			} elseif(inv_slot == 26) {
+				if(move_speed > move_speed_min) {
+					move_speed -= 0.25;
+				}
+			}
+			iter = iterator(minigame.getPlayers(script_id));
+			while(hasNext(iter)) {
+				p_uuid = next(iter);
+				p = player.get(p_uuid);
+				player.setSpeed(p, move_speed);
+			}
+			minigame.displayAll(10, string.concat("Speed: ", string.number(move_speed)));
+			inv.setItem(settings_inv, 17, item.custom.create("GEAR", 1, string.concat("§rSpeed: ", string.number(move_speed)), null));
+			return;
+		}
+		//kill_cooldown
+		if(inv_slot == 27 || inv_slot == 36 || inv_slot == 45) {
+			if(inv_slot == 27 || inv_slot == 36) {
+				if(kill_cooldown < kill_cooldown_max) {
+					kill_cooldown++;
+				}
+			} elseif(inv_slot == 45) {
+				if(kill_cooldown > kill_cooldown_min) {
+					kill_cooldown--;
+				}
+			}	
+			minigame.displayAll(11, string.concat("Kill Cooldown: ", string.number(kill_cooldown), " s"));
+			inv.setItem(settings_inv, 36, item.custom.create("GEAR", 1, string.concat("§rKill Cooldown: ", string.number(kill_cooldown)), null));
+			return;
+		}
+		//confirm_ejects
+		if(inv_slot == 28 || inv_slot == 37 || inv_slot == 46) {
+			if(confirm_ejects) {
+				confirm_ejects = false;
+			} else {
+				confirm_ejects = true;
+			}
+			minigame.displayAll(12, string.concat("Confirm Ejects: ", confirm_ejects));
+			inv.setItem(settings_inv, 37, item.custom.create("GEAR", 1, string.concat("§rConfirm Ejects: ", confirm_ejects), null));
+			return;
+		}
+		return;
+	}
+	if(inv_name == "§cChoose your color") {
+		item_name = string.text(item.getName(item));
+		if(string.startsWith(item_name, "§cUsed", 0)) {
+			return;
+		}
+		color = amongus.getPlayerColor(player);
+		if(color != null) {
+			item.setName(inv.getItem(inv, list.getIndexOf(color_list, color)), string.concat("§r", string.upperFirstLetter(color)));
+		}
+		new_color = string.removeFormat(string.toLowerCase(item_name));
+		cloth_color = map.get(cloth_code_map, new_color);
+		amongus.setPlayerColor(player, new_color);
+		item.setName(item, string.concat("§cUsed by ", player.getName(player)));
+		amongus.forceEquip(player, new_color);
+	}
+	return;
+}
+if(event == "function_key") {
+	if(key == 1) {
+		inv.open(color_choose_inv, player, "§cChoose your color");
+		return;
+	}
+	if(key == 2) {
+		if(player.getUuid(player) != lobby_leader) {
+			return;
+		}
+		inv.open(settings_inv, player);
+		return;
+	}
+	return;
+}
+if(event == "entity_dismount") {
+	if(isPlayer(entity)) {
+		leaveSeat(entity);
+	}
+	return;
+}
+if(event == "player_logout" || event == "player_giveup") {
+	leaveSeat(player);
+	if(lobby_leader == player.getUuid(player)) {
+		list = minigame.getPlayers(script_id);
+		if(list.getSize(list) != 0) {
+			lobby_leader = list.getIndex(list, 0);
+		}
+	}
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+
+gosub("init_map_specific");
+
+progress_bar = boss.create(text.new("TOTAL TASKS COMPLETED"), "GREEN", "SOLID");
+boss.setProgress(progress_bar, 0);
+
+wooden_trapdoors_tag = block.getTag("minecraft:wooden_trapdoors");
+shulker_tag = block.getTag("minecraft:shulker_boxes");
+
+master_sound_category = sound.getCategory("master");
+kill_sound = sound.get("entity.slime.hurt");
+task_sound = sound.get("minecraft:block.note_block.chime");
+vote_sound = sound.get("minecraft:block.note_block.pling");
+vote_ends_sound = sound.get("minecraft:block.note_block.bell");
+crit_sabo_sound = sound.get("minecraft:block.note_block.bell");
+
+all_list = list.new(); //All players (Ingame + Ghost + Left)
+vote_inv_map = map.new();
+sabo_par_list = list.new();
+ghosts = list.new();
+dead_bodies = list.new();
+roles = map.new();
+player_tasks = map.new();
+task_steps = map.new();
+all_tasks = map.new();
+auto_close_list = list.new();
+auto_close_list_2 = list.new();
+task_part_map = map.new();
+admin_table_map = map.new(); //In welchem Raum befindet sich ein Spieler? (Geister ausgenommen)
+admin_table_map_2 = map.new(); //Wie viele Spieler befinden sich in einem Raum? (Geister ausgenommen)
+impostors_list = list.new(); //Impostors (Ingame + Ghost + Left)
+impostors_list_2 = list.new(); //Impostors (Ingame + Ghost)
+holded_kill_cooldown = map.new();
+report_map = map.new();
+meeting_amounts = map.new();
+removed_perms = list.new(); //Spieler-Uuids, denen Building-Perms entfernt wurden
+
+short_tasks = list.new();
+list.addAll(short_tasks, 1, 3, 5, 6, 7, 9, 14, 15, 17);
+common_tasks = list.new();
+list.addAll(common_tasks, 10, 11);
+long_tasks = list.new();
+list.addAll(long_tasks, 2, 4, 8, 12, 13, 16);
+amount_done_tasks = 0;
+
+sabo_list = list.new();
+comms_state_list = list.new();
+comms_fix_list = list.new();
+comms_fix_map = map.new();
+comms_state_map = map.new();
+comms_counter_map = map.new();
+comms_inv_map = map.new();
+oxygen_map = map.new();
+vent_list = list.new();
+vent_map_2 = map.new();
+vent_map_4 = map.new();
+vent_loop = false;
+cam_list = list.new();
+cam_map = map.new();
+cam_map_2 = map.new();
+cam_map_3 = map.new();
+cam_map_4 = map.new();
+
+align_engine_map = map.new(); //Position des Engine-Outputs für jeden Spieler
+align_engine_map_2 = map.new(); //Dient zur Zuordnung zur Engine-Location bei korrekt ausgerichtetem Engine-Output
+align_le_engine_set = set.new(); //Spieler, die Align-Engine bei Lower-Engine gemacht haben
+align_ue_engine_set = set.new(); //Spieler, die Align-Engine bei Upper-Engine gemacht haben
+submit_scan_list = list.new();
+submit_scan_list_2 = list.new();
+submit_scan_map = map.new();
+submit_scan_map_2 = map.new();
+ast_directions = array.new(8);
+ast_start_pos = list.new();
+ast_start_pos_dirs = map.new();
+clear_ast_list = list.new();
+clear_ast_list_2 = list.new();
+clear_ast_list_3 = list.new();
+clear_ast_map = map.new();
+clear_ast_map_2 = map.new();
+clear_ast_map_3 = map.new();
+fuel_counter = map.new();
+download_counter = map.new();
+download_map = map.new();
+download_map_3 = map.new();
+download_list = list.new();
+download_list_2 = list.new();
+chart_course_counter = map.new();
+chart_course_pattern = map.new();
+manifolds_counter = map.new();
+manifolds_list = list.new();
+manifolds_list_2 = list.new();
+reactor_draw_list_1 = list.new();
+reactor_draw_list_2 = list.new();
+reset_reactor_draw_list = list.new();
+reactor_block_list = list.new();
+reset_reactor_click_list = list.new();
+reset_reactor_click_list_2 = list.new();
+reactor_false_click_list = list.new();
+start_reactor_map = map.new();
+sample_list = list.new();
+sample_list_2 = list.new();
+empty_garb_list = list.new();
+empty_garb_list_2 = list.new();
+empty_garb_map = map.new();
+empty_garb_map_2 = map.new();
+empty_garb_map_3 = map.new();
+sample_map = map.new();
+calibrate_dist_list = list.new();
+calibrate_dist_list_2 = list.new();
+calibrate_dist_map = map.new();
+wires_map = map.new();
+wires_map_2 = map.new();
+wires_map_4 = map.new();
+swipe_card_map = map.new();
+divert_pow_map_3 = map.new();
+clean_o2_map = map.new();
+
+align_engine_array = array.new(11);
+temp_list = list.new();
+list.addAll(temp_list, 34, 42);
+align_engine_array[0] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 25, 32, 33, 39, 40);
+align_engine_array[1] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 24, 25, 30, 31, 32, 36, 37, 38);
+align_engine_array[2] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 23, 24, 25, 28, 29, 30, 31, 36);
+align_engine_array[3] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 22, 23, 24, 25, 27, 28, 29, 30);
+align_engine_array[4] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 18, 19, 20, 21, 22, 23, 24, 25);
+align_engine_array[5] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 9, 10, 11, 12, 22, 23, 24, 25);
+align_engine_array[6] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 0, 10, 11, 12, 13, 23, 24, 25);
+align_engine_array[7] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 0, 1, 2, 12, 13, 14, 24, 25);
+align_engine_array[8] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 3, 4, 14, 15, 25);
+align_engine_array[9] = temp_list;
+temp_list = list.new();
+list.addAll(temp_list, 6, 16);
+align_engine_array[10] = temp_list;
+
+calibrate_dist_array = array.new(12);
+calibrate_dist_array[0] = 5;
+calibrate_dist_array[1] = 4;
+calibrate_dist_array[2] = 3;
+calibrate_dist_array[3] = 6;
+calibrate_dist_array[4] = 8;
+calibrate_dist_array[5] = 12;
+calibrate_dist_array[6] = 15;
+calibrate_dist_array[7] = 16;
+calibrate_dist_array[8] = 17;
+calibrate_dist_array[9] = 13;
+calibrate_dist_array[10] = 9;
+calibrate_dist_array[11] = 7;
+
+wires_list = list.new();
+list.add(wires_list, item.create("minecraft:blue_stained_glass_pane", 1, "§rBlue Wire", null));
+list.add(wires_list, item.create("minecraft:green_stained_glass_pane", 1, "§rGreen Wire", null));
+list.add(wires_list, item.create("minecraft:red_stained_glass_pane", 1, "§rRed Wire", null));
+list.add(wires_list, item.create("minecraft:yellow_stained_glass_pane", 1, "§rYellow Wire", null));
+
+garb_items = list.new();
+list.add(garb_items, item.new(material.get("minecraft:diamond")));
+list.add(garb_items, item.new(material.get("minecraft:dead_bush")));
+list.add(garb_items, item.new(material.get("minecraft:rotten_flesh")));
+list.add(garb_items, item.new(material.get("minecraft:totem_of_undying")));
+list.add(garb_items, item.new(material.get("minecraft:bone")));
+list.add(garb_items, item.new(material.get("minecraft:bone_meal")));
+
+addAstDirection(0, 1, 0); //rechts
+addAstDirection(1, -1, 0); //links
+addAstDirection(2, 0, -1); //oben
+addAstDirection(3, 0, 1); //unten
+addAstDirection(4, 1, -1); //rechts oben
+addAstDirection(5, -1, 1); //links unten
+addAstDirection(6, 1, 1); //rechts unten
+addAstDirection(7, -1, -1); //links oben
+
+addAstStartPos(0, 6, 6, 6);
+addAstStartPos(1, 3, 5, 6);
+addAstStartPos(2, 3, 5, 6);
+addAstStartPos(3, 3, 5, 6);
+addAstStartPos(4, 3, 5, 6);
+addAstStartPos(5, 3, 5, 6);
+addAstStartPos(6, 3, 5, 6);
+addAstStartPos(7, 3, 5, 6);
+addAstStartPos(8, 5, 5, 5);
+addAstStartPos(9, 0, 4, 6);
+addAstStartPos(17, 1, 5, 7);
+addAstStartPos(18, 0, 4, 6);
+addAstStartPos(26, 1, 5, 7);
+addAstStartPos(27, 0, 4, 6);
+addAstStartPos(35, 1, 5, 7);
+addAstStartPos(36, 0, 4, 6);
+addAstStartPos(44, 1, 5, 7);
+addAstStartPos(45, 4, 4, 4);
+addAstStartPos(46, 2, 4, 7);
+addAstStartPos(47, 2, 4, 7);
+addAstStartPos(48, 2, 4, 7);
+addAstStartPos(49, 2, 4, 7);
+addAstStartPos(50, 2, 4, 7);
+addAstStartPos(51, 2, 4, 7);
+addAstStartPos(52, 2, 4, 7);
+addAstStartPos(53, 7, 7, 7);
+
+air_item = item.getAir();
+lime_glass = item.create("minecraft:lime_stained_glass_pane", 1, "", null);
+green_glass = item.create("minecraft:green_stained_glass_pane", 1, "", null);
+red_glass = item.create("minecraft:red_stained_glass_pane", 1, "", null);
+gray_glass = item.create("minecraft:gray_stained_glass_pane", 1, "", null);
+black_glass = item.create("minecraft:black_stained_glass_pane", 1, "", null);
+yellow_glass = item.create("minecraft:yellow_stained_glass_pane", 1, "", null);
+blue_glass = item.create("minecraft:blue_stained_glass_pane", 1, "", null);
+cyan_glass = item.create("minecraft:cyan_stained_glass_pane", 1, "", null);
+zombie_head = item.create("zombie_head", 1, "", null);
+zombie_head_mat = material.get("ZOMBIE_HEAD");
+player_head_mat = material.get("PLAYER_HEAD");
+
+space_par = particle.get("END_ROD");
+task_par = particle.get("COMPOSTER");
+cam_par = particle.get("SPELL_WITCH");
+sabo_par = particle.get("SPELL_WITCH");
+imp_par = particle.get("SPELL_WITCH");
+
+cam_loop = false;
+meeting = false;
+amongus.setAlert(false);
+lights_sabotaged = false;
+comms_sabotaged = false;
+reactor_sabotaged = false;
+oxygen_sabotaged = false;
+reactor_used = false;
+lights_inv = inv.new("202020202", text.new("§cFix Lights"));
+reactor_inv_1 = inv.new("222222222222222222222222222222222222222222222222222222", text.new("§cPRESS TO STOP MELTDOWN"));
+sabotage.holdReactor(reactor_inv_1, false);
+reactor_inv_2 = inv.new("222222222222222222222222222222222222222222222222222222", text.new("§cPRESS TO STOP MELTDOWN"));
+sabotage.holdReactor(reactor_inv_2, false);
+reactor_hold_list_1 = list.new();
+reactor_hold_list_2 = list.new();
+
+common_tasks_2 = list.new();
+for(i = 0; i < amount_common; i++) {
+	index = math.random(0, list.getSize(common_tasks) - 1);
+	id = list.getIndex(common_tasks, index);
+	list.add(common_tasks_2, id);
+}
+
+registerTask(1, "Storage", "Fuel Engines", 0, 4);
+registerTask(2, "[Room]", "Download Data", 0, 2);
+registerTask(3, "Shields", "Prime Shields", 0, 1);
+registerTask(4, "Reactor", "Start Reactor", 0, 1);
+registerTask(5, "Reactor", "Unlock Manifolds", 0, 1);
+registerTask(6, "Navigation", "Chart Course", 0, 1);
+registerTask(7, "Navigation", "Stabilize Steering", 0, 1);
+registerTask(8, "MedBay", "Inspect Sample", 0, 1);
+registerTask(9, "Electrical", "Calibrate Distributor", 0, 1);
+registerTask(10, "Cafeteria", "Fix Wiring", 0, 3);
+registerTask(11, "Admin", "Swipe Card", 0, 1);
+registerTask(12, "Cafeteria", "Empty Garbage", 0, 2);
+registerTask(13, "Weapons", "Clear Asteroids", 0, 20);
+registerTask(14, "Electrical", "Divert Power to [Room]", 0, 2);
+registerTask(15, "O2", "Clean O2 Filter", 0, 1);
+registerTask(16, "MedBay", "Submit Scan", 0, 1);
+registerTask(17, "UE/LE", "Align Engine Output", 0, 2);
+
+player_list_size = list.getSize(player_list);
+
+if(player_list_size < 6) {
+	amount_impostors = 1;
+}
+
+imps = set.new();
+for(i = 0; i < amount_impostors; i++) {
+	index = math.random(0, player_list_size - 1);
+	while(set.contains(imps, index)) {
+		index = math.random(0, player_list_size - 1);
+	}
+	set.add(imps, index);
+}
+if(player_list_size == 1) {
+	amount_all_tasks = 17;
+	freeplay = true;
+} else {
+	minplayers = multi_minplayers;
+	amount_crew = player_list_size - amount_impostors;
+	amount_all_tasks = (amount_short + amount_common + amount_long) * amount_crew;
+	freeplay = false;
+}
+
+for(i = 0; i < player_list_size; i++) {
+	p_uuid = list.getIndex(player_list, i);
+	p = player.get(p_uuid);
+	if(amount_impostors > 1) {
+		msg.prefix(p, gamename, string.concat("There are §c", string.number(amount_impostors), " Impostors §ramong us."));
+	} else {
+		msg.prefix(p, gamename, string.concat("There is §c", string.number(amount_impostors), " Impostor §ramong us."));
+	}
+
+	entity.teleport(p, list.getIndex(spawn_locs, i));
+	sound.spawnForPlayer(p, pling_sound, sound_category_ambient);
+	player.setGamemode(p, "survival");
+	player.setFly(p, false);
+	entity.setName(p, "");
+}
+
+for(h = 0; h < player_list_size; h++) {
+	p_uuid = list.getIndex(player_list, h);
+	p = player.get(p_uuid);
+	list.add(all_list, p_uuid);
+	boss.addPlayer(progress_bar, p);
+	data.setTimer(p, "Meeting Cooldown", $meeting_cooldown * 20);
+	status.addTimed(p, 0, $meeting_cooldown * 20, "Meeting Cooldown");
+	player.setSpeed(p, move_speed);
+	map.add(meeting_amounts, p_uuid, amount_meetings);
+	player.clearInventory(p);
+	player.giveItem(p, read.item("minecraft:map"));
+	inv.close(p);
+	player.gameMute(p, true);
+	//Building-Perms entfernen
+	if(perm.has(p, "plot.bypass")) {
+		perm.unregisterPlayer(p_uuid, 1);
+		perm.unregisterPlayer(p_uuid, 15);
+		list.add(removed_perms, p_uuid);
+	}
+	//Farbe zuweisen bzw. erneut forcen
+	color = amongus.getPlayerColor(p);
+	if(color == null) {
+		iter = iterator(color_list);
+		while(hasNext(iter)) {
+			color = next(iter);
+			if(!amongus.isUsedPlayerColor(color)) {
+				amongus.setPlayerColor(p, color);
+				amongus.forceEquip(p, color);
+				break;
+			}
+		}
+	} else {
+		amongus.forceEquip(p, color);
+	}
+	
+	display.reset(p);
+	if(set.contains(imps, h)) {
+		setImpostor(p);
+	} else {
+		setCrewmate(p);
+	}
+	if(freeplay) {
+		giveTask(p, 1, "Storage", "Fuel Engines", 0, 4, null);
+		giveTask(p, 2, "[Room]", "Download Data", 0, 2, null);
+		giveTask(p, 3, "Shields", "Prime Shields", 0, 1, null);
+		giveTask(p, 4, "Reactor", "Start Reactor", 0, 1, null);
+		giveTask(p, 5, "Reactor", "Unlock Manifolds", 0, 1, null);
+		giveTask(p, 6, "Navigation", "Chart Course", 0, 1, null);
+		giveTask(p, 7, "Navigation", "Stabilize Steering", 0, 1, null);
+		giveTask(p, 8, "MedBay", "Inspect Sample", 0, 1, null);
+		giveTask(p, 9, "Electrical", "Calibrate Distributor", 0, 1, null);
+		giveTask(p, 10, "Cafeteria", "Fix Wiring", 0, 3, null);
+		giveTask(p, 11, "Admin", "Swipe Card", 0, 1, null);
+		giveTask(p, 12, "Cafeteria", "Empty Garbage", 0, 2, null);
+		giveTask(p, 13, "Weapons", "Clear Asteroids", 0, 20, null);
+		giveTask(p, 14, "Electrical", "Divert Power to [Room]", 0, 2, null);
+		giveTask(p, 15, "O2", "Clean O2 Filter", 0, 1, null);
+		giveTask(p, 16, "MedBay", "Submit Scan", 0, 1, null);
+		giveTask(p, 17, "UE/LE", "Align Engine Output", 0, 2, null);
+	} else {
+		for(i = 0; i < list.getSize(common_tasks_2); i++) {
+			id = list.getIndex(common_tasks_2, i);
+			a = map.get(all_tasks, id);
+			giveTask(p, id, a[0], a[1], a[2], a[3], null);
+		}
+		i = 0;
+		while(i != amount_short) {
+			index = math.random(0, list.getSize(short_tasks) - 1);
+			id = list.getIndex(short_tasks, index);
+			if(hasTask(p, id)) {
+				continue;
+			}
+			i++;
+			a = map.get(all_tasks, id);
+			giveTask(p, id, a[0], a[1], a[2], a[3], null);
+		}
+		i = 0;
+		while(i != amount_long) {
+			index = math.random(0, list.getSize(long_tasks) - 1);
+			id = list.getIndex(long_tasks, index);
+			if(hasTask(p, id)) {
+				continue;
+			}
+			i++;
+			a = map.get(all_tasks, id);
+			giveTask(p, id, a[0], a[1], a[2], a[3], null);
+		}
+	}
+}
+
+if(freeplay) {
+	starttime = time.getMillis();
+} else {
+	imp_string = "";
+	iter = iterator(impostors_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p_name = player.getName(p_uuid);
+		if(imp_string == "") {
+			imp_string = p_name;
+		} else {
+			imp_string = string.concat(imp_string, ", ", amongus.getPlayerColorCode(p_uuid), p_name);
+		}
+	}
+	for(i = 0; i < list.getSize(impostors_list); i++) {
+		p_uuid = list.getIndex(impostors_list, i);
+		p = player.get(p_uuid);
+		map.remove(player_tasks, p_uuid);
+		msg.prefix(p, gamename, string.concat("§4Impostors: §r", imp_string));
+	}
+}
+
+setSaboCooldown(0);
+
+event.unload("entity_dismount");
+event.load("chat");
+event.load("player_move");
+event.load("inv_close");
+event.load("player_data_tick");
+
+sgoto(10, "space_loop");
+sgoto(10, "task_part_loop");
+sgoto(5, "imp_par_loop");
+
+switchLights(true);
+
+goto("loop");
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(isPlayer(entity)) {
+		player = entity;
+		if(player.hasMinigameId(player, script_id)) {
+			cancel = true;
+		}
+	} else {
+		player = player.getFromDamageSource(damage_source);
+		if(player == null) {
+			goto("checkgame");
+		}
+		if(player.hasMinigameId(player, script_id)) {
+			cancel = true;
+		}
+	}
+	goto("checkgame");
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@chat
+cancel = true;
+if(player.isGhost(player)) {
+	iter = iterator(ghosts);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		if(!list.contains(player_list, p_uuid)) {
+			continue;
+		}
+		p = player.get(p_uuid);
+		msg.prefix(p, string.concat("Ghost ", amongus.getPlayerColorCode(player), player.getName(player)), message);
+	}
+	goto("checkgame");
+}
+if(meeting) {
+	minigame.speakAll(string.concat(amongus.getPlayerColorCode(player), player.getName(player)), message);
+} else {
+	msg.prefix(player, "§6Commands", "You are muted.");
+}
+goto("checkgame");
+
+@player_move
+player_uuid = player.getUuid(player);
+player.action(player, map.getOrDefault(move_id_map, id, ""));
+if(player.isOnCam(player)) {
+	goto("checkgame");
+}
+if(player.isGhost(player)) {
+	goto("checkgame");
+}
+old_room_id = map.getOrDefault(admin_table_map, player_uuid, "");
+if(old_room_id != id) {
+	map.add(admin_table_map, player_uuid, id);
+	//Neuer Raum
+	amount_players = map.getOrDefault(admin_table_map_2, id, 0) + 1;
+	map.add(admin_table_map_2, id, amount_players);
+	amongus.updateAdminTable(id, amount_players);
+	//Alter Raum
+	amount_players = map.getOrDefault(admin_table_map_2, old_room_id, 0) - 1;
+	map.add(admin_table_map_2, old_room_id, amount_players);
+	amongus.updateAdminTable(old_room_id, amount_players);
+}
+goto("checkgame");
+
+function amongus.updateAdminTable(room_id, amount_players) {
+	if(amount_players == 0) {
+		if(room_id == $move_id_le) {
+			inv.setItem($admin_table_inv, 23, read.item("minecraft:blue_stained_glass_pane", 1, "§rLower Engine"));
+		} elseif(room_id == $move_id_sec) {
+			inv.setItem($admin_table_inv, 14, read.item("minecraft:blue_stained_glass_pane", 1, "§rSecurity"));
+		} elseif(room_id == $move_id_ue) {
+			inv.setItem($admin_table_inv, 0, read.item("minecraft:blue_stained_glass_pane", 1, "§rUpper Engine"));
+		} elseif(room_id == $move_id_reac) {
+			inv.setItem($admin_table_inv, 12, read.item("minecraft:blue_stained_glass_pane", 1, "§rReactor"));
+		} elseif(room_id == $move_id_o2) {
+			inv.setItem($admin_table_inv, 10, read.item("minecraft:blue_stained_glass_pane", 1, "§rO2"));
+		} elseif(room_id == $move_id_navi) {
+			inv.setItem($admin_table_inv, 18, read.item("minecraft:blue_stained_glass_pane", 1, "§rNavigation"));
+		} elseif(room_id == $move_id_weap) {
+			inv.setItem($admin_table_inv, 6, read.item("minecraft:blue_stained_glass_pane", 1, "§rWeapons"));
+		} elseif(room_id == $move_id_shie) {
+			inv.setItem($admin_table_inv, 29, read.item("minecraft:blue_stained_glass_pane", 1, "§rShields"));
+		} elseif(room_id == $move_id_comm) {
+			inv.setItem($admin_table_inv, 30, read.item("minecraft:blue_stained_glass_pane", 1, "§rCommunications"));
+		} elseif(room_id == $move_id_stor1 || room_id == $move_id_stor2) {
+			inv.setItem($admin_table_inv, 27, read.item("minecraft:blue_stained_glass_pane", 1, "§rStorage"));
+		} elseif(room_id == $move_id_elec1 || room_id == $move_id_elec2) {
+			inv.setItem($admin_table_inv, 20, read.item("minecraft:blue_stained_glass_pane", 1, "§rElectrical"));
+		} elseif(room_id == $move_id_med1 || room_id == $move_id_med2) {
+			inv.setItem($admin_table_inv, 8, read.item("minecraft:blue_stained_glass_pane", 1, "§rMedBay"));
+		} elseif(room_id == $move_id_cafe) {
+			inv.setItem($admin_table_inv, 4, read.item("minecraft:blue_stained_glass_pane", 1, "§rCafeteria"));
+		} elseif(room_id == $move_id_admin) {
+			inv.setItem($admin_table_inv, 16, read.item("minecraft:blue_stained_glass_pane", 1, "§rAdmin"));
+		}
+	} else {
+		if(room_id == move_id_le) {
+			inv.setItem($admin_table_inv, 23, read.item("minecraft:sticky_piston", amount_players, "§rLower Engine"));
+		} elseif(room_id == $move_id_sec) {
+			inv.setItem($admin_table_inv, 14, read.item("minecraft:observer", amount_players, "§rSecurity"));
+		} elseif(room_id == $move_id_ue) {
+			inv.setItem($admin_table_inv, 0, read.item("minecraft:sticky_piston", amount_players, "§rUpper Engine"));
+		} elseif(room_id == $move_id_reac) {
+			inv.setItem($admin_table_inv, 12, read.item("minecraft:tnt", amount_players, "§rReactor"));
+		} elseif(room_id == $move_id_o2) {
+			inv.setItem($admin_table_inv, 10, read.item("km:plum_sapling", amount_players, "§rO2"));
+		} elseif(room_id == $move_id_navi) {
+			inv.setItem($admin_table_inv, 18, read.item("minecraft:compass", amount_players, "§rNavigation"));
+		} elseif(room_id == $move_id_weap) {
+			sword_item = read.item("minecraft:golden_sword", amount_players, "§rWeapons");
+			item.addFlag(sword_item, "HIDE_ATTRIBUTES");
+			inv.setItem($admin_table_inv, 6, sword_item);
+		} elseif(room_id == $move_id_shie) {
+			inv.setItem($admin_table_inv, 29, read.item("minecraft:shield", amount_players, "§rShields"));
+		} elseif(room_id == $move_id_comm) {
+			inv.setItem($admin_table_inv, 30, read.item("minecraft:end_rod", amount_players, "§rCommunications"));
+		} elseif(room_id == $move_id_stor1 || room_id == $move_id_stor2) {
+			inv.setItem($admin_table_inv, 27, read.item("minecraft:red_shulker_box", amount_players, "§rStorage"));
+		} elseif(room_id == $move_id_elec1 || room_id == $move_id_elec2) {
+			inv.setItem($admin_table_inv, 20, read.item("minecraft:redstone", amount_players, "§rElectrical"));
+		} elseif(room_id == $move_id_med1 || room_id == $move_id_med2) {
+			inv.setItem($admin_table_inv, 8, read.item("km:plus_red", amount_players, "§rMedBay"));
+		} elseif(room_id == $move_id_cafe) {
+			inv.setItem($admin_table_inv, 4, read.item("minecraft:cake", amount_players, "§rCafeteria"));
+		} elseif(room_id == $move_id_admin) {
+			inv.setItem($admin_table_inv, 16, read.item("minecraft:lectern", amount_players, "§rAdmin"));
+		}
+	}
+}
+
+@block_click
+if(action != "RIGHT_CLICK_BLOCK") {
+	goto("checkgame");
+}
+if(slot.isOffHand(hand)) {
+	goto("checkgame");
+}
+if(block.hasTag(block, shulker_tag)) {
+	cancel = true;
+	goto("checkgame");
+}
+if(block.hasTag(block, wooden_trapdoors_tag)) {
+	cancel = true;
+	goto("checkgame");
+}
+block_loc = block.getLocation(block);
+if(set.contains(cams_locs, block_loc)) {
+	cam_number = 0;
+	player_uuid = player.getUuid(player);
+	map.add(cam_map, player_uuid, cam_number);
+	player_loc = entity.getLocation(player);
+	map.add(cam_map_2, player_uuid, player_loc);
+	if(!player.isGhost(player)) {
+		ent = human.spawn(player_loc);
+		living.removeAi(ent);
+		map.add(cam_map_3, player_uuid, ent);
+		map.add(cam_map_4, ent, player_uuid);
+		human.setSkin(ent, player_uuid);
+		entity.setName(ent, "");
+		color = amongus.getPlayerColor(player);
+		amongus.forceEquip(ent, color);
+	}
+	cam.enter(player);
+	goto("checkgame");
+}
+if(set.contains(med_scan_locs, block_loc)) {
+	task_id = 16;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	if(loc.distance(entity.getLocation(player), block_loc) > 3) {
+		msg.prefix(player, gamename, "Get closer.");
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	//inv = inv.new("202222202 002222200 202222202 002222200 202222202 003333300");
+	inv = inv.new("202222202002222200202222202002222200202222202003333300");
+	inv.setItem(inv, 9, player.getHead(player_uuid, player.getName(player)));
+	color = amongus.getPlayerColor(player);
+	color_code = map.get(cloth_code_map, color);
+	item = read.item(string.concat("{id:\"minecraft:leather_chestplate\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	inv.setItem(inv, 15, item);
+	item = read.item(string.concat("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	inv.setItem(inv, 21, item);
+	item = read.item(string.concat("{id:\"minecraft:leather_boots\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	inv.setItem(inv, 27, item);
+	inv.open(inv, player, "§cSubmit Scan");
+	list.add(submit_scan_list, player_uuid);
+	map.add(submit_scan_map, player_uuid, 0);
+	map.add(submit_scan_map_2, player_uuid, inv);
+	sgoto(20, "submit_scan");
+	goto("checkgame");
+}
+if(set.contains(clear_ast_locs, block_loc)) {
+	task_id = 13;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 20) {
+		goto("checkgame");
+	}
+	//inv = inv.new("333333333 333333333 333333333 333333333 333333333 333333333");
+	inv = inv.new("333333333333333333333333333333333333333333333333333333");
+	a = array.new(7);
+	a[0] = inv;
+	slot = list.getIndex(ast_start_pos, math.random(0, 25));
+	a[1] = slot;
+	inv.setItem(inv, slot, read.item("minecraft:bedrock", 1, "§rAsteroid"));
+	inv.open(inv, player, "§cClear Asteroids");
+	b = getAstDirection(slot);
+	a[2] = b[0]; //x_dir
+	a[3] = b[1]; //y_dir
+	a[4] = false; //reached end
+	a[5] = math.random(1, 2); //speed
+	a[6] = 0; //speed counter
+	my_list = list.new();
+	list.add(my_list, a);
+	player_uuid = player.getUuid(player);
+	map.add(clear_ast_map, player_uuid, my_list);
+	map.add(clear_ast_map_2, player_uuid, 0);
+	map.add(clear_ast_map_3, player_uuid, inv);
+	if(list.getSize(clear_ast_list) == 0) {
+		sgoto(5, "clear_ast");
+	}
+	list.add(clear_ast_list, player_uuid);
+	goto("checkgame");
+}
+if(set.contains(inspect_sample_locs, block_loc)) {
+	task_id = 8;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	inv = map.get(sample_map, player_uuid);
+	if(inv == null) {
+		//inv = inv.new("202020202 202020202 202020202 000000000 202020202 000000002");
+		inv = inv.new("202020202202020202202020202000000000202020202000000002");
+		for(i = 0; i < 15; i++) {
+			inv.setItem(inv, i, read.item("minecraft:white_stained_glass_pane", 1, "§rSample"));
+		}
+		for(i = 15; i < 20; i++) {
+			inv.setItem(inv, i, read.item("minecraft:gray_stained_glass_pane", 1, "§rSelect sample"));
+		}
+		inv.setItem(inv, 20, read.item("minecraft:green_stained_glass_pane", 1, "§rPress to start"));
+	}
+	inv.open(inv, player, "§cInspect Sample");
+	goto("checkgame");
+}
+if(block_loc == admin_table_loc) {
+	if(comms_sabotaged) {
+		msg.prefix(player, gamename, "Communications disabled.");
+		goto("checkgame");
+	}
+	inv.open(admin_table_inv, player);
+	goto("checkgame");
+}
+if(block_loc == ue_align_loc || block_loc == le_align_loc) {
+	task_id = 17;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 2) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	if(block_loc == ue_align_loc && set.contains(align_ue_engine_set, player_uuid)) {
+		goto("checkgame");
+	}
+	if(block_loc == le_align_loc && set.contains(align_le_engine_set, player_uuid)) {
+		goto("checkgame");
+	}
+	//inv = inv.new("333333332 333333333 222222222 333333333 333333332");
+	inv = inv.new("333333332333333333222222222333333333333333332");
+	inv.setItem(inv, 8, item_arrow_up);
+	inv.setItem(inv, 44, item_arrow_down);
+	inv.setItem(inv, 26, green_glass);
+	inv.open(inv, player, "§cAlign Engine Output");
+	pos = math.random(0, 10);
+	while(pos == 5) {
+		pos = math.random(0, 10);
+	}
+	map.add(align_engine_map, player_uuid, pos);
+	map.add(align_engine_map_2, player_uuid, block_loc);
+	set_engine(player, inv, null);
+	goto("checkgame");
+}
+if(block_loc == clean_o2_loc) {
+	task_id = 15;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("222222222 222222222 222222222 222222222 222222222 222222222");
+	inv = inv.new("222222222222222222222222222222222222222222222222222222");
+	inv.setItem(inv, 0, black_glass);
+	inv.setItem(inv, 9, black_glass);
+	inv.setItem(inv, 36, black_glass);
+	inv.setItem(inv, 45, black_glass);
+	for(i = 0; i < 6; i++) {
+		slot = math.random(1, 53);
+		while(slot % 9 == 0 || item.getType(inv.getItem(inv, slot)) != "minecraft:air") {
+			slot = math.random(1, 53);
+		}
+		inv.setItem(inv, slot, read.item("minecraft:oak_leaves"));
+		if(slot < 18) {
+			if(item.getType(inv.getItem(inv, slot + 9)) == "minecraft:air") {
+				inv.setItem(inv, slot + 9, item_arrow_down);
+				continue;
+			}
+		}
+		if(slot > 36) {
+			if(item.getType(inv.getItem(inv, slot - 9)) == "minecraft:air") {
+				inv.setItem(inv, slot - 9, item_arrow_up);
+				continue;
+			}
+		}
+		if(item.getType(inv.getItem(inv, slot - 1)) == "minecraft:air") {
+			inv.setItem(inv, slot - 1, item_arrow_left);
+		}
+	}
+	inv.open(inv, player, "§cClean O2 Filter");
+	goto("checkgame");
+}
+if(block_loc == elec_power_loc) {
+	task_id = 14;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step != 0) {
+		goto("checkgame");
+	}
+	//inv = inv.new("000020000 002222200 022222220 222222222 222222222 000000000");
+	inv = inv.new("000020000002222200022222220222222222222222222000000000");
+	gunpowder = read.item("minecraft:gunpowder");
+	for(i = 0; i < 22; i++) {
+		inv.setItem(inv, i, gunpowder);
+	}
+	for(i = 22; i < 31; i++) {
+		inv.setItem(inv, i, read.item("minecraft:lever", 1, map.get(divert_pow_map, i)));
+	}
+	r = map.get(divert_pow_map_3, player.getUuid(player));
+	inv.setItem(inv, r, read.item("minecraft:redstone_torch", 1, map.get(divert_pow_map, r)));
+	inv.open(inv, player, "§cDivert Power");
+	goto("checkgame");
+}
+r = map.get(divert_pow_map_3, player.getUuid(player));
+if(r != null && block_loc == map.get(divert_pow_map_2, r)) {
+	task_id = 14;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step != 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("002200002 220200220 020202002 222222220 002002002 220000220");
+	inv = inv.new("002200002220200220020202002222222220002002002220000220");
+	gunpowder = read.item("minecraft:gunpowder");
+	redstone = read.item("minecraft:redstone");
+	inv.setItem(inv, 0, redstone);
+	inv.setItem(inv, 1, redstone);
+	inv.setItem(inv, 2, gunpowder);
+	inv.setItem(inv, 3, redstone);
+	inv.setItem(inv, 4, redstone);
+	inv.setItem(inv, 5, redstone);
+	inv.setItem(inv, 6, gunpowder);
+	inv.setItem(inv, 7, gunpowder);
+	inv.setItem(inv, 8, redstone);
+	inv.setItem(inv, 9, redstone);
+	inv.setItem(inv, 10, gunpowder);
+	inv.setItem(inv, 11, gunpowder);
+	inv.setItem(inv, 12, redstone);
+	inv.setItem(inv, 13, redstone);
+	inv.setItem(inv, 14, redstone);
+	inv.setItem(inv, 15, redstone);
+	inv.setItem(inv, 16, read.item("stone_button", 1, "§rConnect Grids"));
+	inv.setItem(inv, 17, gunpowder);
+	inv.setItem(inv, 18, gunpowder);
+	inv.setItem(inv, 19, gunpowder);
+	inv.setItem(inv, 20, redstone);
+	inv.setItem(inv, 21, gunpowder);
+	inv.setItem(inv, 22, gunpowder);
+	inv.setItem(inv, 23, redstone);
+	inv.setItem(inv, 24, redstone);
+	inv.setItem(inv, 25, gunpowder);
+	inv.setItem(inv, 26, gunpowder);
+	inv.open(inv, player, "§cDivert Power");
+	goto("checkgame");
+}
+if(block_loc == cafe_garb_loc || block_loc == o2_garb_loc) {
+	cancel = true;
+	task_id = 12;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step != 0) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	r = map.get(empty_garb_map_3, player_uuid);
+	if(r == 0 && block_loc == o2_garb_loc) {
+		goto("checkgame");
+	} elseif(r == 1 && block_loc == cafe_garb_loc) {
+		goto("checkgame");
+	}
+	//inv = inv.new("033333330 033333330 033333330 033333330 033333332 033333330");
+	inv = inv.new("033333330033333330033333330033333330033333332033333330", text.new("§cEmpty Garbage"));
+	for(i = 7; i < 43; i++) {
+		r = math.random(1, 6);
+		if(r == 1) {
+			inv.setItem(inv, i, read.item("minecraft:oak_leaves"));
+		} elseif(r == 2) {
+			inv.setItem(inv, i, read.item("minecraft:birch_leaves"));
+		} elseif(r == 3) {
+			inv.setItem(inv, i, read.item("minecraft:spruce_leaves"));
+		} elseif(r == 4) {
+			inv.setItem(inv, i, read.item("minecraft:jungle_leaves"));
+		} elseif(r == 5) {
+			inv.setItem(inv, i, read.item("minecraft:acacia_leaves"));
+		} elseif(r == 6) {
+			inv.setItem(inv, i, read.item("minecraft:dark_oak_leaves"));
+		}
+	}
+	inv.setItem(inv, 35, item.custom.create("ARROW_DOWN", 1, "§rEmpty Garbage", null));
+	inv.open(inv, player);
+	goto("checkgame");
+}
+if(block_loc == stor_garb_loc) {
+	cancel = true;
+	task_id = 12;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step != 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("033333330 033333330 033333330 033333330 033333332 033333330");
+	inv = inv.new("033333330033333330033333330033333330033333332033333330", text.new("§cEmpty Garbage"));
+	for(i = 7; i < 43; i++) {
+		r = math.random(1, 6);
+		if(r == 1) {
+			inv.setItem(inv, i, read.item("minecraft:oak_leaves"));
+		} elseif(r == 2) {
+			inv.setItem(inv, i, read.item("minecraft:birch_leaves"));
+		} elseif(r == 3) {
+			inv.setItem(inv, i, read.item("minecraft:spruce_leaves"));
+		} elseif(r == 4) {
+			inv.setItem(inv, i, read.item("minecraft:jungle_leaves"));
+		} elseif(r == 5) {
+			inv.setItem(inv, i, read.item("minecraft:acacia_leaves"));
+		} elseif(r == 6) {
+			inv.setItem(inv, i, read.item("minecraft:dark_oak_leaves"));
+		}
+	}
+	list.shuffle(garb_items);
+	inv.setItem(inv, math.random(7, 18), list.getIndex(garb_items, 0));
+	inv.setItem(inv, math.random(19, 30), list.getIndex(garb_items, 1));
+	inv.setItem(inv, math.random(31, 42), list.getIndex(garb_items, 2));
+	inv.setItem(inv, 35, item.custom.create("ARROW_DOWN", 1, "§rEmpty Garbage", null));
+	inv.open(inv, player);
+	goto("checkgame");
+}
+if(block_loc == swipe_card_loc) {
+	task_id = 11;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("000000000 003333320 000000000");
+	inv = inv.new("000000000003333320000000000", text.new("§cSwipe Card"));
+	inv.open(inv, player);
+	goto("checkgame");
+}
+if(block_loc == calibrate_dist_loc) {
+	task_id = 9;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("000222000 000333000 003000300 003000322 003000302 00033300");
+	inv = inv.new("00022200000033300000300030000300032200300030200033300", text.new("§cCalibrate Distributor"));
+	inv.setItem(inv, 0, read.item("km:cross_red"));
+	inv.setItem(inv, 1, read.item("km:cross_red"));
+	inv.setItem(inv, 2, read.item("km:cross_red"));
+	for(i = 0; i < 12; i++) {
+		inv.setItem(inv, calibrate_dist_array[i], air_item);
+	}
+	inv.setItem(inv, 10, yellow_glass);
+	inv.setItem(inv, 11, yellow_glass);
+	inv.setItem(inv, 14, read.item("km:minus_green", 1, "§rPress"));
+	inv.open(inv, player);
+	start_index = math.random(0, 8);
+	a = array.new(5);
+	player_uuid = player.getUuid(player);
+	a[0] = player_uuid;
+	a[1] = inv;
+	a[2] = start_index;
+	a[3] = start_index; //index
+	a[4] = 0; //stage
+	list.add(calibrate_dist_list, player_uuid);
+	map.add(calibrate_dist_map, player_uuid, a);
+	sgoto(7, "calibrate_dist");
+	goto("checkgame");
+}
+if(block_loc == steering_loc) {
+	task_id = 7;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("222222222 222222222 222222222 222222222 222222222");
+	inv = inv.new("222222222222222222222222222222222222222222222");
+	inv.setItem(inv, 22, read.item("km:plus_red"));
+	r = math.random(0, 3);
+	if(r == 0) {
+		slot = 6;
+		slot_left = 5;
+		slot_right = 7;
+		slot_down = 15;
+		slot_up = -1;
+	} elseif(r == 1) {
+		slot = 9;
+		slot_left = -1;
+		slot_right = 10;
+		slot_down = 18;
+		slot_up = 0;
+	} elseif(r == 2) {
+		slot = 28;
+		slot_left = 27;
+		slot_right = 29;
+		slot_down = 37;
+		slot_up = 19;
+	} else {
+		slot = 35;
+		slot_left = 34;
+		slot_right = -1;
+		slot_down = 44;
+		slot_up = 26;
+	}
+	if(slot_left != -1) {
+		inv.setItem(inv, slot_left, item_arrow_left);
+	}
+	if(slot_right != -1) {
+		inv.setItem(inv, slot_right, item_arrow_right);
+	}
+	if(slot_up != -1) {
+		inv.setItem(inv, slot_up, item_arrow_up);
+	}
+	if(slot_down != -1) {
+		inv.setItem(inv, slot_down, item_arrow_down);
+	}
+	inv.setItem(inv, slot, read.item("km:plus_red"));
+	inv.open(inv, player, "§cStabilize Steering");
+	goto("checkgame");
+}
+if(block_loc == chart_course_loc) {
+	task_id = 6;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	a = array.new(9);
+	r = math.random(0, 2);
+	if(r == 0) {
+		//inv = inv.new("000000000 000000300 030003030 303030003 000300000 000000002");
+		inv = inv.new("000000000000000300030003030303030003000300000000000002");
+		a[0] = 4;
+		a[1] = 1;
+		a[2] = 5;
+		a[3] = 8;
+		a[4] = 6;
+		a[5] = 2;
+		a[6] = 0;
+		a[7] = 3;
+		a[8] = 7;
+	} elseif(r == 1) {
+		//inv = inv.new("000000000 000000000 300030003 030303030 003000300 000000002");
+		inv = inv.new("000000000000000000300030003030303030003000300000000002");
+		a[0] = 0;
+		a[1] = 3;
+		a[2] = 7;
+		a[3] = 4;
+		a[4] = 1;
+		a[5] = 5;
+		a[6] = 8;
+		a[7] = 6;
+		a[8] = 2;
+	} else {
+		//inv = inv.new("000000000 000030000 003303033 030000300 300000000 000000002");
+		inv = inv.new("000000000000030000003303033030000300300000000000000002");
+		a[0] = 8;
+		a[1] = 6;
+		a[2] = 1;
+		a[3] = 2;
+		a[4] = 0;
+		a[5] = 3;
+		a[6] = 7;
+		a[7] = 4;
+		a[8] = 5;
+	}
+	player_uuid = player.getUuid(player);
+	map.add(chart_course_pattern, player_uuid, a);
+	inv.open(inv, player, "§cChart Course");
+	goto("checkgame");
+}
+if(block_loc == unlock_manifolds_loc) {
+	task_id = 5;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("003333300 003333300");
+	inv = inv.new("003333300003333300");
+	list = list.new();
+	for(i = 0; i < 10; i++) {
+		list.add(list, read.item("minecraft:blue_stained_glass_pane", i + 1));
+	}
+	list.shuffle(list);
+	for(i = 0; i < 10; i++) {
+		inv.setItem(inv, i, list.getIndex(list, i));
+	}
+	inv.open(inv, player, "§cUnlock Manifolds");
+	goto("checkgame");
+}
+if(block_loc == start_reactor_loc) {
+	task_id = 4;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	if(reactor_used) {
+		msg.prefix(player, gamename, "Another player already starts the reactor.");
+		goto("checkgame");
+	}
+	reactor_used = true;
+	reactor_array = reactor.get(player);
+	if(reactor_array == null) {
+		//inv = inv.new("003333300 000000000 022202220 022202220 022202220 000000000");
+		inv = inv.new("003333300000000000022202220022202220022202220000000000");
+		reactor_array = array.new(5);
+		reactor.setInv(reactor_array, inv);
+		reactor.setStage(reactor_array, 0);
+		reactor.setPattern(reactor_array);
+	} else {
+		inv = reactor.getInv(reactor_array);
+	}
+	reactor.setCounter(reactor_array, 0);
+	reactor.setPhase(reactor_array, "draw");
+	reactor.save(reactor_array, player);
+	reactor.setHeader(inv, air_item);
+	reactor.setLeftSide(inv, black_glass);
+	reactor.setRightSide(inv, black_glass);
+	inv.open(inv, player, "§cStart Reactor");
+	list.add(reactor_draw_list_1, player.getUuid(player));
+	sgoto(20, "draw_pattern_1");
+	goto("checkgame");
+}
+if(block_loc == prime_shields_loc) {
+	task_id = 3;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	//inv = inv.new("000000000 000222000 002222200 002222200 000222000 000000000");
+	inv = inv.new("000000000000222000002222200002222200000222000000000000");
+	for(i = 0; i < 16; i++) {
+		r = math.random(0, 1);
+		if(r == 0) {
+			inv.setItem(inv, i, green_glass);
+		} else {
+			inv.setItem(inv, i, red_glass);
+		}
+	}
+	inv.open(inv, player, "§cPrime Shields");
+	goto("checkgame");
+}
+if(block_loc == fix_o2_loc_1 || block_loc == fix_o2_loc_2) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	if(oxygen_sabotaged) {
+		if(block_loc == fix_o2_loc_1) {
+			map.add(oxygen_map, player.getUuid(player), fix_o2_loc_1);
+			if(oxy_fixed_1) {
+				goto("checkgame");
+			}
+		} elseif(block_loc == fix_o2_loc_2) {
+			map.add(oxygen_map, player.getUuid(player), fix_o2_loc_2);
+			if(oxy_fixed_2) {
+				goto("checkgame");
+			}
+		}
+		//oxygen_inv = inv.new("003333322 000000000 000222000 000222000 000222000 000222000");
+		oxygen_inv = inv.new("003333322000000000000222000000222000000222000000222000", text.new("§cENTER CODE"));
+		inv.setItem(oxygen_inv, 6, item.create("minecraft:paper", 1, string.concat("§r", string.number(oxy_code)), null));
+		inv.setItem(oxygen_inv, 7, item.custom.create("DIGIT_0", 1, "§f0", null));
+		inv.setItem(oxygen_inv, 8, item.custom.create("DIGIT_1", 1, "§f1", null));
+		inv.setItem(oxygen_inv, 9, item.custom.create("DIGIT_2", 1, "§f2", null));
+		inv.setItem(oxygen_inv, 10, item.custom.create("DIGIT_3", 1, "§f3", null));
+		inv.setItem(oxygen_inv, 11, item.custom.create("DIGIT_4", 1, "§f4", null));
+		inv.setItem(oxygen_inv, 12, item.custom.create("DIGIT_5", 1, "§f5", null));
+		inv.setItem(oxygen_inv, 13, item.custom.create("DIGIT_6", 1, "§f6", null));
+		inv.setItem(oxygen_inv, 14, item.custom.create("DIGIT_7", 1, "§f7", null));
+		inv.setItem(oxygen_inv, 15, item.custom.create("DIGIT_8", 1, "§f8", null));
+		inv.setItem(oxygen_inv, 16, read.item("km:cross_red"));
+		inv.setItem(oxygen_inv, 17, item.custom.create("DIGIT_9", 1, "§f9", null));
+		inv.setItem(oxygen_inv, 18, read.item("km:check_green"));
+		inv.open(oxygen_inv, player);
+		sabotage.openedInv(player);
+	}
+	goto("checkgame");
+}
+if(block_loc == fix_reactor_loc_1 || block_loc == fix_reactor_loc_2) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	if(reactor_sabotaged) {
+		if(block_loc == fix_reactor_loc_1) {
+			sabotage.openedInv(player);
+			inv.open(reactor_inv_1, player);
+			list.add(reactor_hold_list_1, player.getUuid(player));
+			goto("checkgame");
+		}
+		if(block_loc == fix_reactor_loc_2) {
+			sabotage.openedInv(player);
+			inv.open(reactor_inv_2, player);
+			list.add(reactor_hold_list_2, player.getUuid(player));
+		}
+	}
+	goto("checkgame");
+}
+if(block_loc == fix_comms_loc) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	if(comms_sabotaged) {
+		player_uuid = player.getUuid(player);
+		inv = inv.new("333333333333333333333333333333333333000000000000222002");
+		inv.setItem(inv, 36, read.item("km:arrow_left"));
+		inv.setItem(inv, 37, read.item("minecraft:black_stained_glass_pane", 32));
+		inv.setItem(inv, 38, read.item("km:arrow_right"));
+		inv.open(inv, player, "§cFix Communications");
+		sabotage.openedInv(player);
+		diff = math.abs(32 - comms_fix_freq);
+		if(diff == 0) {
+			comms.drawCorrect(inv, player);
+		} elseif(diff < 4) {
+			comms.drawClose(inv, player);
+		} else {
+			comms.drawWorst(inv, player);
+		}
+		map.add(comms_inv_map, player_uuid, inv);
+		if(!list.contains(comms_state_list, player_uuid)) {
+			list.add(comms_state_list, player_uuid);
+			sgoto(5, "draw_comms");
+		}
+	}
+	goto("checkgame");
+}
+if(block_loc == fix_lights_loc_1 || block_loc == fix_lights_loc_2) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	if(lights_sabotaged) {
+		sabotage.openedInv(player);
+		inv.open(lights_inv, player);
+	}
+	goto("checkgame");
+}
+if(block_loc == meeting_button_loc) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	if(amongus.isAlert()) {
+		msg.prefix(player, gamename, "No meetings allowed while sabotaged.");
+		goto("checkgame");
+	}
+	if(!meeting) {
+		callMeeting(player);
+	}
+	goto("checkgame");
+}
+block_type = block.getType(block_loc);
+if(block_type == "minecraft:lever") {
+	cancel = true;
+}
+if(block_type == "minecraft:redstone_lamp") {
+	task_id = 10;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 3) {
+		goto("checkgame");
+	}
+	my_list = map.get(wires_map_4, player.getUuid(player));
+	if(block_loc != list.getIndex(my_list, step)) {
+		goto("checkgame");
+	}
+	//inv = inv.new("000000000 002202200 002202200 002202200 002202200 000000000");
+	inv = inv.new("000000000002202200002202200002202200002202200000000000");
+	inv.setItem(inv, 1, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 2, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 5, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 6, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 9, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 10, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 13, read.item("km:cross_red", 1, "§rDisconnected"));
+	inv.setItem(inv, 14, read.item("km:cross_red", 1, "§rDisconnected"));
+	list.shuffle(wires_list);
+	inv.setItem(inv, 0, list.getIndex(wires_list, 0));
+	inv.setItem(inv, 4, list.getIndex(wires_list, 1));
+	inv.setItem(inv, 8, list.getIndex(wires_list, 2));
+	inv.setItem(inv, 12, list.getIndex(wires_list, 3));
+	list.shuffle(wires_list);
+	inv.setItem(inv, 3, list.getIndex(wires_list, 0));
+	inv.setItem(inv, 7, list.getIndex(wires_list, 1));
+	inv.setItem(inv, 11, list.getIndex(wires_list, 2));
+	inv.setItem(inv, 15, list.getIndex(wires_list, 3));
+	inv.open(inv, player, "§cFix Wiring");
+	goto("checkgame");
+}
+if(list.contains(download_list_3, block_loc) || block_loc == admin_upload_loc) {
+	cancel = true;
+	task_id = 2;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(block_loc == admin_upload_loc) {
+		if(step != 1) {
+			goto("checkgame");
+		}
+		//Upload
+		//inv = inv.new("222222222 200000002 000020000");
+		inv = inv.new("222222222200000002000020000", text.new("§cUpload Data"));
+		inv.setItem(inv, 9, item.create("minecraft:birch_trapdoor", 1, "§rMy Laptop", null));
+		inv.setItem(inv, 17, item.create("minecraft:redstone_torch", 1, "§rHeadquarters", null));
+		inv.setItem(inv, 22, item.custom.create("ARROW_UP", 1, "§rUpload", null));
+		inv.open(inv, player);
+		goto("checkgame");
+	}
+	if(step != 0) {
+		goto("checkgame");
+	}
+	r = map.get(download_map_3, player.getUuid(player));
+	down_loc = list.getIndex(download_list_3, r);
+	if(down_loc != block_loc) {
+		goto("checkgame");
+	}
+	//Download
+	inv = inv.new("222222222200000002000020000", text.new("§cDownload Data"));
+	inv.setItem(inv, 9, item.create("minecraft:chest", 1, map.get(download_map_2, block_loc), null));
+	inv.setItem(inv, 17, item.create("minecraft:birch_trapdoor", 1, "§rMy Laptop", null));
+	inv.setItem(inv, 22, item.custom.create("ARROW_DOWN", 1, "§rDownload", null));
+	inv.open(inv, player);
+	goto("checkgame");
+}
+if(block_loc == get_fuel_loc) {
+	task_id = 1;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 1 || step == 3 || step == 4) {
+		goto("checkgame");
+	}
+	inv = inv.new("333333302333333300333333300333333300333333300333333300");
+	//inv = inv.new(333333302 333333300 333333300 333333300 333333300 333333300);
+	player_uuid = player.getUuid(player);
+	c = map.getOrDefault(fuel_counter, player_uuid, 0);
+	for(i = 0; i < 43; i++) {
+		if(i >= c) {
+			inv.setItem(inv, i, read.item("minecraft:lime_terracotta"));
+		}
+	}
+	inv.setItem(inv, 7, item.custom.creat("ARROW_DOWN", 1, "§rGet fuel", null));
+	inv.open(inv, player, "§cFuel");
+	goto("checkgame");
+}
+if(block_loc == upper_engine_loc || block_loc == lower_engine_loc) {
+	task_id = 1;
+	cancel = true;
+	if(!hasTask(player, task_id)) {
+		goto("checkgame");
+	}
+	step = task.getStep(player, task_id);
+	if(step == 0 || step == 2 || step == 4) {
+		goto("checkgame");
+	}
+	if(step == 1 && block_loc != upper_engine_loc) {
+		goto("checkgame");
+	}
+	if(step == 3 && block_loc != lower_engine_loc) {
+		goto("checkgame");
+	}
+	inv = inv.new("333333302333333300333333300333333300333333300333333300");
+	//inv = inv.new(333333302 333333300 333333300 333333300 333333300 333333300);
+	player_uuid = player.getUuid(player);
+	c = map.getOrDefault(fuel_counter, player_uuid, 42);
+	for(i = 42; i > c; i--) {
+		inv.setItem(inv, i, read.item("minecraft:lime_terracotta"));
+	}
+	inv.setItem(inv, 7, read.item("km:arrow_up", 1, "§rFill engine"));
+	inv.open(inv, player, "§cEngine");
+	goto("checkgame");
+}
+goto("checkgame");
+
+@inv_close
+player_uuid = player.getUuid(player);
+if(list.contains(auto_close_list, player_uuid)) {
+	list.add(auto_close_list_2, player_uuid);
+}
+if(amongus.isAlert()) {
+	sabotage.closedInv(player);
+}
+if(reactor_sabotaged) {
+	if(inv_id == inv.getId(reactor_inv_1)) {
+		list.remove(reactor_hold_list_1, player_uuid);
+		if(list.getSize(reactor_hold_list_1) == 0) {
+			sabotage.holdReactor(reactor_inv_1, false);
+			hold_reactor_1 = false;
+		}
+		goto("checkgame");
+	}
+	if(inv_id == inv.getId(reactor_inv_2)) {
+		list.remove(reactor_hold_list_2, player_uuid);
+		if(list.getSize(reactor_hold_list_2) == 0) {
+			sabotage.holdReactor(reactor_inv_2, false);
+			hold_reactor_2 = false;
+		}
+		goto("checkgame");
+	}
+}
+if(inv_name == "§cFix Wiring") {
+	map.remove(wires_map, player_uuid);
+	goto("checkgame");
+}
+if(inv_name == "§cFix Communications") {
+	map.remove(comms_inv_map, player_uuid);
+	map.remove(comms_fix_map, player_uuid);
+	goto("checkgame");
+}
+if(inv_name == "§cClean O2 Filter") {
+	map.remove(clean_o2_map, player_uuid);
+	goto("checkgame");
+}
+if(inv_name == "§cSubmit Scan") {
+	list.add(submit_scan_list_2, player_uuid);
+	sgoto(20, "unblock_submit_scan");
+	goto("checkgame");
+}
+if(inv_name == "§cCalibrate Distributor") {
+	list.add(calibrate_dist_list_2, player_uuid);
+	sgoto(7, "unblock_calib_dist");
+	goto("checkgame");
+}
+if(inv_name == "§cChart Course") {
+	map.remove(chart_course_counter, player_uuid);
+	map.remove(chart_course_pattern, player_uuid);
+	goto("checkgame");
+}
+if(inv_name == "§cEmpty Garbage") {
+	list.add(empty_garb_list_2, player_uuid);
+	sgoto(25, "unblock_empty_garb");
+	goto("checkgame");
+}
+if(inv_name == "§cClear Asteroids") {
+	list.add(clear_ast_list_2, player_uuid);
+	sgoto(5, "unblock_clear_ast");
+	goto("checkgame");
+}
+if(inv_name == "§cUnlock Manifolds") {
+	map.remove(manifolds_counter, player_uuid);
+	goto("checkgame");
+}
+if(inv_name == "§cStart Reactor") {
+	reactor_used = false;
+	list.add(reactor_block_list, player_uuid);
+	sgoto(20, "unblock_start_reactor");
+	goto("checkgame");
+}
+if(inv_name == "§cDownload Data" || inv_name == "Upload Data") {
+	list.add(download_list_2, player_uuid);
+	sgoto(25, "unblock_download");
+}
+goto("checkgame");
+
+@snuvi_click
+if(inv_name == "§cVOTE") {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	if(map.contains(vote_count_map_2, player_uuid)) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "km:return_green" || item_type == player_head_mat && item.getType(inv.getItem(inv, inv_slot - 1)) != zombie_head_mat) {
+		inv.setItem(inv, 2, air_item);
+		inv.setItem(inv, 3, air_item);
+		inv.setItem(inv, 6, air_item);
+		inv.setItem(inv, 7, air_item);
+		inv.setItem(inv, 10, air_item);
+		inv.setItem(inv, 11, air_item);
+		inv.setItem(inv, 14, air_item);
+		inv.setItem(inv, 15, air_item);
+		inv.setItem(inv, 18, air_item);
+		inv.setItem(inv, 19, air_item);
+		inv.setItem(inv, 22, air_item);
+		inv.setItem(inv, 23, air_item);
+		inv.setItem(inv, 26, air_item);
+		inv.setItem(inv, 27, air_item);
+		inv.setItem(inv, 30, air_item);
+		inv.setItem(inv, 31, air_item);
+		inv.setItem(inv, 34, air_item);
+		inv.setItem(inv, 35, air_item);
+		inv.setItem(inv, 38, air_item);
+		inv.setItem(inv, 39, air_item);
+		inv.setItem(inv, 41, air_item);
+		inv.setItem(inv, 42, air_item);
+		inv.setItem(inv, inv_slot + 1, read.item("km:check_green", 1, "§rConfirm"));
+		inv.setItem(inv, inv_slot + 2, read.item("km:cross_red", 1, "§rCancel"));
+		goto("checkgame");
+	}
+	if(item_type == "km:cross_red") {
+		inv.setItem(inv, inv_slot, air_item);
+		inv.setItem(inv, inv_slot - 1, air_item);
+		goto("checkgame");
+	}
+	if(item_type == "km:check_green") {
+		if(item.getType(inv.getItem(inv, inv_slot - 2)) != zombie_head_mat) {
+			vote_item = inv.getItem(inv, inv_slot - 1);
+			if(item.getType(vote_item) == "km:return_green") {
+				map.add(vote_count_map, "skip", map.getOrDefault(vote_count_map, "skip", 0) + 1);
+				map.add(vote_count_map_2, player_uuid, "skip");
+			} else {
+				vote_item_name = string.text(item.getName(vote_item));
+				list = string.split(" ", vote_item_name);
+				vote_name = list.getIndex(list, 2);
+				vote_uuid = player.getUuid(string.removeFormat(vote_name));
+				map.add(vote_count_map, vote_uuid, map.getOrDefault(vote_count_map, vote_uuid, 0) + 1);
+				map.add(vote_count_map_2, player_uuid, vote_uuid);
+			}
+			inv.setItem(inv, inv_slot, air_item);
+			inv.setItem(inv, inv_slot + 1, air_item);
+			//Bei allen Spielern anzeigen, dass player gevoted hat
+			index = list.getIndexOf(all_list, player_uuid);
+			voted_slot = index * 4;
+			voted_item = read.item("km:skill33", 1, string.concat(amongus.getPlayerColorCode(player), player.getName(player), "§r has voted"));
+			iter = iterator(player_list);
+			while(hasNext(iter)) {
+				p_uuid = next(iter);
+				p = player.get(p_uuid);
+				inv = getVoteInv(p);
+				inv.setItem(inv, voted_slot, voted_item);
+			}
+			sound.spawnForPlayer(player, vote_sound, master_sound_category);
+			//Haben bereits alle gevoted?
+			if(map.getSize(vote_count_map_2) == list.getSize(player_list) - list.getSize(ghosts)) {
+				goto("score_evaluation");
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cENTER CODE") {
+	//CODE eingeben
+	if(item.isDigit(item)) {
+		number = string.text(item.getName(item));
+		for(i = 0; i < 5; i++) {
+			if(item.getType(inv.getItem(inv, i)) == null) {
+				break;
+			}
+		}
+		if(i == 5) {
+			goto("checkgame");
+		}
+		inv.setItem(inv, i, item);
+		inv.setItem(inv, 5, air_item);
+		goto("checkgame");
+	}
+	//CODEEINGABE CANCELN
+	if(inv_slot == 16) {
+		for(i = 0; i < 5; i++) {
+			inv.setItem(inv, i, air_item);
+		}
+		goto("checkgame");
+	}
+	//CODE BESTÄTIGEN
+	if(inv_slot == 18) {
+		number = "";
+		for(i = 0; i < 5; i++) {
+			item = inv.getItem(inv, i);
+			if(item.getType(item) == "minecraft:air") {
+				for(h = 0; h < 5; h++) {
+					inv.setItem(inv, h, air_item);
+				}
+				goto("checkgame");
+			}
+			number = string.concat(number, string.text(item.getName(item)));
+		}
+		number = read.number(string.removeFormat(number));
+		if(number == oxy_code) {
+			player_uuid = player.getUuid(player);
+			sgoto_auto_close_inv(player_uuid);
+			inv.setItem(inv, 5, read.item("km:check_green", 1, "§rCorrect code"));
+			loc = map.get(oxygen_map, player_uuid);
+			if(loc == fix_o2_loc_1) {
+				oxy_fixed_1 = true;
+				removeSaboParticles(fix_o2_par_loc_1, null);
+				if(oxy_fixed_2) {
+					fix_oxygen();
+				}
+			} elseif(loc == fix_o2_loc_2) {
+				oxy_fixed_2 = true;
+				removeSaboParticles(fix_o2_par_loc_2, null);
+				if(oxy_fixed_1) {
+					fix_oxygen();
+				}
+			}
+		} else {
+			inv.setItem(inv, 5, read.item("km:cross_red", 1, "§rFalse code"));
+			for(i = 0; i < 5; i++) {
+				inv.setItem(inv, i, air_item);
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cAlign Engine Output") {
+	task_id = 17;
+	step = task.getStep(player, task_id);
+	if(step == 2) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	loc = map.get(align_engine_map_2, player_uuid);	
+	if(block_loc == ue_align_loc && set.contains(align_ue_engine_set, player_uuid)) {
+		goto("checkgame");
+	}
+	if(block_loc == le_align_loc && set.contains(align_le_engine_set, player_uuid)) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "km:arrow_up") {
+		temp = set_engine(player, inv, "up");
+	} elseif(item_type == "km:arrow_down") {
+		temp = set_engine(player, inv, "down");
+	} else {
+		goto("checkgame");
+	}
+	if(temp) {
+		if(loc == le_align_loc) {
+			set.add(align_le_engine_set, player_uuid);
+			removeTaskParticle(player, le_align_par_loc);
+		} else {
+			set.add(align_ue_engine_set, player_uuid);
+			removeTaskParticle(player, ue_align_par_loc);
+		}
+		step = task.stepIncrease(player, task_id);
+		giveTask(player, 17, "UE/LE", "Align Engine Output", step, 2, null);
+		sgoto_auto_close_inv(player_uuid);
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cClean O2 Filter") {
+	task_id = 15;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "km:arrow_up") {
+		old_slot = inv_slot + 9;
+	} elseif(item_type == "km:arrow_left") {
+		old_slot = inv_slot + 1;
+	} elseif(item_type == "km:arrow_down") {
+		old_slot = inv_slot - 9;
+	} else {
+		goto("checkgame");
+	}
+	inv.setItem(inv, inv_slot, read.item("minecraft:oak_leaves"));
+	inv.setItem(inv, old_slot, air_item);
+	if(inv_slot == 18 || inv_slot == 27) {
+		inv.setItem(inv, inv_slot, air_item);
+		player_uuid = player.getUuid(player);
+		c = map.getOrDefault(clean_o2_map, player_uuid, 0) + 1;
+		map.add(clean_o2_map, player_uuid, c);
+		if(c == 6) {
+			removeTaskParticle(player, clean_o2_par_loc);
+			step = task.stepIncrease(player, task_id);
+			giveTask(player, 15, "O2", "Clean O2 Filter", 1, 1, null);
+			sgoto_auto_close_inv(player_uuid);
+			goto("checkgame");
+		}
+	}
+	for(slot = 1; slot < 53; slot++) {
+		if(item.getType(inv.getItem(inv, slot)) == "minecraft:oak_leaves") {
+			if(slot < 18) {
+				temp_type = item.getType(inv.getItem(inv, slot + 9));
+				temp_type_2 = item.getType(inv.getItem(inv, slot - 1));
+				if(temp_type == "km:arrow_down" || temp_type_2 == "km:arrow_left") {
+					continue;
+				}
+				if(temp_type == "minecraft:air") {
+					inv.setItem(inv, slot + 9, item_arrow_down);
+					continue;
+				}
+			}
+			if(slot > 36) {
+				temp_type = item.getType(inv.getItem(inv, slot - 9));
+				temp_type_2 = item.getType(inv.getItem(inv, slot - 1));
+				if(temp_type == "km:arrow_up" || temp_type_2 == "km:arrow_left") {
+					continue;
+				}
+				if(temp_type == "minecraft:air") {
+					inv.setItem(inv, slot - 9, item_arrow_up);
+					continue;
+				}
+			}
+			if(item.getType(inv.getItem(inv, slot - 1)) == "minecraft:air") {
+				inv.setItem(inv, slot - 1, item_arrow_left);
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cDivert Power") {
+	task_id = 14;
+	step = task.getStep(player, task_id);
+	if(step == 2) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "minecraft:redstone_torch") {
+		if(step == 1) {
+			goto("checkgame");
+		}
+		redstone = read.item("minecraft:redstone");
+		inv.setItem(inv, 0, redstone);
+		inv.setItem(inv, 3, redstone);
+		inv.setItem(inv, inv_slot - 9, redstone);
+		if(inv_slot < 26) {
+			inv.setItem(inv, inv_slot - 16, redstone);
+			if(inv_slot < 24) {
+				inv.setItem(inv, inv_slot - 20, redstone);
+				inv.setItem(inv, inv_slot - 21, redstone);
+			}
+		} elseif(inv_slot > 26) {
+			inv.setItem(inv, inv_slot - 18, redstone);
+			if(inv_slot > 28) {
+				inv.setItem(inv, inv_slot - 25, redstone);
+				inv.setItem(inv, inv_slot - 26, redstone);
+			}
+		} else {
+			inv.setItem(inv, inv_slot - 17, redstone);
+		}
+		player_uuid = player.getUuid(player);
+		removeTaskParticle(player, elec_power_par_loc);
+		r = map.get(divert_pow_map_3, player_uuid);
+		addTaskParticle(player, map.get(divert_pow_map_4, r));
+		step = task.stepIncrease(player, task_id);
+		giveTask(player, task_id, "[Room]", "Divert power to [Room]", step, 2, null);
+		sgoto_auto_close_inv(player_uuid);
+		goto("checkgame");
+	}
+	if(item_type == "minecraft:stone_button") {
+		redstone = read.item("minecraft:redstone");
+		inv.setItem(inv, 2, redstone);
+		inv.setItem(inv, 6, redstone);
+		inv.setItem(inv, 7, redstone);
+		inv.setItem(inv, 10, redstone);
+		inv.setItem(inv, 11, redstone);
+		inv.setItem(inv, 17, redstone);
+		inv.setItem(inv, 18, redstone);
+		inv.setItem(inv, 19, redstone);
+		inv.setItem(inv, 21, redstone);
+		inv.setItem(inv, 22, redstone);
+		inv.setItem(inv, 25, redstone);
+		inv.setItem(inv, 26, redstone);
+		player_uuid = player.getUuid(player);
+		r = map.get(divert_pow_map_3, player_uuid);
+		removeTaskParticle(player, map.get(divert_pow_map_4, r));
+		step = task.stepIncrease(player, task_id);
+		giveTask(player, task_id, "[Room]", "Divert power to [Room]", step, 2, null);
+		inv.open(inv, player, "§cDivert Power");
+		sgoto_auto_close_inv(player.getUuid(player));
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cClear Asteroids") {
+	task_id = 13;
+	step = task.getStep(player, task_id);
+	if(step == 20) {
+		goto("checkgame");
+	}
+	if(item.getType(item) == "minecraft:bedrock") {
+		inv.setItem(inv, inv_slot, air_item);
+		player_uuid = player.getUuid(player);
+		my_list = map.get(clear_ast_map, player_uuid);
+		iter = iterator(my_list);
+		while(hasNext(iter)) {
+			a = next(iter);
+			slot = a[1];
+			if(slot == inv_slot) {
+				step = task.stepIncrease(player, task_id);
+				giveTask(player, 13, "Weapons", "Clear Asteroids", step, 20, null);
+				if(step == 20) {
+					removeTaskParticle(player, clear_ast_par_loc);
+					sgoto_auto_close_inv(player_uuid);
+					list.add(clear_ast_list_3, player_uuid);
+					break;
+				} else {
+					remove(iter);
+					continue;
+				}
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cEmpty Garbage") {
+	task_id = 12;
+	step = task.getStep(player, task_id);
+	if(step == 2) {
+		goto("checkgame");
+	}
+	if(item.getType(item) == "km:arrow_down") {
+		inv.setItem(inv, 35, air_item);
+		player_uuid = player.getUuid(player);
+		list.add(empty_garb_list, player_uuid);
+		map.add(empty_garb_map, player_uuid, 0);
+		map.add(empty_garb_map_2, player_uuid, inv);
+		sgoto(20, "empty_garb");
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cSwipe Card") {
+	task_id = 11;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	if(inv_slot == 0 || (item.getType(item) == "minecraft:air" && item.getType(inv.getItem(inv, inv_slot - 1)) == "minecraft:lime_stained_glass_pane")) {
+		player_uuid = player.getUuid(player);
+		if(inv_slot == 0) {
+			map.add(swipe_card_map, player_uuid, time.getMillis());
+		}
+		inv.setItem(inv, inv_slot, lime_glass);
+		if(inv_slot == 4) {
+			start_time = map.get(swipe_card_map, player_uuid);
+			time = (time.getMillis() - start_time) / 1000;
+			if(time < 1.8) {
+				inv.setItem(inv, 5, read.item("km:cross_red", 1, string.concat("§rToo fast ", math.roundComma(time, 1), "s")));
+				for(i = 0; i < 5; i++) {
+					inv.setItem(inv, i, air_item);
+				}
+			} elseif(time > 2.2) {
+				inv.setItem(inv, 5, read.item("km:cross_red", 1, string.concat("§rToo slow ", math.roundComma(time, 1), "s")));
+				for(i = 0; i < 5; i++) {
+					inv.setItem(inv, i, air_item);
+				}
+			} else {
+				removeTaskParticle(player, swipe_card_par_loc);
+				inv.setItem(inv, 5, read.item("km:check_green", 1, "§rTask completed"));
+				step = task.stepIncrease(player, task_id);
+				giveTask(player, 11, "Admin", "Swipe Card", 1, 1, null);
+				sgoto_auto_close_inv(player_uuid);
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cFix Wiring") {
+	task_id = 10;
+	step = task.getStep(player, task_id);
+	if(step == 3) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	if(inv_slot == 0 || inv_slot == 4 || inv_slot == 8 || inv_slot == 12) {
+		map.add(wires_map_2, player_uuid, inv_slot);
+	}
+	if(inv_slot == 3 || inv_slot == 7 || inv_slot == 11 || inv_slot == 15) {
+		slot = map.get(wires_map_2, player_uuid);
+		if(slot == null) {
+			goto("checkgame");
+		}
+		map.remove(wires_map_2, player_uuid);
+		if(item.getType(inv.getItem(inv, slot)) == item.getType(item) && item.getType(inv.getItem(inv, inv_slot - 1)) == "km:cross_red") {
+			inv.setItem(inv, slot + 1, read.item("km:check_green", 1, "§rConnected"));
+			inv.setItem(inv, inv_slot - 1, read.item("km:check_green", 1, "§rConnected"));
+			c = map.getOrDefault(wires_map, player_uuid, 0) + 1;
+			map.add(wires_map, player_uuid, c);
+			if(c == 4) {
+				map.remove(wires_map, player_uuid);
+				step = task.stepIncrease(player, task_id);
+				giveTask(player, 10, "Cafeteria", "Fix Wiring", step, 3, null);
+				sgoto_auto_close_inv(player_uuid);
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cCalibrate Distributor") {
+	task_id = 9;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	if(inv_slot == 14) {
+		player_uuid = player.getUuid(player);
+		a = map.get(calibrate_dist_map, player_uuid);
+		if(item.getType(inv.getItem(inv, 9)) == item.getType(inv.getItem(inv, 10))) {
+			stage = a[4] + 1;
+			a[4] = stage;
+			if(stage == 1) {
+				inv.setItem(inv, 0, read.item("km:check_green"));
+				inv.setItem(inv, 10, blue_glass);
+				inv.setItem(inv, 11, blue_glass);
+			} elseif(stage == 2) {
+				inv.setItem(inv, 1, read.item("km:check_green"));
+				inv.setItem(inv, 10, cyan_glass);
+				inv.setItem(inv, 11, cyan_glass);
+			} elseif(stage == 3) {
+				removeTaskParticle(player, calibrate_dist_par_loc);
+				inv.setItem(inv, 2, read.item("km:check_green"));
+				step = task.stepIncrease(player, task_id);
+				giveTask(player, 9, "Electrical", "Calibrate Distributor", 1, 1, null);
+				sgoto_auto_close_inv(player_uuid);
+			}
+		} else {
+			a[4] = 0;
+			inv.setItem(inv, 0, read.item("km:cross_red"));
+			inv.setItem(inv, 1, read.item("km:cross_red"));
+			inv.setItem(inv, 2, read.item("km:cross_red"));
+			inv.setItem(inv, 10, yellow_glass);
+			inv.setItem(inv, 11, yellow_glass);
+		}
+		a[3] = a[2]; //Index = Start_index
+		map.add(calibrate_dist_map, player_uuid, a);
+		for(h = 0; h < 12; h++) {
+			inv.setItem(inv, calibrate_dist_array[h], air_item);
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cInspect Sample") {
+	task_id = 8;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "minecraft:green_stained_glass_pane") {
+		if(inv_slot == 20) {
+			inv.setItem(inv, 20, read.item("minecraft:gray_stained_glass_pane", 59, "§rGo grab a coffee"));
+			giveTask(player, 8, "MedBay", "Inspect Sample", 0, 1, 59);
+			player_uuid = player.getUuid(player);
+			list.add(sample_list, player_uuid);
+			list.add(sample_list_2, 59);
+			map.add(sample_map, player_uuid, inv);
+			sgoto(20, "countdown_sample");
+			goto("checkgame");
+		}
+		if(inv_slot >= 15) {
+			if(item.getType(inv.getItem(inv, inv_slot - 5)) == "minecraft:red_stained_glass_pane") {
+				removeTaskParticle(player, inspect_par_loc);
+				step = task.stepIncrease(player, task_id);
+				giveTask(player, 8, "MedBay", "Inspect Sample", 1, 1, null);
+				sgoto_auto_close_inv(player.getUuid(player));
+			} else {
+				for(i = 0; i < 15; i++) {
+					inv.setItem(inv, i, read.item("minecraft:white_stained_glass_pane", 1, "§rSample"));
+				}
+				for(i = 15; i < 20; i++) {
+					inv.setItem(inv, i, read.item("minecraft:gray_stained_glass_pane", 1, "§rSelect sample"));
+				}
+				inv.setItem(inv, 20, read.item("minecraft:green_stained_glass_pane", 1, "§rPress to start"));
+				giveTask(player, 8, "MedBay", "Inspect Sample", 0, 1, null);
+			}
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cStabilize Steering") {
+	task_id = 7;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	new_cross_slot = inv_slot;
+	if(item_type == "km:arrow_down") {
+		cross_slot = inv_slot - 9;
+		if(cross_slot == 22) {
+			new_cross_slot = cross_slot;
+			cross_slot -= 9;
+		}
+	} elseif(item_type == "km:arrow_up") {
+		cross_slot = inv_slot + 9;
+		if(cross_slot == 22) {
+			new_cross_slot = cross_slot;
+			cross_slot += 9;
+		}
+	} elseif(item_type == "km:arrow_left") {
+		cross_slot = inv_slot + 1;
+		if(cross_slot == 22) {
+			new_cross_slot = cross_slot;
+			cross_slot++;
+		}
+	} elseif(item_type == "km:arrow_right") {
+		cross_slot = inv_slot - 1;
+		if(cross_slot == 22) {
+			new_cross_slot = cross_slot;
+			cross_slot--;
+		}
+	} else {
+		goto("checkgame");
+	}
+	//remove old plus
+	if(cross_slot != 22) {
+		inv.setItem(inv, cross_slot, air_item);
+	}
+	temp_slot = cross_slot - 1;
+	if(temp_slot == 22) {
+		temp_slot--;
+	}
+	if(temp_slot >= 0 && cross_slot % 9 != 0) {
+		inv.setItem(inv, temp_slot, air_item);
+	}
+	temp_slot = cross_slot + 1;
+	if(temp_slot == 22) {
+		temp_slot++;
+	}
+	if(temp_slot >= 0 && temp_slot % 9 != 0) {
+		inv.setItem(inv, temp_slot, air_item);
+	}
+	temp_slot = cross_slot - 9;
+	if(temp_slot == 22) {
+		temp_slot -= 9;
+	}
+	if(temp_slot >= 0) {
+		inv.setItem(inv, temp_slot, air_item);
+	}
+	temp_slot = cross_slot + 9;
+	if(temp_slot == 22) {
+		temp_slot += 9;
+	}
+	if(temp_slot < 45) {
+		inv.setItem(inv, temp_slot, air_item);
+	}
+	//set new plus
+	inv.setItem(inv, new_cross_slot, read.item("km:plus_red"));
+	temp_slot = new_cross_slot - 1;
+	if(temp_slot == 22) {
+		inv.setItem(inv, temp_slot - 1, item_arrow_left);
+	} else {
+		if(temp_slot >= 0 && new_cross_slot % 9 != 0) {
+			inv.setItem(inv, temp_slot, item_arrow_left);
+		}
+	}
+	temp_slot = new_cross_slot + 1;
+	if(temp_slot == 22) {
+		inv.setItem(inv, temp_slot + 1, item_arrow_right);
+	} else {
+		if(temp_slot >= 0 && temp_slot % 9 != 0) {
+			inv.setItem(inv, temp_slot, item_arrow_right);
+		}
+	}
+	temp_slot = new_cross_slot - 9;
+	if(temp_slot == 22) {
+		inv.setItem(inv, temp_slot - 9, item_arrow_up);
+	} else {
+		if(temp_slot >= 0) {
+			inv.setItem(inv, temp_slot, item_arrow_up);
+		}
+	}
+	temp_slot = new_cross_slot + 9;
+	if(temp_slot == 22) {
+		inv.setItem(inv, temp_slot + 9, item_arrow_down);
+	} else {
+		if(temp_slot < 45) {
+			inv.setItem(inv, temp_slot, item_arrow_down);
+		}
+	}
+	//finish task
+	if(new_cross_slot == 22) {
+		removeTaskParticle(player, steering_par_loc);
+		inv.setItem(inv, 44, read.item("km:check_green", 1, "§rTask completed"));
+		step = task.stepIncrease(player, task_id);
+		giveTask(player, task_id, "Navigation", "Stabilize Steering", 1, 1, null);
+		sgoto_auto_close_inv(player.getUuid(player));
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cChart Course") {
+	task_id = 6;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	a = map.get(chart_course_pattern, player_uuid);
+	c = map.getOrDefault(chart_course_counter, player_uuid, 0);
+	if(a[c] == inv_slot) {
+		inv.setItem(inv, inv_slot, green_glass);
+		map.add(chart_course_counter, player_uuid, c + 1);
+		if(c == 8) {
+			inv.setItem(inv, inv.getSize(inv) - 1, read.item("km:check_green", 1, "§rTask completed"));
+			removeTaskParticle(player, chart_course_par_loc);
+			step = task.stepIncrease(player, task_id);
+			giveTask(player, task_id, "Navigation", "Chart Course", 1, 1, null);
+			sgoto_auto_close_inv(player_uuid);
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cUnlock Manifolds") {
+	task_id = 5;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "minecraft:blue_stained_glass_pane") {
+		player_uuid = player.getUuid(player);
+		amount = map.getOrDefault(manifolds_counter, player_uuid, 1);
+		if(amount == item.getAmount(item)) {
+			inv.setItem(inv, inv_slot, read.item("minecraft:green_stained_glass_pane", amount));
+			map.add(manifolds_counter, player_uuid, amount + 1);
+			if(amount == 10) {
+				removeTaskParticle(player, unlock_manifolds_par_loc);
+				step = task.stepIncrease(player, task_id);
+				giveTask(player, task_id, "Reactor", "Unlock Manifolds", 1, 1, null);
+				sgoto_auto_close_inv(player_uuid);
+			}
+			goto("checkgame");
+		}
+		goto("false_manifolds_click");
+	}
+	if(item_type == "minecraft:green_stained_glass_pane") {
+		goto("false_manifolds_click");
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cStart Reactor") {
+	task_id = 4;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	if(!(inv_slot > 7 && inv_slot < 11 || inv_slot > 13 && inv_slot < 17 || inv_slot > 19 && inv_slot < 23)) {
+		goto("checkgame");
+	}
+	player_uuid = player.getUuid(player);
+	item_type = item.getType(item);
+	if(item_type == "minecraft:red_stained_glass_pane") {
+		goto("checkgame");
+	}
+	if(item_type == "minecraft:black_stained_glass_pane") {
+		goto("false_reactor_click");
+	}
+	if(reactor.getPhase(reactor_array) == "draw") {
+		goto("false_reactor_click");
+	}
+	reactor_array = reactor.get(player);
+	stage = reactor.getStage(reactor_array);
+	counter = reactor.getCounter(reactor_array);
+	pattern = reactor.getPattern(reactor_array);
+	if(inv_slot - 3 != pattern[counter]) {
+		goto("false_reactor_click");
+	}
+	inv.setItem(inv, inv_slot, blue_glass);
+	list.add(reset_reactor_click_list, player_uuid);
+	list.add(reset_reactor_click_list_2, inv_slot);
+	sgoto(10, "reset_reactor_click");
+	if(counter == stage && stage < 5) {
+		stage++;
+		reactor.setStage(reactor_array, stage);
+		reactor.setCounter(reactor_array, 0);
+		reactor.setPhase(reactor_array, "draw");
+		reactor.save(reactor_array, player);
+		if(stage == 5) {
+			removeTaskParticle(player, start_reactor_par_loc);
+			step = task.stepIncrease(player, task_id);
+			giveTask(player, task_id, "Reactor", "Start Reactor", 1, 1, null);
+			sgoto_auto_close_inv(player_uuid);
+			reactor_used = false;
+			goto("checkgame");
+		}
+		list.add(reactor_draw_list_1, player_uuid);
+		sgoto(20, "draw_pattern_1");
+		goto("checkgame");
+	}
+	reactor.setCounter(reactor_array, ++counter);
+	reactor.save(reactor_array, player);
+	goto("checkgame");
+}
+if(inv_name == "§cPrime Shields") {
+	task_id = 3;
+	step = task.getStep(player, task_id);
+	if(step == 1) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "minecraft:red_stained_glass_pane") {
+		inv.setItem(inv, inv_slot, green_glass);
+		c = 0;
+		for(i = 0; i < 16; i++) {
+			if(item.getType(inv.getitem(inv, i)) == "minecraft:green_stained_glass_pane") {
+				c++;
+			}
+		}
+		if(c == 16) {
+			removeTaskParticle(player, prime_shields_par_loc);
+			step = task.stepIncrease(player, task_id);
+			giveTask(player, task_id, "Shields", "Prime Shields", 1, 1, null);
+			sgoto_auto_close_inv(player.getUuid(player));
+		}
+	}
+	if(item_type == "minecraft:green_stained_glass_pane") {
+		inv.setItem(inv, inv_slot, red_glass);
+	}
+	goto("checkgame");
+}
+if(inv_id == inv.getId(reactor_inv_1)) {
+	if(reactor_sabotaged) {
+		sabotage.holdReactor(reactor_inv_1, true);
+		hold_reactor_1 = true;
+		if(hold_reactor_2) {
+			fix_meltdown();
+		}
+	}
+	goto("checkgame");
+}
+if(inv_id == inv.getId(reactor_inv_2)) {
+	if(reactor_sabotaged) {
+		sabotage.holdReactor(reactor_inv_2, true);
+		hold_reactor_2 = true;
+		if(hold_reactor_1) {
+			fix_meltdown();
+		}
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cFix Communications") {
+	if(!comms_sabotaged) {
+		goto("checkgame");
+	}
+	if(inv_slot == 36) {
+		comms_freq = item.getAmount(inv.getItem(inv, 37)) - 1;
+	} elseif(inv_slot == 38) {
+		comms_freq = item.getAmount(inv.getItem(inv, 37)) + 1;
+	} else {
+		goto("checkgame");
+	}
+	if(comms_freq < 1 || comms_freq > 64) {
+		goto("checkgame");
+	}
+	inv.setItem(inv, 37, read.item("minecraft:black_stained_glass_pane", comms_freq));
+	player_uuid = player.getUuid(player);
+	comms_state = map.get(comms_state_map, player_uuid);
+	diff = math.abs(comms_freq - comms_fix_freq);
+	if(diff == 0) {
+		if(comms_state != 2) {
+			comms.drawCorrect(inv, player);
+		}
+		list.add(comms_fix_list, player_uuid);
+		map.add(comms_fix_map, player_uuid, time.getMillis());
+		sgoto(40, "scheduled_fix_comms");
+		goto("checkgame");
+	} elseif(diff < 4) {
+		if(comms_state != 1) {
+			comms.drawClose(inv, player);
+		}
+		map.remove(comms_fix_map, player_uuid);
+	} else {
+		if(comms_state != 0) {
+			comms.drawWorst(inv, player);
+		}
+		map.remove(comms_fix_map, player_uuid);
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cFix Lights") {
+	if(!lights_sabotaged) {
+		goto("checkgame");
+	}
+	item_type = item.getType(item);
+	if(item_type == "minecraft:red_stained_glass_pane") {
+		inv.setItem(lights_inv, inv_slot, read.item("minecraft:green_stained_glass_pane", 1, "§rOn"));
+		c = 0;
+		for(i = 0; i < 5; i++) {
+			if(item.getType(inv.getitem(lights_inv, i)) == "minecraft:green_stained_glass_pane") {
+				c++;
+			}
+		}
+		if(c == 5) {
+			fix_light();
+		}
+		goto("checkgame");
+	}
+	if(item_type == "minecraft:green_stained_glass_pane") {
+		inv.setItem(lights_inv, inv_slot, read.item("minecraft:red_stained_glass_pane", 1, "§rOff"));
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cDownload Data") {
+	if(string.text(item.getName(item)) == "§rDownload") {
+		inv.setItem(inv, 11, air_item);
+		goto("download_data_2");
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cUpload Data") {
+	if(string.text(item.getName(item)) == "§rUpload") {
+		inv.setItem(inv, 11, air_item);
+		goto("download_data_2");
+	}
+	goto("checkgame");
+}
+if(inv_name == "§cFuel") {
+	task_id = 1;
+	step = task.getStep(player, task_id);
+	if(step == 1 || step == 3 || step == 4) {
+		goto("checkgame");
+	}
+	if(string.text(item.getName(item)) == "§rGet fuel") {
+		player_uuid = player.getUuid(player);
+		c = map.getOrDefault(fuel_counter, player_uuid, 0);
+		if(c == 7) {
+			c++;
+		}
+		inv.setItem(inv, c++, air_item);
+		map.add(fuel_counter, player_uuid, c);
+		if(c == 43) {
+			step = task.stepIncrease(player, task_id);
+			map.remove(fuel_counter, player_uuid);
+			removeTaskParticle(player, get_fuel_par_loc);
+			if(step == 1) {
+				addTaskParticle(player, upper_engine_par_loc);
+				giveTask(player, task_id, "Upper engine", "Fuel Engines", 1, 4, null);
+				sgoto_auto_close_inv(player_uuid);
+			} elseif(step == 3) {
+				addTaskParticle(player, lower_engine_par_loc);
+				giveTask(player, task_id, "Lower engine", "Fuel Engines", 3, 4, null);
+				sgoto_auto_close_inv(player_uuid);
+			}
+		}
+		goto("checkgame");
+	}
+	cancel = true;
+	goto("checkgame");
+}
+if(inv_name == "§cEngine") {
+	task_id = 1;
+	step = task.getStep(player, task_id);
+	if(step == 0 || step == 2 || step == 4) {
+		goto("checkgame");
+	}
+	if(string.text(item.getName(item)) == "§rFill engine") {
+		player_uuid = player.getUuid(player);
+		c = map.getOrDefault(fuel_counter, player_uuid, 42);
+		if(c == 7) {
+			c--;
+		}
+		inv.setItem(inv, c--, read.item("minecraft:lime_terracotta"));
+		map.add(fuel_counter, player_uuid, c);
+		if(c == -1) {
+			map.remove(fuel_counter, player_uuid);
+			if(step == 1) {
+				removeTaskParticle(player, upper_engine_par_loc);
+				addTaskParticle(player, get_fuel_par_loc);
+				giveTask(player, task_id, "Storage", "Fuel Engines", 2, 4, null);
+				sgoto_auto_close_inv(player_uuid);
+			} elseif(step == 3) {
+				removeTaskParticle(player, lower_engine_par_loc);
+				giveTask(player, task_id, "Lower engine", "Fuel Engines", 4, 4, null);
+				sgoto_auto_close_inv(player_uuid);
+			}
+			step = task.stepIncrease(player, task_id);
+		}
+		goto("checkgame");
+	}
+	cancel = true;
+}
+goto("checkgame");
+
+@score_evaluation
+sort_array = map.sort(vote_count_map, false);
+//Ausgabe der Votes
+minigame.speakAll(gamename, "§0------------------------");
+sort_array_size = array.getSize(sort_array);
+for(i = 0; i < sort_array_size; i++) {
+	p_uuid = sort_array[i, 0];
+	value = sort_array[i, 1];
+	if(p_uuid == "skip") {
+		minigame.speakAll(gamename, string.concat("Skipped: ", string.number(value)));
+	} else {
+		minigame.speakAll(gamename, string.concat(amongus.getPlayerColorCode(p_uuid), player.getName(p_uuid), "§r ", string.number(value)));
+	}
+}
+//Auswertung der Votes
+if(sort_array_size == 0) {
+	message = "Nobody voted (Skipped).";
+	minigame.speakAll(gamename, message);
+	minigame.titleAll("Voting ended", message, 20, 60, 20);
+	continueGame();
+	goto("checkgame");
+} elseif(sort_array_size == 1) {
+	kick_uuid = sort_array[0, 0];
+} else {
+	value_0 = sort_array[0, 1];
+	value_1 = sort_array[1, 1];
+	if(value_0 > value_1) {
+		kick_uuid = sort_array[0, 0];
+	} else {
+		message = "No one ejected (Tie).";
+		minigame.speakAll(gamename, message);
+		minigame.titleAll("Voting ended", message, 20, 60, 20);
+		continueGame();
+		goto("checkgame");
+	}
+}
+if(kick_uuid == "skip") {
+	message = "No one ejected (Skipped).";
+	minigame.speakAll(gamename, message);
+	minigame.titleAll("Voting ended", message, 20, 60, 20);
+	continueGame();
+	goto("checkgame");
+}
+//Vollstreckung
+if(confirm_ejects) {
+	if(isImpostor(kick_uuid)) {
+		message = "§r was an §cimpostor§r.";
+	} else {
+		message = "§r was a §bcrewmate§r.";
+	}
+} else {
+	message = "§r was ejected.";
+}
+message = string.concat(amongus.getPlayerColorCode(kick_uuid), player.getName(kick_uuid), message);
+minigame.speakAll(gamename, message);
+list.add(ghosts, kick_uuid);
+kick_player = player.get(kick_uuid);
+stacks.clearIndex(kick_player, 0);
+stacks.clearIndex(kick_player, 1);
+stacks.clearIndex(kick_player, 3);
+stacks.clearIndex(kick_player, 4);
+entity.addEffect(kick_player, "invisibility", 999999, 1, false);
+amongus.removeEquip(kick_player);
+minigame.titleAll("Voting ended", message, 20, 60, 20);
+//Checkwin
+imps_alive = 0;
+crew_alive = 0;
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	if(!player.isGhost(p)) {
+		if(isImpostor(p)) {
+			imps_alive++;
+		} else {
+			crew_alive++;
+		}
+	}
+}
+if(imps_alive == 0) {
+	winners = "§bCrewmates";
+	goto("win");
+}
+if(imps_alive >= crew_alive) {
+	winners = "§cImpostors";
+	goto("win");
+}
+continueGame();
+goto("checkgame");
+
+@player_logout
+@player_giveup
+minigame.speakAll(gamename, string.concat(amongus.getPlayerColorCode(player), player.getName(player), " §rhas left the game."));
+player.setGamemode(player, "survival");
+script = script.getFromId(script_id);
+minigame.kickplayer(script, player);
+player.gameMute(player, false);
+if(isImpostor(player)) {
+	list.remove(impostors_list_2, player_uuid);
+}
+//Building-Perms wieder geben
+player_uuid = player.getUuid(player);
+if(list.contains(removed_perms, player_uuid)) {
+	list.remove(removed_perms, player_uuid);
+	perm.registerPlayer(player_uuid, 1);
+	perm.registerPlayer(player_uuid, 15);
+}
+if(freeplay) {
+	removeDeadBodies();
+	removeCamBodies();
+	minigame.kickAllPlayers(script);
+	minigame.term(script, gamesignloc);
+	term();
+}
+//checkwin
+imps_alive = 0;
+crew_alive = 0;
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	if(!player.isGhost(p)) {
+		if(isImpostor(p)) {
+			imps_alive++;
+		} else {
+			crew_alive++;
+		}
+	}
+}
+if(imps_alive == 0) {
+	winners = "§bCrewmates";
+	goto("win");
+}
+if(imps_alive >= crew_alive) {
+	winners = "§cImpostors";
+	goto("win");
+}
+if(!player.isGhost(player)) {
+	amongus.removeFromAdminTable(player);
+}
+amount_all_tasks = (amount_short + amount_common + amount_long) * crew_alive;
+pct = amount_done_tasks / amount_all_tasks;
+boss.setProgress(progress_bar, pct);
+if(meeting) {
+	//Vote des leavenden Spielers entfernen
+	vote_uuid = map.get(vote_count_map_2, player_uuid);
+	if(vote_uuid != null) {
+		votes = map.get(vote_count_map, vote_uuid) - 1;
+		if(votes == 0) {
+			map.remove(vote_count_map, vote_uuid);
+		} else {
+			map.add(vote_count_map, vote_uuid, votes);
+		}
+		map.remove(vote_count_map_2, player_uuid);
+	}
+	//Alle Votes entfernen, die auf den leavenden Spieler lauten
+	iter = map.iterator(vote_count_map_2);
+	while(hasNext(iter)) {
+		element = next(iter);
+		vote_uuid = map.getValue(element);
+		if(vote_uuid == player_uuid) {
+			//Spieler neu voten lassen
+			voter_uuid = map.getKey(element);
+			remove(iter);
+			map.remove(vote_count_map_2, voter_uuid);
+			//Vote-Menu aktualisieren
+			index = list.getIndexOf(all_list, voter_uuid);
+			voted_slot = index * 4;
+			setItemInVoteInv(voted_slot, air_item);
+		}
+	}
+	//Vote-Menu aktualisieren
+	index = list.getIndexOf(all_list, player_uuid);
+	voted_slot = index * 4;
+	setItemInVoteInv(voted_slot, zombie_head);
+}
+goto("checkgame");
+
+@entity_damage
+cancel = true;
+goto("checkgame");
+
+@player_data_tick
+if(var == "Discussion Time") {
+	stacks.set(player, 4, "km:skill33");
+	tick_time = vote_time * 20; //s
+	status.addTimed(player, 2, tick_time, "Voting Time");
+	data.setTimer(player, "Voting Time", tick_time - 20);
+	vote_inv = getVoteInv(player);
+	inv.open(vote_inv, player, "§cVOTE");
+	data.setTimer(player, "sound.vote.end.10", tick_time - 200);
+	data.setTimer(player, "sound.vote.end.5", tick_time - 100);
+	data.setTimer(player, "sound.vote.end.4", tick_time - 80);
+	data.setTimer(player, "sound.vote.end.3", tick_time - 60);
+	data.setTimer(player, "sound.vote.end.2", tick_time - 40);
+	data.setTimer(player, "sound.vote.end.1", tick_time - 20);
+	goto("checkgame");
+}
+if(!meeting) {
+	goto("checkgame");
+}
+if(var == "Voting Time") {
+	goto("score_evaluation");
+}
+if(var == "sound.vote.end.10") {
+	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
+	goto("checkgame");
+}
+if(var == "sound.vote.end.5") {
+	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
+	goto("checkgame");
+}
+if(var == "sound.vote.end.4") {
+	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
+	goto("checkgame");
+}
+if(var == "sound.vote.end.3") {
+	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
+	goto("checkgame");
+}
+if(var == "sound.vote.end.2") {
+	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
+	goto("checkgame");
+}
+if(var == "sound.vote.end.1") {
+	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
+	goto("checkgame");
+}
+goto("checkgame");
+
+@function_key
+player_uuid = player.getUuid(player);
+//cams
+if(player.isOnCam(player)) {
+	cam_number = map.get(cam_map, player_uuid);
+	number_of_cams = set.getSize(cams_locs);
+	if(key == 1) {
+		cam_number--;
+		if(cam_number < 0) {
+			cam_number = number_of_cams - 1;
+		}
+	} elseif(key == 2) {
+		cam_number++;
+		if(cam_number >= number_of_cams) {
+			cam_number = 0;
+		}
+	} elseif(key == 9) {
+		cam.leave(player);
+	} else {
+		goto("checkgame");
+	}
+	map.add(cam_map, player_uuid, cam_number);
+	goto("checkgame");
+}
+//meeting
+if(meeting) {
+	if(key == 5) {
+		if(data.getTimer(player, "Discussion Time") < 0) {
+			vote_inv = getVoteInv(player);
+			inv.open(vote_inv, player, "§cVOTE");
+		}
+	}
+	goto("checkgame");
+}
+//vents
+if(list.contains(vent_list, player_uuid)) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	//vent button 1
+	if(key == 5) {
+		vent_leave(player);
+	} elseif(key == 6) {
+		vent_loc = map.get(vent_map_4, player_uuid);
+		a = map.get($vent_map_3, vent_loc);
+		vent_loc_1 = a[1];
+		if(vent_loc_1 != null) {
+			vent_enter(player, vent_loc_1);
+		}
+	} elseif(key == 7) {
+		//vent button 2
+		vent_loc = map.get(vent_map_4, player_uuid);
+		a = map.get($vent_map_3, vent_loc);
+		vent_loc_2 = a[3];
+		if(vent_loc_2 != null) {
+			vent_enter(player, vent_loc_2);
+		}
+	}
+	goto("checkgame");
+}
+//report body
+if(key == 1) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	ent = player.getTargetEntity(player, 4, "net.minecraft.entity.monster.ZombieEntity");
+	if(ent == null) {
+		ent = entity.get(entity.getLocation(player), 4, "net.minecraft.entity.monster.ZombieEntity");
+		if(ent == null) {
+			msg.prefix(player, gamename, "No body detected.");
+			goto("checkgame");
+		}
+	}
+	found_player_uuid = map.get(report_map, ent);
+	reportBody(player, found_player_uuid);
+	goto("checkgame");
+}
+//call meeting
+if(key == 2) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	if(loc.distance(entity.getLocation(player), meeting_button_loc) > 3) {
+		msg.prefix(player, gamename, "Too far away.");
+		goto("checkgame");
+	}
+	if(amongus.isAlert()) {
+		msg.prefix(player, gamename, "No meetings allowed while sabotaged.");
+		goto("checkgame");
+	}
+	callMeeting(player);
+	goto("checkgame");
+}
+if(isCrewmate(player)) {
+	goto("checkgame");
+}
+if(key == 4) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	//kill crewmate
+	cooldown = data.getTimer(player, "Kill Cooldown");
+	if(cooldown == null || cooldown == -1) {
+		//Schaut der Spieler einen anderen Spieler an?
+		p = player.getTargetEntity(player, 4, "net.minecraft.entity.player.PlayerEntity");
+		if(p != null) {
+			//Angeschauten Spieler töten
+			if(!player.isOnCam(p) && !player.isGhost(p)) {
+				if(isCrewmate(p)) {
+					killCrewmate(player, p);
+					goto("checkwin");
+				}
+				msg.prefix(player, gamename, string.concat("Not a crewmate."));
+				goto("checkgame");
+			}
+		}
+		//Schaut der Spieler einen Kamera-Human an?
+		human = player.getTargetEntity(player, 4, "me.km.entities.EntityHuman");
+		if(human != null) {
+			p_uuid = map.get(cam_map_4, human);
+			if(p_uuid == null) {
+				entity.remove(human);
+				msg.prefix(player, gamename, string.concat("Fehlerhaftes Human-Entity entfernt."));
+				goto("checkgame");
+			}
+			p = player.get(p_uuid);
+			//Angeschauten Spieler töten
+			cam.leave(p);
+			if(isCrewmate(p)) {
+				killCrewmate(player, p);
+				goto("checkwin");
+			}
+			msg.prefix(player, gamename, string.concat("Not a crewmate."));
+			goto("checkgame");
+		}
+		//Spieler nearby suchen und töten
+		nearest_player = null;
+		lowest_dist = 10;
+		player_loc = entity.getLocation(player);
+		iter = iterator(player_list);
+		while(hasNext(iter)) {
+			p_uuid = next(iter);
+			if(p_uuid == player_uuid) {
+				continue;
+			}
+			p = player.get(p_uuid);
+			if(player.isGhost(p) || player.isOnCam(p)) {
+				continue;
+			}
+			if(isImpostor(p)) {
+				continue;
+			}
+			p_loc = entity.getLocation(p);
+			dist = loc.distance(player_loc, p_loc);
+			if(dist < 4 && dist < lowest_dist) {
+				nearest_player = p;
+				lowest_dist = dist;
+			}
+		}
+		if(nearest_player != null) {
+			if(isCrewmate(nearest_player)) {
+				killCrewmate(player, nearest_player);
+				goto("checkwin");
+			}
+			msg.prefix(player, gamename, string.concat("Not a crewmate."));
+			goto("checkgame");
+		}
+		//Human nearby suchen und töten
+		nearest_human = null;
+		lowest_dist = 10;
+		near_list = entity.near(player, 4);
+		iter = iterator(near_list);
+		while(hasNext(iter)) {
+			ent = next(iter);
+			if(entity.getType(ent) != "human") {
+				continue;
+			}
+			p_uuid = map.get(cam_map_4, ent);
+			p = player.get(p_uuid);
+			if(isImpostor(p)) {
+				continue;
+			}
+			ent_loc = entity.getLocation(ent);
+			dist = loc.distance(player_loc, ent_loc);
+			if(dist < lowest_dist) {
+				nearest_human = ent;
+				lowest_dist = dist;
+			}
+			if(nearest_player != null) {
+				if(isCrewmate(nearest_player)) {
+					killCrewmate(player, nearest_player);
+					goto("checkwin");
+				}
+				msg.prefix(player, gamename, string.concat("Not a crewmate."));
+				goto("checkgame");
+			}
+		}
+		msg.prefix(player, gamename, "No player targeted.");
+		goto("checkgame");
+	} else {
+		msg.prefix(player, gamename, string.concat("Remaining kill cooldown: ", string.number(math.roundDown(cooldown / 20)), "s"));
+	}
+	goto("checkgame");
+}
+//enter vent
+if(key == 5) {
+	if(player.isGhost(player)) {
+		goto("checkgame");
+	}
+	loc = player.getTarget(player, 5);
+	if(list.contains(all_vent_locs, loc)) {
+		cooldown = data.getTimer(player, "Kill Cooldown");
+		map.add(holded_kill_cooldown, player_uuid, cooldown);
+		amongus.removeEquip(player);
+		stacks.clearIndex(player, 3);
+		stacks.clearIndex(player, 7);
+		stacks.clearIndex(player, 8);
+		vent_enter(player, loc);
+		goto("checkgame");
+	}
+	player_loc = entity.getLocation(player);
+	iter = iterator(all_vent_center_locs);
+	while(hasNext(iter)) {
+		center_loc = next(iter);
+		if(loc.distance(player_loc, center_loc) < 2) {
+			vent_loc = map.get(vent_map_5, center_loc);
+			cooldown = data.getTimer(player, "Kill Cooldown");
+			map.add(holded_kill_cooldown, player_uuid, cooldown);
+			amongus.removeEquip(player);
+			stacks.clearIndex(player, 3);
+			stacks.clearIndex(player, 7);
+			stacks.clearIndex(player, 8);
+			vent_enter(player, vent_loc);
+			goto("checkgame");
+		}
+	}
+	msg.prefix(player, gamename, "No vent nearby.");
+	goto("checkgame");
+}
+//Keine Sabotagen während bestehender Sabotage möglich
+if(amongus.isAlert()) {
+	goto("checkgame");
+}
+cooldown = data.getTimer(player, "Sabotage Cooldown");
+if(cooldown != null && cooldown != -1) {
+	msg.prefix(player, gamename, string.concat("Remaining sabotage cooldown: ", string.number(math.roundDown(cooldown / 20)), "s"));
+	goto("checkgame");
+}
+//sabotage light
+if(key == 6) {
+	sabotage_light();
+	goto("checkgame");
+}
+//sabotage reactor
+if(key == 7) {
+	sabotage_reactor();
+	goto("checkgame");
+}
+//sabotage oxygen
+if(key == 8) {
+	sabotage_oxygen();
+	goto("checkgame");
+}
+//sabotage communication
+if(key == 9) {
+	sabotage_comms();
+	goto("checkgame");
+}
+goto("checkgame");
+
+@player_drop
+cancel = true;
+goto("checkgame");
+
+function setCrewmateIcons(player) {
+	stacks.clear(player);
+	stacks.set(player, 0, "km:skill32");
+	stacks.set(player, 1, "km:skill50");
+}
+
+function setImpostorIcons(player) {
+	stacks.clear(player);
+	stacks.set(player, 0, "km:skill32");
+	stacks.set(player, 1, "km:skill50");
+	stacks.set(player, 3, "km:skill48");
+	stacks.set(player, 4, "minecraft:iron_trapdoor");
+	stacks.set(player, 5, "km:skill47");
+	stacks.set(player, 6, "km:skill49");
+	stacks.set(player, 7, "km:skill46");
+	stacks.set(player, 8, "km:skill36");
+}
+
+function setImpostor(player) {
+	data.setTimer(player, "Kill Cooldown", $start_kill_cooldown * 20);
+	status.addTimed(player, 1, $start_kill_cooldown * 20, "Kill Cooldown");
+	player_uuid = player.getUuid(player);
+	map.add($roles, player_uuid, "impostor");
+	list.add($impostors_list, player_uuid);
+	list.add($impostors_list_2, player_uuid);
+	msg.prefix(player, $gamename, "You are §cImpostor!");
+	setImpostorIcons(player);
+	display.add(player, 0, "You are §cImpostor");
+	display.add(player, 1, "§cFake Tasks:");
+}
+
+function setCrewmate(player) {
+	map.add($roles, player.getUuid(player), "crewmate");
+	msg.prefix(player, $gamename, "You are §bCrewmate.");
+	setCrewmateIcons(player);
+	display.add(player, 0, "You are §bCrewmate");
+}
+
+function isImpostor(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_or_uuid = player.getUuid(player_or_uuid);
+	}
+	role = map.get($roles, player_or_uuid);
+	if(role == "impostor") {
+		return true;
+	}
+	return false;
+}
+
+function isCrewmate(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_or_uuid = player.getUuid(player_or_uuid);
+	}
+	role = map.get($roles, player_or_uuid);
+	if(role == "crewmate") {
+		return true;
+	}
+	return false;
+}
+
+function player.isGhost(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_or_uuid = player.getUuid(player_or_uuid);
+	}
+	return list.contains($ghosts, player_or_uuid);
+}
+
+function tpAllMiddle(reporter) {
+	$vote_count_map = map.new(); //Wieviel Spieler haben einen Spieler gevoted
+	$vote_count_map_2 = map.new(); //Welcher Spieler hat für wen gevoted
+	$meeting = true;
+	$reactor_used = false;
+	removeDeadBodies();
+	amongus.clearAdminTable();
+	for(i = 0; i < list.getSize($player_list); i++) {
+		p_uuid = list.getIndex($player_list, i);
+		p = player.get(p_uuid);
+		createVoteInv(p, player.getUuid(reporter));
+		if(list.contains($vent_list, p_uuid)) {
+			vent_leave(p);
+		}
+		if(player.isOnCam(p)) {
+			cam.leave(p);
+		}
+		stacks.clear(p);
+		if(!player.isGhost(p)) {
+			entity.clearEffects(p);
+			entity.setName(p, player.getName(p));
+		}
+		entity.teleport(p, list.getIndex($spawn_locs, i));
+		time = $discuss_time * 20 + $vote_time * 20;
+		entity.addEffect(p, "jump_boost", time, 128, false);
+		player.setSpeed(p, 0);
+		inv.close(p);
+		status.addTimed(p, 2, $discuss_time * 20, "Discussion Time");
+		data.setTimer(p, "Discussion Time", $discuss_time * 20);
+	}
+}
+
+function fix_oxygen() {
+	if($oxygen_sabotaged) {
+		amongus.setAlert(false);
+		$oxygen_sabotaged = false;
+		minigame.displayRemoveAll(20);
+		setSaboCooldown(30);
+		sgoto(40, "scheduled_sabo_close");
+	}
+}
+
+function fix_light() {
+	amongus.setAlert(false);
+	$lights_sabotaged = false;
+	removeSaboParticles($fix_lights_par_loc_1, $fix_lights_par_loc_2);
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		display.remove(p, 20);
+		if(!player.isGhost(p)) {
+			if(!player.isOnCam(p)) {
+				entity.clearEffects(p);
+			}
+		}
+	}
+	setSaboCooldown(30);
+	switchLights(true);
+	sgoto(40, "scheduled_sabo_close");
+}
+
+function sabotage_oxygen() {
+	amongus.setAlert(true);
+	$oxygen_sabotaged = true;
+	$oxy_fixed_1 = false;
+	$oxy_fixed_2 = false;
+	$depletion_time = 30;
+	addSaboParticles($fix_o2_par_loc_1, $fix_o2_par_loc_2);
+	displaySabotage("§cO2/Admin: Oxygen Depleted in ", 0, 2, $depletion_time);
+	$oxy_code = math.random(10000, 99999);
+	sgoto(20, "oxygen_depletion");
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		title.send(p, text.new("§cSabotage!!!"), text.new("Oxygen Depletion"));
+	}
+	sgoto(20, "crit_sabo_sound_loop");
+}
+			
+@oxygen_depletion
+if(!oxygen_sabotaged) {
+	goto("checkgame");
+}
+depletion_time--;
+fixed = 0;
+if(oxy_fixed_1) {
+	fixed++;
+}
+if(oxy_fixed_2) {
+	fixed++;
+}
+displaySabotage("§cO2/Admin: Oxygen Depleted in ", fixed, 2, depletion_time);
+if(depletion_time == 0) {
+	if(freeplay) {
+		minigame.speakAll($gamename, "Normally the impostors would have just won because of the critical sabotage. Instead we just shut it off.");
+		removeSaboParticles(fix_o2_par_loc_1, fix_o2_par_loc_2);
+		fix_oxygen();
+	} else {
+		winners = "§cImpostors";
+		goto("win");
+	}
+	goto("checkgame");
+}
+sgoto(20, "oxygen_depletion");
+goto("checkgame");
+
+@crit_sabo_sound_loop
+if(!amongus.isAlert()) {
+	goto("checkgame");
+}
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	sound.spawnForPlayer(p, crit_sabo_sound, master_sound_category);
+}
+sgoto(20, "crit_sabo_sound_loop");
+goto("checkgame");
+
+function sabotage_reactor() {
+	amongus.setAlert(true);
+	$reactor_sabotaged = true;
+	$hold_reactor_1 = false;
+	$hold_reactor_2 = false;
+	addSaboParticles($fix_reactor_par_loc_1, $fix_reactor_par_loc_2);
+	$meltdown_time = 30;
+	displaySabotage("§cReactor: Reactor Meltdown in ", 0, 2, $meltdown_time);
+	sgoto(20, "meltdown");
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		title.send(p, text.new("§cSabotage!!!"), text.new("Reactor Meltdown"));
+	}
+	sgoto(20, "crit_sabo_sound_loop");
+}
+
+@meltdown
+if(!reactor_sabotaged) {
+	goto("checkgame");
+}
+meltdown_time--;
+holded = 0;
+if(hold_reactor_1) {
+	holded++;
+}
+if(hold_reactor_2) {
+	holded++;
+}
+displaySabotage("§cReactor: Reactor Meltdown in ", holded, 2, meltdown_time);
+if(meltdown_time == 0) {
+	if(freeplay) {
+		minigame.speakAll($gamename, "Normally the impostors would have just won because of the critical sabotage. Instead we just shut it off.");
+		fix_meltdown();
+	} else {
+		winners = "§cImpostors";
+		goto("win");
+	}
+	goto("checkgame");
+}
+sgoto(20, "meltdown");
+goto("checkgame");
+
+function setSaboCooldown(sabotage_cooldown) {
+	iter = iterator($impostors_list_2);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		data.setTimer(p, "Sabotage Cooldown", sabotage_cooldown * 20);
+		status.addTimed(p, 2, sabotage_cooldown * 20, "Sabotage Cooldown");
+	}
+}
+
+function fix_meltdown() {
+	$reactor_sabotaged = false;
+	amongus.setAlert(false);
+	removeSaboParticles($fix_reactor_par_loc_1, $fix_reactor_par_loc_2);
+	minigame.displayRemoveAll(20);
+	setSaboCooldown(30);
+	sgoto(40, "scheduled_sabo_close");
+}
+
+function fix_comms() {
+	$comms_sabotaged = false;
+	amongus.setAlert(false);
+	removeSaboParticles($fix_comms_par_loc, null);
+	minigame.displayRemoveAll(20);
+	setSaboCooldown(30);
+	showTasks();
+	sgoto(40, "scheduled_sabo_close");
+}
+
+function sabotage_comms() {
+	amongus.setAlert(true);
+	$comms_sabotaged = true;
+	addSaboParticles($fix_comms_par_loc, null);
+	$comms_fix_freq = math.random(1, 64);
+	while($comms_fix_freq == 32) {
+		$comms_fix_freq = math.random(1, 64);
+	}
+	displaySabotage("§cComms Sabotaged", 1, 1, null);
+	boss.setTitle($progress_bar, text.new("COMMS DISABLED"));
+	boss.setProgress($progress_bar, 0);
+	hideTasks();
+}
+
+function hideTasks() {
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		if(isCrewmate(p) || $freeplay) {
+			for(i = 2; i < 19; i++) {
+				display.remove(p, i);
+			}
+		}
+	}
+}
+
+function showTasks() {
+	boss.setProgress($progress_bar, $amount_done_tasks / $amount_all_tasks);
+	boss.setTitle(text.new("TOTAL TASKS COMPLETED"));
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		player_uuid = next(iter);
+		player = player.get(player_uuid);
+		if(isCrewmate(player) || $freeplay) {
+			set = map.get($player_tasks, player_uuid);
+			iterator(set);
+			task_iter = iterator(set);
+			while(hasNext(task_iter)) {
+				task_id = next(task_iter);
+				a = map.get($all_tasks, task_id);
+				room = a[0];
+				description = a[1];
+				step = task.getStep(player, task_id);
+				number_2 = a[3];
+				time = null;
+				if(time != null) {
+					color = "§e";
+				} elseif(step == 0) {
+					color = "§r";
+				} elseif(step == number_2) {
+					color = "§a";
+				} else {
+					color = "§e";
+				}
+				
+				if(step == 0) {
+					if(task_id == 2) {		
+						r = map.get($download_map_3, player_uuid);
+						room = map.get($download_map_2, list.getIndex($download_list_3, r));
+					} elseif(task_id == 12) {
+						r = map.get($empty_garb_map_3, player_uuid);
+						if(r == 0) {
+							room = "Cafeteria";
+						} else {
+							room = "O2";
+						}
+					}
+				}
+				if(task_id == 10) {
+					my_list = map.get($wires_map_4, player_uuid);
+					if(step == 3) {
+						wire_loc = list.getIndex(my_list, 2);
+					} else {
+						wire_loc = list.getIndex(my_list, step);
+					}
+					room = map.get($wires_map_3, wire_loc);
+				} elseif(task_id == 14) {
+					r = map.get($divert_pow_map_3, player_uuid);
+					room_2 = map.get($divert_pow_map, r);
+					description = string.concat("Divert power to ", room_2);
+					if(step != 0) {
+						room = room_2;
+					}
+				}
+				if((number_2 == 1 && time == null) || time == 0) {
+					display.add(player, task_id + 1, string.concat(color, room, ": ", description));
+				} elseif(time != null) {
+					display.add(player, task_id + 1, string.concat(color, room, ": ", description, " (", string.number(time), ")"));
+				} else {
+					display.add(player, task_id + 1, string.concat(color, room, ": ", description, " (", string.number(step), "/", string.number(number_2), ")"));
+				}
+			}
+		}
+	}
+}
+
+function sabotage_light() {
+	amongus.setAlert(true);
+	$lights_sabotaged = true;
+	addSaboParticles($fix_lights_par_loc_1, $fix_lights_par_loc_2);
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		if(!player.isOnCam(p)) {
+			if(isCrewmate(p)) {
+				if(!player.isGhost(p)) {
+					entity.addEffect(p, "blindness", 999999, 7, false);
+				}
+			} else {
+				entity.addEffect(p, "night_vision", 999999, 0, false);
+			}
+		}
+	}
+	displaySabotage("§cElectrical: Fix Lights", 1, 1, null);
+	inv.setItem($lights_inv, 0, read.item("minecraft:red_stained_glass_pane", 1, "§rOff"));
+	for(i = 1; i < 5; i++) {
+		r = math.random(0, 1);
+		if(r == 0) {
+			inv.setItem($lights_inv, i, read.item("minecraft:green_stained_glass_pane", 1, "§rOn"));
+		} else {
+			inv.setItem($lights_inv, i, read.item("minecraft:red_stained_glass_pane", 1, "§rOff"));
+		}
+	}
+	switchLights(false);
+}
+
+function displaySabotage(text, number_1, number_2, time) {
+	if(time == null) {
+		if(number_2 == 1) {
+			minigame.displayAll(20, text);
+		} else {
+			minigame.displayAll(20, string.concat(text, " (", string.number(number_1), "/", string.number(number_2), ")"));
+		}
+	} else {
+		if(number_2 == 1) {
+			minigame.displayAll(20, text, string.number(time));
+		} else {
+			minigame.displayAll(20, string.concat(text, string.number(time), " (", string.number(number_1), "/", string.number(number_2), ")"));
+		}
+	}
+}
+
+function callMeeting(reporter) {
+	reporter_uuid = player.getUuid(reporter);
+	amount = map.get($meeting_amounts, reporter_uuid);
+	if(amount <= 0) {
+		msg.prefix(reporter, $gamename, "You have no emergency meetings left.");
+		return;
+	}
+	cooldown = data.getTimer(reporter, "Meeting Cooldown");
+	if(cooldown == null || cooldown == -1) {
+		tpAllMiddle(reporter);
+		reporter_name = player.getName(reporter);
+		color_code = amongus.getPlayerColorCode(reporter);
+		minigame.titleAll("§cEMERGENY MEETING", string.concat("called by ", color_code, reporter_name), 20, 60, 20);
+		minigame.speakAll($gamename, string.concat(color_code, reporter_name, " §rcalls an emergency meeting!"));
+		new_amount = amount - 1;
+		map.add($meeting_amounts, reporter_uuid, new_amount);
+		msg.prefix(reporter, $gamename, string.concat("You have §c", string.number(new_amount), "§r emergeny meetings left."));
+	} else {
+		msg.prefix(reporter, $gamename, string.concat("Remaining meeting cooldown: ", string.number(math.roundDown(cooldown / 20)), "s"));
+	}
+}
+
+function reportBody(reporter, found_player_uuid) {
+	tpAllMiddle(reporter);
+	reporter_name = player.getName(reporter);
+	found_player_name = player.getName(found_player_uuid);
+	minigame.titleAll("§cREPORT", string.concat(reporter_name, " found ", found_player_name), 20, 60, 20);
+	minigame.speakAll($gamename, string.concat(amongus.getPlayerColorCode(reporter), reporter_name, " §rfound the body of ", amongus.getPlayerColorCode(found_player_uuid), found_player_name, "."));
+	if(amongus.isAlert()) {
+		if($lights_sabotaged) {
+			switchLights(true);
+		}
+		if($oxygen_sabotaged) {
+			fix_oxygen();
+		}
+		if($reactor_sabotaged) {
+			fix_meltdown();
+		}
+	}
+}
+
+function continueGame() {
+	$meeting = false;
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		inv.close(p);
+		if(player.isGhost(p)) {
+			entity.addEffect(p, "jump_boost", 0, 128, false);
+			player.setSpeed(p, $move_speed * 1.5);
+		} else {
+			entity.setName(p, "");
+			entity.clearEffects(p);
+			player.setSpeed(p, $move_speed);
+			if(isImpostor(p) && !player.isGhost(p)) {
+				data.setTimer(p, "Kill Cooldown", $kill_cooldown * 20);
+				status.addTimed(p, 1, $kill_cooldown * 20, "Kill Cooldown");
+				setImpostorIcons(p);
+			} else {
+				setCrewmateIcons(p);
+			}
+		}
+		status.remove(p, 2);
+		data.setTimer(p, "Voting Time", -1);
+		data.setTimer(p, "Meeting Cooldown", $meeting_cooldown * 20);
+		status.addTimed(p, 0, $meeting_cooldown * 20, "Meeting Cooldown");
+	}
+	if($lights_sabotaged) {
+		sabotage_light();
+ 	}
+}
+
+function killCrewmate(killer, crewmate) {
+	loc = entity.getLocation(crewmate);
+	sound.spawnForPlayer(killer, $kill_sound, $master_sound_category);
+	sound.spawnForPlayer(crewmate, $kill_sound, $master_sound_category);
+	killer_name = player.getName(killer);
+	killer_color_code = amongus.getPlayerColorCode(killer);
+	msg.prefix(crewmate, $gamename, string.concat(killer_color_code, killer_name, "§r killed you."));
+	msg.prefix(killer, $gamename, string.concat("You killed ", amongus.getPlayerColorCode(crewmate), player.getName(crewmate), "§r."));
+	//Killer zu Mord-Location teleportieren
+	entity.teleport(killer, loc);
+	data.setTimer(killer, "Kill Cooldown", $kill_cooldown * 20);
+	status.addTimed(killer, 1, $kill_cooldown * 20, "Kill Cooldown");
+	//Crewmate zum Geist machen
+	entity.clearEffects(crewmate);
+	entity.addEffect(crewmate, "invisibility", 999999, 1, false);
+	crew_uuid = player.getUuid(crewmate);
+	list.add($ghosts, crew_uuid);
+	stacks.clear(crewmate);
+	amongus.removeEquip(crewmate);
+	title.send(crewmate, text.new("§cKILLED!!!"), text.new(string.concat("by ", killer_color_code, killer_name)));
+	inv.close(crewmate);
+	$reactor_used = false;
+	sabotage.closedInv(crewmate);
+	player.setSpeed(crewmate, $move_speed * 1.5);
+	//Leiche an Mord-Location platzieren
+	ent = entity.spawn("zombie", loc, "{IsBaby:0}");
+	list.add($dead_bodies, ent);
+	map.add($report_map, ent, crew_uuid);
+	living.removeAi(ent);
+	entity.setName(ent, "");
+	living.setEquip(ent, "hand", $air_item);
+	entity.setSilent(ent, true);
+	color = amongus.getPlayerColor(crewmate);
+	amongus.forceEquip(ent, color);
+}
+
+function amongus.clearAdminTable() {
+	map.clear($admin_table_map);
+	map.clear($admin_table_map_2);
+}
+
+function amongus.removeFromAdminTable(player) {
+	player_uuid = player.getUuid(player);
+	room_id = map.get($admin_table_map, player_uuid);
+	if(room_id == null) {
+		return;
+	}
+	map.remove($admin_table_map, player_uuid);
+	map.add($admin_table_map_2, room_id, map.get($admin_table_map_2, room_id) - 1);
+}
+
+function removeCamBodies() {
+	iter = map.iterator($cam_map_3);
+	while(hasNext(iter)) {
+		element = next(iter);
+		entity.remove(map.getValue(element));
+	}
+}
+
+function removeDeadBodies() {
+	iter = iterator($dead_bodies);
+	while(hasNext(iter)) {
+		entity.remove(next(iter));
+	}
+}
+
+function registerTask(task_id, room, description, number_1, number_2) {
+	a = array.new(4);
+	a[0] = room;
+	a[1] = description;
+	a[2] = number_1;
+	a[3] = number_2;
+	map.add($all_tasks, task_id, a);
+}
+
+function giveTask(player, task_id, room, description, number_1, number_2, time) {
+	player_uuid = player.getUuid(player);
+	if(time != null) {
+		color = "§e";
+	} elseif(number_1 == 0) {
+		color = "§r";
+	} elseif(number_1 == number_2) {
+		sound.spawnForPlayer(player, $task_sound, $master_sound_category);
+		$amount_done_tasks++;
+		color = "§a";
+		if(!$comms_sabotaged) {
+			iter = iterator($player_list);
+			while(hasNext(iter)) {
+				p_uuid = next(iter);
+				p = player.get(p_uuid);
+				pct = $amount_done_tasks / $amount_all_tasks;
+				boss.setProgress($progress_bar, pct);
+				if(pct == 1) {
+					sgoto(2, "crewmate_win");
+				}
+			}
+		}
+	} else {
+		color = "§e";
+	}
+	step = task.getStep(player, task_id);
+	if(step == 0) {
+		if(task_id == 1) {
+			addTaskParticle(player, $get_fuel_par_loc);
+		} elseif(task_id == 2) {		
+			r = map.getOrDefault($download_map_3, player_uuid, math.random(0, 4));
+			map.add($download_map_3, player_uuid, r);
+			addTaskParticle(player, list.getIndex($download_list_4, r));
+			room = map.get($download_map_2, list.getIndex($download_list_3, r));
+		} elseif(task_id == 3) {
+			addTaskParticle(player, $prime_shields_par_loc);
+		} elseif(task_id == 4) {
+			addTaskParticle(player, $start_reactor_par_loc);
+		} elseif(task_id == 5) {
+			addTaskParticle(player, $unlock_manifolds_par_loc);
+		} elseif(task_id == 6) {
+			addTaskParticle(player, $chart_course_par_loc);
+		} elseif(task_id == 7) {
+			addTaskParticle(player, $steering_par_loc);
+		} elseif(task_id == 8 && time == null) {
+			addTaskParticle(player, $inspect_par_loc);
+		} elseif(task_id == 9) {
+			addTaskParticle(player, $calibrate_dist_par_loc);
+		} elseif(task_id == 11) {
+			addTaskParticle(player, $swipe_card_par_loc);
+		} elseif(task_id == 12) {
+			r = map.getOrDefault($empty_garb_map_3, player_uuid, math.random(0, 1));
+			map.add($empty_garb_map_3, player_uuid, r);
+			if(r == 0) {
+				addTaskParticle(player, $cafe_garb_par_loc);
+				room = "Cafeteria";
+			} else {
+				addTaskParticle(player, $o2_garb_par_loc);
+				room = "O2";
+			}
+		} elseif(task_id == 13) {
+			addTaskParticle(player, $clear_ast_par_loc);
+		} elseif(task_id == 15) {
+			addTaskParticle(player, $clean_o2_par_loc);
+		} elseif(task_id == 16) {
+			addTaskParticle(player, $scan_par_loc);
+		} elseif(task_id == 17) {
+			addTaskParticle(player, $ue_align_par_loc);
+			addTaskParticle(player, $le_align_par_loc);
+		}
+	}
+	if(task_id == 10) {
+		my_list = map.getOrDefault($wires_map_4, player_uuid, list.new());
+		if(step == 0) {
+			//Electrical > Storage > Admin > Navigation > Cafeteria > Security
+			//1.Wire
+			index_1 = math.random(0, 3);
+			wire_loc_1 = list.getIndex($wires_list_2, index_1);
+			list.add(my_list, wire_loc_1);
+			//2.Wire
+			index_2 = math.random(1 + index_1, 4);
+			wire_loc_2 = list.getIndex($wires_list_2, index_2);
+			while(list.contains(my_list, wire_loc_2)) {
+				index_2 = math.random(1 + index_1, 4);
+				wire_loc_2 = list.getIndex($wires_list_2, index_2);
+			}
+			list.add(my_list, wire_loc_2);
+			//3.Wire
+			index_3 = math.random(1 + index_2, 5);
+			wire_loc_3 = list.getIndex($wires_list_2, index_3);
+			while(list.contains(my_list, wire_loc_3)) {
+				index_3 = math.random(1 + index_2, 5);
+				wire_loc_3 = list.getIndex($wires_list_2, index_3);
+			}
+			list.add(my_list, wire_loc_3);
+			map.add($wires_map_4, player_uuid, my_list);
+		}
+		if(step < 3) {
+			wire_loc = list.getIndex(my_list, step);
+			room = map.get($wires_map_3, wire_loc);
+			addTaskParticle(player, map.get($wires_map_5, wire_loc));
+			if(step > 0) {
+				old_wire_loc = list.getIndex(my_list, step - 1);
+				removeTaskParticle(player, map.get($wires_map_5, old_wire_loc));
+			}
+		} else {
+			wire_loc = list.getIndex(my_list, 2);
+			removeTaskParticle(player, map.get($wires_map_5, wire_loc));
+		}
+	} elseif(task_id == 14) {
+		r = map.getOrDefault($divert_pow_map_3, player_uuid, math.random(22, 29));
+		map.add($divert_pow_map_3, player_uuid, r);
+		room_2 = map.get($divert_pow_map, r);
+		description = string.concat("Divert power to ", room_2);
+		if(step == 0) {
+			addTaskParticle(player, $elec_power_par_loc);
+		} else {
+			room = room_2;
+		}
+	}
+	if(!$comms_sabotaged) {
+		if((number_2 == 1 && time == null) || time == 0) {
+			display.add(player, task_id + 1, string.concat(color, room, " §8| ", color, description));
+		} elseif(time != null) {
+			display.add(player, task_id + 1, string.concat(color, room, " §8| ", color, description, " (", string.number(time), ")"));
+		} else {
+			display.add(player, task_id + 1, string.concat(color, room, " §8| ", color, description, " (", string.number(number_1), "/", string.number(number_2), ")"));
+		}
+	}
+	set = map.get($player_tasks, player_uuid);
+	if(set == null) {
+		set = set.new();
+	}
+	set.add(set, task_id);
+	map.add($player_tasks, player_uuid, set);
+}
+
+function sgoto_auto_close_inv(player_uuid) {
+	list.add($auto_close_list, player_uuid);
+	sgoto(40, "auto_close_inv");
+}
+
+@auto_close_inv
+p_uuid = list.getIndex(auto_close_list, 0);
+list.removeIndex(auto_close_list, 0);
+if(list.contains(auto_close_list_2, p_uuid)) {
+	list.remove(auto_close_list_2, p_uuid);
+} else {
+	inv.close(player.get(p_uuid));
+}
+goto("checkgame");
+
+function hasTask(player, task_id) {
+	player_uuid = player.getUuid(player);
+	set = map.getOrDefault($player_tasks, player_uuid, set.new());
+	return set.contains(set, task_id);
+}
+
+function addAstDirection(id, x, y) {
+	a = array.new(2);
+	a[0] = x;
+	a[1] = y;
+	$ast_directions[id] = a;
+}
+
+function addAstStartPos(slot, dir_id_1, dir_id_2, dir_id_3) {
+	list.add($ast_start_pos, slot);
+	my_list = list.new();
+	list.add(my_list, dir_id_1);
+	list.add(my_list, dir_id_2);
+	list.add(my_list, dir_id_3);
+	map.add($ast_start_pos_dirs, slot, my_list);
+}
+
+function getAstDirection(slot) {
+	my_list = map.get($ast_start_pos_dirs, slot);
+	dir_id = list.getIndex(my_list, math.random(0, 2));
+	a = $ast_directions[dir_id];
+	return a;
+}
+
+@loop
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	player.setHunger(p, 4);
+	player.setSaturation(p, 0);
+	color = amongus.getPlayerColor(p);
+	if(player.isGhost(p)) {
+		amongus.removeEquip(p);
+	} else {
+		if(!list.contains(vent_list, p_uuid)) {
+			if(!player.isOnCam(p)) {
+				amongus.equip(p, color);
+			}
+		}
+	}
+}
+sgoto(20, "loop");
+goto("checkgame");
+
+@imp_par_loop
+iter = iterator(impostors_list_2);
+while(hasNext(iter)) {
+	p_uuid_1 = next(iter);
+	p_1 = player.get(p_uuid_1);
+	iter_2 = iterator(impostors_list_2);
+	while(hasNext(iter_2)) {
+		p_uuid_2 = next(iter_2);
+		p_2 = player.get(p_uuid_2);
+		if(!player.isGhost(p_2)) {
+			p_2_loc = entity.getLocation(p_2);
+			loc.add(p_2_loc, 0, 2.3, 0);
+			particle.spawnPlayer(p_2_loc, imp_par, p_1);
+		}
+	}
+}
+sgoto(5, "imp_par_loop");
+goto("checkgame");
+
+@download_data_2
+player_uuid = player.getUuid(player);
+c = 0;
+inv.setItem(inv, c++, lime_glass);
+map.add(download_counter, player_uuid, c);
+list.add(download_list, player_uuid);
+map.add(download_map, player_uuid, inv);
+sgoto(20, "download_data");
+goto("checkgame");
+
+@download_data
+task_id = 2;
+player_uuid = list.getIndex(download_list, 0);
+inv = map.get(download_map, player_uuid);
+player = player.get(player_uuid);
+list.removeIndex(download_list, 0);
+c = map.get(download_counter, player_uuid);
+if(list.contains(download_list_2, player_uuid)) {
+	goto("checkgame");
+}
+inv.setItem(inv, c++, lime_glass);
+map.add(download_counter, player_uuid, c);
+if(c < 9) {
+	list.add(download_list, player_uuid);
+	map.add(download_map, player_uuid, inv);
+	sgoto(20, "download_data");
+} else {
+	inv.setItem(inv, 11, read.item("km:check_green", 1, "§rTask completed"));
+	map.remove(download_counter, player_uuid);
+	step = task.getStep(player, task_id);
+	step = task.stepIncrease(player, task_id);
+	if(step == 1) {
+		r = map.get(download_map_3, player_uuid);
+		removeTaskParticle(player, list.getIndex(download_list_4, r));
+		addTaskParticle(player, admin_upload_par_loc);
+	} else {
+		removeTaskParticle(player, admin_upload_par_loc);
+	}
+	giveTask(player, task_id, "Admin", "Upload Data", step, 2, null);
+	sgoto_auto_close_inv(player_uuid);
+}
+goto("checkgame");
+
+@draw_pattern_1
+player_uuid = list.getIndex(reactor_draw_list_1, 0);
+list.removeIndex(reactor_draw_list_1, 0);
+if(list.contains(reactor_block_list, player_uuid)) {
+	goto("checkgame");
+}
+reactor_array = reactor.get(player_uuid);
+inv = reactor.getInv(reactor_array);
+stage = reactor.getStage(reactor_array);
+for(i = 0; i <= stage; i++) {
+	inv.setItem(inv, i, green_glass);
+}
+reactor.setRightSide(inv, black_glass);
+player = player.get(player_uuid);
+list.add(reactor_draw_list_2, player_uuid);
+goto("draw_pattern_2");
+
+
+@draw_pattern_2
+player_uuid = list.getIndex(reactor_draw_list_2, 0);
+list.removeIndex(reactor_draw_list_2, 0);
+if(list.contains(reactor_block_list, player_uuid)) {
+	goto("checkgame");
+}
+reactor_array = reactor.get(player_uuid);
+inv = reactor.getInv(reactor_array);
+stage = reactor.getStage(reactor_array);
+counter = reactor.getCounter(reactor_array);
+pattern = reactor.getPattern(reactor_array);
+player = player.get(player_uuid);
+if(counter > stage) {
+	reactor.setCounter(reactor_array, 0);
+	reactor.setPhase(reactor_array, "click");
+	reactor.save(reactor_array, player);
+	reactor.setRightSide(inv, gray_glass);
+	goto("checkgame");
+}
+inv.setItem(inv, pattern[counter], blue_glass);
+counter++;
+reactor.setCounter(reactor_array, counter);
+reactor.save(reactor_array, player);
+if(counter < 6) {
+	list.add(reactor_draw_list_2, player_uuid);
+	list.add(reset_reactor_draw_list, player_uuid);
+	sgoto(10, "reset_reactor_draw");
+	sgoto(12, "draw_pattern_2");
+}
+goto("checkgame");
+
+@reset_reactor_draw
+player_uuid = list.getIndex(reset_reactor_draw_list, 0);
+list.removeIndex(reset_reactor_draw_list, 0);
+reactor_array = reactor.get(player_uuid);
+inv = reactor.getInv(reactor_array);
+counter = reactor.getCounter(reactor_array) - 1;
+pattern = reactor.getPattern(reactor_array);
+if(counter >= 0) {
+	inv.setItem(inv, pattern[counter], black_glass);
+	player = player.get(player_uuid);
+}
+goto("checkgame");
+
+@reset_reactor_click
+player_uuid = list.getIndex(reset_reactor_click_list, 0);
+slot = list.getIndex(reset_reactor_click_list_2, 0);
+list.removeIndex(reset_reactor_click_list, 0);
+list.removeIndex(reset_reactor_click_list_2, 0);
+if(list.contains(reactor_block_list, player_uuid)) {
+	goto("checkgame");
+}
+reactor_array = reactor.get(player_uuid);
+inv = reactor.getInv(reactor_array);
+inv.setItem(inv, slot, gray_glass);
+player = player.get(player_uuid);
+goto("checkgame");
+
+@unblock_start_reactor
+list.removeIndex(reactor_block_list, 0);
+goto("checkgame");
+
+@unblock_submit_scan
+list.removeIndex(submit_scan_list_2, 0);
+goto("checkgame");
+
+@unblock_calib_dist
+list.removeIndex(calibrate_dist_list_2, 0);
+goto("checkgame");
+
+@unblock_empty_garb
+list.removeIndex(empty_garb_list_2, 0);
+goto("checkgame");
+
+@unblock_download
+list.removeIndex(download_list_2, 0);
+goto("checkgame");
+
+@unblock_clear_ast
+list.removeIndex(clear_ast_list_2, 0);
+goto("checkgame");
+
+@new_reactor
+player_uuid = list.getIndex(reactor_false_click_list, 0);
+list.removeIndex(reactor_false_click_list, 0);
+reactor_array = reactor.get(player_uuid);
+inv = reactor.getInv(reactor_array);
+reactor.setHeader(inv, air_item);
+reactor.setLeftSide(inv, black_glass);
+reactor.setRightSide(inv, black_glass);
+player = player.get(player_uuid);
+reactor_array = array.new(5);
+reactor.setInv(reactor_array, inv);
+reactor.setStage(reactor_array, 0);
+reactor.setCounter(reactor_array, 0);
+reactor.setPattern(reactor_array);
+reactor.save(reactor_array, player);
+list.add(reactor_draw_list_1, player_uuid);
+sgoto(20, "draw_pattern_1");
+goto("checkgame");
+
+@false_reactor_click
+reactor.setHeader(inv, red_glass);
+reactor.setRightSide(inv, red_glass);
+list.add(reactor_block_list, player_uuid);
+list.add(reactor_false_click_list, player_uuid);
+sgoto(20, "unblock_start_reactor");
+sgoto(40, "new_reactor");
+goto("checkgame");
+
+@false_manifolds_click
+for(i = 0; i < 10; i++) {
+	inv.setItem(inv, i, read.item("minecraft:red_stained_glass_pane", item.getAmount(inv.getItem(inv, i))));
+}
+list.add(manifolds_list, inv);
+list.add(manifolds_list_2, player);
+sgoto(30, "redo_manifolds");
+goto("checkgame");
+
+@redo_manifolds
+inv = list.getIndex(manifolds_list, 0);
+player_uuid = player.getUuid(list.getIndex(manifolds_list_2, 0));
+list.removeIndex(manifolds_list, 0);
+list.removeIndex(manifolds_list_2, 0);
+map.remove(manifolds_counter, player_uuid);
+for(i = 0; i < 10; i++) {
+	inv.setItem(inv, i, read.item("minecraft:blue_stained_glass_pane", item.getAmount(inv.getItem(inv, i))));
+}
+goto("checkgame");
+
+@countdown_sample
+player_uuid = list.getIndex(sample_list, 0);
+player = player.get(player_uuid);
+time = list.getIndex(sample_list_2, 0) - 1;
+list.removeIndex(sample_list, 0);
+list.removeIndex(sample_list_2, 0);
+inv = map.get(sample_map, player_uuid);
+if(time == 58) {
+	inv.setItem(inv, 0, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 5, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 10, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+} elseif(time == 57) {
+	inv.setItem(inv, 1, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 6, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 11, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+} elseif(time == 56) {
+	inv.setItem(inv, 2, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 7, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 12, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+} elseif(time == 55) {
+	inv.setItem(inv, 3, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 8, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 13, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+} elseif(time == 54) {
+	inv.setItem(inv, 4, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 9, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, 14, read.item("minecraft:blue_stained_glass_pane", 1, "§rSample"));
+}
+if(time == 0) {
+	inv.setItem(inv, 20, read.item("minecraft:gray_stained_glass_pane", 1, "§rSelect anomaly"));
+	r = math.random(0, 4);
+	inv.setItem(inv, r, read.item("minecraft:red_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, r + 5, read.item("minecraft:red_stained_glass_pane", 1, "§rSample"));
+	inv.setItem(inv, r + 10, read.item("minecraft:red_stained_glass_pane", 1, "§rSample"));
+	for(i = 15; i < 20; i++) {
+		inv.setItem(inv, i, read.item("minecraft:green_stained_glass_pane", 1, "§rSelect sample"));
+	}
+	giveTask(player, 8, "MedBay", "Inspect Sample", 0, 1, 0);
+	goto("checkgame");
+}
+giveTask(player, 8, "MedBay", "Inspect Sample", 0, 1, time);
+inv.setItem(inv, 20, read.item("minecraft:gray_stained_glass_pane", time, "§rGo grab a coffee"));
+list.add(sample_list, player_uuid);
+list.add(sample_list_2, time);
+sgoto(20, "countdown_sample");
+goto("checkgame");
+
+@calibrate_dist
+p_uuid = list.getIndex(calibrate_dist_list, 0);
+list.removeIndex(calibrate_dist_list, 0);
+if(list.contains(calibrate_dist_list_2, p_uuid)) {
+	goto("checkgame");
+}
+a = map.get(calibrate_dist_map, p_uuid);
+inv = a[1];
+index = a[3];
+stage = a[4];
+inv.setItem(inv, calibrate_dist_array[index++], air_item);
+if(index == 12) {
+	index = 0;
+}
+a[3] = index;
+if(stage == 0) {
+	inv.setItem(inv, calibrate_dist_array[index], yellow_glass);
+} elseif(stage == 1) {
+	inv.setItem(inv, calibrate_dist_array[index], blue_glass);
+} elseif(stage == 2) {
+	inv.setItem(inv, calibrate_dist_array[index], cyan_glass);
+}
+if(stage < 3) {
+	map.add(calibrate_dist_map, p_uuid, a);
+	list.add(calibrate_dist_list, p_uuid);
+	sgoto(7, "calibrate_dist");
+}
+goto("checkgame");
+
+@empty_garb
+p_uuid = list.getIndex(empty_garb_list, 0);
+list.removeIndex(empty_garb_list, 0);
+c = map.get(empty_garb_map, p_uuid);
+inv = map.get(empty_garb_map_2, p_uuid);
+if(list.contains(empty_garb_list_2, p_uuid)) {
+	goto("checkgame");
+}
+for(slot = 42; slot > 6; slot--) {
+	if(slot == 35) {
+		continue;
+	} elseif(slot > 35) {
+		inv.setItem(inv, slot, inv.getItem(inv, slot - 8));
+	} else {
+		inv.setItem(inv, slot, inv.getItem(inv, slot - 7));
+	}
+}
+p = player.get(p_uuid);
+if(++c == 5) {
+	step = task.stepIncrease(p, 12);
+	if(step == 1) {
+		addTaskParticle(p, stor_garb_par_loc);
+		r = map.get(empty_garb_map_3, player_uuid);
+		if(r == 0) {
+			removeTaskParticle(p, cafe_garb_par_loc);
+		} else {
+			removeTaskParticle(p, o2_garb_par_loc);
+		}
+	} else {
+		removeTaskParticle(p, stor_garb_par_loc);
+	}
+	inv.setItem(inv, 35, read.item("km:check_green", 1, "§rTask completed"));
+	map.remove(empty_garb_map, p_uuid);
+	
+	giveTask(p, 12, "Storage", "Empty Garbage", step, 2, null);
+	sgoto_auto_close_inv(p_uuid);
+} else {
+	map.add(empty_garb_map, p_uuid, c);
+	map.add(empty_garb_map_2, p_uuid, inv);
+	list.add(empty_garb_list, p_uuid);
+	sgoto(20, "empty_garb");
+}
+goto("checkgame");
+
+@clear_ast
+p_uuid = list.getIndex(clear_ast_list, 0);
+list.removeIndex(clear_ast_list, 0);
+if(list.contains(clear_ast_list_2, p_uuid)) {
+	if(list.getSize(clear_ast_list) == 0) {
+		goto("checkgame");
+	}
+}
+inv = map.get(clear_ast_map_3, p_uuid);
+my_list = map.get(clear_ast_map, p_uuid);
+iter = iterator(my_list);
+while(hasNext(iter)) {
+	a = next(iter);
+	slot = a[1];
+	x_dir = a[2];
+	y_dir = a[3];
+	reached_end = a[4];
+	speed = a[5];
+	speed_counter = a[6];
+	if(speed_counter == speed) {
+		inv.setItem(inv, slot, air_item);
+		if(reached_end) {
+			remove(iter);
+			continue;
+		}
+		slot += x_dir;
+		slot += (y_dir * 9);
+		a[1] = slot;
+		if(list.contains(ast_start_pos, slot)) {
+			a[4] = true;
+		}
+		inv.setItem(inv, slot, read.item("minecraft:bedrock", 1, "§rAsteroid"));
+		a[6] = 0;
+	} else {
+		a[6] = speed_counter + 1;
+	}
+}
+c = map.get(clear_ast_map_2, p_uuid) + 1;
+if(c == 3 && !list.contains(clear_ast_list_3, p_uuid)) {
+	c = 0;
+	//new asteroid
+	a = array.new(7);
+	slot = list.getIndex(ast_start_pos, math.random(0, 25));
+	a[1] = slot;
+	inv.setItem(inv, slot, read.item("minecraft:bedrock", 1, "§rAsteroid"));
+	b = getAstDirection(slot);
+	a[2] = b[0]; //x_dir
+	a[3] = b[1]; //y_dir
+	a[4] = false; //reached end
+	a[5] = math.random(1, 2); //speed
+	a[6] = 0; //speed counter
+	list.add(my_list, a);
+}
+map.add(clear_ast_map, p_uuid, my_list);
+map.add(clear_ast_map_2, p_uuid, c);
+list.add(clear_ast_list, p_uuid);
+sgoto(5, "clear_ast");
+goto("checkgame");
+
+function assignSeat(player) {
+	for(i = 0; i < 10; i++) {
+		if($seat_array[i] == null) {
+			entity.teleport(player, $lobbyspawnloc);
+			player_uuid = player.getUuid(player);
+			$seat_array[i] = player_uuid;
+			map.add($seat_map_index, player_uuid, i);
+			list.add($seat_list_join, player_uuid);
+			sgoto(10, "lobby_join_seat");
+			return;
+		}
+	}
+}
+
+@lobby_join_seat
+player_uuid = list.getIndex(seat_list_join, 0);
+list.removeIndex(seat_list_join, 0);
+i = map.get(seat_map_index, player_uuid);
+loc = list.getIndex(seat_locs, i);
+ent = entity.spawn("km:nobody", loc.mod(loc, 0.5, 0, 0.5), "{NoGravity:true}");
+map.add(seat_map, player_uuid, ent);
+player = player.get(player_uuid);
+if(player != null) {
+	entity.mount(player, ent);
+	list.add(seat_list_leave, player_uuid);
+	sgoto(60, "lobby_leave_seat");
+}
+goto("simplelobby");
+
+@lobby_leave_seat
+player_uuid = list.getIndex(seat_list_leave, 0);
+list.removeIndex(seat_list_leave, 0);
+leaveSeat(player_uuid);
+goto("simplelobby");
+
+function leaveSeat(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_uuid = player.getUuid(player_or_uuid);
+	} else {
+		player_uuid = player_or_uuid;
+	}
+	for(i = 0; i < 10; i++) {
+		if($seat_array[i] == player_uuid) {
+			$seat_array[i] = null;
+			ent = map.get($seat_map, player_uuid);
+			if(ent != null) {
+				entity.remove(ent);
+				map.remove($seat_map, player_uuid);
+			}
+		}
+	}
+}
+
+@submit_scan
+p_uuid = list.getIndex(submit_scan_list, 0);
+list.removeIndex(submit_scan_list, 0);
+if(list.contains(submit_scan_list_2, p_uuid)) {
+	goto("checkgame");
+}
+c = map.get(submit_scan_map, p_uuid);
+inv = map.get(submit_scan_map_2, p_uuid);
+p = player.get(p_uuid);
+if(c == 0) {
+	inv.setItem(inv, 1, lime_glass);
+	inv.setItem(inv, 2, lime_glass);
+	inv.setItem(inv, 3, lime_glass);
+	inv.setItem(inv, 4, lime_glass);
+	inv.setItem(inv, 5, lime_glass);
+} elseif(c == 1) {
+	inv.setItem(inv, 0, read.item("minecraft:black_stained_glass_pane", 1, string.concat("§rID: ", string.toUpperCase(amongus.getPlayerColor(p), "P0"))));
+	inv.setItem(inv, 1, air_item);
+	inv.setItem(inv, 2, air_item);
+	inv.setItem(inv, 3, air_item);
+	inv.setItem(inv, 4, air_item);
+	inv.setItem(inv, 5, air_item);
+	inv.setItem(inv, 7, lime_glass);
+	inv.setItem(inv, 8, lime_glass);
+	inv.setItem(inv, 10, lime_glass);
+	inv.setItem(inv, 11, lime_glass);
+	inv.setItem(inv, 31, green_glass);
+} elseif(c == 2) {
+	inv.setItem(inv, 7, air_item);
+	inv.setItem(inv, 8, air_item);
+	inv.setItem(inv, 10, air_item);
+	inv.setItem(inv, 11, air_item);
+	inv.setItem(inv, 13, lime_glass);
+	inv.setItem(inv, 14, lime_glass);
+	inv.setItem(inv, 16, lime_glass);
+	inv.setItem(inv, 17, lime_glass);
+} elseif(c == 3) {
+	inv.setItem(inv, 6, read.item("minecraft:black_stained_glass_pane", 1, "§rHT: 3' 6''"));
+	inv.setItem(inv, 13, air_item);
+	inv.setItem(inv, 14, air_item);
+	inv.setItem(inv, 16, air_item);
+	inv.setItem(inv, 17, air_item);
+	inv.setItem(inv, 19, lime_glass);
+	inv.setItem(inv, 20, lime_glass);
+	inv.setItem(inv, 22, lime_glass);
+	inv.setItem(inv, 23, lime_glass);
+	inv.setItem(inv, 32, green_glass);
+} elseif(c == 4) {
+	inv.setItem(inv, 19, air_item);
+	inv.setItem(inv, 20, air_item);
+	inv.setItem(inv, 22, air_item);
+	inv.setItem(inv, 23, air_item);
+	inv.setItem(inv, 25, lime_glass);
+	inv.setItem(inv, 26, lime_glass);
+	inv.setItem(inv, 28, lime_glass);
+	inv.setItem(inv, 29, lime_glass);
+} elseif(c == 5) {
+	inv.setItem(inv, 12, read.item("minecraft:black_stained_glass_pane", 1, "§rWT: 92 lbs"));
+	inv.setItem(inv, 25, air_item);
+	inv.setItem(inv, 26, air_item);
+	inv.setItem(inv, 28, air_item);
+	inv.setItem(inv, 29, air_item);
+	inv.setItem(inv, 19, lime_glass);
+	inv.setItem(inv, 20, lime_glass);
+	inv.setItem(inv, 22, lime_glass);
+	inv.setItem(inv, 23, lime_glass);
+	inv.setItem(inv, 33, green_glass);
+} elseif(c == 6) {
+	inv.setItem(inv, 19, air_item);
+	inv.setItem(inv, 20, air_item);
+	inv.setItem(inv, 22, air_item);
+	inv.setItem(inv, 23, air_item);
+	inv.setItem(inv, 13, lime_glass);
+	inv.setItem(inv, 14, lime_glass);
+	inv.setItem(inv, 16, lime_glass);
+	inv.setItem(inv, 17, lime_glass);
+} elseif(c == 7) {
+	inv.setItem(inv, 18, read.item("minecraft:black_stained_glass_pane", 1, string.concat("§rC: ",  string.toUpperCase(amongus.getPlayerColor(p)))));
+	inv.setItem(inv, 13, air_item);
+	inv.setItem(inv, 14, air_item);
+	inv.setItem(inv, 16, air_item);
+	inv.setItem(inv, 17, air_item);
+	inv.setItem(inv, 7, lime_glass);
+	inv.setItem(inv, 8, lime_glass);
+	inv.setItem(inv, 10, lime_glass);
+	inv.setItem(inv, 11, lime_glass);
+	inv.setItem(inv, 34, green_glass);
+} elseif(c == 8) {
+	inv.setItem(inv, 7, air_item);
+	inv.setItem(inv, 8, air_item);
+	inv.setItem(inv, 10, air_item);
+	inv.setItem(inv, 11, air_item);
+	inv.setItem(inv, 1, lime_glass);
+	inv.setItem(inv, 2, lime_glass);
+	inv.setItem(inv, 3, lime_glass);
+	inv.setItem(inv, 4, lime_glass);
+	inv.setItem(inv, 5, lime_glass);
+} elseif(c == 9) {
+	inv.setItem(inv, 24, read.item("minecraft:black_stained_glass_pane", 1, "§rBT: O-"));
+	inv.setItem(inv, 1, air_item);
+	inv.setItem(inv, 2, air_item);
+	inv.setItem(inv, 3, air_item);
+	inv.setItem(inv, 4, air_item);
+	inv.setItem(inv, 5, air_item);
+	inv.setItem(inv, 35, green_glass);
+} else {
+	inv.setItem(inv, 30, read.item("km:check_green", 1, "§rTask completed"));
+	removeTaskParticle(p, scan_par_loc);
+	step = task.stepIncrease(p, 16);
+	giveTask(p, 16, "MedBay", "Submit Scan", 1, 1, null);
+	sgoto_auto_close_inv(p_uuid);
+	goto("checkgame");
+}
+map.add(submit_scan_map, p_uuid, c + 1);
+list.add(submit_scan_list, p_uuid);
+sgoto(20, "submit_scan");
+goto("checkgame");
+
+function set_engine(player, inv, direction) {
+	player_uuid = player.getUuid(player);
+	pos = map.get($align_engine_map, player_uuid);
+	if(direction == "up") {
+		new_pos = pos + 1;
+	} elseif(direction == "down") {
+		new_pos = pos - 1;
+	} else {
+		new_pos = pos;
+	}
+	if(new_pos < 0 || new_pos > 10) {
+		return false;
+	}
+	map.add($align_engine_map, player_uuid, new_pos);
+	//remove old pattern
+	temp_list = $align_engine_array[pos];
+	iter = iterator(temp_list);
+	while(hasNext(iter)) {
+		inv.setItem(inv, next(iter), $air_item);
+	}
+	//set new pattern
+	temp_list = $align_engine_array[new_pos];
+	iter = iterator(temp_list);
+	while(hasNext(iter)) {
+		slot = next(iter);
+		if(slot < 18 || slot > 26) {
+			inv.setItem(inv, slot, $red_glass);
+		} else {
+			inv.setItem(inv, slot, $green_glass);
+		}
+	}
+	if(new_pos == 5) {
+		return true;
+	}
+	return false;
+}
+
+function cam.enter(player) {
+	if(player.isOnCam(player)) {
+		return;
+	}
+	entity.clearEffects(player);
+	entity.addEffect(player, "invisibility", 999999, 1, false);
+	entity.addEffect(player, "night_vision", 999999, 0, false);
+	entity.setGravity(player, false);
+	player_uuid = player.getUuid(player);
+	list.add($cam_list, player_uuid);
+	stacks.set(player, 0, "km:arrow_left");
+	stacks.set(player, 1, "km:arrow_right");
+	stacks.set(player, 8, "km:cross_red");
+	if(!player.isGhost(player)) {
+		amongus.removeEquip(player);
+	}
+	if(isImpostor(player)) {
+		stacks.clearIndex(player, 3);
+		stacks.clearIndex(player, 4);
+		stacks.clearIndex(player, 5);
+		stacks.clearIndex(player, 6);
+		stacks.clearIndex(player, 7);
+		cooldown = data.getTimer(player, "Kill Cooldown");
+		map.add($holded_kill_cooldown, player_uuid, cooldown);
+	}
+	if($cam_loop == false) {
+		$cam_loop = true;
+		sgoto(10, "cam_tp_loop");
+	}
+}
+
+function cam.leave(player) {
+	player_uuid = player.getUuid(player);
+	list.remove($cam_list, player_uuid);
+	map.remove($cam_map, player_uuid);
+	ent = map.get($cam_map_3, player_uuid);
+	if(ent != null) {
+		map.remove($cam_map_3, ent);
+		map.remove($cam_map_4, ent);
+		entity.remove(ent);
+	}
+	entity.clearEffects(player);
+	entity.setGravity(player, true);
+	entity.teleport(player, map.get($cam_map_2, player_uuid));
+	if(list.getSize($cam_list) == 0) {
+		$cam_loop = false;
+	}
+	if(player.isGhost(player)) {
+		entity.addEffect(player, "invisibility", 999999, 1, false);
+		stacks.clear(player);
+	} else {
+		color = amongus.getPlayerColor(player);
+		amongus.equip(player, color);
+		setCrewmateIcons(player);
+		if(isImpostor(player)) {
+			setImpostorIcons(player);
+		} else {
+			stacks.clearIndex(player, 8);
+		}
+		if($lights_sabotaged) {
+			if(isCrewmate(player)) {
+				entity.addEffect(player, "blindness", 999999, 7, false);
+			} else {
+				entity.addEffect(player, "night_vision", 999999, 0, false);
+			}
+		}
+	}
+}
+
+function player.isOnCam(player) {
+	player_uuid = player.getUuid(player);
+	return list.contains($cam_list, player_uuid);
+}
+
+@cam_tp_loop
+show_cam_pars = false;
+iter = iterator(cam_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	cam_number = map.get(cam_map, p_uuid);
+	tp_loc = list.getIndex(cams_locs_tp, cam_number);
+	entity.teleport(p, tp_loc);
+	if(isImpostor(p)) {
+		cooldown = map.getOrDefault(holded_kill_cooldown, player_uuid, -1);
+		if(cooldown != -1) {
+			data.setTimer(p, "Kill Cooldown", cooldown);
+			status.addTimed(p, 1, cooldown, "Kill Cooldown");
+		}
+	}
+	if(!player.isGhost(p)) {
+		show_cam_pars = true;
+	}
+}
+if(show_cam_pars) {
+	iter = iterator(cams_par_locs);
+	while(hasNext(iter)) {
+		particle.spawn(next(iter), cam_par);
+	}
+}
+if(cam_loop) {
+	sgoto(10, "cam_tp_loop");
+}
+goto("checkgame");
+
+function vent_enter(player, vent_loc) {
+	tp_loc = map.get($vent_map, vent_loc);
+	entity.teleport(player, tp_loc);
+	entity.addEffect(player, "invisibility", 999999, 1, false);
+	player_uuid = player.getUuid(player);
+	map.add($vent_map_2, player_uuid, tp_loc);
+	map.add($vent_map_4, player_uuid, vent_loc);
+	a = map.get($vent_map_3, vent_loc);
+	icon_1 = a[0];
+	icon_2 = a[2];
+	if(icon_1 == null) {
+		stacks.clearIndex(player, 5);
+	} else {
+		stacks.set(player, 5, icon_1);
+	}
+	if(!list.contains($vent_list, player_uuid)) {
+		list.add($vent_list, player_uuid);
+	}
+	if(icon_2 == null) {
+		stacks.clearIndex(player, 6);
+	} else {
+		stacks.set(player, 6, icon_2);
+	}
+	if($vent_loop == false) {
+		$vent_loop = true;
+		sgoto(10, "vent_tp_loop");
+	}
+}
+
+function vent_leave(player) {
+	player_uuid = player.getUuid(player);
+	list.remove($vent_list, player_uuid);
+	map.remove($vent_map_2, player_uuid);
+	map.remove($vent_map_4, player_uuid);
+	entity.clearEffects(player);
+	if($lights_sabotaged) {
+		entity.addEffect(player, "night_vision", 999999, 0, false);
+	}
+	if(list.getSize($vent_list) == 0) {
+		$vent_loop = false;
+	}
+	color = amongus.getPlayerColor(player);
+	amongus.equip(player, color);
+	setImpostorIcons(player);
+}
+
+@vent_tp_loop
+iter = iterator(vent_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	tp_loc = map.get(vent_map_2, p_uuid);
+	entity.teleport(p, tp_loc);
+	if(isImpostor(p)) {
+		cooldown = map.getOrDefault(holded_kill_cooldown, player_uuid, -1);
+		if(cooldown != -1) {
+			data.setTimer(p, "Kill Cooldown", cooldown);
+			status.addTimed(p, 1, cooldown, "Kill Cooldown");
+		}
+	}
+}
+if(vent_loop) {
+	sgoto(10, "vent_tp_loop");
+}
+goto("checkgame");
+
+@space_loop
+loc_iter = iterator(space_locs);
+while(hasNext(loc_iter)) {
+	particle.spawn(next(loc_iter), space_par);
+}
+sgoto(50, "space_loop");
+goto("checkgame");
+
+@task_part_loop
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	my_list = map.get(task_part_map, p_uuid);
+	if(my_list != null) {
+		loc_iter = iterator(my_list);
+		while(hasNext(loc_iter)) {
+			particle.spawnPlayer(next(loc_iter), task_par, p, 1, 0, 0.05, 0.05, 0.05);
+		}
+	}
+}
+sgoto(10, "task_part_loop");
+goto("checkgame");
+
+function addSaboParticles(location1, location2) {
+	list.add($sabo_par_list, location1);
+	if(location2 != null) {
+		list.add($sabo_par_list, location2);
+	}
+	sgoto(10, "sabo_par_loop");
+}
+
+function removeSaboParticles(location1, location2) {
+	list.remove($sabo_par_list, location1);
+	if(location2 != null) {
+		list.remove($sabo_par_list, location2);
+	}
+}
+
+@sabo_par_loop
+if(!amongus.isAlert()) {
+	goto("checkgame");
+}
+loc_iter = iterator(sabo_par_list);
+while(hasNext(loc_iter)) {
+	particle.spawn(next(loc_iter), sabo_par);
+}
+sgoto(10, "sabo_par_loop");
+goto("checkgame");
+
+function addTaskParticle(player, location) {
+	if(isCrewmate(player) || $freeplay) {
+		player_uuid = player.getUuid(player);
+		my_list = map.get($task_part_map, player_uuid);
+		if(my_list == null) {
+			my_list = list.new();
+			map.add($task_part_map, player_uuid, my_list);
+		}
+		list.add(my_list, location);
+	}
+}
+
+function removeTaskParticle(player, location) {
+	player_uuid = player.getUuid(player);
+	my_list = map.get($task_part_map, player_uuid);
+	if(my_list == null) {
+		my_list = list.new();
+		map.add($task_part_map, player_uuid, my_list);
+	}
+	list.remove(my_list, location);
+}
+
+function reactor.setHeader(inv, item) {
+	for(i = 0; i < 5; i++) {
+		inv.setItem(inv, i, item);
+	}
+}
+
+function reactor.setLeftSide(inv, item) {
+	inv.setItem(inv, 5, item);
+	inv.setItem(inv, 6, item);
+	inv.setItem(inv, 7, item);
+	inv.setItem(inv, 11, item);
+	inv.setItem(inv, 12, item);
+	inv.setItem(inv, 13, item);
+	inv.setItem(inv, 17, item);
+	inv.setItem(inv, 18, item);
+	inv.setItem(inv, 19, item);
+}
+
+function reactor.setRightSide(inv, item) {
+	inv.setItem(inv, 8, item);
+	inv.setItem(inv, 9, item);
+	inv.setItem(inv, 10, item);
+	inv.setItem(inv, 14, item);
+	inv.setItem(inv, 15, item);
+	inv.setItem(inv, 16, item);
+	inv.setItem(inv, 20, item);
+	inv.setItem(inv, 21, item);
+	inv.setItem(inv, 22, item);
+}
+
+function reactor.get(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_or_uuid = player.getUuid(player_or_uuid);
+	}
+	reactor_array = map.get($start_reactor_map, player_or_uuid);
+	return reactor_array;
+}
+
+function reactor.save(reactor_array, player) {
+	player_uuid = player.getUuid(player);
+	map.add($start_reactor_map, player_uuid, reactor_array);
+}
+
+function reactor.setInv(reactor_array, inv) {
+	reactor_array[0] = inv;
+}
+
+function reactor.getInv(reactor_array) {
+	return reactor_array[0];
+}
+
+function reactor.setStage(reactor_array, stage) {
+	reactor_array[1] = stage;
+}
+
+function reactor.getStage(reactor_array) {
+	return reactor_array[1];
+}
+
+function reactor.setCounter(reactor_array, counter) {
+	reactor_array[2] = counter;
+}
+
+function reactor.getCounter(reactor_array) {
+	return reactor_array[2];
+}
+
+function reactor.setPattern(reactor_array) {
+	pattern = array.new(5);
+	for(i = 0; i < 5; i++) {
+		r = math.random(1, 9);
+		if(r < 4) {
+			r += 4;
+		} elseif(r < 7) {
+			r += 7;
+		} else {
+			r += 10;
+		}
+		pattern[i] = r;
+	}
+	reactor_array[3] = pattern;
+}
+
+function reactor.getPattern(reactor_array) {
+	return reactor_array[3];
+}
+
+function reactor.setPhase(reactor_array, phase) {
+	reactor_array[4] = phase;
+}
+
+function reactor.getPhase(reactor_array) {
+	return reactor_array[4];
+}
+
+function sabotage.holdReactor(inv, hold) {
+	if(hold) {
+		item = $lime_glass;
+	} else {
+		item = $red_glass;
+	}
+	for(i = 0; i < 54; i++) {
+		inv.setItem(inv, i, item);
+	}
+}
+
+function switchLights(boolean) {
+	if(boolean) {
+		item = "minecraft:sea_lantern";
+	} else {
+		item = "minecraft:smooth_stone";
+	}
+	iter = iterator($lights_locs);
+	while(hasNext(iter)) {
+		block.set(next(iter), item);
+	}
+}
+
+@draw_comms
+player_uuid = list.getIndex(comms_state_list, 0);
+list.removeIndex(comms_state_list, 0);
+if(!comms_sabotaged) {
+	goto("checkgame");
+}
+inv = map.get(comms_inv_map, player_uuid);
+if(inv == null) {
+	goto("checkgame");
+}	
+comms_state = map.get(comms_state_map, player_uuid);
+counter = map.getOrDefault(comms_counter_map, player_uuid, 0);
+if(comms_state == 0) {
+	//worst
+	for(i = 26; i >= 9; i--) {
+		inv.setItem(inv, i, inv.getItem(inv, i - 1));
+	}
+	if(counter == 1) {
+		counter = 0;
+	} else {
+		inv.setItem(inv, 9, red_glass);
+		counter++;
+	}
+} elseif(comms_state == 1) {
+	//close
+	for(i = 26; i >= 0; i--) {
+		inv.setItem(inv, i, inv.getItem(inv, i - 1));
+	}
+	if(counter == 3) {
+		inv.setItem(inv, 0, yellow_glass);
+		inv.setItem(inv, 18, air_item);
+		counter = 0;
+	} elseif(counter == 2) {
+		inv.setItem(inv, 9, yellow_glass);
+		counter++;
+	} else {
+		counter++;
+	}
+} elseif(comms_state == 2) {
+	//correct
+	for(i = 35; i >= 0; i--) {
+		inv.setItem(inv, i, inv.getItem(inv, i - 1));
+	}
+	if(counter == 5) {
+		inv.setItem(inv, 0, lime_glass);
+		counter = 0;
+	} elseif(counter == 4) {
+		inv.setItem(inv, 9, lime_glass);
+		inv.setItem(inv, 27, air_item);
+		counter++;
+	} elseif(counter == 2) {
+		inv.setItem(inv, 9, air_item);
+		inv.setItem(inv, 27, lime_glass);
+		counter++;
+	} elseif(counter == 0) {
+		inv.setItem(inv, 9, lime_glass);
+		inv.setItem(inv, 27, air_item);
+		counter++;
+	} else {
+		counter++;
+	}
+}
+map.add(comms_counter_map, player_uuid, counter);
+list.add(comms_state_list, player_uuid);
+sgoto(5, "draw_comms");
+goto("checkgame");
+
+function comms.drawCorrect(inv, player) {
+	player_uuid = player.getUuid(player);
+	map.add($comms_state_map, player_uuid, 2);
+	map.remove($comms_counter_map, player_uuid);
+	for(i = 0; i < 36; i++) {
+		inv.setItem(inv, i, $air_item);
+	}
+	inv.setItem(inv, 0, $lime_glass);
+	inv.setItem(inv, 6, $lime_glass);
+	inv.setItem(inv, 10, $lime_glass);
+	inv.setItem(inv, 14, $lime_glass);
+	inv.setItem(inv, 16, $lime_glass);
+	inv.setItem(inv, 20, $lime_glass);
+	inv.setItem(inv, 22, $lime_glass);
+	inv.setItem(inv, 26, $lime_glass);
+	inv.setItem(inv, 30, $lime_glass);
+}
+
+function comms.drawClose(inv, player)  {
+	player_uuid = player.getUuid(player);
+	map.add($comms_state_map, player_uuid, 1);
+	map.remove($comms_counter_map, player_uuid);
+	for(i = 0; i < 36; i++) {
+		inv.setItem(inv, i, $air_item);
+	}
+	inv.setItem(inv, 0, $yellow_glass);
+	inv.setItem(inv, 4, $yellow_glass);
+	inv.setItem(inv, 8, $yellow_glass);
+	inv.setItem(inv, 10, $yellow_glass);
+	inv.setItem(inv, 12, $yellow_glass);
+	inv.setItem(inv, 14, $yellow_glass);
+	inv.setItem(inv, 16, $yellow_glass);
+	inv.setItem(inv, 20, $yellow_glass);
+	inv.setItem(inv, 24, $yellow_glass);
+}
+
+function comms.drawWorst(inv, player) {
+	player_uuid = player.getUuid(player);
+	map.add($comms_state_map, player_uuid, 0);
+	map.remove($comms_counter_map, player_uuid);
+	for(i = 0; i < 9; i++) {
+		inv.setItem(inv, i, $air_item);
+	}
+	for(i = 27; i < 36; i++) {
+		inv.setItem(inv, i, $air_item);
+	}
+	for(i = 9; i < 27; i = i + 2) {
+		inv.setItem(inv, i, $air_item);
+	}
+	for(i = 10; i < 27; i = i + 2) {
+		inv.setItem(inv, i, $red_glass);
+	}
+}
+
+@scheduled_fix_comms
+player_uuid = list.getIndex(comms_fix_list, 0);
+list.removeIndex(comms_fix_list, 0);
+time = map.get(comms_fix_map, player_uuid);
+if(time == null) {
+	goto("checkgame");
+}
+if(time.getMillis() - time <= 2000) {
+	fix_comms();
+}
+goto("checkgame");
+
+function sabotage.openedInv(player) {
+	list.add($sabo_list, player.getUuid(player));
+}
+
+function sabotage.closedInv(player) {
+	list.remove($sabo_list, player.getUuid(player));
+}
+
+function sabotage.closeInvs() {
+	iter = iterator($sabo_list);
+	while(hasNext(iter)) {
+		inv.close(player.get(next(iter)));
+	}
+}
+
+@scheduled_sabo_close
+sabotage.closeInvs();
+goto("checkgame");
+
+function task.stepIncrease(player, task_id) {
+	player_uuid = player.getUuid(player);
+	map = map.get($task_steps, player_uuid);
+	if(map == null) {
+		map = map.new();
+	}
+	step = map.getOrDefault(map, task_id, 0) + 1;
+	map.add(map, task_id, step);
+	map.add($task_steps, player_uuid, map);
+	return step;
+}
+
+function task.getStep(player, task_id) {
+	map = map.get($task_steps, player.getUuid(player));
+	if(map == null) {
+		return 0;
+	}
+	return map.getOrDefault(map, task_id, 0);
+}
+
+function task.resetSteps(player) {
+	map.add($task_steps, player.getUuid(player), map.new());
+}
+
+function amongus.setPlayerColor(player, color) {
+	player_uuid = player.getUuid(player);
+	map.add($player_colors, player_uuid, color);
+}
+
+function amongus.getPlayerColor(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_or_uuid = player.getUuid(player_or_uuid);
+	}
+	return map.get($player_colors, player_or_uuid);
+}
+
+function amongus.getPlayerColorCode(player_or_uuid) {
+	color = amongus.getPlayerColor(player_or_uuid);
+	return map.getOrDefault($color_code_map, color, "§r");
+}
+
+function amongus.isUsedPlayerColor(color) {
+	iter = map.iterator($player_colors);
+	while(hasNext(iter)) {
+		element = next(iter);
+		value = map.getValue(element);
+		if(value == color) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function amongus.removeEquip(player) {
+	living.setEquip(player, "head", $air_item);
+	living.setEquip(player, "chest", $air_item);
+	living.setEquip(player, "legs", $air_item);
+	living.setEquip(player, "feet", $air_item);
+}
+
+function amongus.forceEquip(entity, color) {
+	color_code = map.get($cloth_code_map, color);
+	item = read.item(string.concat("{id:\"minecraft:leather_helmet\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	living.setEquip(entity, "head", item);
+	item = read.item(string.concat("{id:\"minecraft:leather_chestplate\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	living.setEquip(entity, "chest", item);
+	item = read.item(string.concat("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	living.setEquip(entity, "legs", item);
+	item = read.item(string.concat("{id:\"minecraft:leather_boots\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	living.setEquip(entity, "feet", item);
+}
+
+function amongus.equip(entity, color) {
+	color_code = map.get($cloth_code_map, color);
+	if(item.getType(living.getEquip(entity, "head")) == "minecraft:air") {
+		item = read.item(string.concat("{id:\"minecraft:leather_helmet\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+		item.addFlag(item, "HIDE_ATTRIBUTES");
+		living.setEquip(entity, "head", item);
+	}
+	if(item.getType(living.getEquip(entity, "chest")) == "minecraft:air") {
+		item = read.item(string.concat("{id:\"minecraft:leather_chestplate\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+		item.addFlag(item, "HIDE_ATTRIBUTES");
+		living.setEquip(entity, "chest", item);
+	}
+	if(item.getType(living.getEquip(entity, "legs")) == "minecraft:air") {
+		item = read.item(string.concat("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+		item.addFlag(item, "HIDE_ATTRIBUTES");
+		living.setEquip(entity, "legs", item);
+	}
+	if(item.getType(living.getEquip(entity, "feet")) == "minecraft:air") {
+		item = read.item(string.concat("{id:\"minecraft:leather_boots\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+		item.addFlag(item, "HIDE_ATTRIBUTES");
+		living.setEquip(entity, "feet", item);
+	}
+}
+
+function createVoteInv(player, reporter_uuid) {
+	//inv = inv.new("232202322 232202322 232202322 232202322 232202322 032200000");
+	inv = inv.new("232202322232202322232202322232202322232202322032200000");
+	index = 1;
+	iter = iterator($all_list);	
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p_name = player.getName(p_uuid);
+		head = player.getHead(p_uuid, p_name);
+		if(player.isGhost(p_uuid)) {
+			item.setName(head, string.concat("§r", amongus.getPlayerColorCode(p_uuid), p_name));
+			inv.setItem(inv, index - 1, $zombie_head);
+		} else {
+			item.setName(head, string.concat("§rVote for ", amongus.getPlayerColorCode(p_uuid), p_name));
+			if(p_uuid == reporter_uuid) {
+				item.setAmount(head, 2);
+			}
+		}
+		inv.setItem(inv, index, head);
+		index = index + 4;
+	}
+	inv.setItem(inv, 40, read.item("km:return_green", 1, "§rSkip Vote"));
+	map.add($vote_inv_map, player.getUuid(player), inv);
+}
+
+function getVoteInv(player) {
+	return map.get($vote_inv_map, player.getUuid(player));
+}
+
+function setItemInVoteInv(slot, item) {
+	iter = iterator($player_list);
+	while(hasNext(iter)) {
+		p = player.get(next(iter));
+		inv = getVoteInv(p);
+		inv.setItem(inv, slot, item);
+	}
+}
+
+function amongus.isAlert() {
+	return $alert;
+}
+
+function amongus.setAlert(bool) {
+	$alert = bool;
+}
+
+function addVentIcons(vent_loc, icon_1, vent_tp_loc_1, icon_2, vent_tp_loc_2) {
+	a = array.new(4);
+	a[0] = icon_1;
+	a[1] = vent_tp_loc_1;
+	a[2] = icon_2;
+	a[3] = vent_tp_loc_2;
+	map.add($vent_map_3, vent_loc, a);
+}
+
+@crewmate_win
+winners = "§bCrewmates";
+if(freeplay) {
+	endtime = time.getMillis();
+	
+	p_uuid = list.getIndex(player_list, 0);
+	p = player.get(p_uuid);
+	time = math.round((endtime - starttime) / 1000);
+	last_record = ranking.getPoints(rankingtable, p);
+	if(last_record == 0 || time < last_record) {
+		record = time;
+		diff = last_record - time;
+	} else {
+		record = last_record;
+	}
+	ranking.setPoints(rankingtable, p, record);
+	mins = math.roundDown(time / 60);
+	secs = math.roundComma(time % 60, 2);
+	rec_mins = math.roundDown(record / 60);
+	rec_secs = math.roundComma(record % 60, 2);
+
+	minigame.statsHeader(p, gamename, "§e");
+	minigame.statsLine(p, "§e", "Time", string.concat(string.number(mins), " min ", string.number(secs), " s"));
+	minigame.statsLine(p, "§e", "Your record", string.concat(string.number(rec_mins), " min ", string.number(rec_secs), " s"));
+	if(diff != null) {
+		msg(p, " §e- §rBeat own record by §e", string.concat(string.number(diff), " s"));
+	}
+}
+goto("win");
+
+@checkwin
+imps_alive = 0;
+crew_alive = 0;
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	if(!player.isGhost(p)) {
+		if(isImpostor(p)) {
+			imps_alive++;
+		} else {
+			crew_alive++;
+		}
+	}
+}
+if(imps_alive == 0) {
+	winners = "§bCrewmates";
+	goto("win");
+}
+if(imps_alive >= crew_alive) {
+	winners = "§cImpostors";
+	goto("win");
+}
+goto("checkgame");
+
+@win
+imp_string = "";
+iter = iterator(impostors_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p_name = player.getName(p_uuid);
+	p = player.get(p_uuid);
+	string = string.concat(amongus.getPlayerColorCode(p_uuid), p_name);
+	if(imp_string == "") {
+		imp_string = string;
+	} else {
+		imp_string = string.concat(imp_string, ", ", string);
+	}
+	if(winners == "§cImpostors") {
+		money.addBoost(p, 128);
+	} else {
+		money.addBoost(p, 32);
+	}
+}
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	p_uuid = next(iter);
+	p = player.get(p_uuid);
+	msg.prefix(p, $gamename, string.concat("The ", winners, "§r have won the game."));
+	msg.prefix(p, $gamename, string.concat("§4Impostors: §r", imp_string));
+	inv.close(p);
+	player.gameMute(p, false);
+	if(winners == "§bCrewmates") {
+		money.addBoost(p, 128);
+	} else {
+		money.addBoost(p, 32);
+	}
+}
+//Building-Perms wieder geben
+for(i = 0; i < list.getSize(removed_perms); i++) {
+	player_uuid = list.getIndex(removed_perms, i);
+	perm.registerPlayer(player_uuid, 1);
+	perm.registerPlayer(player_uuid, 15);
+}
+script = script.getFromId(script_id);
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();

@@ -1,3 +1,4 @@
+setScriptVar("scheduler_list", list.new());
 list = scheduler.getList();
 
 msg.string("dev", "§bScheduler §rloaded.");

@@ -1,0 +1,619 @@
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 906, 84, 945);
+mapname = "The Skeld";
+manual_start = true;
+
+multi_minplayers = 2;
+minplayers = 1;
+maxplayers = 10;
+gamesignloc = minigame.getSignLoc("among_us_sign1");
+start_sign_loc = loc.new(gamesworld, 904, 85, 948);
+
+amount_meetings = 1;
+amount_meetings_min = 0;
+amount_meetings_max = 5;
+meeting_cooldown = 15; //s
+meeting_cooldown_min = 10; //s
+meeting_cooldown_max = 50; //s
+kill_cooldown = 30; //s
+kill_cooldown_min = 10; //s
+kill_cooldown_max = 60; //s
+start_kill_cooldown = 10; //s
+discuss_time = 10; //s
+discuss_time_min = 5; //s
+discuss_time_max = 90; //s
+vote_time = 90; //s
+vote_time_min = 20; //s
+vote_time_max = 180; //s
+confirm_ejects = true;
+move_speed = 1.25;
+move_speed_min = 0.25;
+move_speed_max = 5;
+amount_impostors = 1;
+amount_impostors_min = 1;
+amount_impostors_max = 2;
+amount_short = 3;
+amount_short_min = 1;
+amount_short_max = 9;
+amount_common = 1;
+amount_common_min = 0;
+amount_common_max = 2;
+amount_long = 2;
+amount_long_min = 0;
+amount_long_max = 6;
+
+seat_array = array.new(10);
+seat_map = map.new();
+seat_map_index = map.new();
+seat_locs = list.new();
+seat_list_join = list.new();
+seat_list_leave = list.new();
+list.add(seat_locs, loc.new(gamesworld, 902, 84, 943));
+list.add(seat_locs, loc.new(gamesworld, 903, 84, 943));
+list.add(seat_locs, loc.new(gamesworld, 904, 84, 943));
+list.add(seat_locs, loc.new(gamesworld, 905, 84, 943));
+list.add(seat_locs, loc.new(gamesworld, 906, 84, 943));
+list.add(seat_locs, loc.new(gamesworld, 907, 84, 944));
+list.add(seat_locs, loc.new(gamesworld, 907, 84, 945));
+list.add(seat_locs, loc.new(gamesworld, 907, 84, 946));
+list.add(seat_locs, loc.new(gamesworld, 907, 84, 947));
+list.add(seat_locs, loc.new(gamesworld, 907, 84, 948));
+goto("game_core");
+
+@init_map_specific
+admin_table_loc = loc.new(gamesworld, 3089, 108, 3970);
+//admin_table_inv = inv.new("023332320 030203230 232003232 030203030 023332320 000000200");
+admin_table_inv = inv.new("023332320030203230232003232030203030023332320000000200", text.new("§cAdmin Table"));
+inv.setItem(admin_table_inv, 0, read.item("minecraft:blue_stained_glass_pane", 1, "§rUpper Engine"));
+inv.setItem(admin_table_inv, 4, read.item("minecraft:blue_stained_glass_pane", 1, "§rCafeteria"));
+inv.setItem(admin_table_inv, 6, read.item("minecraft:blue_stained_glass_pane", 1, "§rWeapons"));
+inv.setItem(admin_table_inv, 8, read.item("minecraft:blue_stained_glass_pane", 1, "§rMedBay"));
+inv.setItem(admin_table_inv, 10, read.item("minecraft:blue_stained_glass_pane", 1, "§rO2"));
+inv.setItem(admin_table_inv, 12, read.item("minecraft:blue_stained_glass_pane", 1, "§rReactor"));
+inv.setItem(admin_table_inv, 14, read.item("minecraft:blue_stained_glass_pane", 1, "§rSecurity"));
+inv.setItem(admin_table_inv, 16, read.item("minecraft:blue_stained_glass_pane", 1, "§rAdmin"));
+inv.setItem(admin_table_inv, 18, read.item("minecraft:blue_stained_glass_pane", 1, "§rNavigation"));
+inv.setItem(admin_table_inv, 20, read.item("minecraft:blue_stained_glass_pane", 1, "§rElectrical"));
+inv.setItem(admin_table_inv, 23, read.item("minecraft:blue_stained_glass_pane", 1, "§rLower Engine"));
+inv.setItem(admin_table_inv, 27, read.item("minecraft:blue_stained_glass_pane", 1, "§rStorage"));
+inv.setItem(admin_table_inv, 29, read.item("minecraft:blue_stained_glass_pane", 1, "§rShields"));
+inv.setItem(admin_table_inv, 30, read.item("minecraft:blue_stained_glass_pane", 1, "§rCommunications"));
+
+meeting_button_loc = loc.new(gamesworld, 3080, 109, 3950);
+fix_lights_loc_1 = loc.new(gamesworld, 3063, 109, 3975);
+fix_lights_loc_2 = loc.new(gamesworld, 3064, 109, 3975);
+fix_lights_par_loc_1 = loc.new(gamesworld, 3063.5, 109.5, 3975.5);
+fix_lights_par_loc_2 = loc.new(gamesworld, 3064.5, 109.5, 3975.5);
+fix_comms_loc = loc.new(gamesworld, 3088, 109, 3987);
+fix_comms_par_loc = loc.new(gamesworld, 3088.5, 109.5, 3987);
+fix_reactor_loc_1 = loc.new(gamesworld, 3037, 109, 3971);
+fix_reactor_loc_2 = loc.new(gamesworld, 3037, 109, 3955);
+fix_reactor_par_loc_1 = loc.new(gamesworld, 3037.5, 109.5, 3971.5);
+fix_reactor_par_loc_2 = loc.new(gamesworld, 3037.5, 109.5, 3955.5);
+fix_o2_loc_1 = loc.new(gamesworld, 3093, 108, 3958);
+fix_o2_loc_2 = loc.new(gamesworld, 3094, 109, 3965);
+fix_o2_par_loc_1 = loc.new(gamesworld, 3093.5, 108.5, 3958.5);
+fix_o2_par_loc_2 = loc.new(gamesworld, 3094.4, 109.5, 3965.5);
+prime_shields_loc = loc.new(gamesworld, 3095, 109, 3982);
+start_reactor_loc = loc.new(gamesworld, 3037, 108, 3963);
+unlock_manifolds_loc = loc.new(gamesworld, 3034, 109, 3959);
+chart_course_loc = loc.new(gamesworld, 3114, 108, 3958);
+steering_loc = loc.new(gamesworld, 3115, 108, 3961);
+calibrate_dist_loc = loc.new(gamesworld, 3073, 109, 3969);
+swipe_card_loc = loc.new(gamesworld, 3092, 108, 3970);
+clean_o2_loc = loc.new(gamesworld, 3091, 109, 3960);
+ue_align_loc = loc.new(gamesworld, 3044, 109, 3953);
+le_align_loc = loc.new(gamesworld, 3044, 109, 3979);
+cafe_garb_loc = loc.new(gamesworld, 3090, 109, 3947);
+o2_garb_loc = loc.new(gamesworld, 3091, 109, 3962);
+stor_garb_loc = loc.new(gamesworld, 3083, 109, 3987);
+get_fuel_loc = loc.new(gamesworld, 3077, 108, 3983);
+upper_engine_loc = loc.new(gamesworld, 3043, 108, 3953);
+lower_engine_loc = loc.new(gamesworld, 3043, 108, 3979);
+
+get_fuel_par_loc = loc.new(gamesworld, 3077.5, 109.2, 3983.5);
+upper_engine_par_loc = loc.new(gamesworld, 3043.5, 109.2, 3953.5);
+lower_engine_par_loc = loc.new(gamesworld, 3043.5, 109.2, 3979.5);
+prime_shields_par_loc = loc.new(gamesworld, 3095.4, 109.5, 3982.5);
+start_reactor_par_loc = loc.new(gamesworld, 3037.6, 109.2, 3963.5);
+unlock_manifolds_par_loc = loc.new(gamesworld, 3034.5, 109.5, 3959.5);
+chart_course_par_loc = loc.new(gamesworld, 3114.5, 109.2, 3958.5);
+steering_par_loc = loc.new(gamesworld, 3115.5, 109.2, 3961.5);
+calibrate_dist_par_loc = loc.new(gamesworld, 3073.5, 109.5, 3969.5);
+swipe_card_par_loc = loc.new(gamesworld, 3092.5, 109.2, 3970.5);
+clean_o2_par_loc = loc.new(gamesworld, 3091.5, 109.5, 3960.5);
+ue_align_par_loc = loc.new(gamesworld, 3044.5, 109.5, 3953.5);
+le_align_par_loc = loc.new(gamesworld, 3044.5, 109.5, 3979.5);
+cafe_garb_par_loc = loc.new(gamesworld, 3090.5, 109.5, 3947.5);
+o2_garb_par_loc = loc.new(gamesworld, 3091.5, 109.5, 3962.5);
+stor_garb_par_loc = loc.new(gamesworld, 3083.5, 109.5, 3987.5);
+clear_ast_par_loc = loc.new(gamesworld, 3098, 109.2, 3949);
+
+clear_ast_locs = set.new();
+set.add(clear_ast_locs, loc.new(gamesworld, 3097, 108, 3949));
+set.add(clear_ast_locs, loc.new(gamesworld, 3097, 109, 3948));
+set.add(clear_ast_locs, loc.new(gamesworld, 3098, 109, 3948));
+set.add(clear_ast_locs, loc.new(gamesworld, 3098, 109, 3949));
+
+inspect_par_loc = loc.new(gamesworld, 3071, 110, 3964.5);
+inspect_sample_locs = set.new();
+set.add(inspect_sample_locs, loc.new(gamesworld, 3071, 109, 3963));
+set.add(inspect_sample_locs, loc.new(gamesworld, 3071, 109, 3964));
+set.add(inspect_sample_locs, loc.new(gamesworld, 3071, 109, 3965));
+set.add(inspect_sample_locs, loc.new(gamesworld, 3071, 110, 3963));
+set.add(inspect_sample_locs, loc.new(gamesworld, 3071, 110, 3964));
+set.add(inspect_sample_locs, loc.new(gamesworld, 3071, 110, 3965));
+
+scan_par_loc = loc.new(gamesworld, 3068, 109.5, 3964);
+med_scan_locs = set.new();
+set.add(med_scan_locs, loc.new(gamesworld, 3067, 108, 3963));
+set.add(med_scan_locs, loc.new(gamesworld, 3068, 108, 3963));
+set.add(med_scan_locs, loc.new(gamesworld, 3067, 108, 3964));
+set.add(med_scan_locs, loc.new(gamesworld, 3068, 108, 3964));
+
+spawn_locs = list.new();
+list.add(spawn_locs, loc.new(gamesworld, 3077.5, 109, 3948.5, -57, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3077.5, 109, 3950.5, -90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3077.5, 109, 3952.5, -124, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3083.5, 109, 3948.5, 57, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3083.5, 109, 3950.5, 90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3083.5, 109, 3952.5, 124, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3079.5, 109, 3953.5, -162, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3081.5, 109, 3953.5, 162, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3079.5, 109, 3947.5, -19, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 3081.5, 109, 3947.5, 19, 0.0001));
+
+elec_power_loc = loc.new(gamesworld, 3065, 109, 3967);
+comm_power_loc = loc.new(gamesworld, 3092, 109, 3982);
+le_power_loc = loc.new(gamesworld, 3044, 109, 3971);
+ue_power_loc = loc.new(gamesworld, 3046, 109, 3944);
+navi_power_loc = loc.new(gamesworld, 3109, 109, 3956);
+o2_power_loc = loc.new(gamesworld, 3094, 109, 3957);
+weap_power_loc = loc.new(gamesworld, 3100, 109, 3950);
+secu_power_loc = loc.new(gamesworld, 3058, 109, 3959);
+shie_power_loc = loc.new(gamesworld, 3102, 109, 3972);
+
+elec_power_par_loc = loc.new(gamesworld, 3065.5, 109.5, 3968.2);
+comm_power_par_loc = loc.new(gamesworld, 3091.8, 109.5, 3982.5);
+le_power_par_loc = loc.new(gamesworld, 3044.5, 109.5, 3972.2);
+ue_power_par_loc = loc.new(gamesworld, 3046.5, 109.5, 3945.2);
+navi_power_par_loc = loc.new(gamesworld, 3109.5, 109.5, 3957.2);
+o2_power_par_loc = loc.new(gamesworld, 3094.5, 109.5, 3958.2);
+weap_power_par_loc = loc.new(gamesworld, 3099.8, 109.5, 3950.5);
+secu_power_par_loc = loc.new(gamesworld, 3057.8, 109.5, 3959.5);
+shie_power_par_loc = loc.new(gamesworld, 3102.5, 109.5, 3973.5);
+
+divert_pow_map = map.new();
+map.add(divert_pow_map, 22, "Upper Engine");
+map.add(divert_pow_map, 23, "Lower Engine");
+map.add(divert_pow_map, 24, "Weapons");
+map.add(divert_pow_map, 25, "Shields");
+map.add(divert_pow_map, 26, "Navigation");
+map.add(divert_pow_map, 27, "Communications");
+map.add(divert_pow_map, 28, "O2");
+map.add(divert_pow_map, 29, "Security");
+map.add(divert_pow_map, 30, "Just for symmetric");
+
+divert_pow_map_2 = map.new();
+map.add(divert_pow_map_2, 22, ue_power_loc);
+map.add(divert_pow_map_2, 23, le_power_loc);
+map.add(divert_pow_map_2, 24, weap_power_loc);
+map.add(divert_pow_map_2, 25, shie_power_loc);
+map.add(divert_pow_map_2, 26, navi_power_loc);
+map.add(divert_pow_map_2, 27, comm_power_loc);
+map.add(divert_pow_map_2, 28, o2_power_loc);
+map.add(divert_pow_map_2, 29, secu_power_loc);
+
+divert_pow_map_4 = map.new();
+map.add(divert_pow_map_4, 22, ue_power_par_loc);
+map.add(divert_pow_map_4, 23, le_power_par_loc);
+map.add(divert_pow_map_4, 24, weap_power_par_loc);
+map.add(divert_pow_map_4, 25, shie_power_par_loc);
+map.add(divert_pow_map_4, 26, navi_power_par_loc);
+map.add(divert_pow_map_4, 27, comm_power_par_loc);
+map.add(divert_pow_map_4, 28, o2_power_par_loc);
+map.add(divert_pow_map_4, 29, secu_power_par_loc);
+
+elec_wires_loc = loc.new(gamesworld, 3068, 109, 3968);
+stor_wires_loc = loc.new(gamesworld, 3077, 109, 3969);
+admin_wires_loc = loc.new(gamesworld, 3083, 109, 3964);
+navi_wires_loc = loc.new(gamesworld, 3106, 109, 3959);
+cafe_wires_loc = loc.new(gamesworld, 3072, 109, 3942);
+secu_wires_loc = loc.new(gamesworld, 3050, 109, 3961);
+
+elec_wires_par_loc = loc.new(gamesworld, 3068.5, 109.5, 3969.2);
+stor_wires_par_loc = loc.new(gamesworld, 3077.5, 109.5, 3970.2);
+admin_wires_par_loc = loc.new(gamesworld, 3083.5, 109.5, 3965.2);
+navi_wires_par_loc = loc.new(gamesworld, 3106.5, 109.5, 3960.2);
+cafe_wires_par_loc = loc.new(gamesworld, 3072.5, 109.5, 3943.2);
+secu_wires_par_loc = loc.new(gamesworld, 3050.5, 109.5, 3962.2);
+
+wires_list_2 = list.new();
+list.addAll(wires_list_2, elec_wires_loc, stor_wires_loc, admin_wires_loc, navi_wires_loc, cafe_wires_loc, secu_wires_loc);
+
+wires_map_3 = map.new();
+map.add(wires_map_3, elec_wires_loc, "Electrical");
+map.add(wires_map_3, stor_wires_loc, "Storage");
+map.add(wires_map_3, admin_wires_loc, "Admin");
+map.add(wires_map_3, navi_wires_loc, "Navigation");
+map.add(wires_map_3, cafe_wires_loc, "Cafeteria");
+map.add(wires_map_3, secu_wires_loc, "Security");
+
+wires_map_5 = map.new();
+map.add(wires_map_5, elec_wires_loc, elec_wires_par_loc);
+map.add(wires_map_5, stor_wires_loc, stor_wires_par_loc);
+map.add(wires_map_5, admin_wires_loc, admin_wires_par_loc);
+map.add(wires_map_5, navi_wires_loc, navi_wires_par_loc);
+map.add(wires_map_5, cafe_wires_loc, cafe_wires_par_loc);
+map.add(wires_map_5, secu_wires_loc, secu_wires_par_loc);
+
+admin_vent_tp_loc = loc.new(gamesworld, 3086.5, 108, 3973.5, -135, 0.0001); //1
+weap_vent_tp_loc = loc.new(gamesworld, 3096.5, 108, 3946.5, -10, 0.0001); //2
+navi_1_vent_tp_loc = loc.new(gamesworld, 3109.5, 108, 3957.5, -90, 0.0001); //2
+navi_2_vent_tp_loc = loc.new(gamesworld, 3109.5, 108, 3965.5, -90, 0.0001); //3
+shie_vent_tp_loc = loc.new(gamesworld, 3099.5, 108, 3982.5, 145, 50); //3
+med_vent_tp_loc = loc.new(gamesworld, 3061.5, 108, 3962.5, -90, 0.0001); //4
+ue_vent_tp_loc = loc.new(gamesworld, 3049.5, 108, 3946.5, 45, 0.0001); //5
+le_vent_tp_loc = loc.new(gamesworld, 3049.5, 108, 3980.5, 135, 0.0001); //6
+secu_vent_tp_loc = loc.new(gamesworld, 3057.5, 108, 3966.5, 140, 0.0001); //4
+elec_vent_tp_loc = loc.new(gamesworld, 3063.5, 108, 3968.5, -45, 0.0001); //4
+reac_1_vent_tp_loc = loc.new(gamesworld, 3036.5, 108, 3957.5, -70, 0.0001); //5
+reac_2_vent_tp_loc = loc.new(gamesworld, 3039.5, 108, 3967.5, 135, 0.0001); //6
+hall_vent_tp_loc = loc.new(gamesworld, 3098.5, 108, 3964.5, -45, 0.0001); //3
+cafe_vent_tp_loc = loc.new(gamesworld, 3089.5, 108, 3954.5, 115, 0.0001); //3
+
+admin_vent_loc = loc.new(gamesworld, 3086, 107, 3973); //1
+weap_vent_loc = loc.new(gamesworld, 3096, 107, 3946); //2
+navi_1_vent_loc = loc.new(gamesworld, 3109, 107, 3957);//2
+navi_2_vent_loc = loc.new(gamesworld, 3109, 107, 3965); //3
+shie_vent_loc = loc.new(gamesworld, 3099, 107, 3982); //3
+med_vent_loc = loc.new(gamesworld, 3061, 107, 3962); //4
+ue_vent_loc = loc.new(gamesworld, 3049, 107, 3946); //5
+le_vent_loc = loc.new(gamesworld, 3049, 107, 3980); //6
+secu_vent_loc = loc.new(gamesworld, 3057, 107, 3966); //4
+elec_vent_loc = loc.new(gamesworld, 3063, 107, 3968); //4
+reac_1_vent_loc = loc.new(gamesworld, 3036, 107, 3957); //5
+reac_2_vent_loc = loc.new(gamesworld, 3039, 107, 3967); //6
+hall_vent_loc = loc.new(gamesworld, 3098, 107, 3964); //3
+cafe_vent_loc = loc.new(gamesworld, 3089, 107, 3954); //3
+
+all_vent_locs = list.new();
+list.addAll(all_vent_locs, admin_vent_loc, weap_vent_loc, navi_1_vent_loc, navi_2_vent_loc, shie_vent_loc, med_vent_loc, ue_vent_loc, le_vent_loc, secu_vent_loc, elec_vent_loc, reac_1_vent_loc, reac_2_vent_loc, hall_vent_loc, cafe_vent_loc);
+
+all_vent_tp_locs = list.new();
+list.addAll(all_vent_tp_locs, admin_vent_tp_loc, weap_vent_tp_loc, navi_1_vent_tp_loc, navi_2_vent_tp_loc, shie_vent_tp_loc, med_vent_tp_loc, ue_vent_tp_loc, le_vent_tp_loc, secu_vent_tp_loc, elec_vent_tp_loc, reac_1_vent_tp_loc, reac_2_vent_tp_loc, hall_vent_tp_loc, cafe_vent_tp_loc);
+
+vent_map = map.new();
+map.add(vent_map, admin_vent_loc, admin_vent_tp_loc);
+map.add(vent_map, weap_vent_loc, weap_vent_tp_loc);
+map.add(vent_map, navi_1_vent_loc, navi_1_vent_tp_loc);
+map.add(vent_map, navi_2_vent_loc, navi_2_vent_tp_loc);
+map.add(vent_map, shie_vent_loc, shie_vent_tp_loc);
+map.add(vent_map, med_vent_loc, med_vent_tp_loc);
+map.add(vent_map, ue_vent_loc, ue_vent_tp_loc);
+map.add(vent_map, le_vent_loc, le_vent_tp_loc);
+map.add(vent_map, secu_vent_loc, secu_vent_tp_loc);
+map.add(vent_map, elec_vent_loc, elec_vent_tp_loc);
+map.add(vent_map, reac_1_vent_loc, reac_1_vent_tp_loc);
+map.add(vent_map, reac_2_vent_loc, reac_2_vent_tp_loc);
+map.add(vent_map, hall_vent_loc, hall_vent_tp_loc);
+map.add(vent_map, cafe_vent_loc, cafe_vent_tp_loc);
+
+vent_map_5 = map.new();
+all_vent_center_locs = list.new();
+for(i = 0; i < list.getSize(all_vent_locs); i++) {
+	loc = list.getIndex(all_vent_locs, i);
+	center_loc = loc.mod(loc, 0.5, 1, 0.5);
+	list.add(all_vent_center_locs, center_loc);
+	map.add(vent_map_5, center_loc, loc);
+}
+
+item_arrow_left = item.custom.create("ARROW_LEFT", 1, null, null);
+item_arrow_right = item.custom.create("ARROW_RIGHT", 1, null, null);
+item_arrow_up = item.custom.create("ARROW_UP", 1, null, null);
+item_arrow_down = item.custom.create("ARROW_DOWN", 1, null, null);
+
+vent_map_3 = map.new();
+addVentIcons(cafe_vent_loc, item_arrow_left, admin_vent_loc, item_arrow_down, hall_vent_loc);
+addVentIcons(weap_vent_loc, item_arrow_up, navi_1_vent_loc, null, null);
+addVentIcons(navi_1_vent_loc, item_arrow_left, weap_vent_loc, null, null);
+addVentIcons(navi_2_vent_loc, null, null, item_arrow_right, shie_vent_loc);
+addVentIcons(hall_vent_loc, item_arrow_down, cafe_vent_loc, item_arrow_right, admin_vent_loc);
+addVentIcons(shie_vent_loc, null, null, item_arrow_right, navi_2_vent_loc);
+addVentIcons(admin_vent_loc, item_arrow_right, hall_vent_loc, item_arrow_left, cafe_vent_loc);
+addVentIcons(ue_vent_loc, null, null, item_arrow_up, reac_1_vent_loc);
+addVentIcons(reac_1_vent_loc, item_arrow_left, ue_vent_loc, null, null);
+addVentIcons(reac_2_vent_loc, null, null, item_arrow_down, le_vent_loc);
+addVentIcons(le_vent_loc, null, null, item_arrow_up, reac_2_vent_loc);
+addVentIcons(secu_vent_loc, item_arrow_down, elec_vent_loc, item_arrow_right, med_vent_loc);
+addVentIcons(med_vent_loc, arrow_downsecu_vent_loc, item_arrow_right, elec_vent_loc);
+addVentIcons(elec_vent_loc, item_arrow_left, med_vent_loc, item_arrow_down, secu_vent_loc);
+
+move_id_le = event.addMoveData(loc.new(gamesworld, 3051, 108, 3982), loc.new(gamesworld, 3042, 113, 3972), 10, -1); //Lower Engine
+move_id_sec = event.addMoveData(loc.new(gamesworld, 3054, 108, 3967), loc.new(gamesworld, 3058, 111, 3958), 10, -1); //Security
+move_id_ue = event.addMoveData(loc.new(gamesworld, 3051, 108, 3955), loc.new(gamesworld, 3042, 113, 3945), 10, -1); //Upper Engine
+move_id_reac = event.addMoveData(loc.new(gamesworld, 3041.9, 108, 3955.1), loc.new(gamesworld, 3033, 114, 3971.9), 10, -1); //Reactor
+move_id_o2 = event.addMoveData(loc.new(gamesworld, 3091.1, 108, 3957.1), loc.new(gamesworld, 3095, 111, 3963), 10, -1); //O2
+move_id_navi = event.addMoveData(loc.new(gamesworld, 3109, 108, 3957), loc.new(gamesworld, 3117, 111, 3966), 10, -1); //Navigation
+move_id_weap = event.addMoveData(loc.new(gamesworld, 3100, 108, 3954), loc.new(gamesworld, 3095, 111, 3946), 10, -1); //Weapons
+move_id_shie = event.addMoveData(loc.new(gamesworld, 3104, 108, 3973), loc.new(gamesworld, 3095, 111, 3983), 10, -1); //Shields
+move_id_comm = event.addMoveData(loc.new(gamesworld, 3092, 108, 3982), loc.new(gamesworld, 3086, 111, 3988), 10, -1); //Communications
+move_id_stor1 = event.addMoveData(loc.new(gamesworld, 3084, 108, 3988), loc.new(gamesworld, 3073.1, 115, 3971.1), 10, -1); //Storage1
+move_id_stor2 = event.addMoveData(loc.new(gamesworld, 3084, 108, 3972), loc.new(gamesworld, 3075.1, 115, 3970.1), 10, -1); //Storage2
+move_id_elec1 = event.addMoveData(loc.new(gamesworld, 3063, 108, 3979), loc.new(gamesworld, 3071.9, 111, 3968), 10, -1); //Electrical1
+move_id_elec2 = event.addMoveData(loc.new(gamesworld, 3071.9, 108, 3971.9), loc.new(gamesworld, 3073.9, 111, 3968), 10, -1); //Electrical2
+move_id_med1 = event.addMoveData(loc.new(gamesworld, 3069.9, 108, 3966), loc.new(gamesworld, 3060, 111, 3955), 10, -1); //MedBay1
+move_id_med2 = event.addMoveData(loc.new(gamesworld, 3069.9, 108, 3966), loc.new(gamesworld, 3072, 111, 3961), 10, -1); //MedBay2
+move_id_cafe = event.addMoveData(loc.new(gamesworld, 3071.1, 108, 3940), loc.new(gamesworld, 3090.9, 112, 3961.9), 10, -1); //Cafeteria
+move_id_admin = event.addMoveData(loc.new(gamesworld, 3086, 108, 3965), loc.new(gamesworld, 3096, 111, 3974), 10, -1); //Admin
+
+event.addMoveData(loc.new(gamesworld, 3054, 108, 3971.9), loc.new(gamesworld, 3042, 111, 3955.1), 10, -1); //Gang vor Security
+event.addMoveData(loc.new(gamesworld, 3051, 108, 3950), loc.new(gamesworld, 3071, 111, 3955), 10, -1); //Gang vor MedBay
+event.addMoveData(loc.new(gamesworld, 3091, 108, 3949), loc.new(gamesworld, 3095, 111, 3952), 10, -1); //Gang von Cafeteria to Weapons
+event.addMoveData(loc.new(gamesworld, 3079, 108, 3962), loc.new(gamesworld, 3086, 111, 3970), 10, -1); //Gang vor Admin
+event.addMoveData(loc.new(gamesworld, 3084, 108, 3976), loc.new(gamesworld, 3095, 111, 3982), 10, -1); //Gang vor Communications
+event.addMoveData(loc.new(gamesworld, 3109, 108, 3954), loc.new(gamesworld, 3096, 111, 3973), 10, -1); //Gang vor Navigation
+event.addMoveData(loc.new(gamesworld, 3073, 108, 3984), loc.new(gamesworld, 3056, 111, 3979), 10, -1); //Gang vor Electrical1
+event.addMoveData(loc.new(gamesworld, 3059, 108, 3975), loc.new(gamesworld, 3051, 111, 3980), 10, -1); //Gang vor Electrical2
+
+move_id_map = map.new();
+map.add(move_id_map, move_id_le, "§4§lLower Engine");
+map.add(move_id_map, move_id_sec, "§4§lSecurity");
+map.add(move_id_map, move_id_ue, "§4§lUpper Engine");
+map.add(move_id_map, move_id_reac, "§4§lReactor");
+map.add(move_id_map, move_id_o2, "§4§lO2");
+map.add(move_id_map, move_id_navi, "§4§lNavigation");
+map.add(move_id_map, move_id_weap, "§4§lWeapons");
+map.add(move_id_map, move_id_shie, "§4§lShields");
+map.add(move_id_map, move_id_comm, "§4§lCommunications");
+map.add(move_id_map, move_id_stor1, "§4§lStorage");
+map.add(move_id_map, move_id_stor2, "§4§lStorage");
+map.add(move_id_map, move_id_elec1, "§4§lElectrical");
+map.add(move_id_map, move_id_elec2, "§4§lElectrical");
+map.add(move_id_map, move_id_admin, "§4§lAdmin");
+map.add(move_id_map, move_id_med1, "§4§lMedBay");
+map.add(move_id_map, move_id_med2, "§4§lMedBay");
+map.add(move_id_map, move_id_cafe, "§4§lCafeteria");
+
+admin_upload_loc = loc.new(gamesworld, 3086, 109, 3964);
+cafe_download_loc = loc.new(gamesworld, 3088, 109, 3944);
+weap_download_loc = loc.new(gamesworld, 3096, 109, 3945);
+comm_download_loc = loc.new(gamesworld, 3086, 109, 3981);
+elec_download_loc = loc.new(gamesworld, 3063, 109, 3967);
+navi_download_loc = loc.new(gamesworld, 3111, 109, 3956);
+
+admin_upload_par_loc = loc.new(gamesworld, 3086.5, 109.5, 3965.2);
+cafe_download_par_loc = loc.new(gamesworld, 3088.5, 109.5, 3945.2);
+weap_download_par_loc = loc.new(gamesworld, 3096.5, 109.5, 3946.2);
+comm_download_par_loc = loc.new(gamesworld, 3086.5, 109.5, 3982.2);
+elec_download_par_loc = loc.new(gamesworld, 3063.5, 109.5, 3968.2);
+navi_download_par_loc = loc.new(gamesworld, 3111.5, 109.5, 3957.2);
+
+download_map_2 = map.new();
+map.add(download_map_2, cafe_download_loc, "§rCafeteria");
+map.add(download_map_2, weap_download_loc, "§rWeapons");
+map.add(download_map_2, comm_download_loc, "§rCommunications");
+map.add(download_map_2, elec_download_loc, "§rElectrical");
+map.add(download_map_2, navi_download_loc, "§rNavigation");
+
+download_list_3 = list.new();
+list.addAll(download_list_3, cafe_download_loc, weap_download_loc, comm_download_loc, elec_download_loc, navi_download_loc);
+
+download_list_4 = list.new();
+list.addAll(download_list_4, cafe_download_par_loc, weap_download_par_loc, comm_download_par_loc, elec_download_par_loc, navi_download_par_loc);
+
+space_locs = list.new();
+//cafeteria
+list.add(space_locs, loc.new(gamesworld, 3074.5, 109.5, 3939.5));
+list.add(space_locs, loc.new(gamesworld, 3075.5, 110, 3938.5));
+list.add(space_locs, loc.new(gamesworld, 3079, 110.4, 3939));
+list.add(space_locs, loc.new(gamesworld, 3078.5, 110, 3938.5));
+list.add(space_locs, loc.new(gamesworld, 3081.5, 109.5, 3939.5));
+list.add(space_locs, loc.new(gamesworld, 3083.5, 110, 3939.5));
+//weapons
+list.add(space_locs, loc.new(gamesworld, 3105, 106.5, 3940));
+list.add(space_locs, loc.new(gamesworld, 3105.5, 107.5, 3943));
+list.add(space_locs, loc.new(gamesworld, 3105.5, 108.5, 3948));
+list.add(space_locs, loc.new(gamesworld, 3100, 110, 3943));
+list.add(space_locs, loc.new(gamesworld, 3098, 107, 3942));
+//navi left window
+list.add(space_locs, loc.new(gamesworld, 3112, 108, 3952));
+list.add(space_locs, loc.new(gamesworld, 3114, 110.5, 3953));
+list.add(space_locs, loc.new(gamesworld, 3116.5, 110, 3956.5));
+list.add(space_locs, loc.new(gamesworld, 3116.5, 109, 3953.5));
+list.add(space_locs, loc.new(gamesworld, 3116, 110.5, 3954));
+//navi mid window
+list.add(space_locs, loc.new(gamesworld, 3118.5, 109.5, 3963.5));
+list.add(space_locs, loc.new(gamesworld, 3118, 109.5, 3961.5));
+list.add(space_locs, loc.new(gamesworld, 3119, 109.5, 3961));
+list.add(space_locs, loc.new(gamesworld, 3118, 109, 3960));
+list.add(space_locs, loc.new(gamesworld, 3119, 111, 3959));
+list.add(space_locs, loc.new(gamesworld, 3119, 111, 3962.5));
+//navi right window
+list.add(space_locs, loc.new(gamesworld, 3112, 108, 3970));
+list.add(space_locs, loc.new(gamesworld, 3114, 110.5, 3969));
+list.add(space_locs, loc.new(gamesworld, 3116.5, 110, 3965.5));
+list.add(space_locs, loc.new(gamesworld, 3116.5, 109, 3968.5));
+list.add(space_locs, loc.new(gamesworld, 3116, 110.5, 3968));
+
+lights_locs = list.new();
+//Hallway between Engines
+list.add(lights_locs, loc.new(gamesworld, 3043, 111, 3963));
+list.add(lights_locs, loc.new(gamesworld, 3044, 111, 3963));
+list.add(lights_locs, loc.new(gamesworld, 3050, 111, 3963));
+list.add(lights_locs, loc.new(gamesworld, 3051, 111, 3963));
+list.add(lights_locs, loc.new(gamesworld, 3047, 111, 3958));
+list.add(lights_locs, loc.new(gamesworld, 3047, 111, 3959));
+list.add(lights_locs, loc.new(gamesworld, 3047, 111, 3967));
+list.add(lights_locs, loc.new(gamesworld, 3047, 111, 3968));
+//UE
+list.add(lights_locs, loc.new(gamesworld, 3043, 113, 3947));
+list.add(lights_locs, loc.new(gamesworld, 3044, 113, 3947));
+list.add(lights_locs, loc.new(gamesworld, 3047, 113, 3947));
+list.add(lights_locs, loc.new(gamesworld, 3048, 113, 3947));
+list.add(lights_locs, loc.new(gamesworld, 3043, 113, 3953));
+list.add(lights_locs, loc.new(gamesworld, 3044, 113, 3953));
+list.add(lights_locs, loc.new(gamesworld, 3047, 113, 3953));
+list.add(lights_locs, loc.new(gamesworld, 3048, 113, 3953));
+//LE
+list.add(lights_locs, loc.new(gamesworld, 3043, 113, 3973));
+list.add(lights_locs, loc.new(gamesworld, 3044, 113, 3973));
+list.add(lights_locs, loc.new(gamesworld, 3047, 113, 3973));
+list.add(lights_locs, loc.new(gamesworld, 3048, 113, 3973));
+list.add(lights_locs, loc.new(gamesworld, 3043, 113, 3979));
+list.add(lights_locs, loc.new(gamesworld, 3044, 113, 3979));
+list.add(lights_locs, loc.new(gamesworld, 3047, 113, 3979));
+list.add(lights_locs, loc.new(gamesworld, 3048, 113, 3979));
+//Hallway Electrical
+list.add(lights_locs, loc.new(gamesworld, 3053, 111, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3054, 111, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3057, 111, 3978));
+list.add(lights_locs, loc.new(gamesworld, 3057, 111, 3979));
+list.add(lights_locs, loc.new(gamesworld, 3060, 111, 3982));
+list.add(lights_locs, loc.new(gamesworld, 3061, 111, 3982));
+list.add(lights_locs, loc.new(gamesworld, 3067, 111, 3982));
+list.add(lights_locs, loc.new(gamesworld, 3068, 111, 3982));
+//Electrical
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3970));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3971));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3975));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3069, 111, 3970));
+list.add(lights_locs, loc.new(gamesworld, 3069, 111, 3971));
+list.add(lights_locs, loc.new(gamesworld, 3069, 111, 3975));
+list.add(lights_locs, loc.new(gamesworld, 3069, 111, 3976));
+//Storage
+list.add(lights_locs, loc.new(gamesworld, 3076, 113, 3972));
+list.add(lights_locs, loc.new(gamesworld, 3076, 113, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3076, 113, 3980));
+list.add(lights_locs, loc.new(gamesworld, 3076, 113, 3984));
+list.add(lights_locs, loc.new(gamesworld, 3080, 113, 3972));
+list.add(lights_locs, loc.new(gamesworld, 3080, 113, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3080, 113, 3980));
+list.add(lights_locs, loc.new(gamesworld, 3080, 113, 3984));
+//Communications
+list.add(lights_locs, loc.new(gamesworld, 3088, 111, 3984));
+list.add(lights_locs, loc.new(gamesworld, 3088, 111, 3985));
+list.add(lights_locs, loc.new(gamesworld, 3089, 111, 3984));
+list.add(lights_locs, loc.new(gamesworld, 3089, 111, 3985));
+//Hallway Communications
+list.add(lights_locs, loc.new(gamesworld, 3086, 111, 3977));
+list.add(lights_locs, loc.new(gamesworld, 3087, 111, 3977));
+list.add(lights_locs, loc.new(gamesworld, 3091, 111, 3977));
+list.add(lights_locs, loc.new(gamesworld, 3092, 111, 3977));
+//Shields
+list.add(lights_locs, loc.new(gamesworld, 3096, 111, 3975));
+list.add(lights_locs, loc.new(gamesworld, 3096, 111, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3096, 111, 3980));
+list.add(lights_locs, loc.new(gamesworld, 3096, 111, 3981));
+list.add(lights_locs, loc.new(gamesworld, 3099, 111, 3975));
+list.add(lights_locs, loc.new(gamesworld, 3099, 111, 3976));
+list.add(lights_locs, loc.new(gamesworld, 3099, 111, 3980));
+list.add(lights_locs, loc.new(gamesworld, 3099, 111, 3981));
+list.add(lights_locs, loc.new(gamesworld, 3102, 111, 3975));
+list.add(lights_locs, loc.new(gamesworld, 3102, 111, 3976));
+//Navigation
+list.add(lights_locs, loc.new(gamesworld, 3110, 111, 3958));
+list.add(lights_locs, loc.new(gamesworld, 3111, 111, 3958));
+list.add(lights_locs, loc.new(gamesworld, 3110, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3111, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3112, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3110, 111, 3964));
+list.add(lights_locs, loc.new(gamesworld, 3111, 111, 3964));
+//Hallway Navigation
+list.add(lights_locs, loc.new(gamesworld, 3104, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3105, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3101, 111, 3964));
+list.add(lights_locs, loc.new(gamesworld, 3101, 111, 3965));
+list.add(lights_locs, loc.new(gamesworld, 3099, 111, 3969));
+list.add(lights_locs, loc.new(gamesworld, 3099, 111, 3970));
+list.add(lights_locs, loc.new(gamesworld, 3100, 111, 3959));
+list.add(lights_locs, loc.new(gamesworld, 3101, 111, 3959));
+list.add(lights_locs, loc.new(gamesworld, 3097, 111, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3097, 111, 3957));
+//O2
+list.add(lights_locs, loc.new(gamesworld, 3092, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3093, 111, 3961));
+//Weapons
+list.add(lights_locs, loc.new(gamesworld, 3097, 111, 3948));
+list.add(lights_locs, loc.new(gamesworld, 3097, 111, 3949));
+list.add(lights_locs, loc.new(gamesworld, 3097, 111, 3951));
+list.add(lights_locs, loc.new(gamesworld, 3097, 111, 3952));
+//Hallway Weapons
+list.add(lights_locs, loc.new(gamesworld, 3092, 111, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3093, 111, 3950));
+//Cafeteria
+list.add(lights_locs, loc.new(gamesworld, 3085, 112, 3944));
+list.add(lights_locs, loc.new(gamesworld, 3085, 112, 3945));
+list.add(lights_locs, loc.new(gamesworld, 3085, 112, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3085, 112, 3951));
+list.add(lights_locs, loc.new(gamesworld, 3085, 112, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3085, 112, 3957));
+list.add(lights_locs, loc.new(gamesworld, 3079, 112, 3944));
+list.add(lights_locs, loc.new(gamesworld, 3079, 112, 3945));
+list.add(lights_locs, loc.new(gamesworld, 3079, 112, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3079, 112, 3951));
+list.add(lights_locs, loc.new(gamesworld, 3079, 112, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3079, 112, 3957));
+list.add(lights_locs, loc.new(gamesworld, 3073, 112, 3944));
+list.add(lights_locs, loc.new(gamesworld, 3073, 112, 3945));
+list.add(lights_locs, loc.new(gamesworld, 3073, 112, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3073, 112, 3951));
+list.add(lights_locs, loc.new(gamesworld, 3073, 112, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3073, 112, 3957));
+//Hallway Admin
+list.add(lights_locs, loc.new(gamesworld, 3080, 111, 3966));
+list.add(lights_locs, loc.new(gamesworld, 3081, 111, 3966));
+//Admin
+list.add(lights_locs, loc.new(gamesworld, 3088, 111, 3966));
+list.add(lights_locs, loc.new(gamesworld, 3089, 111, 3966));
+list.add(lights_locs, loc.new(gamesworld, 3092, 111, 3966));
+list.add(lights_locs, loc.new(gamesworld, 3093, 111, 3966));
+list.add(lights_locs, loc.new(gamesworld, 3088, 111, 3969));
+list.add(lights_locs, loc.new(gamesworld, 3089, 111, 3969));
+list.add(lights_locs, loc.new(gamesworld, 3092, 111, 3969));
+list.add(lights_locs, loc.new(gamesworld, 3093, 111, 3969));
+list.add(lights_locs, loc.new(gamesworld, 3088, 111, 3972));
+list.add(lights_locs, loc.new(gamesworld, 3089, 111, 3972));
+list.add(lights_locs, loc.new(gamesworld, 3092, 111, 3972));
+list.add(lights_locs, loc.new(gamesworld, 3093, 111, 3972));
+//Hallway MedBay
+list.add(lights_locs, loc.new(gamesworld, 3055, 111, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3056, 111, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3060, 111, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3061, 111, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3065, 111, 3950));
+list.add(lights_locs, loc.new(gamesworld, 3066, 111, 3950));
+//MedBay
+list.add(lights_locs, loc.new(gamesworld, 3067, 111, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3067, 111, 3957));
+list.add(lights_locs, loc.new(gamesworld, 3067, 111, 3960));
+list.add(lights_locs, loc.new(gamesworld, 3067, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3957));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3960));
+list.add(lights_locs, loc.new(gamesworld, 3064, 111, 3961));
+list.add(lights_locs, loc.new(gamesworld, 3061, 111, 3956));
+list.add(lights_locs, loc.new(gamesworld, 3061, 111, 3957));
+list.add(lights_locs, loc.new(gamesworld, 3061, 111, 3960));
+list.add(lights_locs, loc.new(gamesworld, 3061, 111, 3961));
+
+cams_locs = set.new();
+set.add(cams_locs, loc.new(gamesworld, 3055, 109, 3957));
+set.add(cams_locs, loc.new(gamesworld, 3056, 109, 3957));
+set.add(cams_locs, loc.new(gamesworld, 3055, 110, 3957));
+set.add(cams_locs, loc.new(gamesworld, 3056, 110, 3957));
+
+cams_locs_tp = list.new();
+list.add(cams_locs_tp, loc.new(gamesworld, 3046, 109.2, 3964.7, -137, 73)); //Reactor
+list.add(cams_locs_tp, loc.new(gamesworld, 3063.3, 109.2, 3952, 180, 80)); //MedBay
+list.add(cams_locs_tp, loc.new(gamesworld, 3079.3, 109.2, 3968, 180, 75)); //Admin
+list.add(cams_locs_tp, loc.new(gamesworld, 3102.5, 109.2, 3963, 157, 70)); //Navigation
+
+cams_par_locs = list.new();
+list.add(cams_par_locs, loc.new(gamesworld, 3045.5, 110.5, 3962.5)); //Reactor
+list.add(cams_par_locs, loc.new(gamesworld, 3065.5, 110.5, 3949.5)); //MedBay
+list.add(cams_par_locs, loc.new(gamesworld, 3082.5, 110.5, 3965.5)); //Admin
+list.add(cams_par_locs, loc.new(gamesworld, 3103.5, 110.5, 3960.5)); //Navigation
+
+return;

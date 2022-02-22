@@ -48,9 +48,7 @@ function setCommandHelps() {
 	commandhelp.add("back");
 	commandhelp.add("boost");
 	commandhelp.add("color");
-	commandhelp.add("colour");
 	commandhelp.add("customitems");
-	commandhelp.add("fuckit");
 	commandhelp.add("giveup");
 	commandhelp.add("hack");
 	commandhelp.add("hat");
@@ -60,26 +58,21 @@ function setCommandHelps() {
 	commandhelp.add("iteminfo");
 	commandhelp.add("joinme");
 	commandhelp.add("jumpto");
-	commandhelp.add("l");
 	commandhelp.add("lag");
 	commandhelp.add("leave");
 	commandhelp.add("lightning");
 	commandhelp.add("live");
 	commandhelp.add("logo");
-	commandhelp.add("mem");
 	commandhelp.add("memory");
 	commandhelp.add("nowb");
 	commandhelp.add("ping");
-	commandhelp.add("ram");
 	commandhelp.add("rank");
 	commandhelp.add("repair");
 	commandhelp.add("ride");
 	commandhelp.add("settings");
 	commandhelp.add("silentjoin");
 	commandhelp.add("skipnight");
-	commandhelp.add("skull");
 	commandhelp.add("startgame");
-	commandhelp.add("thor");
 	commandhelp.add("top");
 	commandhelp.add("voteshop");
 	
@@ -92,6 +85,14 @@ function setCommandHelps() {
 	commandhelp.addChildPlayer("seen");
 	commandhelp.addChildPlayer("heal");
 	commandhelp.addChildPlayer("feed");
+	
+	command.addHelp(command.newHelp("colour", "color"));
+	command.addHelp(command.newHelp("fuckit", "giveup"));
+	command.addHelp(command.newHelp("skull", "head"));
+	command.addHelp(command.newHelp("l", "leave"));
+	command.addHelp(command.newHelp("mem", "memory"));
+	command.addHelp(command.newHelp("ram", "memory"));
+	command.addHelp(command.newHelp("thor", "lightning"));
 	
 	help = command.newHelp("start", "start");
 	command.addHelpChild(help, command.newHelpLiteral("ai"));
@@ -120,6 +121,7 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("scheduler"));
 	command.addHelpChild(help, command.newHelpLiteral("shop"));
 	command.addHelpChild(help, command.newHelpLiteral("sitting"));
+	command.addHelpChild(help, command.newHelpLiteral("skills"));
 	command.addHelpChild(help, command.newHelpLiteral("stats"));
 	command.addHelpChild(help, command.newHelpLiteral("story"));
 	command.addHelpChild(help, command.newHelpLiteral("survival"));
@@ -279,7 +281,7 @@ function setCommandHelps() {
 	
 	help = command.newHelp("tempban", "tempban");
 	helpArg0 = command.newHelpSpecial("Player", "player");
-	helpArg1 = command.newHelpInt("days", 0, 100);
+	helpArg1 = command.newHelpInt("days", 0, 365);
 	helpArg2 = command.newHelpInt("hours", 0, 100);
 	helpArg3 = command.newHelpInt("minutes", 0, 100);
 	command.addHelpChild(helpArg3, command.newHelpString("reason", true));
@@ -301,19 +303,7 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
-	help = command.newHelp("silentban", "silentban");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
 	help = command.newHelp("kick", "kick");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("silentkick", "silentkick");
 	helpArg0 = command.newHelpSpecial("Player", "player");
 	command.addHelpChild(helpArg0, command.newHelpString("reason", true));
 	command.addHelpChild(help, helpArg0);

@@ -17,7 +17,19 @@ setScriptVar("nicknames", map.new());
 setScriptVar("rmInventories", map.new());
 setScriptVar("quest_ids", map.new());
 setScriptVar("lobbylastpos", map.new());
-setScriptVar("scheduler_list", list.new());
+
+set = set.new();
+set.add(set, item.custom.get("DIGIT_0"));
+set.add(set, item.custom.get("DIGIT_1"));
+set.add(set, item.custom.get("DIGIT_2"));
+set.add(set, item.custom.get("DIGIT_3"));
+set.add(set, item.custom.get("DIGIT_4"));
+set.add(set, item.custom.get("DIGIT_5"));
+set.add(set, item.custom.get("DIGIT_6"));
+set.add(set, item.custom.get("DIGIT_7"));
+set.add(set, item.custom.get("DIGIT_8"));
+set.add(set, item.custom.get("DIGIT_9"));
+setScriptVar("digits", set);
 
 //---------- Tables ----------
 

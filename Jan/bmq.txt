@@ -3,6 +3,7 @@ event.load("human_damage");
 event.load("human_goal_reach");
 event.load("human_goal_timeout");
 event.load("player_toggle_sneak");
+event.load("entity_click");
 
 survivalworld = world.get("world");
 Human_Spawn1 = loc.new(survivalworld, -2720, 65, 1096);
@@ -31,8 +32,34 @@ uuid = "6cc9f8c7-9dfd-44f4-a3f2-af30054411a8";
 started = false;
 one = false;
 
+Jan_inv = inv.new("333333333", text.new("Quests: Jan"));
+inv.setItem(dieter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fBored Mathematician...", "§e...with some mathematical fun."));
+
 @wait
 wait();
+if(event == "entity_click"){
+	if(!entity.isHuman(entity)) {
+		goto("wait");
+	}
+	human_name = human.getName(entity);
+	if(human_name == "§9Jan") {
+		if(player.isSneaking(player)){
+			inv.open(Jan_inv, player);
+			goto("wait");
+		}
+	}
+	goto("wait");
+}
+
+if(event == "snuvi_click"){
+	item = inv.getItem(inv, inv_slot);
+	item.removeFlag(item, "HIDE_DESTROYS");
+	title_string = string.text(inv_title);
+	if(title_string == "Quests: Jan") {
+		
+	}
+}
+
 if(event == "player_toggle_sneak"){
 	playername = player.getName(player);
 	if(playername == "SirTerence7"){

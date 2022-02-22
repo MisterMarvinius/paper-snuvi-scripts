@@ -254,7 +254,7 @@ if(damage_type == "player") {
 	killer_name = player.getName(killer);
 	item = living.getHand(killer);
 	if(item != null && item.hasName(item)) {
-		message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with §b§o")), text.item(item.getName(item), item), text.new("§9."));
+		message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with ")), text.item(text.new(string.concat("§b§o", string.text(item.getName(item)))), item), text.new("§9."));
 	} else {
 		list.clear(list);
 		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
