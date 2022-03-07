@@ -18,30 +18,19 @@ ignoreGoto(event);
 goto("wait");
 
 @player_join
-deleteDefectPlaytime(player_id);
-insertPlaytimeJoin(player_id);
+deleteInvalidStatement = databank.prepare("DELETE FROM playtime WHERE player_id = ? AND leave_time IS NULL;", false);
+databank.setInt(deleteInvalidStatement, 1, player_id);
+databank.workerExecute(deleteInvalidStatement);
+
+joinTimeStatement = databank.prepare("INSERT INTO playtime (player_id, join_time) VALUES (?, ?);", false);
+databank.setInt(joinTimeStatement, 1, player_id);
+databank.setLong(joinTimeStatement, 2, time.getMillis());
+databank.workerExecute(joinTimeStatement);
 goto("wait");
 
 @player_quit
-insertPlaytimeLeave(player_id);
+leaveTimeStatement = databank.prepare("UPDATE playtime SET leave_time = ? WHERE player_id = ? AND leave_time IS NULL;", false);
+databank.setLong(leaveTimeStatement, 1, time.getMillis());
+databank.setInt(leaveTimeStatement, 2, player_id);
+databank.workerExecute(leaveTimeStatement);
 goto("wait");
-
-function deleteDefectPlaytime(player_id) {
-	stmt = databank.prepare("DELETE FROM playtime WHERE player_id = ? AND leave_time IS NULL;", false);
-	databank.setInt(stmt, 1, player_id);
-	databank.workerExecute(stmt);
-}
-
-function insertPlaytimeJoin(player_id) {
-	stmt = databank.prepare("INSERT INTO playtime (player_id, join_time) VALUES (?, ?);", false);
-	databank.setInt(stmt, 1, player_id);
-	databank.setLong(stmt, 2, time.getMillis());
-	databank.workerExecute(stmt);
-}
-
-function insertPlaytimeLeave(player_id) {
-	stmt = databank.prepare("UPDATE playtime SET leave_time = ? WHERE player_id = ? AND leave_time IS NULL;", false);
-	databank.setLong(stmt, 1, time.getMillis());
-	databank.setInt(stmt, 2, player_id);
-	databank.workerExecute(stmt);
-}

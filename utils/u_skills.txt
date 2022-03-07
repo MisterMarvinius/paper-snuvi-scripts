@@ -155,6 +155,46 @@ function skill.getShopItem(player_or_id, tech_name) {
 	}
 	toggleable = skill[7];
 	if(toggleable) {
+		tog = "§fToggleable";
+	} else {
+		tog = "§fNot toggleable";
+	}
+	skill_name = skill.getName(tech_name);
+	lore_list = list.new();
+	list.add(lore_list, text.new(string.concat("§fCost: §e", money.getString(skill[4]))));
+	list.transfer(string.intelligentSplit(skill[3]), lore_list);
+	list.add(lore_list, text.new(type));
+	list.add(lore_list, text.new(tog));
+	list.add(lore_list, text.new(text_property));
+	item = item.create(skill[2], 1, string.concat("§e§o", skill_name), lore_list);
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	return item;
+}
+
+function skill.getSettingsItem(player_or_id, tech_name) {
+	if(tech_name == null) {
+		return null;
+	}
+	skill = skill.get(tech_name);
+	amount = skill.getAmount(player_or_id, tech_name);
+	permanent = skill[5];
+	if(permanent) {
+		if(amount == 0) {
+			text_property = string.concat("§fBought: §cNo §f(Permanent)");
+		} else {
+			text_property = string.concat("§fBought: §aYes §f(Permanent)");
+		}
+	} else {
+		text_property = string.concat("§fAmount you have: §e", string.number(amount));
+	}
+	active = skill[6];
+	if(active) {
+		type = "§fActive skill";
+	} else {
+		type = "§fPassive skill";
+	}
+	toggleable = skill[7];
+	if(toggleable) {
 		if(skill.isActivated(player_or_id, tech_name)) {
 			tog = "§fToggleable: §aActive";
 		} else {
@@ -165,12 +205,12 @@ function skill.getShopItem(player_or_id, tech_name) {
 	}
 	skill_name = skill.getName(tech_name);
 	lore_list = list.new();
-	list.add(lore_list, text.new(string.concat("§fCost: §e", string.number(skill[4]))));
-	list.add(lore_list, text.new(skill[3]));
+	list.transfer(string.intelligentSplit(skill[3]), lore_list);
 	list.add(lore_list, text.new(type));
 	list.add(lore_list, text.new(tog));
 	list.add(lore_list, text.new(text_property));
 	item = item.create(skill[2], 1, string.concat("§e§o", skill_name), lore_list);
+	item.addFlag(item, "HIDE_ATTRIBUTES");
 	return item;
 }
 
@@ -338,7 +378,7 @@ function skill.showAll(from_player_or_id, to_player) {
 	for(i = 0; i < list.getSize(skill_list); i++) {
 		a = list.getIndex(skill_list, i);
 		tech_name = a[1];
-		item = skill.getShopItem(from_player_or_id, tech_name);
+		item = skill.getSettingsItem(from_player_or_id, tech_name);
 		if(item != null) {
 			inv.setItem(inv, i, item);
 		}

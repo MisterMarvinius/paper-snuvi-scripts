@@ -1,2 +1,0 @@
-player = read.player("marvinius");
-msg("dev", text.new(entity.getMount(player)));

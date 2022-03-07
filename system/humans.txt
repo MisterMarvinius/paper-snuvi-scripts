@@ -21,6 +21,7 @@ butcher_inv = createMainMenu("Butcher", true, false, false);
 librarian_inv = createMainMenu("Librarian", true, false, false);
 nether_inv = createMainMenu("Nether Merchant", true, false, false);
 diver_inv = createMainMenu("Diver", true, false, false);
+mage_guard_inv = createMainMenu("Mage Guard", false, true, false);
 
 msg.string("dev", "§bHumans §rloaded.");
 @main
@@ -64,6 +65,8 @@ if(entity_name == "Farmer") {
 	inv.open(nether_inv, player);
 } elseif(entity_name == "Diver") {
 	inv.open(diver_inv, player);
+} elseif(entity_name == "Mage Guard") {
+	inv.open(mage_guard_inv, player);
 }
 goto("main");
 

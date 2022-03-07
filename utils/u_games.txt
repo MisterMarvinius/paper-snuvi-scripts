@@ -360,7 +360,10 @@ function minigame.kickAllPlayers(script_or_id) {
 	}
 	iter = iterator(list);
 	while(hasNext(iter)) {
-		minigame.kickPlayer(script, player.get(next(iter)));
+		p = player.get(next(iter));
+		if(p != null) {
+			minigame.kickPlayer(script, p);
+		}
 	}
 }
 
@@ -605,10 +608,6 @@ function sign.closed(sign_block) {
 //--------------------------------------------------
 //SB-Utils
 //--------------------------------------------------
-
-function sb.getSpacer() {
-	return("§0------------------");
-}
 
 function sb.clearGame(player) {
 	for(i = 81; i < 100; i++) {

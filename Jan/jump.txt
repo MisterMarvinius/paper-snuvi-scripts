@@ -1,0 +1,41 @@
+event.load("player_jump");
+strength = 1.5;
+strength2 = 0.25;
+
+Overworld = world.get("world"); //world.getOverWorld()
+Games = world.get("games"); //world.getGames()
+End = world.get("world_the_end"); //world.getTheEnd()
+Nether = world.get("world_nether"); //world.getTheNether()
+
+@wait
+wait();
+name = player.getName(player);
+if(name == "SirTerence7" || name == "marvinius"){// || name == "Mareeeen"
+
+	if(loc.getWorld == Games){
+		goto("wait");
+	}
+	elseif(loc.getWorld == End){
+		world_grav = 2;
+	}
+	elseif(loc.getWorld == Nether){
+		world_grav = 0.75;
+	}
+	else{
+		world_grav = 1;
+	}
+	
+	jump_boost_amp = (living.getEffectAmplifier(player, "JUMP")+1)/2+1;
+	speed_amp = (living.getEffectAmplifier(player, "SPEED")+1)/2+1;
+	player_loc = entity.getLocation(player);
+	
+	array = entity.getLook(player);
+	array2 = entity.getMotion(player);
+	
+	x = speed_amp*jump_boost_amp/2*(strength * array[0] * strength2 + array2[0]);
+	y = world_grav*speed_amp/2*jump_boost_amp*(strength * array[1]);
+	z = speed_amp*jump_boost_amp/2*(strength * array[2] * strength2 + array2[2]);
+	
+	entity.setMotion(player, x, y, z);
+}
+goto("wait");

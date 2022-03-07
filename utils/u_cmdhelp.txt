@@ -241,7 +241,7 @@ function setCommandHelps() {
 	addStatsGameHelp(help, "JR-Ice");
 	addStatsGameHelp(help, "JR-Rooms");
 	addStatsGameHelp(help, "Letters");
-	addStatsGameHelp(help, "Sammelfieber");
+	addStatsGameHelp(help, "ItemHunt");
 	addStatsGameHelp(help, "Buttons");
 	addStatsGameHelp(help, "HideAndSeek");
 	addStatsGameHelp(help, "Inverting");
@@ -364,6 +364,8 @@ function setCommandHelps() {
 	command.addHelpChild(helpArg1, command.newHelpLiteral("creative"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("notickets"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("bypass"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("altruist"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("legend"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	//perm remove <player> <perm>
@@ -408,6 +410,8 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("public"));
 	//block remove
 	command.addHelpChild(help, command.newHelpLiteral("remove"));
+	//block fix
+	command.addHelpChild(help, command.newHelpLiteral("fix"));
 	command.addHelp(help);
 	
 	addPlotHelp("plot");
@@ -1025,8 +1029,13 @@ function addScriptHelp(command) {
 	command.addHelpChild(help, helpArg0);
 	//script see
 	command.addHelpChild(help, command.newHelpLiteral("see"));
-	//script term
+	//script term <id/all>
 	helpArg0 = command.newHelpLiteral("term");
+	command.addHelpChild(helpArg0, command.newHelpLiteral("all"));
+	command.addHelpChild(helpArg0, command.newHelpInt("id", 0, 1000000));
+	command.addHelpChild(help, helpArg0);
+	//script t <id/all>
+	helpArg0 = command.newHelpLiteral("t");
 	command.addHelpChild(helpArg0, command.newHelpLiteral("all"));
 	command.addHelpChild(helpArg0, command.newHelpInt("id", 0, 1000000));
 	command.addHelpChild(help, helpArg0);

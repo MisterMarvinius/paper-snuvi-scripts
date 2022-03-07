@@ -30,15 +30,15 @@ dice_loc_rm5 = loc.new(gamesworld, -3064, 156, 1061);
 dice_time = time.getMillis();
 move_id_to_spawn = event.addMoveData(loc.new(gamesworld, -415, 148, -62), loc.new(gamesworld, -411, 153, -58), 5, -1);
 
-minigame.addSign("bwmapsign1", false, loc.new(gamesworld, -423, 158, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap1", false);
-minigame.addSign("bwmapsign2", false, loc.new(gamesworld, -423, 158, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap2", false);
-minigame.addSign("bwmapsign3", false, loc.new(gamesworld, -423, 158, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap3", false);
-minigame.addSign("bwmapsign4", false, loc.new(gamesworld, -423, 157, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap4", false);
-minigame.addSign("bwmapsign5", false, loc.new(gamesworld, -423, 157, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap5", false);
-minigame.addSign("bwmapsign6", false, loc.new(gamesworld, -423, 157, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap6", false);
-minigame.addSign("bwmapsign7", false, loc.new(gamesworld, -423, 156, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap7", false);
-minigame.addSign("bwmapsign8", false, loc.new(gamesworld, -423, 156, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap8", false);
-minigame.addSign("bwmapsign9", false, loc.new(gamesworld, -423, 156, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap9", false);
+minigame.addSign("bwmapsign1", true, loc.new(gamesworld, -423, 158, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap1", false);
+minigame.addSign("bwmapsign2", true, loc.new(gamesworld, -423, 158, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap2", false);
+minigame.addSign("bwmapsign3", true, loc.new(gamesworld, -423, 158, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap3", false);
+minigame.addSign("bwmapsign4", true, loc.new(gamesworld, -423, 157, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap4", false);
+minigame.addSign("bwmapsign5", true, loc.new(gamesworld, -423, 157, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap5", false);
+minigame.addSign("bwmapsign6", true, loc.new(gamesworld, -423, 157, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap6", false);
+minigame.addSign("bwmapsign7", true, loc.new(gamesworld, -423, 156, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap7", false);
+minigame.addSign("bwmapsign8", true, loc.new(gamesworld, -423, 156, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap8", false);
+minigame.addSign("bwmapsign9", true, loc.new(gamesworld, -423, 156, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap9", false);
 minigame.addSign("letterssign1", true, loc.new(gamesworld, -396, 158, -63), "minigames/letters/letters", "minigames/letters/lettersmap1", true);
 minigame.addSign("letterssign2", true, loc.new(gamesworld, -396, 158, -62), "minigames/letters/letters", "minigames/letters/lettersmap2", true);
 minigame.addSign("letterssign3", true, loc.new(gamesworld, -396, 158, -61), "minigames/letters/letters", "minigames/letters/lettersmap3", true);
@@ -47,9 +47,9 @@ minigame.addSign("rmmaploc2", false, loc.new(gamesworld, -411, 158, -43), "minig
 minigame.addSign("rmmaploc3", false, loc.new(gamesworld, -411, 158, -42), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap3", false);
 minigame.addSign("rmmaploc4", false, loc.new(gamesworld, -411, 157, -44), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap4", false);
 minigame.addSign("rmmaploc5", false, loc.new(gamesworld, -411, 157, -43), "minigames/ragemode/ragemode", "minigames/ragemode/rmmap5", false);
-minigame.addSign("sfsign1", true, loc.new(gamesworld, -398, 158, -47), "minigames/sammelfieber/sfranked", "minigames/sammelfieber/sfmap1", true);
-minigame.addSign("sfsign2", true, loc.new(gamesworld, -398, 157, -47), "minigames/sammelfieber/sfranked", "minigames/sammelfieber/sfmap2", true);
-minigame.addSign("sfsign3", false, loc.new(gamesworld, -399, 158, -47), "minigames/sammelfieber/sammelfieber", "minigames/sammelfieber/sfmap3", false);
+minigame.addSign("sfsign1", true, loc.new(gamesworld, -398, 158, -47), "minigames/itemhunt/ihranked", "minigames/itemhunt/ihmap1", true);
+minigame.addSign("sfsign2", true, loc.new(gamesworld, -398, 157, -47), "minigames/itemhunt/ihranked", "minigames/itemhunt/ihmap2", true);
+minigame.addSign("sfsign3", true, loc.new(gamesworld, -399, 158, -47), "minigames/itemhunt/itemhunt", "minigames/itemhunt/ihmap3", false);
 minigame.addSign("buttonssign1", true, loc.new(gamesworld, -399, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap1", true);
 minigame.addSign("buttonssign2", true, loc.new(gamesworld, -398, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap2", true);
 minigame.addSign("spleefsign1", true, loc.new(gamesworld, -419, 156, -40), "minigames/spleef/spleef", "minigames/spleef/spleefmap1", false);
@@ -66,10 +66,10 @@ minigame.addSign("invertingclsign2", true, loc.new(gamesworld, -396, 157, -56), 
 minigame.addSign("invertingclsign3", true, loc.new(gamesworld, -396, 157, -55), "minigames/inverting/inverting", "minigames/inverting/invertingclmap3", true);
 //minigame.addSign("ctfsign1", false, loc.new(gamesworld, 13, 75, 64), "minigames/capturetheflag/capturetheflag", "minigames/capturetheflag/ctfmap1", false);
 minigame.addSign("jrmap", true, loc.new(gamesworld, -396, 158, -51), null, "minigames/jumpnrun/jumpnrun", true);
-minigame.addSign("parcoursign1", false, loc.new(gamesworld, -396, 158, -50), "minigames/parcour/parcour", "minigames/parcour/parcour_map1", true);
-minigame.addSign("tjrsign", false, loc.new(gamesworld, -396, 157, -51), null, "minigames/jumpnrun/todesjumpnrun", true);
-minigame.addSign("jr_sign_ice", false, loc.new(gamesworld, -396, 157, -49), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_ice", true);
-minigame.addSign("jr_sign_room", false, loc.new(gamesworld, -396, 157, -50), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_rooms", true);
+minigame.addSign("parcoursign1", true, loc.new(gamesworld, -396, 158, -50), "minigames/parcour/parcour", "minigames/parcour/parcour_map1", true);
+minigame.addSign("tjrsign", true, loc.new(gamesworld, -396, 157, -51), null, "minigames/jumpnrun/todesjumpnrun", true);
+minigame.addSign("jr_sign_ice", true, loc.new(gamesworld, -396, 157, -49), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_ice", true);
+minigame.addSign("jr_sign_room", true, loc.new(gamesworld, -396, 157, -50), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_rooms", true);
 minigame.addSign("fastbridgesign1", true, loc.new(gamesworld, -413, 157, -40), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap1", false);
 minigame.addSign("fastbridgesign2", true, loc.new(gamesworld, -414, 157, -40), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap2", false);
 minigame.addSign("halmasign1", false, loc.new(gamesworld, -413, 156, -40), "minigames/halma/halma", "minigames/halma/halma_map1", false);
@@ -102,7 +102,7 @@ minigame.addCompass(4, item.create("minecraft:emerald", 1, "§fShoppingChaos", n
 minigame.addCompass(5, item.create("minecraft:light_blue_terracotta", 1, "§fFastBridge", null), loc.new(gamesworld, -412.5, 156, -41.5, 0.0001, 0.0001));
 minigame.addCompass(6, item.create("minecraft:blue_banner", 1, "§fHalma", null), loc.new(gamesworld, -412.5, 156, -41.5, 0.0001, 25));
 minigame.addCompass(7, amongus_head, loc.new(gamesworld, -416.5, 156, -42.5, 0.0001, 0.0001));
-minigame.addCompass(8, item.create("minecraft:grass_block", 1, "§fSammelfieber", null), loc.new(gamesworld, -397.5, 156, -48.5, 0.0001, 0.0001));
+minigame.addCompass(8, item.create("minecraft:grass_block", 1, "§fItemHunt", null), loc.new(gamesworld, -397.5, 156, -48.5, 0.0001, 0.0001));
 minigame.addCompass(9, item.create("minecraft:slime_block", 1, "§fJ&R / Parcour", null), loc.new(gamesworld, -397.5, 156, -50.5, -90, 0.0001));
 minigame.addCompass(10, item.create("minecraft:lapis_block", 1, "§fInverting", null), loc.new(gamesworld, -397.5, 156, -56.5, -90, 0.0001));
 minigame.addCompass(11, item.create("minecraft:oak_sign", 1, "§fLetters", null), loc.new(gamesworld, -397.5, 156, -62.5, -90, -20));
@@ -294,8 +294,8 @@ script_id = map.get(script_ids, block_loc);
 if(script_id == null) {
 	if(pfad2 != null) {
 		modTimer(-100);
-		if(pfad2 == "minigames/sammelfieber/sammelfieber" || pfad2 == "minigames/sammelfieber/sfranked") {
-			script = script.start(pfad, "minigames/sammelfieber/sammelfieberitems", pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+		if(pfad2 == "minigames/itemhunt/itemhunt" || pfad2 == "minigames/itemhunt/ihranked") {
+			script = script.start(pfad, "minigames/itemhunt/itemhuntitems", pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
 		} else {
 			script = script.start(pfad, pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
 		}

@@ -1,0 +1,261 @@
+@core_start
+maxplayers = 1;
+sign.started(gamesignloc);
+
+event.load("minigame_join");
+event.load("player_move");
+event.load("entity_damage");
+event.load("player_post_respawn");
+event.load("player_drop");
+event.load("player_quit");
+event.load("player_giveup");
+event.load("block_break");
+event.load("block_place");
+event.load("block_click");
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	gosub("event_specific");
+	ignoreGoto(event);
+}
+goto("wait");
+
+@minigame_join
+custom_refresh_red = item.custom.get("REFRESH_RED");
+custom_return_red = item.custom.get("RETURN_RED");
+amount_checkpoints = list.getSize(spawn_locs) - 1;
+single_uuid = player.getUuid(player);
+jr.setStarttime();
+all_modules = jr.getModule(player);
+if(all_modules < amount_checkpoints) {
+	jumpstage = all_modules;
+	run_time = jr.getTime(player);
+	jr.setLoopTime(run_time);
+	jr.setRunTime(player, run_time);
+} else {
+	jumpstage = jr.getRunModule(player);
+	jr.setLoopTime(jr.getRunTime(player));
+}
+
+checkpoints = list.new();
+for(i = 0; i < list.getSize(spawn_locs); i++) {
+	loc = list.getIndex(spawn_locs, i);
+	b_loc = loc.mod(loc, -0.5, 0, -0.5);
+	loc.setYaw(b_loc, 0);
+	loc.setPitch(b_loc, 0);
+	list.add(checkpoints, b_loc);
+	
+	b_loc_2 = loc.mod(b_loc, 1, 1, 1);
+	if(i <= jumpstage) {
+		continue;
+	}
+	event.addMoveData(b_loc, b_loc_2, -1, -1, player);
+}
+player.blockCommands(player);
+entity.teleport(player, list.getIndex(spawn_locs, jumpstage));
+player.clearInventory(player);
+sb.add(player, 99, gamename);
+sb.add(player, 97, sb.getSpacer());
+player.giveItem(player, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
+player.giveItem(player, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+title.send(player, text.new(gamename), text.new(mapname), 20, 20, 20);
+
+gosub("stage_specific");
+player.setGamemode(player, "ADVENTURE");
+player.setFly(player, false);
+sgoto(20, "loop");
+goto("wait");
+
+@player_drop
+cancel = true;
+goto("wait");
+
+@block_click
+item = living.getHand(player);
+if(item.custom.isType(item, custom_refresh_red)) {
+	living.setHealth(player, 20);
+	jr.teleportModule(player, jumpstage);
+	entity.setBurning(player, 0);
+	jr.setLoopTime(jr.getRunTime(player));
+	jr.setStarttime();
+	goto("wait");
+}
+if(item.custom.isType(item, custom_return_red)) {
+	for(i = 1; i < amount_checkpoints; i++) {
+		location1 = list.getIndex(checkpoints, i);
+		location2 = loc.mod(location1, 1, 1, 1);
+		event.addMoveData(location1, location2, -1, -1, player);
+	}
+	
+	living.setHealth(player, 20);
+	jr.setStarttime();
+	jr.setLoopTime(0);
+	jr.setRunTime(player, 0);
+	jumpstage = 0;
+	jr.setRunModule(player, jumpstage);
+	jr.teleportModule(player, jumpstage);
+	entity.setBurning(player, 0);
+}
+goto("wait");
+
+@block_break
+@block_place
+cancel = true;
+goto("wait");
+
+@player_post_respawn
+entity.teleport(player, list.getIndex(spawn_locs, jumpstage));
+goto("wait");
+
+@entity_damage
+damage_type = damage.getType(damage_source);
+if(damage_type == "fall") {
+	cancel = true;
+	goto("wait");
+}
+if(damage_type == "arrow") {
+	cancel = true;
+	goto("wait");
+}
+goto("wait");
+
+@player_move
+player_loc = entity.getLocation(player);
+x = loc.getBlockX(player_loc);
+y = loc.getBlockY(player_loc);
+z = loc.getBlockZ(player_loc);
+loc = loc.new(gamesworld, x, y, z);
+index = list.getIndexOf(checkpoints, loc);
+if(index > jumpstage) {
+	player.action(player, text.new("§aCheckpoint set"));
+	//money.addBoost(player, 10);
+	msg.prefix(player, "§6Commands", string.concat("§rCheckpoint ", string.number(index), " reached"));
+	jumpstage = index;
+	gosub("stage_specific");
+}
+//Alltime first try or already done?
+all_modules = jr.getModule(player);
+if(all_modules == amount_checkpoints) {
+	alltime_first_try = false;
+} else {
+	alltime_first_try = true;
+}
+run_time = jr.addRunTime(player, time.getMillis() - starttime);
+jr.setRunModule(player, jumpstage);
+jr.setStarttime();
+
+all_time = jr.getTime(player);
+//if(alltime_first_try) {
+	if(jumpstage > all_modules) {
+		jr.setModuleAndTime(player, jumpstage, run_time);
+		goto("wait");
+	}
+	if(jumpstage == all_modules) {
+		if(all_time == 0 || run_time < all_time) {
+			jr.setModuleAndTime(player, jumpstage, run_time);
+			msg.prefix(player, gamename, "New record!!!");
+		}
+	}
+	goto("wait");
+//}
+/*if(jumpstage == amount_checkpoints) {
+	if(all_time == 0 || run_time < all_time) {
+		jr.setModuleAndTime(player, jumpstage, run_time);
+		msg.prefix(player, gamename, "Neuer Rekord!!!");
+	}
+}*/
+goto("wait");
+
+@loop
+player = player.get(single_uuid);
+seconds++;
+if(seconds == 60) {
+    minutes++;
+	seconds = 0;
+}
+if(seconds < 10) {
+	sb.add(player, 98, string.concat("Time: §e", string.number(minutes), ":0", string.number(seconds)));
+} else {
+    sb.add(player, 98, string.concat("Time: §e", string.number(minutes), ":", string.number(seconds)));
+}
+player.setHunger(player, 20);
+player.setSaturation(player, 5);
+sgoto(20, "loop");
+goto("wait");
+
+@player_quit
+@player_giveup
+player.unblockCommands(player);
+player.setGamemode(player, "SURVIVAL");
+
+all_time = jr.getTime(player);
+all_module = jr.getModule(player);
+minigame.statsHeader(player, gamename, "§e");
+minigame.statsLine(player, "§e", "Checkpoints", string.number(all_module));
+minigame.statsLine(player, "§e", "Time", time.getClockString(all_time / 1000));
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+minigame.term(script, gamesignloc);
+term();
+
+function jr.teleportModule(player, jumpstage) {
+	entity.teleport(player, list.getIndex($spawn_locs, jumpstage));
+}
+
+function jr.setLoopTime(time) {
+	time /= 1000;
+	$minutes = math.roundDown(time / 60);
+	$seconds = math.round(time % 60);
+}
+
+function jr.setStarttime() {
+	$starttime = time.getMillis();
+}
+//THIS RUN
+function jr.setRunModule(player_or_id, module) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, $module_tag_run, module);
+	config.saveAsync(config);
+}
+
+function jr.getRunModule(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, $module_tag_run, 0);
+}
+
+function jr.addRunTime(player_or_id, time) {
+	run_time = jr.getRunTime(player_or_id) + time;
+	jr.setRunTime(player_or_id, run_time);
+	return run_time;
+}
+
+function jr.setRunTime(player_or_id, time) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, $time_tag_run, time);
+	config.saveAsync(config);
+}
+
+function jr.getRunTime(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, $time_tag_run, 0);
+}
+
+//ALLTIME
+function jr.setModuleAndTime(player_or_id, module, time) {
+	ranking.setSecPoints($rankingtable, player_or_id, module, time);
+}
+
+function jr.getTime(player_or_id) {
+	return ranking.getSecPoints($rankingtable, player_or_id);
+}
+
+function jr.getModule(player_or_id) {
+	return ranking.getPoints($rankingtable, player_or_id);
+}

@@ -10,34 +10,37 @@ event.load("block_break");
 warts_harvested = 0;
 mob_killed = false;
 stage = 0;
-all_stages = 24;
-quest_name = "Der Felsmagier...";
+all_stages = 19;
+quest_name = "Mage";
 
-open_prop = block.getproperty("open");
-half_prop = block.getproperty("double_block_half");
-key = read.item("km:golden_key", 1, "Turmschlüssel", "Felsmagier");
+bread_mat = material.get("BREAD");
+cauldron_mat = material.get("CAULDRON");
+nether_wart_mat = material.get("NETHER_WART");
+water_bucket_mat = material.get("water_bucket");
+water_bucket = item.new(water_bucket_mat);
+key = item.custom.create("GOLDEN_KEY", 1, "Mage Cave Key", "Mage");
 
-world = world.get("story");
-zombie_loc = loc.new(world, -1625.5, 87, 57.5);
-skeleton_loc = loc.new(world, -1622.5, 90.5, 62.5);
-blaze_loc = loc.new(world, -1621, 93, 69);
-spider_loc = loc.new(world, -1627, 98, 65);
-witch_loc = loc.new(world, -1623.5, 102, 63.5);
-cauldron_loc = loc.new(world, -1624, 115, 57);
-cave_spider_loc = loc.new(world, -1622.5, 123, 64.5);
-giveup_loc = loc.new(world, -1621.5, 85, 73.5);
+world = world.getOverworld();
+zombie_loc = loc.new(world, 215, 24, -80);
+spider_loc = loc.new(world, 218, 27, -68);
+witch_loc = loc.new(world, 214.5, 31, -75.5);
+blaze_loc = loc.new(world, 225.5, 34, -81.5);
+skeleton_loc = loc.new(world, 243.5, 29, -86.5);
+illusioner_loc = loc.new(world, 231, 31, -91);
+
+cauldron_loc = loc.new(world, 216, 26, -92);
+cave_spider_loc = loc.new(world, 219.5, 26, -94.5);
+giveup_loc = loc.new(world, 193.5, 21, -75.5);
 
 doors_to_close = list.new();
-visited_doors = list.new();
-iron_doors = list.new();
-list.add(iron_doors, loc.new(world, -1622, 85, 67));
-list.add(iron_doors, loc.new(world, -1623, 87, 60));
-list.add(iron_doors, loc.new(world, -1627, 88, 64));
-list.add(iron_doors, loc.new(world, -1619, 89, 66));
-list.add(iron_doors, loc.new(world, -1627, 93, 65));
-list.add(iron_doors, loc.new(world, -1623, 98, 61));
-list.add(iron_doors, loc.new(world, -1621, 102, 66));
-list.add(iron_doors, loc.new(world, -1621, 104, 63));
+visited_doors = set.new();
+mage_doors = set.new();
+set.add(mage_doors, loc.new(world, 210, 25, -83));
+set.add(mage_doors, loc.new(world, 216, 26, -75));
+set.add(mage_doors, loc.new(world, 217, 31, -72));
+set.add(mage_doors, loc.new(world, 217, 33, -78));
+set.add(mage_doors, loc.new(world, 232, 35, -82));
+set.add(mage_doors, loc.new(world, 235, 32, -88));
 
 @wait
 wait();
@@ -55,51 +58,56 @@ if(event == "quest_term") {
 	entity.teleport(player, giveup_loc);
 	wait(); //Script wird von außen terminiert
 }
-if(event == "block_click" && hand == "MAIN_HAND" && block.getType(block_loc) == "minecraft:iron_door") {
-	item = living.getEquip(player, "hand");
-	if(item.getType(item) == "km:golden_key" && item.getName(item) == "Turmschlüssel") {
-		state_open = block.property.getValue(block_loc, open_prop);
-		state_half = block.property.getValue(block_loc, half_prop);
-		if(state_half == "upper") {
-			door_loc = loc.mod(block_loc, 0, -1, 0);
-		} else {
-			door_loc = block_loc;
+if(event == "block_click") {
+	if(block == null) {
+		goto("wait");
+	}
+	item = living.getHand(player);
+	if(item == key) {
+		if(!block.isDoor(block)) {
+			goto("wait");
 		}
-		if(list.contains(visited_doors, door_loc)) {
+		state_open = block.isOpen(block);
+		if(!block.isBisected(block)) {
+			goto("wait");
+		}
+		state_half = block.getBisectedHalf(block);
+		door_loc = block.getLocation(block);
+		if(state_half == "UPPER") {
+			door_loc = loc.mod(door_loc, 0, -1, 0);
+		}
+		if(set.contains(visited_doors, block)) {
 			if(!state_open) {
-				opendoor(door_loc);
+				opendoor(block);
 				sgoto(60, "closedoor");
 			}
 			goto("wait");
 		}
-		if(list.contains(iron_doors, door_loc)) {
+		if(set.contains(mage_doors, door_loc)) {
 			if(stage == 1) {
 				stage.increase(player);
-			} elseif(stage == 2) {
+				entity.spawn(zombie_loc, "ZOMBIE");
+			} elseif(stage == 3) {
 				stage.increase(player);
-				entity.spawn("zombie", zombie_loc);
-			} elseif(stage == 4 && mob_killed) {
+				entity.spawn(spider_loc, "SPIDER");
+			} elseif(stage == 5 && mob_killed) {
 				stage.increase(player);
-			} elseif(stage == 5) {
+				entity.spawn(witch_loc, "WITCH");
+			} elseif(stage == 7) {
 				stage.increase(player);
-				entity.spawn("skeleton", skeleton_loc);
-			} elseif(stage == 7 && mob_killed) {
-				stage.increase(player);
-				entity.spawn("blaze", blaze_loc);
+				entity.spawn(blaze_loc, "BLAZE");
 			} elseif(stage == 9 && mob_killed) {
 				stage.increase(player);
-				entity.spawn("spider", spider_loc);
+				entity.spawn(skeleton_loc, "SKELETON");
 			} elseif(stage == 11 && mob_killed) {
 				stage.increase(player);
-				entity.spawn("witch", witch_loc);
-			} elseif(stage == 13 && mob_killed) {
-				stage.increase(player);
+				entity.spawn(skeleton_loc, "ILLUSIONER");
 			} else {
 				goto("wait");
 			}
 			if(!state_open) {
 				mob_killed = false;
-				opendoor(door_loc);
+				opendoor(block);
 				sgoto(60, "closedoor");
 			}
 		}
@@ -108,38 +116,43 @@ if(event == "block_click" && hand == "MAIN_HAND" && block.getType(block_loc) == 
 }
 if(event == "quest_start") {
 	quest.display(player, quest_name, stage, all_stages);
-	msg.prefix(player, "§dZauberlehrling", "Der Schlüssel zum Magier? Du kannst ihn haben, wenn du mir Brot gibst.");
+	msg.prefix(player, "§dMage Guard", "The key to the mage? You can have him if you give me bread.");
 	goto("wait");
 }
-label = concat("stage", text.number(stage));
+label = concat("stage", string.number(stage));
 ignoreGoto(label);
 goto("wait");
 
 @stage0
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
-	entity_name = entity.getName(entity);
-	if(entity_name == "Zauberlehrling") {
-		item = living.getEquip(player, "hand");
-		if(item.getType(item) != "minecraft:bread") {
-			msg.prefix(player, "§dZauberlehrling", "Das kann ich nicht gebrauchen.");
-			goto("wait");
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
+	entity_name = human.getName(entity);
+	if(entity_name == "Mage Guard") {
+		rest_amount = human.giveItem(entity_name, player, bread_mat, 1);
+		if(rest_amount == 0) {
+			player.giveSingleItem(player, key, true);
+			msg.prefix(player, "§dMage Guard", "Rightclick doors with the key to open them.");
+			scheduler.msgPrefix(30, player, "§dMage Guard", "The first door is behind the tree.");
+			scheduler.msgPrefix(60, player, "§dMage Guard", "Be careful!");
+			stage.increase(player);
 		}
-		player.removeItem(player, read.item("minecraft:bread"));
-		player.giveSingleItem(player, key, true);
-		player.giveSingleItem(player, read.item("minecraft:stone_sword"), false);
-		player.giveSingleItem(player, read.item("minecraft:shield"), false);
-		msg.prefix(player, "§dZauberlehrling", "Rechtsklicke Türen damit, um sie zu öffnen.");
-		scheduler.msgPrefix(30, player, "§dZauberlehrling", "Auf deinem Weg zum Magier musst du durch mehrere Räume.");
-		scheduler.msgPrefix(60, player, "§dZauberlehrling", "Pass auf dich auf!");
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "living_death") {
+	entity_type = entity.getType(living_entity);
+	if(entity_type == "ZOMBIE") {
+		mob_killed = true;
 		stage.increase(player);
 	}
 }
 goto("wait");
 
-@stage3
+@stage4
 if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "zombie") {
+	if(entity_type == "SPIDER") {
 		mob_killed = true;
 		stage.increase(player);
 	}
@@ -149,7 +162,7 @@ goto("wait");
 @stage6
 if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "skeleton") {
+	if(entity_type == "WITCH") {
 		mob_killed = true;
 		stage.increase(player);
 	}
@@ -159,7 +172,7 @@ goto("wait");
 @stage8
 if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "blaze") {
+	if(entity_type == "BLAZE") {
 		mob_killed = true;
 		stage.increase(player);
 	}
@@ -169,7 +182,7 @@ goto("wait");
 @stage10
 if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "spider") {
+	if(entity_type == "SKELETON") {
 		mob_killed = true;
 		stage.increase(player);
 	}
@@ -179,91 +192,71 @@ goto("wait");
 @stage12
 if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "witch") {
+	if(entity_type == "ILLUSIONER") {
 		mob_killed = true;
 		stage.increase(player);
 	}
 }
 goto("wait");
 
-@stage14
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+@stage13
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Felsmagier") {
-		item = living.getEquip(player, "hand");
-		if(item.getType(item) != "km:golden_key" && item.getName(item) != "Turmschlüssel") {
-			msg.prefix(player, "§dFelsmagier", "Gib mir bitte den Turmschlüssel.");
+	if(entity_name == "Mage Assistant") {
+		item = living.getHand(player);
+		if(item != key) {
+			msg.prefix(player, "§dMage Assistant", "Please give me the key.");
 			goto("wait");
 		}
 		player.removeItem(player, key);
 		stage.increase(player);
-		msg.prefix(player, "§dFelsmagier", "Bevor ich dir Skills anbiete, musst du zuerst ein paar Aufgaben für mich erledigen.");
-		scheduler.msgPrefix(30, player, "§dFelsmagier", "Eine Spinne hat sich in meinem Dachboden eingenistet. Bitte gehe nach oben und töte sie.");
-		entity.spawn("cave_spider", cave_spider_loc);
+		msg.prefix(player, "§dMage Assistant", "To unluck the skills of the mage you have to do some tasks.");
+		scheduler.msgPrefix(30, player, "§dMage Assistant", "A spider has nested in my cellar. Please go downstairs and kill it.");
+		entity.spawn(cave_spider_loc, "CAVE_SPIDER");
+	}
+}
+goto("wait");
+
+@stage14
+if(event == "living_death") {
+	entity_type = entity.getType(living_entity);
+	if(entity_type == "cave_spider") {
+		stage.increase(player);
+		msg.prefix(player, "§dMage Assistant", "Take this bucket, fill it with water and then empty it into the cauldron.");
+		player.safeGiveItem(player, item.create("minecraft:bucket", 1, null, null));
+		block.setMaterial(cauldron_loc, cauldron_mat);
 	}
 }
 goto("wait");
 
 @stage15
-if(event == "living_death") {
-	entity_type = entity.getType(living_entity);
-	if(entity_type == "cave_spider") {
-		msg.prefix(player, "§dFelsmagier", "Gute Arbeit. Komm zurück zu mir.");
+if(event == "bucket_use") {
+	cancel = false;
+	if(block.gotWater(block)) {
 		stage.increase(player);
 	}
 }
 goto("wait");
 
 @stage16
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
-	entity_name = entity.getName(entity);
-	if(entity_name == "Felsmagier") {
-		msg.prefix(player, "§dFelsmagier", "Nimm diesen Eimer, fülle ihn mit Wasser und leere in dann in den Kessel.");
-		player.safeGiveItem(player, read.item("minecraft:bucket"));
-		block.set(cauldron_loc, "minecraft:cauldron[level=0]");
+if(event == "block_click" && block != null) {
+	item = living.getHand(player);
+	if(block.getType(block) == cauldron_mat && item.getType(item) == water_bucket_mat) {
+		cancel = false;
+		msg.prefix(player, "§dMage Assistant", "Collect some netherwarts and give me all the ones you collect.");
 		stage.increase(player);
+		player.removeItem(player, water_bucket);
 	}
 }
 goto("wait");
 
 @stage17
-if(event == "bucket_use" && has_block) {
-	cancel = false;
-	if(block.gotWater(block, block_type, block_loc)) {
-		stage.increase(player);
-	}
-}
-goto("wait");
-
-@stage18
-if(event == "block_click" && hand == "MAIN_HAND") {
-	item = living.getEquip(player, "hand");
-	if(block.getType(block_loc) == "minecraft:cauldron" && item.getType(item) == "minecraft:water_bucket") {
-		msg.prefix(player, "§dFelsmagier", "Gut gemacht. Komm zurück zu mir.");
-		stage.increase(player);
-		player.removeItem(player, read.item("minecraft:water_bucket"));
-		block.set(cauldron_loc, "minecraft:cauldron[level=3]");
-	}
-}
-goto("wait");
-
-@stage19
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
-	entity_name = entity.getName(entity);
-	if(entity_name == "Felsmagier") {
-		msg.prefix(player, "§dFelsmagier", "Gehe nach oben in den Dachboden, sammle ein paar Netherwarzen und gib mir alle, die du gesammelt hast!");
-		stage.increase(player);
-	}
-}
-goto("wait");
-
-@stage20
 if(event == "block_break") {
 	cancel = true;
-	if(block.getType(block_loc) == "minecraft:nether_wart" && warts_harvested < 4) {
+	if(block.getType(block) == nether_wart_mat && warts_harvested < 4) {
 		cancel = true;
 		amount = math.random(1, 3);
-		item.drop(block_loc, read.item("minecraft:nether_wart", amount));
+		item.drop(item.create("nether_wart", amount, null, null), block.getLocation(block));
 		warts_harvested += amount;
 		if(warts_harvested >= 4) {
 			stage.increase(player);
@@ -272,17 +265,15 @@ if(event == "block_break") {
 }
 goto("wait");
 
-@stage21
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+@stage18
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Felsmagier") {
+	if(entity_name == "Mage Assistant") {
 		rest_amount = human.giveItem(entity_name, player, "minecraft:nether_wart", warts_harvested);
 		if(rest_amount == 0) {
 			stage.increase(player);
-			msg.prefix(player, "§dFelsmagier", "Danke dir.");
-			scheduler.msgPrefix(30, player, "§dFelsmagier", "Bitte gehe nach unten und koche das für mich.");
-			player.safeGiveItem(player, read.item("minecraft:coal"));
-			player.safeGiveItem(player, read.item("km:mushroom_stick_raw"));
+			msg.prefix(player, "§dMage Assistant", "Thank you. You now can go to the Mage and buy skills.");
+			quest.finish(script, player, 16);
 		} else {
 			warts_harvested = rest_amount;
 		}
@@ -290,50 +281,16 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 }
 goto("wait");
 
-@stage22
-if(event == "block_click" && hand == "MAIN_HAND") {
-	if(block.getType(block_loc) == "minecraft:furnace") {
-		stage.increase(player);
-	}
-}
-goto("wait");
-
-@stage23
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
-	entity_name = entity.getName(entity);
-	if(entity_name == "Felsmagier") {
-		item = living.getEquip(player, "hand");
-		if(item.getType(item) == "km:mushroom_stick_cooked") {
-			msg.prefix(player, "§dFelsmagier", "Danke dir.");
-			player.removeItem(player, read.item("km:mushroom_stick_cooked"));
-			
-			admont_script = script.get("QuestsAdmont");
-			map = script.getVar(admont_script, "timestamp");
-			map.add(map, player.getUuid(player), time.getMillis());
-			msg(player, "§dQuest abgeschlossen. Belohnung: 45 Snuvis!");
-			msg(player, text.click("§r [§cclick§r] §f[§bTeleport§f] zum Story-Spawn.", "/story"));
-			money.addBoost(player, 45);
-			quest.callShowShop(player, "felsmagier");
-			quest.finish(script, player);
-		}
-	}
-}
-goto("wait");
-
-function opendoor(loc) {
-	block.setDoorStatus(loc, true);
-	list.add($doors_to_close, loc);
-	if(!list.contains($visited_doors, loc)) {
-		list.add($visited_doors, loc);
+function opendoor(block) {
+	block.setOpen(block, true);
+	list.add($doors_to_close, block);
+	if(!set.contains($visited_doors, block)) {
+		set.add($visited_doors, block);
 	}
 }
 
 @closedoor
-doorloc = list.getIndex(doors_to_close, 0);
+doorblock = list.getIndex(doors_to_close, 0);
 list.removeIndex(doors_to_close, 0);
-if(block.getType(doorloc) == "minecraft:iron_door") {
-	if(block.getDoorStatus(doorloc)) {
-		block.setDoorStatus(doorloc, false);
-	}
-}
+block.setOpen(doorblock, false);
 goto("wait");

@@ -1,0 +1,396 @@
+rankingtable = "mrranks";
+game_short = "mr";
+
+times = map.new();
+jump_strength = map.new();
+tp_times = map.new();
+seekerlist = list.new();
+escaperlist = list.new();
+
+specific_lobby_handling = true;
+no_core_reset = true;
+gamename = "§9Menger-Run";
+gosub("setstart");
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "player_join") {
+	entity.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+	display.reset(player);
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+
+event.load("player_jump");
+event.load("living_pre_hurt");
+event.load("block_click");
+event.load("block_break");
+event.load("block_place");
+strength = 0;
+
+//Temp-Kopie von player_list erstellen
+templist = list.new();
+amount_players = list.getSize(player_list);
+for(i = 0; i < amount_players; i++) {
+	p_uuid = list.getIndex(player_list, i);
+	p = player.get(p_uuid);
+	msg.prefix(p, gamename, "The game has started.");
+	list.add(templist, p_uuid);
+	map.add(times, p_uuid, start_life_time);
+	map.add(jump_strength, p_uuid, 0);
+	player.setGamemode(p, "adventure");
+	player.setFly(p, false);
+	menger.tpPlayer(p);
+}
+
+if(seeker_amount == minplayers && amount_players == minplayers) {
+	seeker_amount--;
+}
+
+for(i = 0; i < seeker_amount; i++) {
+	p_uuid = list.getIndex(templist, math.random(0, list.getSize(templist) - 1));
+	p = player.get(p_uuid);
+	list.remove(templist, p_uuid);
+	setSeeker(p);
+	msg.prefix(p, gamename, "Catch other players!");
+}
+
+for(i = 0; i < list.getSize(templist); i++) {
+	p_uuid = list.getIndex(templist, i);
+	p = player.get(p_uuid);
+	setEscaper(p);
+	msg.prefix(p, gamename, "Run away!!!");
+}
+sgoto(20, "loop");
+
+@checkgame
+wait();
+if(event == "living_pre_hurt") {
+	if(!isPlayer(living_entity)) {
+		goto("checkgame");
+	}
+	player = living_entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@block_click
+if(slot.isoffhand(hand)){
+	goto("checkgame");
+}
+if(action == "PHYSICAL"){
+	goto("checkgame");
+}
+player_hand = living.getHand(player);
+if(!item.hasName(player_hand)){
+	goto("checkgame");
+}
+item_name = string.text(item.getName(player_hand));
+
+p_uuid = player.getUuid(player);
+key = number.getfromName(item_name);
+skill = list.getIndex(jan_mr_skills, key);
+skill_name = skill[0];
+strength = skill[2];
+if(map.get(jump_strength, p_uuid) == strength){
+	message = text.concat("Your Jump Strength is already set to ", skill_name, ".");
+}else{
+	map.add(jump_strength, p_uuid, strength);
+	message = text.concat("Your Jump Strength is now set to ", skill_name, ".");
+}
+msg.prefix(player, gamename, message);
+goto("checkgame");
+
+@player_jump
+jump = map.get(jump_strength, player.getUuid(player));
+if(jump > 0){
+	array = entity.getLook(living_entity);
+	array2 = entity.getMotion(living_entity);
+	x = array[0] * strength + array2[0];
+	y = math.abs(array[1]) * strength + array2[1];
+	z = array[2] * strength + array2[2];
+	entity.throw(living_entity, x, y, z);
+}
+goto("checkgame");
+
+@living_pre_hurt
+defender = player;
+attacker = player.getFromDamageSource(damage_source);
+if(attacker == null) {
+	damage_type = damage.getType(damage_source);
+	if(damage_type == "fall") {
+		cancel = true;
+		goto("checkgame");
+	}
+	if(damage_type == "outOfWorld") {
+		cancel = true;
+		if(list.contains(escaperlist, player.getUuid(defender))) {
+			//Random-Seeker zum Escaper machen
+			p_uuid = list.getIndex(seekerlist, math.random(0, list.getSize(seekerlist) - 1));
+			p = player.get(p_uuid);
+			setEscaper(p);
+			msg.prefix(p, gamename, "Run away!!!");
+			//Escaper wird zum Seeker
+			setSeeker(defender);
+			msg.prefix(defender, gamename, "Catch other players!");
+			menger.tpPlayer(defender);
+		} else {
+			menger.tpPlayer(defender);
+		}
+	}
+	goto("checkgame");
+}
+defender_uuid = player.getUuid(defender);
+if(!list.contains(player_list, defender_uuid)) {
+	cancel = true;
+	msg.prefix(attacker, gamename, "§eIllegal player in game.");
+	goto("checkgame");
+}
+if(!player.hasMinigameId(attacker, script_id)) {
+	goto("checkgame");
+}
+attacker_uuid = player.getUuid(attacker);
+if(defender_uuid == attacker_uuid) {
+	goto("checkgame");
+}
+if(!list.contains(player_list, attacker_uuid)) {
+	msg.prefix(defender, gamename, "§eIllegal player in game.");
+	cancel = true;
+	goto("checkgame");
+}
+if(list.contains(seekerlist, attacker_uuid) && list.contains(escaperlist, defender_uuid)) {
+	cancel = true;
+	menger.tpPlayer(defender);
+	setSeeker(defender);
+	msg.prefix(defender, gamename, "Catch other players!");
+	setEscaper(attacker);
+	msg.prefix(attacker, gamename, "Run away!!!");
+	new_time = map.get(times, attacker_uuid) + 30;
+	if(new_time > max_life_time) {
+		new_time = max_life_time;
+	}
+	map.add(times, attacker_uuid, new_time);
+}
+if(list.contains(escaperlist, attacker_uuid) && list.contains(seekerlist, defender_uuid)) {
+	cancel = true;
+}
+goto("checkgame");
+
+@block_break
+cancel = true;
+goto("checkgame");
+
+@block_place
+cancel = true;
+goto("checkgame");
+
+@loop
+for(i = 0; i < list.getSize(seekerlist); i++) {
+	player_uuid = list.getIndex(seekerlist, i);
+	player = player.get(player_uuid);
+	seconds = map.get(times, player_uuid) - 1;
+	map.add(times, player_uuid, seconds);
+	if(seconds == 0) {
+		minigame.speakAll(gamename, concat("§6", player.getName(player), "§r's time has run out."));
+		gosub("menger_kick"); 
+	}
+	display.reset(player);
+	display.add(player, 0, gamename);
+	display_index = 1;
+	for(h = 0; h < list.getSize(player_list); h++) {
+		p_uuid = list.getIndex(player_list, h);
+		p = player.get(p_uuid);
+		seconds = map.get(times, p_uuid);
+		minutes = text.number(math.roundDown(seconds / 60));
+		seconds = seconds % 60;
+		if(seconds < 10) {
+			seconds = concat("0", text.number(seconds));
+		} else {
+			seconds = text.number(seconds);
+		}
+		time_string = concat(minutes, ":", seconds);
+		if(list.contains(seekerlist, p_uuid)) {
+			minigame.displayAll(display_index++, concat(time_string, " §e", player.getName(p)));
+		} else {
+			minigame.displayAll(display_index++, concat(time_string, " ", player.getName(p)));
+		}
+	}
+}
+sgoto(20, "loop");
+goto("checkgame");
+
+function setSeeker(player) {
+	setStackIcons(player);
+	player_uuid = player.getUuid(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 100);
+	entity.clearEffects(player);
+	player.clearInventory(player);
+	list.add($seekerlist, player_uuid);
+	list.remove($escaperlist, player_uuid);
+	entity.addEffect(player, "glowing", $max_life_time * 20 * $maxplayers, 1, false);
+	player.setSpeed(player, 2.6);
+}
+
+function setEscaper(player) {
+	setStackIcons(player);
+	player_uuid = player.getUuid(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 100);
+	entity.clearEffects(player);
+	player.clearInventory(player);
+	list.add($escaperlist, player_uuid);
+	list.remove($seekerlist, player_uuid);
+	entity.addEffect(player, "glowing", $max_life_time * 20 * $maxplayers, 1, false);
+	player.setSpeed(player, 2.5);
+}
+
+function setStackIcons(player) {
+	player_inv = player.getInv(player);
+	for(h = 0; h < list.getSize($jan_mr_skills); h++) {
+		skill = list.getIndex($jan_mr_skills, h);
+		icon = skill[1];
+		inv.setItem(player_inv, h, icon);
+	}
+}
+
+function addMengerSkill(skill_name, icon, menger_strength) {
+	skill = array.new(3);
+	skill[0] = skill_name;
+	skill[1] = icon;
+	skill[2] = menger_strength;
+	list.add($jan_mr_skills, skill);
+}
+
+@player_logout
+@player_giveup
+minigame.speakAll(gamename, concat("§6", player.getName(player), " §rhas left the game."));
+gosub("menger_kick"); 
+goto("checkgame");
+
+@menger_kick
+script = script.getFromId(script_id);
+player.setSpeed(player, 1);
+minigame.kickPlayer(script, player);
+player_uuid = player.getUuid(player);
+showStats(player, false);
+
+current_seekers = list.getSize(seekerlist);
+current_escapers = list.getSize(escaperlist);
+if(list.contains(seekerlist, player_uuid)) {
+	is_seeker = true;
+} else {
+	is_seeker = false;
+}
+list.remove(seekerlist, player_uuid);
+list.remove(escaperlist, player_uuid);
+
+if(current_seekers == 2 && current_escapers >= 2) {
+	if(is_seeker) {
+		p = player.get(list.getIndex(escaperlist, math.random(0, list.getSize(escaperlist) - 1)));
+		setSeeker(p);
+		msg.prefix(p, gamename, "A seeker has left. You are a seeker now.");
+	}
+	return;
+}
+if(current_seekers == 2 && current_escapers == 1) {
+	if(!is_seeker) {
+		p = player.get(list.getIndex(seekerlist, math.random(0, list.getSize(seekerlist) - 1)));
+		setEscaper(p);
+		msg.prefix(p, gamename, "An escaper has left. You are an escaper now.");
+	}
+	seeker_amount--;
+	return;
+}
+if(list.getSize(player_list) < minplayers) {
+	winner_uuid = list.getIndex(player_list, 0);
+	goto("win");
+}
+return;
+
+@win
+winner_name = player.getName(winner_uuid);
+winner = player.get(winner_uuid);
+msg.prefix(winner, gamename, "§6You won the game.");
+showStats(winner, true);
+player.setSpeed(winner, 1);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, winner);
+minigame.term(script, gamesignloc);
+term();
+
+function showStats(player, won) {
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	if(won) {
+		last_record++;
+	}
+	playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, playedgames);
+	ranking.setPoints($rankingtable, player_id, last_record);
+
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Played games", text.number(playedgames));
+	minigame.statsLine(player, "§e", "Won games", text.number(last_record));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", concat(text.number(math.roundComma((last_record / playedgames) * 100, 2)), "%"));
+	}
+}
+
+function menger.tpPlayer(player) {
+	now_time = time.getMillis();
+	player_uuid = player.getUuid(player);
+	tp_time = map.getOrDefault($tp_times, player_uuid, 0);
+	if(now_time - tp_time < 1000) {
+		return;
+	}
+	map.add($tp_times, player_uuid, now_time);
+	tp_time = now_time;
+	world = world.getGames();
+	@do
+	x = math.random(loc.getX($edge_loc_1), loc.getX($edge_loc_2));
+	y = math.random(loc.getY($edge_loc_1), loc.getY($edge_loc_2));
+	z = math.random(loc.getZ($edge_loc_1), loc.getZ($edge_loc_2));
+	loc1 = loc.new(world, x, y, z);
+	loc2 = loc.mod(loc1, 0, 1, 0);
+	loc3 = loc.mod(loc1, 0, 2, 0);
+	if(block.isSolid(loc1) && block.isAir(loc2) && block.isAir(loc3)) {
+		entity.teleport(player, loc.mod(loc2, 0.5, 0, 0.5));
+		return;
+	}
+	goto("do");
+}
+
+function number.getfromName(item_name){
+	if(item_name == text.new("0")){
+		return 0;
+	}elseif(item_name == text.new("1")){
+		return 1;
+	}elseif(item_name == text.new("2")){
+		return 2;
+	}elseif(item_name == text.new("3")){
+		return 3;
+	}elseif(item_name == text.new("4")){
+		return 4;
+	}elseif(item_name == text.new("5")){
+		return 5;
+	}elseif(item_name == text.new("6")){
+		return 6;
+	}elseif(item_name == text.new("7")){
+		return 7;
+	}elseif(item_name == text.new("8")){
+		return 8;
+	}elseif(item_name == text.new("9")){
+		return 9;
+	}
+}

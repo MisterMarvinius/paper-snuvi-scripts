@@ -8,7 +8,7 @@ databank.workerExecute(databank.prepare("
 	);
 "));
 
-permgroups = array.new(17, 4);
+permgroups = array.new(19, 4);
 perm.addGroup(0, "user", "3User", false);
 perm.addGroup(1, "owner", "4Owner", true);
 perm.addGroup(2, "admin", "cAdmin", true);
@@ -26,6 +26,8 @@ perm.addGroup(13, "worldedit", null, true);
 perm.addGroup(14, "simuser", null, false);
 perm.addGroup(15, "notickets", null, false);
 perm.addGroup(16, "bypass", null, false);
+perm.addGroup(17, "altruist", null, false);
+perm.addGroup(18, "legend", null, false);
 perm.setGroups(permgroups);
 
 perm.addToGroup(0, "isUser");
@@ -75,7 +77,6 @@ perm.addToGroup(0, "tpahere");
 perm.addToGroup(0, "user");
 perm.addToGroup(0, "vote");
 perm.addToGroup(0, "voteshop");
-perm.addToGroup(0, "warp");
 
 perm.addToGroup(1, "isOwner");
 perm.addToGroup(1, "bukkit.command.paper");
@@ -106,6 +107,7 @@ perm.addToGroup(2, "entities");
 perm.addToGroup(2, "gamemode.other");
 perm.addToGroup(2, "inv.loadFrom");
 perm.addToGroup(2, "inv.saveFor");
+perm.addToGroup(2, "inv.see");
 perm.addToGroup(2, "iteminfo");
 perm.addToGroup(2, "minecraft.command.advancement");
 perm.addToGroup(2, "minecraft.command.banlist");
@@ -137,6 +139,7 @@ perm.addToGroup(2, "setrank.other");
 perm.addToGroup(2, "setservermessage");
 perm.addToGroup(2, "setspawn");
 perm.addToGroup(2, "setworldspawn");
+perm.addToGroup(2, "shop.owner");
 perm.addToGroup(2, "speed.other");
 perm.addToGroup(2, "start");
 perm.addToGroup(2, "minecraft.command.stop");
@@ -168,10 +171,9 @@ perm.addToGroup(3, "head");
 perm.addToGroup(3, "heal");
 perm.addToGroup(3, "home.other");
 perm.addToGroup(3, "human");
-perm.addToGroup(3, "inv");
 perm.addToGroup(3, "inv.ignore");
 perm.addToGroup(3, "inv.reload");
-perm.addToGroup(3, "inv.see");
+perm.addToGroup(3, "inv.see.plus");
 perm.addToGroup(3, "jumpto");
 perm.addToGroup(3, "mailbox.other");
 perm.addToGroup(3, "memory");
@@ -225,6 +227,8 @@ perm.addToGroup(4, "block");
 perm.addToGroup(4, "color");
 perm.addToGroup(4, "hat");
 perm.addToGroup(4, "icon");
+perm.addToGroup(4, "inv");
+perm.addToGroup(4, "inv.see");
 perm.addToGroup(4, "jail");
 perm.addToGroup(4, "joinme");
 perm.addToGroup(4, "kick");
@@ -244,6 +248,7 @@ perm.addToGroup(4, "unjail");
 perm.addToGroup(4, "unmute");
 perm.addToGroup(4, "user.other");
 perm.addToGroup(4, "warn");
+perm.addToGroup(4, "warp");
 	
 perm.addToGroup(5, "isDev");
 perm.addToGroup(5, "isTeam");
@@ -274,9 +279,11 @@ perm.addToGroup(5, "ticket");
 perm.addToGroup(5, "tip");
 perm.addToGroup(5, "top");
 perm.addToGroup(5, "var");
+perm.addToGroup(5, "warp");
 perm.addToGroup(5, "warp.create");
 
 perm.addToGroup(6, "isSnuviMaster");
+perm.addToGroup(6, "block.fix");
 perm.addToGroup(6, "bukkit.command.plugins");
 perm.addToGroup(6, "bukkit.command.reload");
 perm.addToGroup(6, "game");
@@ -324,6 +331,7 @@ perm.addToGroup(7, "tip");
 perm.addToGroup(7, "top");
 perm.addToGroup(7, "tp");
 perm.addToGroup(7, "tppos");
+perm.addToGroup(7, "warp");
 perm.addToGroup(7, "warp.create");
 
 perm.addToGroup(8, "isStreamer");
@@ -373,6 +381,12 @@ perm.addToGroup(14, "perm.toggle");
 perm.addToGroup(15, "notickets");
 
 perm.addToGroup(16, "plot.bypass");
+
+//altruist
+perm.addToGroup(17, "setmessage");
+
+//legend
+perm.addToGroup(18, "setmessage");
 
 perm.loadDatabank();
 perm.initOnlinePlayers();

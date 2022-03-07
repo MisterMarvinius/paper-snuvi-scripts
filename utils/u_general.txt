@@ -4,6 +4,10 @@ function calcLeftShift(bit) { //Deprecated, kaje soll << einbauen
 	return a;
 }
 
+function sb.getSpacer() {
+	return("§0------------------");
+}
+
 function isString(anything) {
 	return string.class(anything) == "String";
 }
@@ -45,6 +49,13 @@ function list.copy(list) {
 		list.add(list_new, next(iter));
 	}
 	return list_new;
+}
+
+function list.transfer(from_list, to_list) {
+	iter = iterator(from_list);
+	while(hasNext(iter)) {
+		list.add(to_list, next(iter));
+	}
 }
 
 function array.sort(my_array, ascending) {
@@ -1064,6 +1075,7 @@ function quest.addCounter(player, amount) {
 	config.saveAsync(config);
 	if(new_amount == 500) {
 		offerRank(player, "rank.altruist");
+		perm.addGroupToPlayer(player.getId(player), 17);
 	} elseif(new_amount == 50) {
 		offerRank(player, "rank.friend");
 	} elseif(new_amount == 15) {
@@ -1072,6 +1084,16 @@ function quest.addCounter(player, amount) {
 }
 
 function quest.finish(script, player) {
+	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+	category = sound.getCategory("MASTER");
+	sound.spawnForPlayer(player, sound, category);
+	quest.addCounter(player, 1);
+	quest.term(script, player);
+}
+
+function quest.finishReward(script, player, reward) {
+	msg.string(player, string.concat("§dQuest finished. Reward: ", money.getString(reward)));
+	money.addBoost(player, reward);
 	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
 	category = sound.getCategory("MASTER");
 	sound.spawnForPlayer(player, sound, category);
@@ -1158,10 +1180,11 @@ function player.teleport(player, location, setBackPos) {
 	if(player.hasMinigame(player)) {
 		return false;
 	}
-	/*mount = entity.getMount(player);
-	if(mount != null) {
-		entity.unmount(mount);
-	}*/
+	passengers = entity.getPassengers(player);
+	iter = iterator(passengers);
+	while(hasNext(iter)) {
+		entity.unmount(next(iter));
+	}
 	if(setBackPos) {
 		player.setBackPos(player);
 	}
@@ -2299,15 +2322,12 @@ function block.mod(block, x, y, z) {
 	return block.get(loc.mod(block.getLocation(block), x, y, z));
 }
 
-function block.gotWater(block, block_type, block_loc) {
-	if(block_type == "WATER") {
+function block.gotWater(block) {
+	block_type = block.getType(block);
+	if(block_type == material.get("WATER")) {
 		return true;
 	}
-	value = block.property.getValue(block_loc, block.getProperty("waterlogged"));
-	if(value == null) {
-		return false;
-	}
-	return value;
+	return block.isWaterlogged(block);
 }
 
 //--------------------------------------------------
@@ -2446,7 +2466,7 @@ function money.display(player, money)  {
 	sb.add(player, 1, string.concat(icon.getGoldCoin(), gold, " ", icon.getSilverCoin(), silver, " ", icon.getCopperCoin(), copper));
 }
 
-function displayMoney(player, money) {
+function displayMoney(player, money) { //Deprecated
 	money.display(player, money);
 }
 
@@ -3172,7 +3192,9 @@ function perm.removeGroupFromPlayer(player_id, perm_id) {
 	list = player.getPerms(player_id);
 	list.remove(list, perm_id);
 	
-	perm.initPlayer(player_id);
+	player_uuid = player.getUuidFromId(player_id);
+	player = player.get(player_uuid);
+	perm.unloadGroupFromPlayer(perm_id, player);
 }
 
 function perm.simUser(player) {
@@ -3286,6 +3308,15 @@ function perm.loadGroupToPlayer(group_id, player) {
 	while(hasNext(iter)) {
 		perm = next(iter);
 		perm.add(perm, player);
+	}
+}
+
+function perm.unloadGroupFromPlayer(group_id, player) {
+	list = perm.getGroupList(group_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		perm = next(iter);
+		perm.remove(perm, player);
 	}
 }
 

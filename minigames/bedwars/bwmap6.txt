@@ -24,25 +24,25 @@ list.add(head_bed_loc, loc.new(gamesworld, 3036, 101, -121));
 list.add(head_bed_loc, loc.new(gamesworld, 3036, 101, 37));
 
 bed_facing = map.new(); //Map in welche Richtung das Bett schaut
-map.add(bed_facing, 0, "NORTH");
-map.add(bed_facing, 1, "SOUTH");
+map.add(bed_facing, 0, "north");
+map.add(bed_facing, 1, "south");
 
 spawn_locs = map.new(); //Liste der Spawnlocs der einzelnen Teams
 map.add(spawn_locs, 0, loc.new(gamesworld, 3036, 101, -17 -90, 0));
 map.add(spawn_locs, 1, loc.new(gamesworld, 3036, 101, 34, 180, 0));
 
 copper_locs = list.new();
-list.add(copper_locs, loc.new(gamesworld, 3040, 100, 23));
-list.add(copper_locs, loc.new(gamesworld, 3041, 100, 20));
-list.add(copper_locs, loc.new(gamesworld, 3040, 100, -107));
-list.add(copper_locs, loc.new(gamesworld, 3041, 100, -104));
+list.add(copper_locs, loc.new(gamesworld, 3040.5, 100, 23.5));
+list.add(copper_locs, loc.new(gamesworld, 3041.5, 100, 20.5));
+list.add(copper_locs, loc.new(gamesworld, 3040.5, 100, -106.5));
+list.add(copper_locs, loc.new(gamesworld, 3041.5, 100, -103.5));
 
 silver_locs = list.new();
-list.add(silver_locs, loc.new(gamesworld, 3025, 94, 33));
-list.add(silver_locs, loc.new(gamesworld, 3027, 93, 37));
-list.add(silver_locs, loc.new(gamesworld, 3025, 94, -117));
-list.add(silver_locs, loc.new(gamesworld, 3027, 93, -121));
+list.add(silver_locs, loc.new(gamesworld, 3025.5, 94, 33.5));
+list.add(silver_locs, loc.new(gamesworld, 3027.5, 93, 37.5));
+list.add(silver_locs, loc.new(gamesworld, 3025.5, 94, -116.5));
+list.add(silver_locs, loc.new(gamesworld, 3027.5, 93, -120.5));
 
 gold_locs = list.new();
-list.add(gold_locs, loc.new(gamesworld, 3042, 96, 34));
-list.add(gold_locs, loc.new(gamesworld, 3042, 96, -118));
+list.add(gold_locs, loc.new(gamesworld, 3042.5, 96, 34.5));
+list.add(gold_locs, loc.new(gamesworld, 3042.5, 96, -117.5));

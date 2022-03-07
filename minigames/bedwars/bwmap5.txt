@@ -30,10 +30,10 @@ list.add(head_bed_loc, loc.new(gamesworld, -5000, 51, -5063));
 list.add(head_bed_loc, loc.new(gamesworld, -5000, 51, -4937));
 
 bed_facing = map.new(); //Map in welche Richtung das Bett schaut
-map.add(bed_facing, 0, "WEST");
-map.add(bed_facing, 1, "EAST");
-map.add(bed_facing, 2, "NORTH");
-map.add(bed_facing, 3, "SOUTH");
+map.add(bed_facing, 0, "west");
+map.add(bed_facing, 1, "east");
+map.add(bed_facing, 2, "north");
+map.add(bed_facing, 3, "south");
 
 spawn_locs = map.new(); //Liste der Spawnlocs der einzelnen Teams
 map.add(spawn_locs, 0, loc.new(gamesworld, -5045, 51, -5000, -90, 0));
@@ -42,19 +42,19 @@ map.add(spawn_locs, 2, loc.new(gamesworld, -5000, 51, -5045));
 map.add(spawn_locs, 3, loc.new(gamesworld, -5000, 51, -4955, 180, 0));
 
 copper_locs = list.new();
-list.add(copper_locs, loc.new(gamesworld, -5044, 51, -4976));
-list.add(copper_locs, loc.new(gamesworld, -4956, 51, -5024));
-list.add(copper_locs, loc.new(gamesworld, -5024, 51, -5044));
-list.add(copper_locs, loc.new(gamesworld, -4976, 51, -4956));
+list.add(copper_locs, loc.new(gamesworld, -5043.5, 51, -4975.5));
+list.add(copper_locs, loc.new(gamesworld, -4955.5, 51, -5023.5));
+list.add(copper_locs, loc.new(gamesworld, -5023.5, 51, -5043.5));
+list.add(copper_locs, loc.new(gamesworld, -4975.5, 51, -4955.5));
 
 silver_locs = list.new();
-list.add(silver_locs, loc.new(gamesworld, -5047, 51, -4978));
-list.add(silver_locs, loc.new(gamesworld, -4953, 51, -5022));
-list.add(silver_locs, loc.new(gamesworld, -5022, 51, -5047));
-list.add(silver_locs, loc.new(gamesworld, -4978, 51, -4953));
+list.add(silver_locs, loc.new(gamesworld, -5046.5, 51, -4977.5));
+list.add(silver_locs, loc.new(gamesworld, -4952.5, 51, -5021.5));
+list.add(silver_locs, loc.new(gamesworld, -5021.5, 51, -5046.5));
+list.add(silver_locs, loc.new(gamesworld, -4977.5, 51, -4952.5));
 
 gold_locs = list.new();
-list.add(gold_locs, loc.new(gamesworld, -4997, 51, -4997));
-list.add(gold_locs, loc.new(gamesworld, -5003, 51, -4997));
-list.add(gold_locs, loc.new(gamesworld, -5003, 51, -5003));
-list.add(gold_locs, loc.new(gamesworld, -4997, 51, -5003));
+list.add(gold_locs, loc.new(gamesworld, -4996.5, 51, -4996.5));
+list.add(gold_locs, loc.new(gamesworld, -5002.5, 51, -4996.5));
+list.add(gold_locs, loc.new(gamesworld, -5002.5, 51, -5002.5));
+list.add(gold_locs, loc.new(gamesworld, -4996.5, 51, -5002.5));

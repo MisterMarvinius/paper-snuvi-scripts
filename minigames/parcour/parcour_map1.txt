@@ -1,0 +1,24 @@
+rankingtable = "parcourranks1";
+gamesignloc = minigame.getSignLoc("parcoursign1");
+gamesworld = world.getGames();
+
+checkpoints = list.new();
+list.add(checkpoints, loc.new(gamesworld, -1861, 125, 915)); //Spawn
+list.add(checkpoints, loc.new(gamesworld, -1894, 101, 919)); //1.Checkpoint
+list.add(checkpoints, loc.new(gamesworld, -1902, 121, 919));
+list.add(checkpoints, loc.new(gamesworld, -1941, 93, 924));
+list.add(checkpoints, loc.new(gamesworld, -1896, 101, 928));
+list.add(checkpoints, loc.new(gamesworld, -1938, 98, 958));
+list.add(checkpoints, loc.new(gamesworld, -1962, 89, 992));
+list.add(checkpoints, loc.new(gamesworld, -1974, 98, 984)); //7.Checkpoint
+list.add(checkpoints, loc.new(gamesworld, -1973, 40, 954)); //Finish
+
+spawn_locs = list.new();
+list.add(spawn_locs, loc.new(gamesworld, -1860.5, 125, 915.5, 90, 0)); //Spawn
+list.add(spawn_locs, loc.new(gamesworld, -1893.5, 101, 919.5, 90, 0)); //1.Checkpoint
+list.add(spawn_locs, loc.new(gamesworld, -1901.5, 121, 919.5, 90, 0));
+list.add(spawn_locs, loc.new(gamesworld, -1940.5, 93, 924.5, -90, 0));
+list.add(spawn_locs, loc.new(gamesworld, -1895.5, 101, 928.5, 90, 0));
+list.add(spawn_locs, loc.new(gamesworld, -1937.5, 98, 958.5, 0, 0));
+list.add(spawn_locs, loc.new(gamesworld, -1961.5, 89, 992.5, 90, 0));
+list.add(spawn_locs, loc.new(gamesworld, -1973.5, 98, 984.5, 180, 0)); //7.Checkpoint

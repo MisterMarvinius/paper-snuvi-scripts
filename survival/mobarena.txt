@@ -93,6 +93,7 @@ if(event == "living_death") {
 			item.drop(ruby, ent_loc);
 		}
 		r = math.random(3, 5);
+		r *= money.getBoostFactor();
 		item.setAmount(copper_coin, r);
 		item.drop(copper_coin, ent_loc);
 	}

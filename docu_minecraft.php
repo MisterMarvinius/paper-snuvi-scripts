@@ -548,6 +548,16 @@
     </table>
 	<table>
         <tr>
+            <th class="command">player_jump</th>
+            <th class="desc">a player jumps</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
             <th class="command">world_load</th>
             <th class="desc">a world gets loaded</th>
         </tr>
@@ -3695,6 +3705,16 @@
             <td>slot from 0 to 8</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">player.resetSleep</th>
+            <th class="desc">resets the time since last rest</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.resetSleep(player)</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Inventory">
@@ -4179,6 +4199,16 @@
     </table>
     <table>
         <tr>
+            <th class="command">entity.getPassengers</th>
+            <th class="desc">returns a list of passengers of an entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.getPassengers(entity)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
             <th class="command">entity.isWet</th>
             <th class="desc">returns true if an entity is wet</th>
         </tr>
@@ -4584,7 +4614,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>entity.clearEffects(living_entity)</td>
+            <td>living.clearEffects(living_entity)</td>
         </tr>
     </table>
     <table>

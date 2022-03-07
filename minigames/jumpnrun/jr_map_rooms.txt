@@ -1,0 +1,43 @@
+rankingtable = "jr_room_ranks";
+gamesignloc = minigame.getSignLoc("jr_sign_room");
+gamesworld = world.getGames();
+game_short = "jr_rooms";
+time_tag_run = "jr.rooms.runtime";
+module_tag_run = "jr.rooms.runmodule";
+gamename = "§aJump'n'Run";
+mapname = "Rooms";
+
+spawn_locs = list.new();
+list.add(spawn_locs, loc.new(gamesworld, 1995.5, 105, -1.5, 0.0001, 0.0001)); //Spawn
+list.add(spawn_locs, loc.new(gamesworld, 1991.5, 104, 24.5, 0.0001, 0.0001)); //1.Checkpoint
+list.add(spawn_locs, loc.new(gamesworld, 1991.5, 107, 49.5, 0.0001, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1998.5, 101, 55.5, 90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1991.5, 108, 57.5, 0.0001, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1990.5, 113, 62.5, 90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1973.5, 113, 64.5, 90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1966.5, 99, 55.5, 180, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1969.5, 103, 18.5, 180, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1983.5, 107, -42.5, -90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1998.5, 106, -44.5, 180, 0.0001)); //10. Checkpoint
+list.add(spawn_locs, loc.new(gamesworld, 2002.5, 116, -48.5, 180, 0.0001)); 
+list.add(spawn_locs, loc.new(gamesworld, 2006.5, 118, -39.5, 90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2020.5, 112, -27.5, 180, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2019.5, 118, -50.5, 180, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2013.5, 112, -58.5, 180, 0.0001)); 
+list.add(spawn_locs, loc.new(gamesworld, 2004.5, 116, -60.5, 90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1987.5, 117, -65.5, 0.0001, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1975.5, 115, -61.5, 180, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1979.5, 121, -70.5, -90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 1996.5, 119, -98.5, -90, 0.0001)); //20. Checkpoint 
+list.add(spawn_locs, loc.new(gamesworld, 2014.5, 119, -102.5, 180, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2021.5, 120, -75.5, -90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2034.5, 115, -88.5, -90, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2040.5, 129, -84.5, 0.0001, 0.0001));
+list.add(spawn_locs, loc.new(gamesworld, 2031.5, 131, -61.5, 90, 0.0001)); //Finish
+goto("core_start");
+
+@event_specific
+return;
+
+@stage_specific
+return;

@@ -24,7 +24,7 @@ setScriptVar("skills", list.new());
 //skill.add("Block Down", "skill.block_down", "minecraft:diamond_pickaxe", "Break a block and the block below for a minute", 25, false, true, false, 0, 0, 60);
 skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees with an axe", 4096, true, false, true, 0, 0, null);
 //skill.add("Fire Arrow", "skill.fire_arrow", "minecraft:arrow", "For a minute with an flame enchanted bow your arrows ignite hit blocks", 50, false, true, false, 0, 0, 60);
-skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 1024, true, false, true, 0, 0, null);
+//skill.add("Better Shears", "skill.better_shears", "minecraft:shears", "Sharpness enchanted shears increase the radius for destruction of leaves", 1024, true, false, true, 0, 0, null);
 //skill.add("Cobweb Miner", "skill.cobweb_miner", "minecraft:cobweb", "Swords increase the radius for destruction of cobwebs", 250, true, false, true, 0, 0, null);
 
 death_loc_map = map.new();

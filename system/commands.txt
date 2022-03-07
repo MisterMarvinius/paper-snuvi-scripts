@@ -420,7 +420,11 @@ inv.setItem(skip_night_inv, 6, item.custom.create("CROSS_RED", 1, "§fNo", null)
 skip_night_inv_id = inv.getId(skip_night_inv);
 
 vote_inv = inv.new("222222222", text.new("§8Voteshop"));
-//inv.setItem(vote_inv, 0, item.new(material.get("km:coin_gold"), 1, "§aMoney Booster", "§fCost: §e6 VP", "Doubles incoming money for 10 minutes."));
+lore_list = list.new();
+list.add(lore_list, text.new("§fCost: §e6 VP"));
+list.add(lore_list, text.new("§5Doubles incoming money for 10 minutes."));
+list.add(lore_list, text.new("§5Effects quests, minigames and mobarena."));
+inv.setItem(vote_inv, 0, item.custom.create("GOLD_COIN", 1, "§aMoney Booster", lore_list));
 lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e2 VP"));
 list.add(lore_list, text.new("§5Rickroles every player on the server."));
@@ -434,6 +438,15 @@ lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e1 VP"));
 list.add(lore_list, text.new("§5Plays a creeper sound for each player."));
 inv.setItem(vote_inv, 4, item.create("JUKEBOX", 1, "§aFalse Alarm", lore_list));
+lore_list = list.new();
+list.add(lore_list, text.new("§fCost: §e1 VP"));
+list.add(lore_list, text.new("§5Opens your enderchest."));
+inv.setItem(vote_inv, 5, item.create("ENDER_CHEST", 1, "§aMobile Enderchest", lore_list));
+lore_list = list.new();
+list.add(lore_list, text.new("§fCost: §e7 VP"));
+list.add(lore_list, text.new("§5A sapphire for your armor."));
+list.add(lore_list, text.new("§5To use at jewelry smith."));
+inv.setItem(vote_inv, 6, item.custom.create("SAPPHIRE", 1, "§aSapphire", lore_list));
 vote_inv_id = inv.getId(vote_inv);
 
 consoleCommands = set.new();
@@ -612,10 +625,9 @@ if(event == "vote") {
 		} elseif(!isSameDay(last_vote_time, now_time)) {
 			new_streak = 1;
 		}
-		if(new_streak == 7) {
-			new_streak = 0;
-			msg.online(prefix_vote, string.concat(player.getName(p_uuid), " reached a votestreak of 7 and gets a sapphire (§b/mailbox§r)."));
-			mailbox.sendItem(p_id, item.getSapphire());
+		if(new_streak % 7 == 0) {
+			msg.online(prefix_vote, string.concat(player.getName(p_uuid), " reached a votestreak of 7 and gets an additional votepoint."));
+			player.addVotePoints(p_id, 1);
 		}
 		player.setVoteStreak(p_id, new_streak);
 		player.setLastVoteTime(p_id, now_time);
@@ -812,6 +824,10 @@ if(event == "snuvi_click") {
 		goto("wait");
 	}
 	if(set.contains(invseeids, inv_id)) {
+		if(!perm.has("inv.see.plus", player)) {
+			perm.no("inv.see.plus", player);
+			goto("wait");
+		}
 		split_array = string.split(" ", title_string);
 		p_name = split_array[2];
 		p = read.player(p_name);
@@ -846,7 +862,12 @@ if(event == "snuvi_click") {
 			player.setVotePoints(player, vp - 6);
 			msg.online(prefix_vote, string.concat(player.getName(player), " activated §dMoney Booster§r."));
 			money.setBoostFactor(2);
-			status.addTimed("online", 56, 12000, "Money Booster");
+			online_list = players.toList();
+			iter = iterator(online_list);
+			while(hasNext(iter)) {
+				p = next(iter);
+				sb.add(p, 5, "§6Money Booster +100%");
+			}
 			sgoto(12000, "resetMoneyBoost");
 			goto("wait");
 		}
@@ -897,6 +918,27 @@ if(event == "snuvi_click") {
 			}
 			goto("wait");
 		}
+		if(inv_slot == 5) {
+			vp = player.getVotePoints(player);
+			if(vp < 1) {
+				msg.prefix(player, prefix_commands, "Not enough vote points.");
+				goto("wait");
+			}
+			player.setVotePoints(player, vp - 1);
+			inv.open(player.getEnderInv(player), player);
+			goto("wait");
+		}
+		if(inv_slot == 6) {
+			vp = player.getVotePoints(player);
+			if(vp < 7) {
+				msg.prefix(player, prefix_commands, "Not enough vote points.");
+				goto("wait");
+			}
+			msg.online(prefix_vote, string.concat(player.getName(player), " spend their votepoints to §dSapphire§r."));
+			player.setVotePoints(player, vp - 7);
+			player.giveItem(player, item.getSapphire());
+			goto("wait");
+		}
 		goto("wait");
 	}
 	if(inv_id == skip_night_inv_id) {
@@ -914,6 +956,7 @@ if(event == "snuvi_click") {
 			goto("wait");
 		}
 		if(!skip_night_started) {
+			skip_night_yes_list = list.new();
 			world.addTimedStatus(world, 49, 300, "Skip night?");
 			msg("online", text.merge(text.new(string.getPrefix(prefix_commands)), text.new(" Skip night? Vote within 15 seconds. "), string.getClickText("[§cClick§r]", "/skipnight")));
 			skip_night_counter = 15;
@@ -927,6 +970,7 @@ if(event == "snuvi_click") {
 			skip_night_yes++;
 			inv.close(player);
 			set.add(skip_night_set, player_uuid);
+			list.add(skip_night_yes_list, player_uuid);
 			goto("wait");
 		}
 		if(inv_slot == 4) {
@@ -959,7 +1003,7 @@ if(event == "snuvi_click") {
 			} else {
 				skill.setActivated(player, tech_name, true);
 			}
-			inv.setItem(inv, inv_slot, skill.getShopItem(player, tech_name));
+			inv.setItem(inv, inv_slot, skill.getSettingsItem(player, tech_name));
 			goto("wait");
 		}
 		//Activate skill
@@ -1149,6 +1193,9 @@ if(size == 0) {
 	msg.string(player, "§d - info §rPrints info about the block");
 	msg.string(player, "§d - public §rWhitelists a block for interaction");
 	msg.string(player, "§d - remove §rRemoves a block from whitelist");
+	if(perm.has("block.fix", player)) {
+		msg.string(player, "§d - fix §rRemoves all air blocks from whitelist");
+	}
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -1201,6 +1248,35 @@ if(arg0 == "remove") {
 	plot.saveBlocks(loc.getWorld(location));
 	goto("wait");
 }
+if(arg0 == "fix") {
+	if(!perm.has("block.fix", player)) {
+		perm.no("block.fix", player);
+		goto("wait");
+	}
+	//temp_list verhindern concurrent modification
+	temp_list = list.new();
+	world = world.getOverWorld();
+	c = 0;
+	iter = plot.blockIterator(world);
+	while(hasNext(iter)) {
+		pos = next(iter);
+		x = plot.position.getX(pos);
+		y = plot.position.getY(pos);
+		z = plot.position.getZ(pos);
+		loc = loc.new(world, x, y, z);
+		block = block.get(loc);
+		if(block.isAir(block)) {
+			c++;
+			list.add(temp_list, loc);
+		}
+	}
+	iter = iterator(temp_list);
+	while(hasNext(iter)) {
+		plot.removeBlock(next(iter));
+	}
+	msg.prefix(player, prefix_commands, string.concat("Removed ", string.number(c), " blocks."));
+	goto("wait");
+}
 goto("blockhelp");
 
 @logo
@@ -1227,6 +1303,9 @@ if(size == 0) {
 	msg.string(player, "§6 - buy <amount> <price> §rSet buy settings");
 	msg.string(player, "§6 - sell <amount> <price> §rSet sell settings");
 	msg.string(player, "§6 - remove <buy/sell> §rRemove settings");
+	if(perm.has("shop.owner", player)) {
+		msg.string(player, "§6 - owner <player> §rSet shop owner");
+	}
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -1321,6 +1400,29 @@ if(arg0 == "remove") {
 		goto("wait");
 	}
 	msg.prefix(player, prefix_shop, "§rPrice removed.");
+	goto("wait");
+}
+if(arg0 == "owner") {
+	if(!perm.has("shop.owner", player)) {
+		perm.no("shop.owner", player);
+		goto("wait");
+	}
+	if(size != 2) {
+		msg.prefix(player, prefix_shop, "§6/shop owner <player>");
+		goto("wait");
+	}
+	p_name = list.getIndex(args, 1);
+	p_uuid = player.getUuid(p_name);
+	if(p_uuid == null) {
+		msg.prefix(player, prefix_shop, "This player has never been online.");
+		goto("wait");
+	}
+	sign_block = player.getTargetBlock(player, 5, false, false);
+	if(!block.isWallSign(sign_block)) {
+		msg.prefix(player, prefix_shop, "Look at a wall sign.");
+		goto("wait");
+	}
+	sign.setString(sign_block, 3, string.number(player.getId(p_uuid)));
 	goto("wait");
 }
 goto("shop_help");
@@ -1485,6 +1587,12 @@ goto("wait");
 
 @resetMoneyBoost
 money.setBoostFactor(1);
+online_list = players.toList();
+iter = iterator(online_list);
+while(hasNext(iter)) {
+	p = next(iter);
+	sb.remove(p, 5);
+}
 goto("wait");
 
 @skip_night_loop
@@ -1500,6 +1608,13 @@ if(skip_night_counter == 0) {
 	}
 	set.clear(skip_night_set);
 	last_skip_night = time.getMillis();
+	iter = iterator(skip_night_yes_list);
+	while(hasNext(iter)) {
+		p = player.get(next(iter));
+		if(p != null) {
+			player.resetSleep(p);
+		}
+	}
 	sgoto(8400, "reset_skip_night");
 	goto("wait");
 }
@@ -2098,9 +2213,15 @@ if(arg0 == "info") {
 	msg.string(sender, table.get(table, "First Join", getDateString(player.getFirstJoin(p_or_id))));
 	msg.string(sender, table.get(table, "Last Join", getDateString(player.getLastJoin(p_or_id))));
 	if(perm.has("user.other", sender)) {
-		msg.string(sender, table.get(table, "UUID", p_uuid));
-		msg.string(sender, table.get(table, "ID", string.number(p_id)));
-		msg.string(sender, table.get(table, "IP", player.getLoggedIp(p_or_id)));
+		if(player.isLive(sender)) {
+			msg.string(sender, table.get(table, "UUID", p_uuid));
+			msg.string(sender, table.get(table, "ID", string.number(p_id)));
+			msg.string(sender, table.get(table, "IP", "§7§oHidden"));
+		} else {
+			msg.string(sender, table.get(table, "UUID", p_uuid));
+			msg.string(sender, table.get(table, "ID", string.number(p_id)));
+			msg.string(sender, table.get(table, "IP", player.getLoggedIp(p_or_id)));
+		}
 	}
 	msg.string(sender, table.get(table, "Rank", getRank(p_or_id)));
 	msg.string(sender, table.get(table, "PvP", hasPvpOn(p_or_id)));
@@ -3349,14 +3470,6 @@ if(arg0 == "remove") {
 	p_uuid = player.getUuid(p_name);
 	p_id = player.getId(p_uuid);
 	p_name = player.getName(p_uuid);
-	//Wenn marvinius eine Permission entfernt wird, wird dies blockiert, ausgenommen er tut dies selbst
-	player_id = player.getId(player);
-	if(player_id != 2) {
-		if(p_id == 2) {
-			msg.string(player, "§cSorry §b¯\\_(._.)_/¯");
-			goto("wait");
-		}
-	}
 	perm_id = perm.getIdFromGroupname(perm);
 	if(!player.hasPermGroup(p_id, perm_id)) {
 		msg.prefix(player, prefix_perms, "This player doesn´t have that perm.");
@@ -3380,15 +3493,7 @@ if(arg0 == "removeall") {
 		msg.prefix(player, prefix_perms, "This player has never been online.");
 		goto("wait");
 	}
-	//Wenn marvinius Permissions entfernt werden, wird dies blockiert, ausgenommen er tut dies selbst
 	p_id = player.getId(player.getUuid(p_name));
-	player_id = player.getId(player);
-	if(player_id != 2) {
-		if(p_id == 2) {
-			msg.string(player, "§cSorry §b¯\\_(._.)_/¯");
-			goto("wait");
-		}
-	}
 	player.removeAllPerms(p_id);
 	msg.prefix(player, prefix_perms, string.concat("All perms of §7", p_name, " §rwere removed."));
 	goto("wait");
@@ -4769,8 +4874,8 @@ elseif(arg0 == "skin") {
 		    human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1MDcxNzUzMjgzMjksInByb2ZpbGVJZCI6IjcwOTU2NDU0NTJkOTRiYTI5YzcwZDFmYTY3YjhkYTQyIiwicHJvZmlsZU5hbWUiOiJIaWRkdXMiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzU4MzgxOTdkNzBhNmQ2ZmYzODk3NGExYmEyZTM1NTJiOTBjNjRjZmE0ZGFlMjI5NGNmMmRjMTgwMTY5YzVlOCJ9fX0=", "ryT6EeGTuOOtYW0XiBszxWTI+CxwfVrkBfB4YlnPwjGyPjHAXzOmnZh8HKsBMHD5APd7zOEkU829E8uL8wJLmRjiVHKldOphQee44ZgNN1Y/8RymneghYEs7HNLyB2g4hEzHl7HWOCq1R9sNUUlWRAkREpHo4LzzGSP6+hcBHjS7Y+SYm/QTnwmUoSnhakijBWi8/dA9Uf37g5hyXdRUKbLtySoD/bMWkZlUgkmcl2ErPYl3E87Zt+4VGCP9lfoWE9zhP+SrXgdilXFbGYECpkDMyXqcVx1VjFmqG1zpdalfimWeJ8gwRwWmJWxU3g97UGJ7g/Wg7Kn2Ar0rkwx660pf4syESRJKx1MmrAICUxoj1CpLlZOcDhoDvFTqvcGSmo7gdrTk1qEdTq0oHfMuaJRFjBwophK+z0YOO4vzyFadB6nvtmBvT8TDSfp0hxsIzzPpIQ7B0BBdpqwklavktDPMT7qcR1pXpbh/7EhN0OcJtOXjzNH9Bjmd10UWb5XZmtO65ICr7Q947Wd5JezabLMR3L3CNSXPerSCcvxFMdx5s0Io7SNjvk38rranOEHdsG7Z950DclmbftIr0JlySSZt+PmKVOlvMFulOo9oagHial6S807sd5tziQ9Y/tuNpAYpWbtyEYSBmp8+ydhUyTsbVW0qSS8uY4Mqr0aNaWk=");
 		} elseif(name == "alena") {
 		    human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU5NjIyODQ5NDI0NiwKICAicHJvZmlsZUlkIiA6ICJhMjk1ODZmYmU1ZDk0Nzk2OWZjOGQ4ZGE0NzlhNDNlZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJWaWVydGVsdG9hc3RpaWUiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWUwYjJmNzg5NDZkZThmZjg4YzFkYzI2OTkwMTgxNTEzMjE1NzQ3NDZmZjg1ZjQ1Y2U5Nzk1YzZmMjc4NDNiNyIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9", "kDLavxU1Et/E6Gak3MaUHsqrH91LcQyxNUy1hG8Vr/0CL4uqWXMYFT1SP9VDrkPbfnzpqQIDG7uTfEsIwrMS0fpsMugdEmlwXv4Omcc+4j6VYT1BNvchNrxyvc4otsY9fTjMHfyxvmTB2yjUQdlJEjHPKw17cbH2lpFgEiNi1SM+V+IVHfg/gXnEufjYaTek+3uNd6UUiukc6S6MTeGcstJ3qJh5DUk/PJKWqapgoVqBGFmFoyqPgb0Ns2LEqvKPJc+uGvB6FpUPLYkqC+8HokYnBTxAFOF0803Xh4y0E17I+GckFGJsa2EP40g0oj2aFnua+lchAU1d0B8RkN2u0yD4bqELQjjxLj26qnDvl6V3aJ00KD/BCIiaPMxfyYKI5BFceFRYU2qwNX83LorkFIzuFDhRtn1jyYn5fDGN3CtSdQ60q733N3jXA14sUntrKiIEUrwu+HN2Qo2765skEiXoBMc7blHfgh0RFt4g/S021xd1gyid7ZqftG5TXeyvGZQH3XuQcdZ6o1nB8g2mnT1w36wGaIcUdCV5VWD9YxI1zjbNKeAONpHOFmgZxgJpJGaaYqJeJe4KgtPlxM6WTQ6g6U60bG14IZ5ZRfbAggb3jOaTYAH0tIahOaKO9/2POR+hRVIQ2lpQE7iOsPWQOoBIV8fy8pQMhsvWuqKcrww=");
-		} elseif(name == "miner") {
-			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYyMzI1OTYzMDU1NiwKICAicHJvZmlsZUlkIiA6ICI0ZWQ4MjMzNzFhMmU0YmI3YTVlYWJmY2ZmZGE4NDk1NyIsCiAgInByb2ZpbGVOYW1lIiA6ICJGaXJlYnlyZDg4IiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzJjMDM2OTdmOTdjMTliYjY5NGNmY2IwOWU3NTU4NDRmNzBhZjY5Y2E2ZTUzMGQ0MGUwNTYxNjgxM2M3MmEwYzAiCiAgICB9CiAgfQp9", "yfmzMagf0B2REVh/lfnDucVUCpIA9YCJn445pIdH2sr0NcAcDJnp4ibMr1Bg9Hq/qdVJ/rHBS7Mq2kWXb62iIiNmeZsdrqUq2PgN3eoNdBQ7yaBYN21e36IBF2gKtQO7VPBJB1WPYB1O0d01lW1WPsgto75UOV4rVxdViq8XfmOTquFXdWtsUXtWyPPqJLqqJ66/4AjfkkZkSkYPMgVjOUeAa2i0fHXTXtFWQimARB4pF7UVlCztI0YwlYgAzx+AuDa6/nQwWzqeahgRuLfopN0M6rFJV9Txk2JGbB6oCam1feIImu/SUZm23y9cdJ8oyHgw6Dhp/qVV/YHw8/xf+M5mtRskGBh8PdZCOUuU55b96zHbBRcxKQyuuca3wbs7nlX/XmtusM9gJwVSCj8tTOEC7UpO+PTmLFt08lpGy30f6lFv0sX9g0g4UX7dtqdVuACbaNh8CnX6clDIAMuytTlBG/mZUbd5fiNYOvC9TMlSKcsvpLn1+axaCKq6OExScHLSaJEbe6ZV93n/7OQZxy3wk8X5SJhibFSo++X83AMZuH5n9ALdrzFbCSCY9R8sod8j7QYBAZpKk8dAJctCOxTArOPmYiZJtHvzv6o1jXSIcw9teUicsG2YqQ0QydrBdJwNQp/eTNMOoBaT1ZLAIc3oHNpGqYOORVTsJrSTiME=");
+		} elseif(name == "butcher") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYxNDYzNjQ4NDU1NCwKICAicHJvZmlsZUlkIiA6ICJiNWRkZTVmODJlYjM0OTkzYmMwN2Q0MGFiNWY2ODYyMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJsdXhlbWFuIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2YzYjU5ZDQ0MDNiNGU3ZTk2YmYwMWY3NDY1OTQwNGI4MzcwYjI2ODE1M2M5ZTExZDRiZGY3MzIyMGMyZDk2MTYiCiAgICB9CiAgfQp9", "KZdn6The3tg9YLOu7uiZxrHLqL+K7IIFmP00b4F4qrKMu3AGqZ4NuFDN0ckWkrAyAyj/NwK2nQLDHVwvqNdmr9QRgdZcvV8PIj+tHZL7wAi+wgPVcaYQRUo0uHpNUKxVj4qe+FjChw5DnW8tl0me2t5TbsG6qEaKhXnBMZfI7mFNZZ8/rC+vBgvTm3VgZ2stb2hsdH+eCnQH2iOVvg8iwG9xvMBGKyRZ/8ORYYO5V8EEu4xpMsjQvw6/sjGg0ceeJTBBnN++7App1CiRh0iAkbeJcxolllNiNfdk8kLkrApHMwdTbs7y+8N8DxoBZ+WauvZxmEuYpR5TMSde9EDJMRtS/kESqVEdmjblJDMbBhNSB+io/16tq5EgxDwu2RPqaze33rCB/9tJtP8h6/MTWAXDirSxqFV/5sPtOaDy+QHfkZlsGfRW4nXFxLh3DRBI/SE8CGN8FQ4/6rj/Np8KLcgLFBGwyqNRo+o0jBVBGIISzhCIp5XeYmn876mYGU8bCBOJX0ICPJxsirsSbLwZ/CoN/zR1Zc/LpkSRi0loQbprFkQTJ2qqkPAyI30x/eo7XMBXZGNeX6LeYcp2WJsDaHtqRbLszfSwFnePB06Qz77rg+7RJ3Ef/H6bx4Rp8eLwLfz6gguo+3zwEth3Kovo9Lu/AhGM8CMT+oykH9g6a0c=");
 		} elseif(name == "mason") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwNDQ5MjYyMzQxOCwKICAicHJvZmlsZUlkIiA6ICJlNzkzYjJjYTdhMmY0MTI2YTA5ODA5MmQ3Yzk5NDE3YiIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVfSG9zdGVyX01hbiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS85ODI1ZTk3NTZjM2VhNjZjOGNjZmEyZmU4MDU4MzRmNGZhMDVhMGY0ODc0NTY3NTljMzY0MjcwODkwNTE0NzZlIgogICAgfQogIH0KfQ==", "RLLeCZVT2zj4DhvrVl4fTVy4BdjyK02tTX5u3PT0gNcbluSRDNUjwG+G/HttDVtPpyQuVOq/8aAFT/xdu+BZaiI3q3830BWqVe+CbSJuHorHPbPskJRV8+L+Ra6rJLA9LJQh5li5EZCwiAwqBSQwqycIU7032xjtoPjfOXio0gAnqKLffTEc2irDq4KzZGH9WZjYJrEfS9eCkQ1780jl96oEordJT940G/mgiB+XZdg1RQs+YuDprGvX1ILVZluoN+SFWji9l3aPmktwGoP9K5NDJr1Yjqqtr0QcXUvB3bqs4EDeYe7+NXCtE4eW1bupr22dKO9EERyrL4oOm8K1lgmFRupeSH66R0Ny5Io8NrscZSSH1XZncnj6SZfYskJWRNN//F9BxM86hL0MEPtloAB9o0oJWLyoaXszMb1iJC9RKbvK3c2nAdyjWtcWijRA5muEZszzOX5XngHlFPAYWDI33EuTvqbth3GqZ7kid24Zly6TQbSCrd30EiNTeXYTJ1T5Fx1GRIzEYW+60qf3f2e59SlcBf4D7eA4btIaCAvfx2bKxbZQsdsHKDphpxsr7nizA8iRroo37nBiJ97gYUF2GsL03bLuge4cFLROpb4oaKGyldPZ4cHq33b8sbFs0eQUiS9selDsyx8G8MrvKfhYACpjyBv+ZLlWa+QMF4s=");
 		} elseif(name == "mage") {
@@ -4779,8 +4884,8 @@ elseif(arg0 == "skin") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU5NzMyNzk4Njk0MCwKICAicHJvZmlsZUlkIiA6ICI5MThhMDI5NTU5ZGQ0Y2U2YjE2ZjdhNWQ1M2VmYjQxMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJCZWV2ZWxvcGVyIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2RlODk0Zjk5NGVlYjQyMjU0OWE2NTE2YjYyODg1MGQ4MmY3OTJhZmNkNzVlY2U1YmQzYmQ3ZGE4M2M1YzkyMjYiCiAgICB9CiAgfQp9", "WhygM8rofUCUv4GVMrSl7tGxMUx/jczsz7lixaGhZbDJtEzKTAQFY25TZBjMvxpFqLvwOfbEWDRn1wOjof5dt7CwYcwnBfrksHj1lkpp7oh8omUbdnA0TDZFLdSAvmvtViRFaH+neH08jFfl+XLx5BnfY/6XimxKwxPKBZnvAc1DlpubiBgHXmPKYigRFAKCPgHCf9cDRm6jDNyZTYgPUJElBN5TIHREponJhE4pMDm8qOkidiUsrfqjHYZvl767sLA1QA3HPHZKtvug6xSve9X/2n6Fr3dvhNUI0dqj4EtbJkSPD7uCUgIvtx5nN1iQXjXWgEEVZ0JnA1KMCfjfjQRx2nEOqe9OVwADvIIbE+Asc0qw+Zas1Ys+AP5rBH5qT8Lmh5Wi2Bn0yj6zEk/iluTbkmnzMVdICnBKVUF4wdLY/5vvxe1+abZM2xVQ5eoPoyyEsD1wYc9c4Uticpe3A+jy8p8+a7FfAPVILfV6MOhkQ0S5FCpEIj0DbSbBoNnDBODmTYpBKrouYNI/IZPnwBsKluy0zAgTJ5lMM7bptda1BQaJKpA2kSkCTvADQ72kwFoBlfhOluwvfvgTBgI8rnVNAfSu2sEIC6BhdaOG9iqocKRYL474zbYMPWW1Z7fF3jrsEWWTa3+swN+8K89XeLv/jHUqwfx+3Gb5YG8ZGX0=");
 		} elseif(name == "lumberjack") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYxNzE4MjYwMDgxMSwKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yNDlkNmMxMjk2NmYzYmM5NjA1MGM3MDgwYWNiY2JmNWI4MmZlN2JmNzA0MzdiZTU2NzJhZjk1ZmVhOTA1ZWJlIgogICAgfQogIH0KfQ==", "ChHGtuNconaz4zViNV1NAcq5xlpyaQ9aiiXVj5h55yE9LOtSCIjLmq/xIDZIlAdno8kg6mXQ1RYF6E1yJ3rpCWh0KocHQT/WQHcr9v3I8k70+XGyF+Ad0U0cIww954PM5gznSeWD4XrDQxaKf9IgsCNTl9tI46NvaMUxW/2L4/VR46lU00cowlgS7u3JNWueIsKrMjgfj5pt7YVqiE8DZ3DHlc7VCpdZk6Ku1HIGDLoPziawtgrJUVppFumAPpfSxwz4Gr2OnnH1nd2aS1E7oYtU7+dw8BzDMjNRNiyQm3o1SYcVTyUf9/0TVeYfD0KqvFhF/9Yf2c8hQBB4qQ8VmEH1wlLrAjNsBVE92UwZ6D7lI0MZs3F8WwbQh+d/jKtJxcZi+GzAPTIt8A+pVNee+/mAM3VDg/6tJtK2jQtgYZYRa/RyTumAAxb9OxsxDg/j2Li0DNGFHue1oEAySmKwQg+wOWT9kujDLGMje6bYLqO2+S3wGAyskcVp3snt5LihYDNsXVtp7ZkD6Awgs6YptmTa23o2+XvB8vO64QqmMuBX/KyPJtv6T0ZxR4KTFKeCXe21Za0boEdolMVYRHjXsCZJ8m/zqIu8/3r1ALuSpbVApMv7PoGtfGaXWtSkHKu8LjY+btgfnooeLyjaLHn6ltJzTdEoooUzsj7JqKK19no=");
-		} elseif(name == "butcher") {
-			human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1ODU0MDAxOTU0MjgsInByb2ZpbGVJZCI6ImRkZWQ1NmUxZWY4YjQwZmU4YWQxNjI5MjBmN2FlY2RhIiwicHJvZmlsZU5hbWUiOiJEaXNjb3JkQXBwIiwic2lnbmF0dXJlUmVxdWlyZWQiOnRydWUsInRleHR1cmVzIjp7IlNLSU4iOnsidXJsIjoiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS81Y2Y2Y2JlMTQwMjRhMTZmODUzYjM3OTI1YmE2YjRiYzgzMmExNDNkNDA2ZTIxZDI0YWUyZTg2YjE3ZDdiZWYzIn19fQ==", "ncAbe8Nd7cEQChMUnr26eeyG4+wb/Nr0edoBZkGdQFJcqTTCLykb+f/rcjHnIrQufsBLGnhCMlM30iUtmscTSVty/HZOvz3edKUQAwidQCsYJfLalkz+HyexPLljce8HzZuKPAY24foweGpuStV1M2OS66Y0x9D64875x8IDkIbdf7UUJRPhnqDf46ar9O/Zj9sX3kRjsIgiU24s/EyBInttYkGu7ha7WifVpd64nNUbQxGtMOOif/0KP0dTgZEVLfPDkkUJw5KilL6lQc6nh+uio4U1iua4Iy5oVvDRrKXMQfyYnulT21zpbVBpa3AHCJ2bSNScbfA4CMQ7Q4dEbiwCNgzZLUH/hyKS8FZGQ0fGtxXicCjWcALyO5SgdDpMbLC8bI08eV0krtTbEeWBz6tw/CnE7rPsLq+JHGmYe1H9ryXYmNMvO75A8IfK1xtv21sTzh6Zjbhy7HtSkFMTxvq0JxI4cEfyniXCQjSuiQ3Tk7poR5b1H5cd2sJTq4iWaSWljPu8DGt9Z8b7QQRP/5yO5HOdUpmLql111sWqT8wY9w5DfEdNUG20ljSCLbJhY62wowRYhCtrDM4sr7k9pwIcEeWR7Hw2q07YnN3tFj/cPhZ7xAxiciwSkKIZpxBPtovJwObG+OxbnHLOgUMFXUaNnwKlnob8uGncZM+lsoQ=");
+		} elseif(name == "miner") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU4OTc4MDExODgzMCwKICAicHJvZmlsZUlkIiA6ICI0ZDcwNDg2ZjUwOTI0ZDMzODZiYmZjOWMxMmJhYjRhZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJzaXJGYWJpb3pzY2hlIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2QxYjI4ZmE3OGFhMzVmNWVhN2QyMDE5MTk4MjNkZjc4MmYyNDIyN2UwOGM2MWZjMGM1MmZmNzgxNzFkYjM5NDAiCiAgICB9CiAgfQp9", "p/pelL3GK9gB308cWUPglYRokUxZRw1OeNTT8duJp7JuGgThpkmRZG3rw9E7YnkbGmm/poQZfnadhr+JImVqOGHNFEGzUzlID/DdmLRs13Q/RPt0kXdQsh2kwZq9YTQBrB/M14n2vSClO1EJyLvApW3umb6WfPfmKjCb2+ChicD1TUhHzwXfsoVRysdn4wZVD+NCrGYyGUuZ1c4szjgO0iq/QoXq2oQx/5GGTxM19USUNe6DhYImrxkwOyTwZzwEdmJQW/Nsyx7BmcpDpZ3NvuN9Z2T8anTEEb3c/y3VfZdCimkWJ8+WGqxjoX511J2i8TdrkNFaQOLF9EzZisrOLztDEEIgqCDFcejKWny1xHLo+TCIGC5k/3LToPtdza/TU/3MKoHufzPUk2Ip6tPsRaCEfQIh+qigIsCJAFa9Ksl/qelUdpk9U4GNVHg9G0I6+6yBOoysujk/vd74L4R5MiFmY+pTM+wnSi4Q8gZsqPHV9BqetQ5U75SqLGuXyP8ufVnpa3anq9xwSq69cjeGE2gW0D8SpGlCpE3spVxnyG3dvgry/GIrzSwaii269B2EdwLGNCYBEtWmdrnqT0uBkbZthiMs5Tet7TtOaszaRjfcwiBClRxRcmzWyQD8AFsuXsOtzHKM89ZFAqIror51ZTbBjOrP2fug5XDNVZuZzbM=");
 		} elseif(name == "librarian") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYwNDUzNTM2MTcxMywKICAicHJvZmlsZUlkIiA6ICJjNTBhZmE4YWJlYjk0ZTQ1OTRiZjFiNDI1YTk4MGYwMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJUd29FQmFlIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2Q1ODA2MWRhMGVjMjk0MTcyNGZhNWVhOTMwMDBhYmQzMWMzZDhmOWM0MTZkOWI0MmJkYTRkODEwZGZiNmZjNGQiCiAgICB9CiAgfQp9", "jLahDHyLmgUsNIWuIG53/xh71HcEPWVTA6tNH+cBFy02GZIbtwZHMKaVmOf6BIt/V+gvZlPyspcEpgDxlRmBrv55dahoHBw3UwfD4B3L9rmaSchazltaRYzH4e2AZcs/NJ5VOwI0+uBu6MPqqjg/3uv4dZ/GZ8zG0wcbNr990EIlTa6Nz6tG/x4XTQNBvQjlDoacxe9uqfiunhckTQmuVbS+aHzmvQY86pU7kDs1+ZZsjSj4Q1iTHj5qTOjSTltB7DKBWaBlcWc8/GfT2T8nWjyvgC6cHoS8z1XbsiHRpsOEppqQfi1sgZV3LzbJxNVrokQQKtZTHIreS+HVsGkmM+4giBRxsqvJE3sXw2xKTtwW3W74/K+sCJkAHJSdZ/v//n6TInqVhYVRzKXVz62qMNYpZo2LWt0jCTfIcfK8Z4o1sp/+6ec4s5Z2WC6F7Qk4WClQWhRzBsHT3UyXMoodLdP6G/WN2G6ENGdUViplM+IAMQL16FbIvjLZXICbjL1CIbnwn+4e0eO4EbVIuUxex7wGziWLx4EdXilZkrDNOZv6pU4qkflBjG6hxP+6OvhSQYQzJ6GTEorScFDdyGnEE5NxPXFjbBC1368yh8ukSvw4znfVnNV3UrwnuFMASc8FHw4WWwJqZ8xibwbq2TQnvpsuuZC/bRgXruM+QBm84MY=");
 		} elseif(name == "dark_mage") {
@@ -4797,6 +4902,10 @@ elseif(arg0 == "skin") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU4ODI3MjUxMzM0OSwKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83NmE1OTExN2QwMjljYzY2YTc1ODcwOWZlNjg1M2MzOTAzNDhhMzRlN2U4YWI3MGUzN2YwMDljZDZiMjNjOGM4IgogICAgfQogIH0KfQ==", "llLlXDuFY5yeOkob7ZKTO6CNdENXiZ23aGA6wNSc7FFZ2JyERjCvg6BLz3w0mJhZ4ORaZF0yHdFlmhXtBr/2ICneFtTCuyNjhPKzy3kBMhjAdtXq08cspNhmBZz0Otw0GyBs7hopEs8rqN3N9DtfZbTwVBjfXDW6tH3zUtU3Vv8/zb0l7/lU1NdZpOnkqXQmhv9G+vI/yknOqz4Go9tD+UoLjFP/vdRkor6Xbe9CEd9rqqc15eoSbIIPrPvgjnn8cLSE/OTdfdy4TpEK5GD1fPbZFkRVOC7fvbSNSwlhDq6ybrpbQ4MOhMeXlzGdyxGnGFT/r95qMZzGh1gW1chVu+2Nc8TdBinQ2L3AT2bYOorlNT4AsgBqU21dkm9vmBqsGqInwvUhwmjLt3f7G8wsQiHHswgNUuVUh1sG0HDb0oab7XP6+mEyDtRrIHAqIT4jqSe03vfKGXyEwgBUb97Z9vlRrfIfuFAaaeeRyCqI3s3HnhvsJQRrU2kKwm18+ZRaDOdTJh9KKy/8eLlIChmaZgs+Ied1bMbJIJd9zKsP9MmNRXxhPR7FyV5ffNjLXdmeutLcEurqQVpvV1uQ/4YrwJhT6idoxDhw6P/jef4D4so3fCHZtrrkDYs8q2kBR+tMuRrM83Vgnf2B/pQcgOtu3JeZOGXRC+h+0xDSCJN0I+w=");
 		} elseif(name == "mage_assistant") {
 			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTU5OTc0MzgxODcxMSwKICAicHJvZmlsZUlkIiA6ICJhMjk1ODZmYmU1ZDk0Nzk2OWZjOGQ4ZGE0NzlhNDNlZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJWaWVydGVsdG9hc3RpaWUiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmE3ODc4MjIxYWQ4MDg3ODkzNjlmMmVkZjRkZmJlNWU5N2UzODJiNzZjODVmZWIzZmQyY2FkODgyYzk1NTJhNyIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9", "g3Ik0BT6M5jeFf7dHJ4hlLSJdiC5ivPcAb7gFP9+tlzH72N3eYrz+irExxpGQUsiro0NVEmlNt1R8aSBcY/wQDdLBOy9LHHt5MNpja72DDlFJUAW2fpXwJgfnCmqHDXzmVu3dfwyE0efZKOscFQzJQ5zbIGrEXjA2tOqEI/ZZMNehF5pNJZnusjGIpE/Abn9PxafnX/rvZAWr0BCip4wCUGbnfbDHlcn561HW50CAE8k3siqc+RJXXbnC24kYmblzuSBcHw33nCHRmlUiddyhzOE6NoWiZu9kNecOAapZmSZXCGMxyfwdy2n2Yg7ydxM8WTO7LOG1/o+ft/Ag24YxtHFkE6T2R03LvVYCTdodLzVQbXLqqMvGYcM7A6b6TPaHkMZhyumfH+GRoCI8kmyDEIqHrDbZOYhTyrpFBdz8WOOj1e5oz8nXQODMAC4ZEccj/5JishwPXxRdc9YFBkPJ63lJNN4boetMTdhDe3xe8tp8CoeNH3CaMn8eN0hkwmzXKx4I2qQPIO4NxW+bhJ1U6+qp8M0yllI2mRpZrTmTIhGHfq3nxJtUU+JcLMIaYiItnKlENH8vRP2UZrGq6SxiK0tE4A4wKGitXK/BAljLoUFLx8a+B/rbnmK8lqpWofaMeTeFw1W7m497ZaT7d3HLL0Jb/OR1vhP1NpJKZYhaLU=");
+		} elseif(name == "mage_guard") {
+			human.setSkin(human, "eyJ0aW1lc3RhbXAiOjE1MzEyODIzODEyNTMsInByb2ZpbGVJZCI6ImNhYjI4ODVkMTUxNjQ1OTNhZmI2MDkwODJlOTE2NmU3IiwicHJvZmlsZU5hbWUiOiJGYW5jeV9MdWR3aWciLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2M0M2JmYTY1NTMyNWI3ZjFhMTE5YmQwZTYxNGM2NWI4NzFiMmFiZWFlNmI5YWZjOTRmNzJkZTRkMjRiYTAxODgifX19", "XkwrwdctRApUCGLH+sLKu85AlcL+hpNicYzKdjGhlUVuZ+qR4K5q3hdL0K5sivm2iwWXRQfGizgwOqyBEORJ4V0/EnTYBy/NheE4/Y4Kp1Fy/5+fVrktCRRzb2ha1GFUiq0VL0KvBo5zGeQTcibVn+KSw9mK01SQJK7zN/Rz9SSHIdJvj6D2Ckmqodrxo8LOgdrzkP9iKdgpAebG2fii90Uw38M5RMG/n0JcmnGFS1qKeQHIxNvdzqi12DJzLUoZ7FL+DS4JyX2fAZwEajCfS18zXZRNZ15b6Ba7hW35D+nEHtNM6AlHz0fHevaAnFpWsA3Q02sw29/2mUUSYkEVSbBz/Yf2EYOhlzzpCQnrHW9qqotS3bOcolezr6NEgmDp96THd6h1sIKrctVINzAUgBA+3EQbFVscTLkQEtcXkImuB9zJuErEJTrpzfYVZR72zSLZq0pElBFYs5mwArEGsDlqmWWKL0rHZ68rXMNdMYcZx7NjAjdQ6TTTVGxGngp/KwY3B65sUMqk57jQYSdvbaNnFUoBgJsO2SxQwO989O64WhuQcMRgLQ90pksgQXLnCUnZ2Er5uQGDGZndQF/EPpS8xNCsNu2iOHw9VbrpSDmYmTjBF0SOgNyV7k0xcYydksIv/rrDhWF/A073hKBkvnSpPqKIdJtYR0bmHUFGP68=");
+		} elseif(name == "notch") {
+			human.setSkin(human, "ewogICJ0aW1lc3RhbXAiIDogMTYyNDUyNjI0NjM2MywKICAicHJvZmlsZUlkIiA6ICIwNjlhNzlmNDQ0ZTk0NzI2YTViZWZjYTkwZTM4YWFmNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJOb3RjaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yOTIwMDlhNDkyNWI1OGYwMmM3N2RhZGMzZWNlZjA3ZWE0Yzc0NzJmNjRlMGZkYzMyY2U1NTIyNDg5MzYyNjgwIgogICAgfQogIH0KfQ==", "K76X+5wYgbcKhUxr5ZJuF4MXquYNPM5ypUf6DdNz2k0+XaJlobLVVdETe2LotlHyj6ABoU3//8mGZnfwhdj2BiulOErpB6cQR4pMmIrW6T3TLCt4L8d9juQy7xy7Dw9sQngXWm2h3Cazm+205qa0apnvA/i+IGv+WeutP52kfGhJBAN7uBUQaut0NWBfFPL8Jo7DhwBvWf/KWVpcT9UcVQuS/dVP/VE0rrTTSf3x2/jGI0ksBEdOz5lROARCHwOA1sRDvP1nQHhZD1Uekj4Bmo6rsAjJCrzr++nK2IcaPMv1uTLv0sbsGe4JF884rqWHYzs7/Cc5lGv8FNy+QjHmTcISfjnlxwJIkI48KOmAjuaova+tU1gBHRFHqJR186Vw8gtIGHusitFr6rUuutODaHyJ1C9VnItyk5RF3eznsh+uUHSkT9NOCTAhx11UhaFjlIHgqHG3rRVmeFWyEKHE8Pk2yEAlROGPedp+oYEwMFbM97Q+og7W/RtSH+kYl9vNwpLrQEG2F0bQUtulwQrWzk8T2fKgPHncZIDS2YvQjrrHjjlG0bLbiakHGvRrMrLbrVtmQrKjOjLuc5j4M/quMoZpFz98q4uftCmNOyN9ZmoEjgFv5fOdsJDGJawSaug9VEieCWhuuPnXPx19GpT1TRzGRjDW9DqO08kNeCcRxq0=");
 		} else {
 		    msg.action(player, "Not supported name.");
 		}

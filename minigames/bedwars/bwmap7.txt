@@ -22,8 +22,8 @@ list.add(head_bed_loc, loc.new(gamesworld, -107, 96, 1994));
 list.add(head_bed_loc, loc.new(gamesworld, 63, 96, 1982));
 
 bed_facing = map.new(); //Map in welche Richtung das Bett schaut
-map.add(bed_facing, 0, "WEST");
-map.add(bed_facing, 1, "EAST");
+map.add(bed_facing, 0, "west");
+map.add(bed_facing, 1, "east");
 
 spawn_locs = map.new(); //Liste der Spawnlocs der einzelnen Teams
 map.add(spawn_locs, 0, loc.new(gamesworld, -84.5, 91, 1988.5, -90, 0));

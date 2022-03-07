@@ -1,0 +1,664 @@
+rankingtable = "tjrranks";
+game_short = "tjr";
+maxplayers = 1;
+gamesignloc = minigame.getSignLoc("tjrsign");
+sign.started(gamesignloc);
+
+event.load("minigame_join");
+event.load("player_move");
+event.load("entity_damage");
+event.load("player_post_respawn");
+event.load("player_drop");
+event.load("player_quit");
+event.load("player_giveup");
+event.load("entity_click");
+event.load("block_break");
+event.load("block_place");
+event.load("block_click");
+event.load("snuvi_click");
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@minigame_join
+single_uuid = player.getUuid(player);
+lavacounter = 0;
+
+angel = item.create("minecraft:fishing_rod", 1, null, null);
+arrow = item.create("minecraft:arrow", 1, null, null);
+bow = item.create("minecraft:bow", 1, null, null);
+ench = enchantment.get("infinity");
+enchantment.add(ench, bow, 1);
+
+custom_refresh_red = item.custom.get("REFRESH_RED");
+custom_return_red = item.custom.get("RETURN_RED");
+custom_gear = item.custom.get("GEAR");
+paper_mat = material.get("PAPER");
+
+gamesworld = world.getGames();
+
+item_whole_run = item.create("minecraft:slime_block", 1, "§rWhole", string.intelligentSplit("Schaffe das ganze Jump'n'Run so schnell wie möglich. Checkpoints werden gespeichert."));
+item_module_run = item.create("minecraft:clock", 1, "§rModul", string.intelligentSplit("Erreiche in jedem einzelnen Modul eine Spitzenzeit."));
+item_fly_run = item.create("minecraft:elytra", 1, "§rFly", string.intelligentSplit("Gehe mit Fly so schnell wie möglich durch das ganze Jump'n'Run. Checkpoints helfen dir hier nichts und du musst immer von vorne anfangen."));
+mode_menu = inv.new("222", text.new("Choose a mode"));
+inv_id_mode = inv.getId(mode_menu);
+inv.setItem(mode_menu, 0, item_whole_run);
+inv.setItem(mode_menu, 1, item_module_run);
+inv.setItem(mode_menu, 2, item_fly_run);
+
+all_modules_menu = inv.new("222222222222222222222222222222222222222222222222222222", text.new("Choose a modul"));
+inv_id_modules = inv.getId(all_modules_menu);
+inv.setItem(all_modules_menu, 0, item.create("minecraft:stone", 1, "§rStart", null));
+inv.setItem(all_modules_menu, 1, item.create("minecraft:stone", 1, "§rModul 1", null));
+inv.setItem(all_modules_menu, 2, item.create("minecraft:stone", 1, "§rModul 2", null));
+inv.setItem(all_modules_menu, 3, item.create("minecraft:black_wool", 1, "§rModul 3", null));
+inv.setItem(all_modules_menu, 4, item.create("minecraft:glass", 1, "§rModul 4", null));
+inv.setItem(all_modules_menu, 5, item.create("minecraft:barrier", 1, "§rModul 5", null));
+inv.setItem(all_modules_menu, 6, item.create("minecraft:fishing_rod", 1, "§rModul 6", null));
+inv.setItem(all_modules_menu, 7, item.create("minecraft:lapis_block", 1, "§rModul 7", null));
+inv.setItem(all_modules_menu, 8, item.create("minecraft:campfire", 1, "§rModul 8", null));
+inv.setItem(all_modules_menu, 9, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 9", null));
+inv.setItem(all_modules_menu, 10, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 10", null));
+inv.setItem(all_modules_menu, 11, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 11", null));
+inv.setItem(all_modules_menu, 12, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 12", null));
+inv.setItem(all_modules_menu, 13, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 13", null));
+inv.setItem(all_modules_menu, 14, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 14", null));
+inv.setItem(all_modules_menu, 15, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 15", null));
+inv.setItem(all_modules_menu, 16, item.create("minecraft:glass", 1, "§rModul 16", null));
+inv.setItem(all_modules_menu, 17, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 17", null));
+inv.setItem(all_modules_menu, 18, item.create("minecraft:repeater", 1, "§rModul 18", null));
+inv.setItem(all_modules_menu, 19, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 19", null));
+inv.setItem(all_modules_menu, 20, item.create("minecraft:red_wool", 1, "§rModul 20", null));
+inv.setItem(all_modules_menu, 21, item.create("minecraft:chiseled_quartz_block", 1, "§rModul 21", null));
+inv.setItem(all_modules_menu, 22, item.create("minecraft:netherrack", 1, "§rModul 22", null));
+inv.setItem(all_modules_menu, 23, item.create("minecraft:netherrack", 1, "§rModul 23", null));
+inv.setItem(all_modules_menu, 24, item.create("minecraft:netherrack", 1, "§rModul 24", null));
+inv.setItem(all_modules_menu, 25, item.create("minecraft:netherrack", 1, "§rModul 25", null));
+inv.setItem(all_modules_menu, 26, item.create("minecraft:end_stone", 1, "§rModul 26", null));
+inv.setItem(all_modules_menu, 27, item.create("minecraft:end_stone", 1, "§rModul 27", null));
+inv.setItem(all_modules_menu, 28, item.create("minecraft:poppy", 1, "§rModul 28", null));
+inv.setItem(all_modules_menu, 29, item.create("minecraft:bookshelf", 1, "§rModul 29", null));
+inv.setItem(all_modules_menu, 30, item.create("minecraft:oak_planks", 1, "§rModul 30", null));
+inv.setItem(all_modules_menu, 31, item.create("minecraft:iron_block", 1, "§rModul 31", null));
+inv.setItem(all_modules_menu, 32, item.create("minecraft:iron_block", 1, "§rModul 32", null));
+inv.setItem(all_modules_menu, 33, item.create("minecraft:iron_block", 1, "§rModul 33", null));
+inv.setItem(all_modules_menu, 34, item.create("minecraft:iron_block", 1, "§rModul 34", null));
+inv.setItem(all_modules_menu, 35, item.create("minecraft:iron_block", 1, "§rModul 35", null));
+inv.setItem(all_modules_menu, 36, item.create("minecraft:iron_block", 1, "§rModul 36", null));
+inv.setItem(all_modules_menu, 37, item.create("minecraft:iron_block", 1, "§rModul 37", null));
+inv.setItem(all_modules_menu, 38, item.create("minecraft:iron_block", 1, "§rModul 38", null));
+inv.setItem(all_modules_menu, 39, item.create("minecraft:iron_block", 1, "§rModul 39", null));
+inv.setItem(all_modules_menu, 40, item.create("minecraft:gray_wool", 1, "§rModul 40", null));
+inv.setItem(all_modules_menu, 41, item.create("minecraft:light_gray_wool", 1, "§rModul 41", null));
+inv.setItem(all_modules_menu, 42, item.create("minecraft:green_wool", 1, "§rModul 42", null));
+inv.setItem(all_modules_menu, 43, item.create("minecraft:hay_block", 1, "§rModul 43", null));
+inv.setItem(all_modules_menu, 44, item.create("minecraft:oak_log", 1, "§rModul 44", null));
+inv.setItem(all_modules_menu, 45, item.create("minecraft:oak_log", 1, "§rModul 45", null));
+inv.setItem(all_modules_menu, 46, item.create("minecraft:snow_block", 1, "§rModul 46", null));
+inv.setItem(all_modules_menu, 47, item.create("minecraft:snow_block", 1, "§rModul 47", null));
+inv.setItem(all_modules_menu, 48, item.create("minecraft:bookshelf", 1, "§rModul 48", null));
+inv.setItem(all_modules_menu, 49, item.create("minecraft:white_wool", 1, "§rModul 49", null));
+inv.setItem(all_modules_menu, 50, item.create("minecraft:dark_prismarine", 1, "§rModul 50", null));
+inv.setItem(all_modules_menu, 51, item.create("minecraft:slime_block", 1, "§rModul 51", null));
+inv.setItem(all_modules_menu, 53, item.create("minecraft:quartz_block", 1, "§rModul 53", null));
+inv.setItem(all_modules_menu, 52, item.create("minecraft:quartz_block", 1, "§rModul 52", null));
+
+for(i = 0; i < 54; i++) {
+	item = inv.getItem(all_modules_menu, i);
+	time = tjr.getModulTime(player, i);
+	if(time == -1) {
+		item.addLore(item, "-");
+	} else {
+		item.addLore(item, time.getClockString(time / 1000));
+	}
+}
+
+checkpoints = list.new();
+//Start
+list.add(checkpoints, loc.new(gamesworld, 3939, 52, -5882, 180, 0.0001));
+//1.Modul
+list.add(checkpoints, loc.new(gamesworld, 3924, 62, -5908, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3914, 60, -5915, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3927, 78, -5921, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3934, 92, -5909, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3924, 92, -5894, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3940, 101, -5888, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3943, 108, -5909, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3948, 117, -5919, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3933, 118, -5920, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3946, 122, -5928, 0.0001, 0.0001));
+//11.Modul
+list.add(checkpoints, loc.new(gamesworld, 3934, 127, -5926, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3942, 150, -5924, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3931, 143, -5924, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3914, 92, -5928, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3913, 98, -5915, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3911, 136, -5915, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3930, 152, -5892, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3940, 159, -5905, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3919, 161, -5906, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3919, 162, -5896, 0.0001, 0.0001));
+//21.Modul
+list.add(checkpoints, loc.new(gamesworld, 3923, 163, -5923, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3923, 175, -5915, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3916, 165, -5911, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3928, 168, -5912, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3933, 171, -5903, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3942, 141, -5889, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3944, 137, -5903, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3929, 125, -5898, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3925, 110, -5892, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3934, 88, -5937, 180, 0.0001));
+//31.Modul
+list.add(checkpoints, loc.new(gamesworld, 3936, 84, -5935, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3933, 83, -5950, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3927, 83, -5954, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3919, 75, -5950, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3923, 52, -5950, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3921, 55, -5957, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3927, 55, -5949, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3943, 61, -5949, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3914, 52, -5943, 0.0001, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3912, 92, -5941, -90, 0.0001));
+//41.Modul
+list.add(checkpoints, loc.new(gamesworld, 3924, 104, -5943, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3917, 115, -5950, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3933, 100, -5949, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3959, 55, -5948, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3973, 63, -5956, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3976, 55, -5963, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3963, 70, -5967, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3996, 77, -5971, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3987, 88, -5951, 180, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3970, 91, -5955, 90, 0.0001));
+//51.Modul
+list.add(checkpoints, loc.new(gamesworld, 3986, 103, -5965, -90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3980, 73, -5945, 90, 0.0001));
+list.add(checkpoints, loc.new(gamesworld, 3963, 87, -5952, 180, 0.0001));
+//Finish
+list.add(checkpoints, loc.new(gamesworld, 3965, 101, -5970, 0.0001, 0.0001));
+
+rod_loc_1 = loc.new(gamesworld, 3939, 102, -5887);
+rod_loc_2 = loc.new(gamesworld, 3947, 102, -5889);
+bow_loc_1 = loc.new(gamesworld, 3949, 123, -5927);
+
+spawnlocs = list.new();
+for(i = 0; i < list.getSize(checkpoints); i++) {
+	location1 = list.getIndex(checkpoints, i);
+	location2 = loc.mod(location1, 1, 1, 1);
+	list.add(spawnlocs, loc.mod(location1, 0.5, 0, 0.5));
+	loc.setYaw(location1, 0);
+	loc.setPitch(location1, 0);
+	if(i == 0) {
+		continue; //Für Start keinen Move-Bereich erstellen
+	}
+	event.addMoveData(location1, location2, 3, -1, player);
+}
+
+gamename = "§cJR-Death";
+player.blockCommands(player);
+resetplayer(player);
+player.setGamemode(player, "ADVENTURE");
+tjr.setMode(player, "whole");
+gosub("stage_specific");
+sb.add(player, 99, gamename);
+sb.add(player, 95, sb.getSpacer());
+sgoto(20, "loop");
+goto("wait");
+
+@block_click
+cancel = false;
+item = living.getHand(player);
+if(item.custom.isType(item, custom_gear)) {
+	inv.open(mode_menu, player);
+}
+mode = tjr.getMode();
+if(mode == "whole") {
+	if(item.custom.isType(item, custom_refresh_red)) {
+		living.setHealth(player, 20);
+		tjr.teleportModule(player, jumpstage);
+		entity.setBurning(player, 0);
+		goto("wait");
+	}
+	if(item.custom.isType(item, custom_return_red)) {
+		living.setHealth(player, 20);
+		jumpstage = 0;
+		tjr.setStarttime();
+		tjr.setWholeTimeTemp(player, 0);
+		tjr.setWholeModuleTemp(player, 0);
+		tjr.teleportModule(player, jumpstage);
+		entity.setBurning(player, 0);
+	}
+	goto("wait");
+}
+if(mode == "fly") {
+	if(item.custom.isType(item, custom_return_red)) {
+		living.setHealth(player, 20);
+		jumpstage = 0;
+		tjr.setStarttime();
+		tjr.teleportModule(player, jumpstage);
+		entity.setBurning(player, 0);
+	}
+	goto("wait");
+} 
+if(mode == "modul") {
+	if(item.custom.isType(item, custom_refresh_red)) {
+		living.setHealth(player, 20);
+		tjr.setStarttime();
+		tjr.teleportModule(player, jumpstage);
+		entity.setBurning(player, 0);
+		goto("wait");
+	}
+	if(item.getType(item) == paper_mat) {
+		inv.open(all_modules_menu, player);
+	}
+	goto("wait");
+}
+if(block == null) {
+	goto("wait");
+}
+block_loc = block.getLocation(block);
+if(block_loc == rod_loc_1 || block_loc == rod_loc_2) {
+	player.giveItem(player, angel);
+	player.giveItem(player, angel);
+	player.giveItem(player, angel);
+	player.giveItem(player, angel);
+	goto("wait");
+}
+if(block_loc == bow_loc_1) {
+	player.giveItem(player, bow);
+	player.giveItem(player, arrow);
+	goto("wait");
+}
+goto("wait");
+
+@player_drop
+if(jumpstage != 43) {
+	cancel = true;
+}
+goto("wait");
+
+@snuvi_click
+inv_id = inv.getId(inv);
+if(inv_id == inv_id_mode) {
+	mode = tjr.getMode();
+	if(mode == "whole") {
+		tjr.leaveWholeMode(player);
+	}
+	if(inv_slot == 0) {
+		tjr.setMode(player, "whole");
+		goto("wait");
+	}
+	if(inv_slot == 1) {
+		tjr.setMode(player, "modul");
+		goto("wait");
+	}
+	if(inv_slot == 2) {
+		tjr.setMode(player, "fly");
+	}
+	goto("wait");
+}
+if(inv_id == inv_id_modules) {
+	jumpstage = inv_slot;
+	tjr.teleportModule(player, jumpstage);
+	gosub("stage_specific");
+	tjr.setStarttime();
+	sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getModulTime(player, jumpstage) / 1000)));
+}
+goto("wait");
+
+@entity_click
+@block_break
+@block_place
+cancel = true;
+goto("wait");
+
+@player_post_respawn
+entity.teleport(player, list.getIndex(spawnlocs, jumpstage));
+goto("wait");
+
+@entity_damage
+damage_type = damage.getType(damage_source);
+if(damage_type == "lava") {
+	++lavacounter;
+	if(lavacounter >= 8) {
+		lavacounter = 0;
+		mode = tjr.getMode();
+		scheduler.setBurning(10, player, 0);
+		if(mode == "fly") {
+			goto("wait");
+		}
+		if(mode == "whole") {
+			living.setHealth(player, 20);
+			tjr.teleportModule(player, jumpstage);
+			entity.setBurning(player, 0);
+			goto("wait");
+		}
+		if(mode == "modul") {
+			living.setHealth(player, 20);
+			tjr.setStarttime();
+			tjr.teleportModule(player, jumpstage);
+			entity.setBurning(player, 0);
+			goto("wait");
+		}
+	}
+	goto("wait");
+}
+if(damage_type == "fall") {
+	if(jumpstage == 11 || jumpstage == 13) {
+		goto("wait");
+	}
+	cancel = true;
+	goto("wait");
+}
+if(damage_type == "arrow") {
+	if(jumpstage == 30) {
+		goto("wait");
+	}
+	cancel = true;
+}
+goto("wait");
+
+@player_move
+player_loc = entity.getLocation(player);
+x = loc.getBlockX(player_loc);
+y = loc.getBlockY(player_loc);
+z = loc.getBlockZ(player_loc);
+loc = loc.new(gamesworld, x, y, z);
+mode = tjr.getMode();
+tjr.setEndtime();
+time = endtime - starttime;
+if(mode == "fly") {
+	new_jumpstage = list.getIndexOf(checkpoints, loc);
+	if(new_jumpstage > jumpstage) {
+		jumpstage = new_jumpstage;
+		gosub("stage_specific");
+	}
+	if(jumpstage == 54) {
+		old_time = tjr.getFlyTime(player);
+		if(old_time == -1 || time < old_time) {
+			tjr.setFlyTime(player, time);
+			msg.prefix(player, gamename, string.concat("New record: ", time.getClockString(time / 1000)));
+		} else {
+			msg.prefix(player, gamename, string.concat("Time: ", time.getClockString(time / 1000)));
+		}
+	}
+	goto("wait");
+}
+if(mode == "modul") {
+	new_jumpstage = list.getIndexOf(checkpoints, loc);
+	if(new_jumpstage != jumpstage + 1) {
+		goto("wait");
+	}
+	old_time = tjr.getModulTime(player, jumpstage);
+	if(old_time == -1 || time < old_time) {
+		tjr.setModulTime(player, jumpstage, time);
+		time_string = time.getClockString(time / 1000);
+		msg.prefix(player, gamename, string.concat("New record: ", time_string));
+		item = inv.getItem(all_modules_menu, jumpstage);
+		item.addLore(item, time_string);
+		jumpstage++;
+	} else {
+		msg.prefix(player, gamename, string.concat("Time: ", time.getClockString(time / 1000)));
+	}
+	tjr.setStarttime();
+	tjr.teleportModule(player, jumpstage);
+	goto("wait");
+}
+if(mode == "whole") {
+	new_jumpstage = list.getIndexOf(checkpoints, loc);
+	if(new_jumpstage <= jumpstage) {
+		goto("wait");
+	}
+	jumpstage = new_jumpstage;
+	gosub("stage_specific");
+	player.action(player, text.new("§aCheckpoint set"));
+	//Alltime first try or already done?
+	old_modules = tjr.getWholeModule(player);
+	if(old_modules == 54) {
+		alltime_first_try = false;
+	} else {
+		alltime_first_try = true;
+	}
+	player_id = player.getId(player);
+	time = tjr.getWholeTimeTemp(player) + time;
+	if(jumpstage < 54) {
+		msg.prefix(player, "§4Dr. Septimus", string.concat("Happy failure in modul ", string.number(jumpstage)));
+		if(alltime_first_try) {
+			ranking.setSecPoints(rankingtable, player_id, jumpstage, time);
+		}
+		goto("wait");
+	}
+	if(jumpstage == 54) {
+		msg.prefix(player, gamename, string.concat("Time: ", time.getClockString(time / 1000)));
+		if(alltime_first_try) {
+			ranking.setSecPoints(rankingtable, player_id, jumpstage, time);
+			goto("wait");
+		}
+		//Neuer Rekord?
+		old_time = tjr.getWholeTime(player);
+		if(old_time == 0 || time < old_time) {
+			ranking.setSecPoints(rankingtable, player_id, jumpstage, time);
+			msg.prefix(player, gamename, "New record!!!");
+		}
+	}
+}
+goto("wait");
+
+@stage_specific
+if(jumpstage == 6) {
+	player.giveItem(player, angel);
+	player.giveItem(player, angel);
+	player.giveItem(player, angel);
+	player.giveItem(player, angel);
+}
+elseif(jumpstage == 10 || jumpstage == 41 || jumpstage == 48 || jumpstage == 44) {
+	player.giveItem(player, bow);
+	player.giveItem(player, arrow);
+}
+elseif(jumpstage == 28 || jumpstage == 29) {
+	block.set(loc.new(gamesworld, 3944, 122, -5905), "minecraft:lever[powered=false,facing=west,face=wall]");
+	block.set(loc.new(gamesworld, 3946, 122, -5905), "minecraft:air");
+	block.set(loc.new(gamesworld, 3946, 122, -5905), "minecraft:redstone_wire");
+}
+elseif(jumpstage == 30) {
+	block.addItem(loc.new(gamesworld, 3929, 92, -5935), item.create("minecraft:arrow", 576, null, null));
+}
+elseif(jumpstage == 43) {
+	block.addItem(loc.new(gamesworld, 3932, 106, -5947), item.create("minecraft:hay_block", 576, null, null));
+}
+elseif(jumpstage == 47) {
+	block.set(loc.new(gamesworld, 3968, 77, -5962), "minecraft:lever[powered=true,facing=north,face=wall]");
+	entity.removeAll("net.minecraft.entity.projectile.ArrowEntity", loc.new(gamesworld, 3980, 77, -5960), 5);
+	entity.removeAll("net.minecraft.entity.projectile.ArrowEntity", loc.new(gamesworld, 3981, 77, -5955), 5);
+}
+return;
+
+@loop
+player = player.get(single_uuid);
+seconds++;
+if(seconds == 60) {
+    minutes++;
+	seconds = 0;
+}
+if(seconds < 10) {
+	sb.add(player, 96, string.concat("Time: §e", string.number(minutes), ":0", string.number(seconds)));
+} else {
+    sb.add(player, 96, string.concat("Time: §e", string.number(minutes), ":", string.number(seconds)));
+}
+player.setHunger(player, 20);
+player.setSaturation(player, 5);
+sgoto(20, "loop");
+goto("wait");
+
+@player_quit
+@player_giveup
+player.setGamemode(player, "SURVIVAL");
+player.unblockCommands(player);
+minigame.statsHeader(player, gamename, "§e");
+minigame.statsLine(player, "§e", "Modules done", string.concat(string.number(tjr.getWholeModule(player) - 1), " / 53"));
+minigame.statsLine(player, "§e", "Whole Run", time.getClockString(tjr.getWholeTime(player) / 1000));
+minigame.statsLine(player, "§e", "Fly Mode", time.getClockString(tjr.getFlyTime(player) / 1000));
+all_module_time = tjr.getAllModulTime(player);
+if(all_module_time == -1) {
+	minigame.statsLine(player, "§e", "Modul Mode", "-");
+} else {
+	minigame.statsLine(player, "§e", "Modul Mode", time.getClockString(all_module_time / 1000));
+}
+mode = tjr.getMode();
+if(mode == "whole") {
+	tjr.leaveWholeMode(player);
+}
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+minigame.term(script, gamesignloc);
+term();
+
+function tjr.leaveWholeMode(player) {
+	tjr.setWholeModuleTemp(player, $jumpstage);
+	tjr.setEndtime();
+	tjr.setWholeTimeTemp(player, tjr.getWholeTimeTemp(player) + $endtime - $starttime);
+}
+
+//Setzt die Zeit, für den Whole-Modi (THIS RUN)
+function tjr.setWholeTimeTemp(player_or_id, time) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, "tjr.wholetimetemp", time);
+	config.saveAsync(config);
+}
+
+function tjr.getWholeTimeTemp(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, "tjr.wholetimetemp", 0);
+}
+
+//Setzt das erreichte Modul für den Whole-Modi (ALLTIME)
+function tjr.setWholeModule(player_or_id, modul) {
+	if(isPlayer(player_or_id)) {
+		player_or_id = player.getId(player_or_id);
+	}
+	ranking.setPoints($rankingtable, player_or_id, modul);
+}
+
+//Setzt das erreichte Modul für den Whole-Modi (THIS RUN)
+function tjr.setWholeModuleTemp(player_or_id, jumpstage) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, "tjr.wholetimemodule", jumpstage);
+	config.saveAsync(config);
+}
+
+function tjr.getWholeModuleTemp(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, "tjr.wholetimemodule", 0);
+}
+
+function tjr.getAllModulTime(player) {
+	sum_time = 0;
+	for(i = 0; i < 54; i++) {
+		time = tjr.getModulTime(player, i);
+		if(time == -1) {
+			sum_time = -1;
+			break;
+		}
+		sum_time += time;
+	}
+	return sum_time;
+}
+
+//Setzt die Zeit, für den Fly-Modi
+function tjr.setFlyTime(player_or_id, time) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, "tjr.flytime", time);
+	config.saveAsync(config);
+}
+
+function tjr.getFlyTime(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, "tjr.flytime", -1);
+}
+
+//Setzt die Zeit, für den Modul-Modi
+function tjr.setModulTime(player_or_id, module, time) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, string.concat("tjr.modultime", string.number(module)), time);
+	config.saveAsync(config);
+}
+
+function tjr.getModulTime(player_or_id, module) {
+	config = playerdata.getGames(player_or_id);
+	return config.getDouble(config, string.concat("tjr.modultime", string.number(module)), -1);
+}
+
+//Teleportiert zu einem Checkpoint
+function tjr.teleportModule(player, jumpstage) {
+	entity.teleport(player, list.getIndex($spawnlocs, jumpstage));
+}
+
+function tjr.setMode(player, mode) {
+	player_inv = player.getInv(player);
+	if(mode == "fly") {
+		player.setFly(player, true);
+		type = "Modus: §eFly";
+		clearHotbar(player_inv);
+		inv.setItem(player_inv, 0, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+		$jumpstage = 0;
+		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getFlyTime(player) / 1000)));
+		tjr.setStarttime();
+	} elseif(mode == "whole") {
+		player.setFly(player, false);
+		type = "Modus: §eWhole";
+		clearHotbar(player_inv);
+		inv.setItem(player_inv, 0, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
+		inv.setItem(player_inv, 1, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getWholeTime(player) / 1000)));
+		$jumpstage = tjr.getWholeModuleTemp(player);
+		old_time = tjr.getWholeTimeTemp(player);
+		time = old_time / 1000;
+		$minutes = math.roundDown(time / 60);
+		$seconds = math.round(time % 60);
+		$starttime = time.getMillis() - time;
+	} elseif(mode == "modul") {
+		player.setFly(player, false);
+		type = "Modus: §eModul";
+		clearHotbar(player_inv);
+		inv.setItem(player_inv, 0, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
+		inv.setItem(player_inv, 0, item.create("PAPER", 1, "§fChoose a modul", null));
+		$jumpstage = 0;
+		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getModulTime(player, $jumpstage) / 1000)));
+		tjr.setStarttime();
+	}
+	tjr.teleportModule(player, $jumpstage);
+	sb.add(player, 98, type);
+	$mode = mode;
+}
+
+function clearHotbar(inv) {
+	for(i = 0; i < 9; i++) {
+		inv.setItem(inv, i, null);
+	}
+	inv.setItem(inv, 8, item.custom.create("GEAR", 1, "§fSettings", null));
+}
+
+function tjr.getMode() {
+	return $mode;
+}
+
+function tjr.setStarttime() {
+	$minutes = 0;
+	$seconds = 0;
+	$starttime = time.getMillis();
+}
+
+function tjr.setEndtime() {
+	$endtime = time.getMillis();
+}

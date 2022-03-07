@@ -1,0 +1,403 @@
+pumpkin_mat = material.get("pumpkin");
+shears_mat = material.get("shears");
+vine_mat = material.get("vine");
+sugar_cane_mat = material.get("sugar_cane");
+farmland_mat = material.get("farmland");
+carved_pumpkin = item.new(material.get("carved_pumpkin"));
+sugar_cane = item.new(sugar_cane_mat);
+
+gosub("setstart");
+step = 1;
+gamename = "§aItemHunt";
+no_core_reset = true;
+
+templist = list.new();
+list.add(templist, items1);
+list.add(templist, items2);
+list.add(templist, items3);
+list.add(templist, items4);
+for(h = 0; h < list.getSize(templist); h++) {
+	list = list.getIndex(templist, h);
+	for(i = 0; i < list.getSize(list); i++) {
+		item_type = list.getIndex(list, i);
+		mat = material.get(item_type);
+		if(mat == null) {
+			minigame.speakAll(gamename, item_type);
+			minigame.speakAll(gamename, "False Item found. Game termed. Inform marvinius.");
+			term();
+		}
+	}
+}
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "minigame_join") {
+	if(init_signs == null) {
+		sign.setString(sign_min_block, 2, string.number(min));
+		sign.setString(sign_amount_block, 2, string.number(amount_nextitems));
+		init_signs = true;
+	}
+	return;
+}
+if(event == "block_click") {
+	if(slot.isOffHand(hand)) {
+		return;
+	}
+	if(block == null) {
+		return;
+	}
+	block_loc = block.getLocation(block);
+	if(block_loc == plus_min_loc) {
+		if(min < max_mins) {
+			min++;
+		}
+		sign.setString(sign_min_block, 2, string.number(min));
+		return;
+	}
+	if(block_loc == minus_min_loc) {
+		if(min > 1) {
+			min--;
+		}
+		sign.setString(sign_min_block, 2, string.number(min));
+		return;
+	}
+	if(block_loc == plus_amount_loc) {
+		if(amount_nextitems < max_nextitems) {
+			amount_nextitems++;
+		}
+		sign.setString(sign_amount_block, 2, string.number(amount_nextitems));
+		return;
+	}
+	if(block_loc == minus_amount_loc) {
+		if(amount_nextitems > 1) {
+			amount_nextitems--;
+		}
+		sign.setString(sign_amount_block, 2, string.number(amount_nextitems));
+		return;
+	}
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+minigame.speakAll(gamename, "The game has started.");
+
+whole_secs = min * 60 + sec;
+time_phase_1 = whole_secs / 4 * 3;
+time_phase_2 = whole_secs / 4 * 2;
+time_phase_3 = whole_secs / 4;
+
+timer_string = string.concat("§bTimer: §r", string.number(min), " min 0", string.number(sec), " s");
+
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	player = player.get(next(iter));
+	entity.teleport(player, spawn_loc);
+	player.setGamemode(player, "SURVIVAL");
+	player.setFly(player, false);
+	living.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+	sb.add(player, 99, gamename);
+	sb.add(player, 98, timer_string);
+	sb.add(player, 97, "§bFound Items: §r0");
+	sb.add(player, 96, "§bNext Items:"); 
+	sb.add(player, 85, sb.getSpacer());
+	living.addEffect(player, "SPEED", 19200, 1);
+}
+
+event.load("bucket_use");
+event.load("living_pickup");
+event.load("craft");
+
+farmtypes = list.new();
+list.add(farmtypes, material.get("minecraft:carrots"));
+list.add(farmtypes, material.get("minecraft:melon_stem"));
+list.add(farmtypes, material.get("minecraft:potatoes"));
+list.add(farmtypes, material.get("minecraft:wheat"));
+
+player_blocks = set.new();
+set.add(player_blocks, material.get("minecraft:crafting_table"));
+set.add(player_blocks, material.get("minecraft:furnace"));
+set.add(player_blocks, material.get("minecraft:chest"));
+
+saplings = map.new();
+map.add(saplings, material.get("oak_leaves"), item.new(material.get("oak_sapling")));
+map.add(saplings, material.get("spruce_leaves"), item.new(material.get("spruce_sapling")));
+map.add(saplings, material.get("birch_leaves"), item.new(material.get("birch_sapling")));
+map.add(saplings, material.get("jungle_leaves"), item.new(material.get("jungle_sapling")));
+map.add(saplings, material.get("acacia_leaves"), item.new(material.get("acacia_sapling")));
+map.add(saplings, material.get("dark_oak_leaves"), item.new(material.get("dark_oak_sapling")));
+
+nextitems = list.new();
+founditems = list.new();
+player_blocks_placed = set.new();
+resetlist_type = list.new();
+resetlist_block = list.new();
+resetlist_data = list.new();
+resetlist_block_2 = list.new();
+resetlistdouble_data = list.new();
+resetlistdouble_data_2 = list.new();
+resetlistdouble_block = list.new();
+resetlistdouble_block2 = list.new();
+
+sgoto(2, "tick");
+
+for(h = 0; h < amount_nextitems; h++) {
+	gosub("newitem");
+}
+
+minigame.speakAll(gamename, "Collect as many shown items as you can.");
+minigame.speakAll(gamename, "Drop and collect not counted items again.");
+
+@wait
+wait();
+if(event == "living_pickup") {
+	if(!isPlayer(living_entity)) {
+		goto("wait");
+	}
+	player = living_entity;
+}
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@block_click
+if(action == "RIGHT_CLICK_BLOCK") {
+	block_type = block.getType(block);
+	if(set.contains(player_blocks, block_type)) {
+		goto("wait");
+	}
+	if(slot.isHand(hand)) {
+		item_type = item.getType(living.getHand(player));
+	} else {
+		item_type = item.getType(living.getOffHand(player));
+	}
+	if(set.contains(player_blocks, item_type)) {
+		goto("wait");
+	}
+	cancel = true;
+	if(block_type == pumpkin_mat && item_type == shears_mat) {
+		block_loc = block.getLocation(block);
+		item.drop(block_loc, carved_pumpkin);
+	}
+}
+goto("wait");
+
+@entity_damage
+if(isPlayer(entity)) {
+	cancel = true;
+}
+goto("wait");
+
+@block_break
+cancel = false;
+block_type = block.getType(block);
+if(set.contains(player_blocks, block_type)) {
+	goto("wait");
+}
+block_loc = block.getLocation(block);
+if(block.isLeaves(block)) {
+	sapling = map.get(saplings, block_type);
+	item.drop(sapling, block_loc);
+}
+if(block.isBisected(block)) {
+	if(block.getBisectedHalf(block) == "BOTTOM") {
+		b = block;
+		b2 = block.mod(block, 0, 1, 0);
+	} else {
+		b = block.mod(block, 0, -1, 0);
+		b2 = block;
+	}
+	list.add(resetlistdouble_data, block.getData(b));
+	list.add(resetlistdouble_data_2, block.getData(b2));
+	list.add(resetlistdouble_block, b);
+	list.add(resetlistdouble_block2, b2);
+	sgoto(2, "doubleresetblock");
+	goto("wait");
+}
+if(block_type == vine_mat) {
+	cancel = true;
+	goto("wait");
+}
+if(block_type == sugar_cane_mat) {
+	cancel = true;
+	item.drop(sugar_cane, block_loc);
+	goto("wait");
+}
+if(block_type == farmland_mat) {
+	cancel = true;
+	goto("wait");
+}
+if(list.contains(farmtypes, block_type)) {
+	list.add(resetlist_data, block.getData(block));
+	list.add(resetlist_block_2, block);
+	sgoto(2, "resetblock_data");
+} else {
+	list.add(resetlist_type, block_type);
+	list.add(resetlist_block, block);
+	sgoto(2, "resetblock");
+}
+goto("wait");
+
+@bucket_use
+cancel = true;
+goto("wait");
+
+@block_place
+cancel = true;
+block_type = block.getType(block);
+if(set.contains(player_blocks, block_type)) {
+	cancel = false;
+	set.add(player_blocks_placed, block);
+}
+goto("wait");
+
+@doubleresetblock
+bdata = list.getIndex(resetlistdouble_data, 0);
+bdata2 = list.getIndex(resetlistdouble_data_2, 0);
+b = list.getIndex(resetlistdouble_block, 0);
+b2 = list.getIndex(resetlistdouble_block2, 0);
+list.removeIndex(resetlistdouble_data, 0);
+list.removeIndex(resetlistdouble_data_2, 0);
+list.removeIndex(resetlistdouble_block, 0);
+list.removeIndex(resetlistdouble_block2, 0);
+block.setData(b, bdata);
+block.setData(b2, bdata2);
+goto("wait");
+
+@resetblock
+btype = list.getIndex(resetlist_type, 0);
+b = list.getIndex(resetlist_block, 0);
+list.removeIndex(resetlist_type, 0);
+list.removeIndex(resetlist_block, 0);
+if(list.contains(farmtypes, btype)) {
+	block.setData(b, read.blockData(string.replace(string.blockData(btype), "age=.", "age=7")));
+} else {
+	block.setMaterial(b, btype);
+}
+goto("wait");
+
+@resetblock_data
+bdata = list.getIndex(resetlist_data, 0);
+b = list.getIndex(resetlist_block_2, 0);
+list.removeIndex(resetlist_data, 0);
+list.removeIndex(resetlist_block_2, 0);
+block.setData(b, read.blockData(string.replace(string.blockData(bdata), "age=.", "age=7")));
+goto("wait");
+
+@tick
+if(sec == 0) {
+	sec = 59;
+	min--;
+	if(min == -1) {
+		goto("endgame");
+	}
+} else {
+	sec--;
+	if(sec < 10) {
+		minigame.displayAll(98, string.concat("§bTimer: §r", string.number(min), " min 0", string.number(sec), " s"));
+	} else {
+		minigame.displayAll(98, string.concat("§bTimer: §r", string.number(min), " min ", string.number(sec), " s"));
+	}
+	if(min == 0) {
+		if(sec == 30) {
+			minigame.speakAll(gamename, "30 seconds left!");
+		} elseif(sec == 10) {
+			minigame.speakAll(gamename, "10 seconds left!");
+		} elseif(sec == 5) {
+			minigame.speakAll(gamename, "5 seconds left!");
+		}
+	}
+}
+sgoto(20, "tick");
+goto("wait");
+
+@living_pickup
+item = item.entity.get(item_entity);
+@craft
+itype = item.getType(item);
+if(list.contains(nextitems, itype)) {
+	list.add(founditems, itype);
+	list.remove(nextitems, itype);
+	minigame.displayAll(97, string.concat("§bFound Items: §r", string.number(list.getSize(founditems))));
+	gosub("newitem");
+}
+goto("wait");
+
+@newitem
+if(min < 12) {
+	if(step == 1) {
+		for(i = 0; i < list.getSize(items2); i++) {
+			list.add(items1, list.getIndex(items2, i));
+		}
+		step = 2;
+	}
+	if(min < 8) {
+		if(step == 2) {
+			for(i = 0; i < list.getSize(items3); i++) {
+				list.add(items1, list.getIndex(items3, i));
+			}
+			step = 3;
+		}
+		if(min < 4) {
+			if(step == 3) {
+				for(i = 0; i < list.getSize(items4); i++) {
+					list.add(items1, list.getIndex(items4, i));
+				}
+				step = 4;
+			}
+		}
+	}
+}
+
+items1_size = list.getSize(items1);
+if(items1_size == 0) {
+	return;
+}
+randomitemstring = list.getIndex(items1, math.random(0, items1_size - 1));
+list.remove(items1, randomitemstring);
+list.add(nextitems, material.get(randomitemstring));
+for(i = 0; i < list.getSize(nextitems); i++) {
+	type_string = string(list.getIndex(nextitems, i));
+	minigame.displayAll(95 - i, type_string);
+}
+return;
+
+@player_logout
+@player_giveup
+script = script.getFromId(script_id);
+minigame.kickplayer(script, player);
+if(list.getSize(player_list) == 0) {
+	goto("endcore");
+}
+goto("wait");
+
+@endgame
+yetfound = list.getSize(founditems);
+script = script.getFromId(script_id);
+iter = iterator(player_list);
+while(hasNext(iter)) {
+	player = player.get(next(iter));
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Found Items", string.number(yetfound));
+}
+@endcore
+iter = iterator(player_blocks_placed);
+air = material.getAir();
+while(hasNext(iter)) {
+	block.setMaterial(next(iter), air);
+}
+minigame.clearItems(middleloc, radius);
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();

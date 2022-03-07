@@ -16,8 +16,8 @@ max_nextitems = 10;
 
 plus_min_loc = loc.new(gamesworld, 1012, 86, 985);
 minus_min_loc = loc.new(gamesworld, 1012, 84, 985);
-sign_min_loc = loc.new(gamesworld, 1012, 85, 985);
+sign_min_block = block.get(loc.new(gamesworld, 1012, 85, 985));
 
 plus_amount_loc = loc.new(gamesworld, 1013, 86, 985);
 minus_amount_loc = loc.new(gamesworld, 1013, 84, 985);
-sign_amount_loc = loc.new(gamesworld, 1013, 85, 985);
+sign_amount_block = block.get(loc.new(gamesworld, 1013, 85, 985));

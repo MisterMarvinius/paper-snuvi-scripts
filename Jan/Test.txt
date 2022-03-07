@@ -22,7 +22,7 @@ Particle_Table = particle.get("ENCHANTMENT_TABLE");
 Particle_Smoke = particle.get("CAMPFIRE_COSY_SMOKE");
 Particle_Slime = particle.get("SLIME");
 
-Slime_Itemstack = item.new("SLIME_BALL", 1);
+Slime_Itemstack = item.new(material.get("SLIME_BALL"), 1);
 Small_Slime = "SLIME";
 Sound_Slimeblock_place = sound.get("BLOCK_SLIME_BLOCK_PLACE");
 Sound_Cat_Hostile = sound.getCategory("HOSTILE");
@@ -133,19 +133,14 @@ if(event == "projectile_hit") {
 	if(loc.getWorld(shooter_loc) != loc.getWorld(hit_player_loc)){
 		goto("wait");
 	}
-	shooter_loc_X = loc.GetX(shooter_loc);
-	shooter_loc_Y = loc.GetY(shooter_loc);
-	shooter_loc_Z = loc.GetZ(shooter_loc);
-	hit_player_loc_X = loc.GetX(hit_player_loc);
-	hit_player_loc_Y = loc.GetY(hit_player_loc);
-	hit_player_loc_Z = loc.GetZ(hit_player_loc);
+	projectile_motion = entity.getMotion(projectile);
 	entity_hit_motion = entity.getMotion(entity_hit);
 	
 	distance = math.abs(loc.distance(shooter_loc, hit_player_loc));
 	
-	x = entity_hit_motion[0] + (hit_player_loc_X - shooter_loc_X+1)/math.pow(distance+1,2);
-	y = entity_hit_motion[1] + 0.25*(hit_player_loc_Y - shooter_loc_Y+1)/math.pow(distance+1,2);
-	z = entity_hit_motion[2] + (hit_player_loc_Z - shooter_loc_Z+1)/math.pow(distance+1,2);
+	x = entity_hit_motion[0] + (projectile_motion[0]+1)/math.pow(distance+1,2);
+	y = entity_hit_motion[1] + 0.25*(projectile_motion[1]+1)/math.pow(distance+1,2);
+	z = entity_hit_motion[2] + (projectile_motion[2]+1)/math.pow(distance+1,2);
 	entity.setMotion(entity_hit, x, y, z);
 	goto("wait");
 }
