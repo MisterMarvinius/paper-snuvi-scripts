@@ -35,6 +35,8 @@ Hypobolic_start = loc.new(Overworld, 219.5, 46, -63.5);
 Loop_start = loc.new(Overworld, 231.5, 38.5, -70.5);
 player_back_pos = map.new();
 
+//----------------------------------------------------
+
 @wait
 wait();
 if(event == "entity_click"){
@@ -77,7 +79,6 @@ if(event == "snuvi_click"){
 	}
 	goto("wait");
 }
-
 
 if(event == "player_move"){
 	player_loc = entity.getLocation(player);
@@ -175,6 +176,9 @@ if(event == "player_move"){
 	goto("wait");
 }
 goto("wait");
+
+//----------------------------------------------------
+
 function item.create(material, amount, name, lore){
 	itemstack = item.new(material.get(material), amount);
 	if(name != null){

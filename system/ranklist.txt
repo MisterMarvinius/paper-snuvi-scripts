@@ -20,6 +20,7 @@ ranking.add("§a", "JR-Ice", "ijr", "icejrranks", "Checkpoints | Time", "DESC", 
 ranking.add("§a", "JR-Rooms", "jr_rooms", "jr_room_ranks", "Checkpoints | Time", "DESC", "ASC");
 ranking.add("§a", "JR-Endless", "jr", "jumpranks", "Points Record", "DESC", null);
 ranking.add("§d", "Letters", "letter", "letterranks", "Time", "ASC", null);
+ranking.add("§a", "Sammelfieber", "coll", "collfever", "Points Record", "DESC", null);
 ranking.add("§a", "ItemHunt", "sfsingle", "sfsingle", "Points Record", "DESC", null);
 ranking.add("§2", "Buttons", "button", "buttonranks", "Points Record", "DESC", null);
 ranking.add("§9", "HideAndSeek", "hs", "fncranks", "Wins", "DESC", null);

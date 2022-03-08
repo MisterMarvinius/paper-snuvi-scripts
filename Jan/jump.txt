@@ -10,7 +10,7 @@ Nether = world.get("world_nether"); //world.getTheNether()
 @wait
 wait();
 name = player.getName(player);
-if(name == "SirTerence7" || name == "marvinius"){// || name == "Mareeeen"
+if(name == "SirTerence7" || name == "marvinius" || name == "fireeagle013"){// || name == "Mareeeen"
 
 	if(loc.getWorld == Games){
 		goto("wait");

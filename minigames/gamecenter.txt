@@ -50,6 +50,7 @@ minigame.addSign("rmmaploc5", false, loc.new(gamesworld, -411, 157, -43), "minig
 minigame.addSign("sfsign1", true, loc.new(gamesworld, -398, 158, -47), "minigames/itemhunt/ihranked", "minigames/itemhunt/ihmap1", true);
 minigame.addSign("sfsign2", true, loc.new(gamesworld, -398, 157, -47), "minigames/itemhunt/ihranked", "minigames/itemhunt/ihmap2", true);
 minigame.addSign("sfsign3", true, loc.new(gamesworld, -399, 158, -47), "minigames/itemhunt/itemhunt", "minigames/itemhunt/ihmap3", false);
+minigame.addSign("collsign1", true, loc.new(gamesworld, -399, 157, -47), "minigames/collfever/collfever", "minigames/collfever/collmap1", true);
 minigame.addSign("buttonssign1", true, loc.new(gamesworld, -399, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap1", true);
 minigame.addSign("buttonssign2", true, loc.new(gamesworld, -398, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap2", true);
 minigame.addSign("spleefsign1", true, loc.new(gamesworld, -419, 156, -40), "minigames/spleef/spleef", "minigames/spleef/spleefmap1", false);

@@ -242,6 +242,7 @@ function setCommandHelps() {
 	addStatsGameHelp(help, "JR-Rooms");
 	addStatsGameHelp(help, "Letters");
 	addStatsGameHelp(help, "ItemHunt");
+	addStatsGameHelp(help, "Sammelfieber");
 	addStatsGameHelp(help, "Buttons");
 	addStatsGameHelp(help, "HideAndSeek");
 	addStatsGameHelp(help, "Inverting");
