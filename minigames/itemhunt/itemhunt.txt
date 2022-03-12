@@ -188,7 +188,7 @@ if(action == "RIGHT_CLICK_BLOCK") {
 	cancel = true;
 	if(block_type == pumpkin_mat && item_type == shears_mat) {
 		block_loc = block.getLocation(block);
-		item.drop(block_loc, carved_pumpkin);
+		item.drop(carved_pumpkin, block_loc);
 	}
 }
 goto("wait");
@@ -373,7 +373,7 @@ for(i = 0; i < list.getSize(nextitems); i++) {
 }
 return;
 
-@player_logout
+@player_quit
 @player_giveup
 script = script.getFromId(script_id);
 minigame.kickplayer(script, player);

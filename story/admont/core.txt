@@ -12,8 +12,8 @@ inv.setItem(oma_inv, 8, item.create("minecraft:enchanted_book", 1, "§fMülleime
 dieter_inv = inv.new("333333333", text.new("Quests: Dieter"));
 inv.setItem(dieter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fGaumenschmauß...", "§e...für die ganze Familie."));
 	
-zauberlehrling_inv = inv.new("333333333", text.new("Quests: Zauberlehrling"));
-inv.setItem(zauberlehrling_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDer Felsmagier...", "§e...hat zauberhafte Skills für dich."));
+mageguard_inv = inv.new("333333333", text.new("Quests: Mage Guard"));
+inv.setItem(mageguard_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage", null));
 
 farmer_inv = inv.new("200000000", text.new("Quests: Farmer"));
 inv.setItem(farmer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFirst Date", null));
@@ -30,7 +30,7 @@ gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
 inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand", null));
 
 gertrude_inv = inv.new("333333333", text.new("Quests: Gertrude"));
-inv.setItem(gertrude_inv, 0, item.create("minecraft:enchanted_book", 1, "§fZauberlehrling", null));
+inv.setItem(gertrude_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage Guard", null));
 
 bernd_inv = inv.new("333333333", text.new("Quests: Bernd"));
 inv.setItem(bernd_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHide and Seek", null));
@@ -81,8 +81,8 @@ if(item == quest_book) {
 		inv.open(oma_inv, player);
 	} elseif(entity_name == "Dieter") {
 		inv.open(dieter_inv, player);
-	} elseif(entity_name == "Zauberlehrling") {
-		inv.open(zauberlehrling_inv, player);
+	} elseif(title_string == "Mage Guard") {
+		inv.open(mageguard_inv, player);
 	} elseif(entity_name == "Felsmagier") {
 		/*if() {
 			skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
@@ -140,13 +140,13 @@ if(title_string == "Quests: Dieter") {
 	}
 	goto("main");
 }
-if(title_string == "Quests: Zauberlehrling") {
+if(title_string == "Quests: Mage Guard") {
 	if(inv_slot == 0) {
-		if(script.isActiveName("scripts/story/admont/felsmagier.txt")) {
-			msg.prefix(player, "§dZauberlehrling", "Diese Quest ist momentan aktiv und kann nicht vergeben werden.");
+		if(script.isActiveName("scripts/story/admont/mage.txt")) {
+			msg.prefix(player, "§dMage Guard", "This quest is active at the moment.");
 			goto("main");
 		}
-		quest.start(player, "story/admont/felsmagier");
+		quest.start(player, "story/admont/mage");
 		goto("main");
 	}
 	goto("main");

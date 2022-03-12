@@ -150,7 +150,7 @@ if(silentjoin) {
 	message = null;
 } else {
 	own_message = player.getJoinMessage(player);
-	if(own_message == null || player.isNicked(player)) {
+	if(own_message == null || player.isNicked(player) || !player.usesCustomMessage(player)) {
 		message = text.new(string.concat("§a§l> §r", fullname, " §9", list.getIndex(joinmessages, math.random(0, list.getSize(joinmessages) - 1))));
 	} else {
 		own_message = string.replace(own_message, "&", "§");
@@ -193,7 +193,7 @@ function giveCookie(player) {
 
 @player_quit
 own_message = player.getLeaveMessage(player);
-if(own_message == null || player.isNicked(player)) {
+if(own_message == null || player.isNicked(player) || !player.usesCustomMessage(player)) {
 	message = text.new(string.concat("§c§l> §r", fullname, " §9", list.getIndex(leavemeassages, math.random(0, list.getSize(leavemeassages) - 1))));
 } else {
 	own_message = string.replace(own_message, "&", "§");
@@ -230,12 +230,12 @@ if(player.isMuted(player)) {
 	goto("wait");
 }
 if(perm.has("color", player)) {
+	string_message = string.replace(string_message, "&", "§");
+}
+if(perm.has("color", player)) {
 	message = text.new(string.replace(string_message, "&", "§"));
 }
-if(string.startsWith(string_message, "https://", 0)) {
-	message = string.getLinkText(string_message, string_message);
-}
-msg.chat(player, message);
+msg.chat(player, string.getTextWithLink(string_message));
 goto("wait");
 
 @living_death
@@ -247,27 +247,33 @@ if(world.isCreativeName(world_name)) {
 if(world.isGamesName(world_name)) {
 	goto("wait");
 }
-damage_type = damage.getType(damage_source);
-list = map.getOrDefault(causetolist, damage_type, defaultdeaths);
-if(damage_type == "player") {
-	killer = player.getFromDamageSource(damage_source);
-	killer_name = player.getName(killer);
-	item = living.getHand(killer);
-	if(item != null && item.hasName(item)) {
-		message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with ")), text.item(text.new(string.concat("§b§o", string.text(item.getName(item)))), item), text.new("§9."));
+own_message = player.getDeathMessage(player);
+if(own_message == null || player.isNicked(player) || !player.usesCustomMessage(player)) {
+	damage_type = damage.getType(damage_source);
+	list = map.getOrDefault(causetolist, damage_type, defaultdeaths);
+	if(damage_type == "player") {
+		killer = player.getFromDamageSource(damage_source);
+		killer_name = player.getName(killer);
+		item = living.getHand(killer);
+		if(item != null && item.hasName(item)) {
+			message = text.merge(text.new(string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, " with ")), text.item(text.new(string.concat("§b§o", string.text(item.getName(item)))), item), text.new("§9."));
+		} else {
+			list.clear(list);
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was slain with love by  ", killer_name, "."));
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " is now forever married to  ", killer_name, "."));
+			list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was made ready for their funeral by  ", killer_name, "."));
+			message = text.new(list.getIndex(list, math.random(0, list.getSize(list) - 1)));
+		}
 	} else {
-		list.clear(list);
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " got their last honour from ", killer_name, "."));
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " died by ", killer_name, "'s hand."));
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was killed by ", killer_name, "."));
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " lost a bet to ", killer_name, "."));
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was slain with love by  ", killer_name, "."));
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " is now forever married to  ", killer_name, "."));
-		list.add(list, string.concat(death_prefix, fullname, colorcodedeath, " was made ready for their funeral by  ", killer_name, "."));
-		message = text.new(list.getIndex(list, math.random(0, list.getSize(list) - 1)));
-	}
+		message = text.new(string.concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1))));
+	}	
 } else {
-	message = text.new(string.concat(death_prefix, fullname, list.getIndex(list, math.random(0, list.getSize(list) - 1))));
+	own_message = string.replace(own_message, "&", "§");
+	message = text.new(string.concat("§c§l> §r", fullname, " §9", own_message));
 }
 msg.survival(message);
 msg.creative(message);

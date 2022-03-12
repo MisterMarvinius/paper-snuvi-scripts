@@ -1,0 +1,268 @@
+event.load("living_death");
+event.load("player_join");
+event.load("snuvi_click");
+
+prefix_challenge = "§aChallenge";
+challenge_short = "ae";
+challenge_name = "All Entities";
+reward = 8192;
+
+lore_list = list.new();
+list.add(lore_list, text.new("Kill all entities in the given order."));
+list.add(lore_list, text.new(""));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+ae_item = item.create("NETHERITE_SWORD", 1, "§cAll Entities", lore_list);
+item.addFlag(ae_item, "HIDE_ATTRIBUTES");
+
+next_entities = map.new(); //player_id -> entity_type
+done_entities = map.new(); //player_id -> set -> entity_type
+todo_entities = map.new(); //player_id -> list -> entity_type
+
+entity_list = list.new();
+list.add(entity_list, "axolotl");
+list.add(entity_list, "bat");
+list.add(entity_list, "cat");
+list.add(entity_list, "chicken");
+list.add(entity_list, "cod");
+list.add(entity_list, "cow");
+list.add(entity_list, "donkey");
+list.add(entity_list, "fox");
+list.add(entity_list, "glow_squid");
+list.add(entity_list, "horse");
+list.add(entity_list, "mooshroom");
+list.add(entity_list, "mule");
+list.add(entity_list, "ocelot");
+list.add(entity_list, "parrot");
+list.add(entity_list, "pig");
+list.add(entity_list, "pufferfish");
+list.add(entity_list, "rabbit");
+list.add(entity_list, "salmon");
+list.add(entity_list, "sheep");
+list.add(entity_list, "skeleton_horse");
+list.add(entity_list, "snow_golem");
+list.add(entity_list, "squid");
+list.add(entity_list, "strider");
+list.add(entity_list, "tropical_fish");
+list.add(entity_list, "turtle");
+list.add(entity_list, "villager");
+list.add(entity_list, "wandering_trader");
+list.add(entity_list, "bee");
+list.add(entity_list, "cave_spider");
+list.add(entity_list, "dolphin");
+list.add(entity_list, "enderman");
+list.add(entity_list, "goat");
+list.add(entity_list, "iron_golem");
+list.add(entity_list, "llama");
+list.add(entity_list, "panda");
+list.add(entity_list, "piglin");
+list.add(entity_list, "polar_bear");
+list.add(entity_list, "spider");
+list.add(entity_list, "trader_llama");
+list.add(entity_list, "wolf");
+list.add(entity_list, "zombified_piglin");
+list.add(entity_list, "blaze");
+list.add(entity_list, "creeper");
+list.add(entity_list, "drowned");
+list.add(entity_list, "elder_guardian");
+list.add(entity_list, "endermite");
+list.add(entity_list, "evoker");
+list.add(entity_list, "ghast");
+list.add(entity_list, "guardian");
+list.add(entity_list, "hoglin");
+list.add(entity_list, "husk");
+list.add(entity_list, "magma_cube");
+list.add(entity_list, "phantom");
+list.add(entity_list, "piglin_brute");
+list.add(entity_list, "pillager");
+list.add(entity_list, "ravager");
+list.add(entity_list, "shulker");
+list.add(entity_list, "silverfish");
+list.add(entity_list, "skeleton");
+list.add(entity_list, "slime");
+list.add(entity_list, "stray");
+list.add(entity_list, "vex");
+list.add(entity_list, "vindicator");
+list.add(entity_list, "witch");
+list.add(entity_list, "wither_skeleton");
+list.add(entity_list, "zoglin");
+list.add(entity_list, "zombie");
+list.add(entity_list, "zombie_villager");
+list.add(entity_list, "ender_dragon");
+list.add(entity_list, "wither");
+
+online_list = players.toList();
+iter = iterator(online_list);
+while(hasNext(iter)) {
+	p = next(iter);
+	if(challenge.playerHas(p, challenge_short)) {
+		loadDoneEntities(p);
+		type = loadNextEntity(p);
+		challenge.display(p, challenge_name, type);
+	}
+}
+
+msg.string("dev", "§bAllEntites §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+loadDoneEntities(player);
+type = loadNextEntity(player);
+challenge.display(player, challenge_name, type);
+goto("wait");
+
+@snuvi_click
+item = inv.getItem(inv, inv_slot);
+item.removeFlag(item, "HIDE_DESTROYS");
+title_string = string.text(inv_title);
+if(item == ae_item) {
+	if(click == "LEFT") {
+		if(player.hasChallenge(player)) {
+			msg.prefix(player, prefix_challenge, "You already have a challenge.");
+			goto("wait");
+		}
+		player_id = player.getId(player);
+		map.add(todo_entities, player_id, list.copy(entity_list));
+		map.add(done_entities, player_id, set.new());
+		player.setChallenge(player, challenge_short);
+		type = getRandomType(player);
+		setNextEntity(player, type);
+		challenge.display(player, challenge_name, type);
+		msg.prefix(player, prefix_challenge, "Challenge started.");
+		goto("wait");
+	}
+	if(click == "RIGHT") {
+		if(!challenge.playerHas(player, challenge_short)) {
+			msg.prefix(player, prefix_challenge, "Challenge not active.");
+			goto("wait");
+		}
+		resetAE(player);
+		challenge.removeDisplay(player);
+		player.resetChallenge(player);
+		msg.prefix(player, prefix_challenge, "Challenge canceled.");
+		goto("wait");
+	}
+	goto("wait");
+	
+}
+goto("wait");
+
+@living_death
+player = player.getFromDamageSource(damage_source);
+if(player == null) {
+	goto("wait");
+}
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+player_loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(player_loc));
+if(!world.isSurvName(world_name)) {
+	goto("wait");
+}
+entity_type = entity.getType(living_entity);
+if(!isNextEntity(player, entity_type)) {
+	goto("wait");
+}
+new_type = getRandomType(player);
+if(new_type == null) {
+	msg.prefix(player, prefix_challenge, "All entities killed. Challenge done!");
+	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
+	money.add(player, reward);
+	player.giveItem(player, item.getAmber());
+	resetAE(player);
+	challenge.removeDisplay(player);
+	player.resetChallenge(player);
+	goto("wait");
+}
+saveDoneEntity(player, entity_type);
+setNextEntity(player, new_type);
+msg.prefix(player, prefix_challenge, string.concat("Entity killed. Next entity: ", new_type));
+challenge.display(player, challenge_name, new_type);
+goto("wait");
+
+function getRandomType(player) {
+	player_id = player.getId(player);
+	l = map.get($todo_entities, player_id);
+	l_size = list.getSize(l);
+	if(l_size == 0) {
+		return null;
+	}
+	r = math.random(0, l_size - 1);
+	return list.getIndex(l, r);
+}
+
+function isNextEntity(player, entity_type) {
+	player_id = player.getId(player);
+	next_type = map.get($next_entities, player_id);
+	return next_type == entity_type;
+}
+
+function setNextEntity(player_or_id, entity_type) {
+	player_id = player.getValidId(player_or_id);
+	map.add($next_entities, player_id, entity_type);
+	saveNextEntity(player_or_id, entity_type);
+	
+	l = map.get($todo_entities, player_id);
+	list.remove(l, entity_type);
+}
+
+function loadNextEntity(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	player_id = player.getValidId(player_or_id);
+	type = config.getString(config, "cha.ae.next", "null");
+	map.add($next_entities, player_id, type);
+	l = map.get($todo_entities, player_id);
+	list.remove(l, type);
+	return type;
+}
+
+function saveNextEntity(player_or_id, entity_type) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.ae.next", entity_type);
+	config.saveAsync(config);
+}
+
+function loadDoneEntities(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "cha.ae.done", "");
+	a = string.split("%", string);
+	s = set.new();
+	l = list.copy($entity_list);
+	for(i = 0; i < array.getSize(a); i++) {
+		type = a[i];
+		set.add(s, type);
+		list.remove(l, type);
+	}
+	player_id = player.getValidId(player_or_id);
+	map.add($done_entities, player_id, s);
+	map.add($todo_entities, player_id, l);
+}
+
+function saveDoneEntity(player_or_id, entity_type) {
+	player_id = player.getValidId(player_or_id);
+	s = map.get($done_entities, player_id);
+	set.add(s, entity_type);
+	
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "cha.ae.done", "");
+	if(string == "") {
+		config.set(config, "cha.ae.done", entity_type);
+	} else {
+		config.set(config, "cha.ae.done", string.concat(string, "%", entity_type));
+	}
+	config.saveAsync(config);
+}
+
+function resetAE(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.ae.done", "");
+	config.set(config, "cha.ae.next", "");
+	config.saveAsync(config);
+}

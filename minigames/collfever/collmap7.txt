@@ -1,0 +1,6 @@
+gamesworld = world.getGames();
+spawn_loc = loc.new(gamesworld, -7897, 63, -3611, -90, 0);
+gamesignloc = minigame.getSignLoc("collsign7");
+radius = 200;
+middleloc = loc.new(gamesworld, -7897, 63, -3611);
+maxplayers = 1;

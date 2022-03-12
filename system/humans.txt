@@ -6,22 +6,23 @@ list.add(lore_list, text.new("§cRightclick §f= §eSell"));
 emerald = item.create("EMERALD", 1, "§fMarket", lore_list);
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 scroll = item.custom.create("SCROLL", 1, "§2Skills", null);
+spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
 
-anna_inv = createMainMenu("Anna", false, true, false);
-farmer_inv = createMainMenu("Farmer", true, true, false);
-fisher_inv = createMainMenu("Fisher", true, false, false);
-miner_inv = createMainMenu("Miner", true, true, false);
-baker_inv = createMainMenu("Baker", true, false, false);
-alena_inv = createMainMenu("Alena", true, false, false);
-mason_inv = createMainMenu("Mason", true, false, false);
-priest_inv = createMainMenu("Priest", true, false, false);
-mage_inv = createMainMenu("Mage", true, false, false);
-lumberjack_inv = createMainMenu("Lumberjack", true, true, true);
-butcher_inv = createMainMenu("Butcher", true, false, false);
-librarian_inv = createMainMenu("Librarian", true, false, false);
-nether_inv = createMainMenu("Nether Merchant", true, false, false);
-diver_inv = createMainMenu("Diver", true, false, false);
-mage_guard_inv = createMainMenu("Mage Guard", false, true, false);
+anna_inv = createMainMenu("Anna", false, true, false, false);
+farmer_inv = createMainMenu("Farmer", true, true, false, false);
+fisher_inv = createMainMenu("Fisher", true, false, false, false);
+miner_inv = createMainMenu("Miner", true, true, false, false);
+baker_inv = createMainMenu("Baker", true, false, false, false);
+alena_inv = createMainMenu("Alena", true, false, false, false);
+mason_inv = createMainMenu("Mason", true, false, false, false);
+priest_inv = createMainMenu("Priest", true, false, false, false);
+mage_inv = createMainMenu("Mage", true, false, true, false);
+lumberjack_inv = createMainMenu("Lumberjack", true, true, true, false);
+butcher_inv = createMainMenu("Butcher", true, false, false, true);
+librarian_inv = createMainMenu("Librarian", true, false, false, false);
+nether_inv = createMainMenu("Nether Merchant", true, false, false, false);
+diver_inv = createMainMenu("Diver", true, false, false, false);
+mage_guard_inv = createMainMenu("Mage Guard", false, true, false, false);
 
 msg.string("dev", "§bHumans §rloaded.");
 @main
@@ -70,7 +71,7 @@ if(entity_name == "Farmer") {
 }
 goto("main");
 
-function createMainMenu(inv_name, market, quests, skills) {
+function createMainMenu(inv_name, market, quests, skills, challenges) {
 	inv = inv.new("222222222", text.new(inv_name));
 	index = 0;
 	if(market) {
@@ -81,6 +82,9 @@ function createMainMenu(inv_name, market, quests, skills) {
 	}
 	if(skills) {
 		inv.setItem(inv, index++, $scroll);
+	}
+	if(challenges) {
+		inv.setItem(inv, index++, $spyglass);
 	}
 	return inv;
 }

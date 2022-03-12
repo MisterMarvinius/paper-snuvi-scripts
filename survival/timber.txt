@@ -24,7 +24,7 @@ msg.string("dev", "§bTimber §rloaded.");
 wait();
 loc = entity.getLocation(player);
 world_name = world.getName(loc.getWorld(loc));
-if(world.isCreativeName(world_name)) {
+if(!world.isSurvName(world_name)) {
 	goto("wait");
 }
 if(event == "block_break") {

@@ -1,0 +1,83 @@
+//event.load("projectile_hit");
+event.load("block_click");
+
+arrow_material = material.get("ARROW");
+
+@wait
+wait();
+if(action != "RIGHT_CLICK_AIR"){
+	goto("wait");
+}
+player_name = player.getName(player);
+if(player_name == "SirTerence7" || player_name == "marvinius" || player_name == "Mareeeen" || player_name == "fireeagle013"){
+}else{
+	goto("wait");
+}
+equip = living.getEquip(player, hand);
+Item_Type = item.getType(equip);
+if(Item_Type == arrow_material){	
+	arrow = living.shootProjectile(player, "org.bukkit.entity.AbstractArrow");
+	a = 0;
+	shooter_loc = entity.getLocation(player);
+	hit_loc = entity.getLocation(arrow);
+	sgoto(5,"pull");
+}
+goto("wait");
+
+@pull
+a++;
+if(a < 50 && loc.distance(shooter_loc, hit_loc) > 0.1 && loc.getWorld(shooter_loc) == loc.getWorld(hit_loc)){
+	if(arrow == null){
+		goto("wait");
+	}
+	shooter_loc = entity.getLocation(player);
+	hit_loc = entity.getLocation(arrow);
+	entity.teleport(player, hit_loc);
+	entity.setMotion(player, (loc.getX(hit_loc)-loc.getX(shooter_loc))/10, (loc.getY(hit_loc)-loc.getY(shooter_loc)-0.2)/10, (loc.getZ(hit_loc)-loc.getZ(shooter_loc))/10);
+	sgoto(5,"pull");
+}
+else{
+	entity.setGravity(player, true);
+	goto("wait");
+}
+goto("wait");
+/*
+if(shooter == null) {
+	goto("wait");
+}
+if(!isPlayer(shooter)){
+	goto("wait");
+}
+shooter_name = player.getName(shooter);
+if(shooter_name == "SirTerence7"){
+}else{
+	goto("wait");
+}
+if(entity_hit != null){
+	hit_loc = entity.getLocation(entity_hit);
+}
+elseif(block_hit != null){
+	hit_loc = block.getLocation(block_hit);
+}else{
+	goto("wait");
+}
+shooter_loc = entity.getLocation(shooter);
+a = 0;
+entity.setGravity(shooter, false);
+p = shooter;
+goto("pull");
+
+goto("wait");
+
+@pull
+a++;
+shooter_loc = entity.getLocation(p);
+if(a < 50 && loc.distance(shooter_loc, hit_loc) > 2 && loc.getWorld(shooter_loc) == loc.getWorld(hit_loc)){
+	entity.setMotion(p, (loc.getX(hit_loc)-loc.getX(shooter_loc))/10, (loc.getY(hit_loc)-loc.getY(shooter_loc)-0.2)/10, (loc.getZ(hit_loc)-loc.getZ(shooter_loc))/10);
+	sgoto(5,"pull");
+}
+else{
+	entity.setGravity(p, true);
+	goto("wait");
+}
+goto("wait");*/

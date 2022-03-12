@@ -8,7 +8,7 @@ function stage.increase(player) {
 
 function quest.start(player, path) {
 	modTimer(-45);
-	script = script.start(path, "utils/u_quest", "utils/u_general");
+	script = script.start(path, "utils/u_quest", "utils/u_general", "utils/u_questerror");
 	if(script == null) {
 		snuvi.debug("quest not started");
 		return;
@@ -28,6 +28,17 @@ function player.unlockedLumberjack(player_or_id) {
 function player.unlockLumberjack(player_or_id) {
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "skillshop.lumberjack", true);
+	config.saveAsync(config);
+}
+
+function player.unlockedMage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "skillshop.mage", false);
+}
+
+function player.unlockMage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "skillshop.mage", true);
 	config.saveAsync(config);
 }
 

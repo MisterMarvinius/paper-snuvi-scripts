@@ -52,12 +52,14 @@ script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general
 //script.startNamed("Loom", "utils/u_error", "survival/loom", "utils/u_general");
 //script.startNamed("Lectern", "utils/u_error", "survival/lectern", "utils/u_general");
 script.startNamed("Mobarena", "utils/u_error", "survival/mobarena", "utils/u_general");
+script.startNamed("Challenges", "utils/u_error", "survival/challenges", "utils/u_general");
+script.startNamed("AllEntities", "utils/u_error", "challenges/all_entities", "utils/u_general");
 script.startNamed("TicTacToe", "utils/u_error", "minigames/tictactoe/tictactoe", "utils/u_general");
 script.startNamed("TipLoop", "utils/u_error", "system/tiploop", "utils/u_general");
 script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
 
 whitelist.disable();
-setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.1§f]\n§fJetzt auf §c1.18.1 §fund §cohne Mod§f!");
+setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.1§f]\n§cMentorMentos §7- §bCommunity Server");
 
 error.setConsolePrint(false);
 term();

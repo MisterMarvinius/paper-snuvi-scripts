@@ -139,7 +139,7 @@ if(action == "RIGHT_CLICK_BLOCK") {
 	cancel = true;
 	if(block_type == pumpkin_mat && item_type == shears_mat) {
 		block_loc = block.getLocation(block);
-		item.drop(block_loc, carved_pumpkin);
+		item.drop(carved_pumpkin, block_loc);
 	}
 }
 goto("wait");
@@ -347,7 +347,7 @@ while(hasNext(iter)) {
 	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
 	//money.addBoost(player, yetfound / 2);
 }
-@player_logout
+@player_quit
 @player_giveup
 script = script.getFromId(script_id);
 iter = iterator(player_blocks_placed);

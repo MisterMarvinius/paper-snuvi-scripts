@@ -96,6 +96,7 @@ function setCommandHelps() {
 	
 	help = command.newHelp("start", "start");
 	command.addHelpChild(help, command.newHelpLiteral("ai"));
+	command.addHelpChild(help, command.newHelpLiteral("challenges"));
 	command.addHelpChild(help, command.newHelpLiteral("chat"));
 	command.addHelpChild(help, command.newHelpLiteral("commands"));
 	command.addHelpChild(help, command.newHelpLiteral("copyisland"));
@@ -156,8 +157,8 @@ function setCommandHelps() {
 	helpArg0 = command.newHelpLiteral("showfields");
 	command.addHelpChild(helpArg0, command.newHelpString("table", false));
 	command.addHelpChild(help, helpArg0);
-	//databank showdataypes <table>
-	helpArg0 = command.newHelpLiteral("showdataypes");
+	//databank showdatatypes <table>
+	helpArg0 = command.newHelpLiteral("showdatatypes");
 	command.addHelpChild(helpArg0, command.newHelpString("table", false));
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
@@ -638,7 +639,9 @@ function setCommandHelps() {
 	
 	help = command.newHelp("world", "world");
 	//world info
-	command.addHelpChild(help, command.newHelpLiteral("info"));
+	helpArg0 = command.newHelpLiteral("info");
+	command.addHelpChild(helpArg0, command.newHelpString("world", false));
+	command.addHelpChild(help, helpArg0);
 	//world tp <world> [player]
 	helpArg0 = command.newHelpLiteral("tp");
 	helpArg1 = command.newHelpString("world", false);
@@ -894,6 +897,10 @@ function setCommandHelps() {
 	helpArg0 = command.newHelpLiteral("leave");
 	command.addHelpChild(helpArg0, command.newHelpString("message", true));
 	command.addHelpChild(help, helpArg0);
+	//setmessage death <message>
+	helpArg0 = command.newHelpLiteral("death");
+	command.addHelpChild(helpArg0, command.newHelpString("message", true));
+	command.addHelpChild(help, helpArg0);
 	//setmessage delete <player>
 	helpArg0 = command.newHelpLiteral("delete");
 	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "setmessage.delete"));
@@ -1051,7 +1058,9 @@ function addHomeHelp(command) {
 	command.addHelpChild(help, helpArg0);
 	//home delete
 	helpArg0 = command.newHelpLiteral("delete");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
+	helpArg1 = command.newHelpString("name", false);
+	command.addHelpChild(helpArg1, command.newHelpSpecial("Player", "player", "home.other"));
+	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	//home list
 	helpArg0 = command.newHelpLiteral("list");

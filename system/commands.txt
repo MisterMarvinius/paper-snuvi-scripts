@@ -465,6 +465,7 @@ set.add(consoleCommands, "unban");
 set.add(consoleCommands, "unmute");
 set.add(consoleCommands, "user");
 set.add(consoleCommands, "warn");
+set.add(consoleCommands, "world");
 
 databank.workerExecute(databank.prepare("
 	CREATE TABLE IF NOT EXISTS friends (
@@ -1175,6 +1176,11 @@ if(event == "snuvi_click") {
 			player.setTipLoop(player, new_value);
 			inv.setItem(inv, inv_slot, item.create("minecraft:oak_sign", 1, "§fShow tip loop", item.createLore(new_value)));
 		}
+		elseif(inv_slot == 7) {
+			new_value = !player.usesCustomMessage(player);
+			player.activateCustomMessage(player, new_value);
+			inv.setItem(inv, inv_slot, item.create("minecraft:oak_sign", 1, "§fUse custom messages", item.createLore(new_value)));
+		}
 	}
 	goto("wait");
 }
@@ -1292,6 +1298,7 @@ inv.setItem(inv, 3, item.create("minecraft:oak_stairs", 1, "§fStair-Sitting", i
 inv.setItem(inv, 4, item.create("minecraft:iron_sword", 1, "§fPvP", item.createLore(hasPvpOn(player))));
 inv.setItem(inv, 5, item.create("minecraft:bone", 1, "§fNo Pet Damage", item.createLore(player.getNoPetDamage(player))));
 inv.setItem(inv, 6, item.create("minecraft:oak_sign", 1, "§fShow tip loop", item.createLore(player.getTipLoop(player))));
+inv.setItem(inv, 7, item.create("minecraft:oak_sign", 1, "§fUse custom messages", item.createLore(player.usesCustomMessage(player))));
 inv.open(inv, player);
 goto("wait");
 
@@ -1988,8 +1995,9 @@ goto("partyhelp");
 if(size == 0) {
 	@setmessagehelp
 	msg.prefix(player, prefix_commands, "/setmessage ...");
-	msg.string(player, "§e- join <message> §rSets your joinmessage");
-	msg.string(player, "§e- leave <message> §rSets your leavemessage");
+	msg.string(player, "§e- join <message> §rSets your join message");
+	msg.string(player, "§e- leave <message> §rSets your leave message");
+	msg.string(player, "§e- death <message> §rSets your death message");
 	msg.string(player, "§e- info §rShows you set messages");
 	if(perm.has("setmessage.delete", player)) {
 		msg.string(player, "§e- delete <player> §rDeletes a players messages");
@@ -1998,6 +2006,11 @@ if(size == 0) {
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "info") {
+	if(player.usesCustomMessage(player)) {
+		msg.prefix(player, prefix_commands, "Custom messages are activated.");
+	} else {
+		msg.prefix(player, prefix_commands, "Custom messages are deactivated. /settings");
+	}
 	fullname = player.getFullName(player);
 	message = player.getJoinMessage(player);
 	if(message == null) {
@@ -2011,6 +2024,12 @@ if(arg0 == "info") {
 	} else {
 		msg.prefix(player, prefix_commands, string.concat("§c§l> §r", fullname, " §9", message));
 	}
+	message = player.getDeathMessage(player);
+	if(message == null) {
+		msg.prefix(player, prefix_commands, "No death message set.");
+	} else {
+		msg.prefix(player, prefix_commands, string.concat("§0§lx §r", fullname, " §9", message));
+	}
 	goto("wait");
 }
 if(arg0 == "join") {
@@ -2019,7 +2038,7 @@ if(arg0 == "join") {
 	}
 	message = string.concatList(args, " ", 1, size - 1);
 	player.setJoinMessage(player, message);
-	msg.prefix(player, prefix_commands, "Join-Message set.");
+	msg.prefix(player, prefix_commands, "Join message set.");
 	goto("wait");
 }
 if(arg0 == "leave") {
@@ -2028,7 +2047,16 @@ if(arg0 == "leave") {
 	}
 	message = string.concatList(args, " ", 1, size - 1);
 	player.setLeaveMessage(player, message);
-	msg.prefix(player, prefix_commands, "Leave-Message set.");
+	msg.prefix(player, prefix_commands, "Leave message set.");
+	goto("wait");
+}
+if(arg0 == "death") {
+	if(size < 2) {
+		goto("setmessagehelp");
+	}
+	message = string.concatList(args, " ", 1, size - 1);
+	player.setDeathMessage(player, message);
+	msg.prefix(player, prefix_commands, "Death message set.");
 	goto("wait");
 }
 if(arg0 == "delete") {
@@ -2310,7 +2338,9 @@ if(arg0 == "see") {
 			continue;
 		}
 		q_name = script.getVar(script, "quest_name");
-		msg.string(player, string.concat( "§d- §r", player.getName(key), " ", string.number(value), " ", q_name));
+		stage = script.getVar(script, "stage");
+		all_stages = script.getVar(script, "all_stages");
+		msg.string(player, string.concat( "§d- §r", player.getName(key), " ", string.number(value), " ", q_name, " (", string.number(stage), "/", string.number(all_stages), ")"));
 	}
 	goto("wait");
 }
@@ -3956,12 +3986,25 @@ if(size != 1) {
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 modTimer(-500);
-if(arg0 == "ai") {
-	script = script.get("Ai");
+if(arg0 == "chat") {
+	script = script.get("Chat");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Ai", "system/ai", "utils/u_general");
+	script.startNamed("Chat", "utils/u_error", "system/chat", "utils/u_general");
+}
+elseif(arg0 == "challenges") {
+	script = script.get("Challenges");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("Challenges", "utils/u_error", "survival/challenges", "utils/u_general");
+	
+	script = script.get("AllEntities");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("AllEntities", "utils/u_error", "challenges/all_entities", "utils/u_general");
 }
 elseif(arg0 == "commands") {
 	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_cmdhelp", "utils/u_skills");
@@ -3970,13 +4013,6 @@ elseif(arg0 == "commands") {
 		goto("wait");
 	}
 	script.term(script.get());
-}
-elseif(arg0 == "chat") {
-	script = script.get("Chat");
-	if(script != null) {
-		script.term(script);
-	}
-	script.startNamed("Chat", "utils/u_error", "system/chat", "utils/u_general");
 }
 elseif(arg0 == "copyisland") {
 	script = script.get("Copyisland");
@@ -6691,11 +6727,12 @@ if(size == 0) {
 	@homesyntax
 	msg.prefix(player, prefix_commands, "/home ...");
 	msg.string(player, "§6 - set <name> §rSets a home");
-	msg.string(player, "§6 - delete <name> §rDeletes a home");
 	if(perm.has("home.other", player)) {
+		msg.string(player, "§6 - delete <name> [player] §rDeletes a home");
 		msg.string(player, "§6 - list [player] §rLists all homes");
 		msg.string(player, "§6 - <name> [player] §rTeleports to a home");
 	} else {
+		msg.string(player, "§6 - delete <name> §rDeletes a home");
 		msg.string(player, "§6 - list §rLists your homes");
 		msg.string(player, "§6 - <name> §rTeleports to your home");
 	}
@@ -6706,10 +6743,24 @@ if(arg0 == "del" || arg0 == "delete") {
 	if(size < 2) {
 		goto("homesyntax");
 	}
-	player_id = player.getId(player);
+	if(size == 2) {
+		player_id = player.getId(player);
+	} else {
+		if(!perm.has("home.other", player)) {
+			perm.no("home.other", player);
+			goto("wait");
+		}
+		p_name = string.toLowerCase(list.getIndex(args, 2));
+		p_uuid = player.getUuid(p_name);
+		if(p_uuid == null) {
+			msg.prefix(player, prefix_commands, "This player has never been online.");
+			goto("wait");
+		}
+		player_id = player.getId(p_uuid);
+	}
 	name = string.toLowerCase(list.getIndex(args, 1));
 	if(!home.exists(player_id, name)) {
-		msg.prefix(player, prefix_commands, string.concat("Home ", name, "doesn´t exist."));
+		msg.prefix(player, prefix_commands, string.concat("Home ", name, " doesn´t exist."));
 		goto("wait");
 	}
 	home.delete(player_id, name);
@@ -7202,7 +7253,7 @@ if(size == 0) {
 	msg.prefix(player, prefix_commands, "/databank...");
 	msg.string(player, "§6 - showtables §rShows all tables");
 	msg.string(player, "§6 - showfields §rShows fields from a table");
-	msg.string(player, "§6 - showdataypes §rShows dataypes from a table");
+	msg.string(player, "§6 - showdatatypes §rShows dataypes from a table");
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -7235,9 +7286,9 @@ if(arg0 == "showfields") {
 	}
 	goto("wait");
 }
-if(arg0 == "showdataypes") {
+if(arg0 == "showdatatypes") {
 	if(size < 2) {
-		msg.prefix(player, prefix_commands, "/databank showdataypes <table>");
+		msg.prefix(player, prefix_commands, "/databank showdatatypes <table>");
 		goto("wait");
 	}
 	table = list.getIndex(args, 1);
@@ -8419,38 +8470,59 @@ goto("wait");
 @world
 if(size == 0) {
 	@world_syntax
-	msg.prefix(player, prefix_world, "/world ...");
-	msg.string(player, "§b - info §rShows info about a world");
-	msg.string(player, "§b - tp <world> [player] §rTeleports a player to a world");
-	msg.string(player, "§b - list §rShows all loaded worlds");
-	msg.string(player, "§b - setspawn §rSets the spawn of a world");
-	msg.string(player, "§b - diffi <world> <diffi> §rSets the difficulty of a world");
+	msg.prefix(sender, prefix_world, "/world ...");
+	msg.string(sender, "§b - info [world] §rShows info about a world");
+	msg.string(sender, "§b - tp <world> [player] §rTeleports a player to a world");
+	msg.string(sender, "§b - list §rShows all loaded worlds");
+	msg.string(sender, "§b - setspawn §rSets the spawn of a world");
+	msg.string(sender, "§b - diffi <world> <diffi> §rSets the difficulty of a world");
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "info") {
-	msg.string(player, string.getSpacer());
-	world = loc.getWorld(entity.getLocation(player));
-	msg.string(player, string.concat("§6World: §r", world.getName(world)));
-	msg.string(player, string.concat("§6Thunder: §r", world.hasThunder(world)));
-	msg.string(player, string.concat("§6Rain: §r", world.hasRain(world)));
+	if(size == 1) {
+		if(!isPlayer(sender)) {
+			msg.string(sender, "Not possible on console.");
+			goto("wait");
+		}
+		world = loc.getWorld(entity.getLocation(player));
+	} else {
+		worldname = list.getIndex(args, 1);
+		world = world.get(worldname);
+		if(world == null) {
+			msg.prefix(sender, prefix_world, "This world is not loaded.");
+			goto("wait");
+		}
+	}
+	msg.string(sender, string.getSpacer());
+	msg.string(sender, string.concat("§6World: §r", world.getName(world)));
+	msg.string(sender, string.concat("§6Thunder: §r", world.hasThunder(world)));
+	msg.string(sender, string.concat("§6Rain: §r", world.hasRain(world)));
+	chunks = world.getLoadedChunks(world);
+	forced = 0;
+	for(i = 0; i < array.getSize(chunks); i++) {
+		if(world.isForceLoadedChunk(chunks[i])) {
+			forced++;
+		}
+	}
+	msg.string(sender, string.concat("§6Chunks: §r", string.number(forced), "/", string.number(array.getSize(chunks))));
 	time = world.getTime(world);
 	while(time >= 24000) {
 		time -= 24000;
 	}
-	msg.string(player, string.concat("§6Time: §r", string.number(time)));
+	msg.string(sender, string.concat("§6Time: §r", string.number(time)));
 	goto("wait");
 }
 if(arg0 == "tp") {
 	if(size < 2 || size > 3) {
-		msg.prefix(player, prefix_world, "/world tp <world> [player]");
+		msg.prefix(sender, prefix_world, "/world tp <world> [player]");
 		goto("wait");
 	}
 	if(size >= 2) {
 		world_name = string.toLowerCase(list.getIndex(args, 1));
 		world = world.get(world_name);
 		if(world == null) {
-			msg.prefix(player, prefix_world, "This world is not loaded.");
+			msg.prefix(sender, prefix_world, "This world is not loaded.");
 			goto("wait");
 		}
 	}
@@ -8458,22 +8530,26 @@ if(arg0 == "tp") {
 		p_name = list.getIndex(args, 2);
 		p = read.player(p_name);
 		if(p == null) {
-			msg.prefix(player, prefix_world, "This player is not online.");
+			msg.prefix(sender, prefix_world, "This player is not online.");
 			goto("wait");
 		}
 	} else {
-		p = player;
+		if(!isPlayer(sender)) {
+			msg.string(sender, "Not possible on console.");
+			goto("wait");
+		}
+		p = sender;
 	}
 	if(!player.canTeleport(p)) {
 		if(size == 3) {
-			msg.prefix(player, prefix_commands, "This player can´t be teleported now.");
+			msg.prefix(sender, prefix_commands, "This player can´t be teleported now.");
 			goto("wait");
 		}
-		msg.prefix(player, prefix_commands, "You can´t teleport now.");
+		msg.prefix(sender, prefix_commands, "You can´t teleport now.");
 		goto("wait");
 	}
-	if(player != p) {
-		msg.prefix(player, prefix_world, string.concat(player.getName(p), " was teleported to the spawn of the world ", world_name, "."));
+	if(sender != p) {
+		msg.prefix(sender, prefix_world, string.concat(player.getName(p), " was teleported to the spawn of the world ", world_name, "."));
 	}
 	if(world_name == "games") {
 		loc = world.getGamesSpawn();
@@ -8486,39 +8562,43 @@ if(arg0 == "tp") {
 	goto("wait");
 }
 if(arg0 == "list") {
-	msg.prefix(player, prefix_world, "Loaded worlds:");
+	msg.prefix(sender, prefix_world, "Loaded worlds:");
 	worldlist = world.getAll();
 	for(i = 0; i < list.getSize(worldlist); i++) {
-		msg.string(player, string.concat(" - ", world.getName(list.getIndex(worldlist, i))));
+		msg.string(sender, string.concat(" - ", world.getName(list.getIndex(worldlist, i))));
 	}
-	msg.string(player, string.getSpacer());
+	msg.string(sender, string.getSpacer());
 	goto("wait");
 }
 if(arg0 == "setspawn") {
-	location = entity.getLocation(player);
+	if(!isPlayer(sender)) {
+		msg.string(sender, "Not possible on console.");
+		goto("wait");
+	}
+	location = entity.getLocation(sender);
 	world = loc.getWorld(location);
 	world.setSpawn(location, world);
-	msg.prefix(player, prefix_world, string.concat("New spawn of the world ", world.getName(world), " set."));
+	msg.prefix(sender, prefix_world, string.concat("New spawn of the world ", world.getName(world), " set."));
 	goto("wait");
 }
 if(arg0 == "diffi") {
 	if(size != 3) {
-		msg.prefix(player, prefix_world, "/world diffi <world> <diffi>");
+		msg.prefix(sender, prefix_world, "/world diffi <world> <diffi>");
 		goto("wait");
 	}
 	worldname = list.getIndex(args, 1);
 	world = world.get(worldname);
 	if(world == null) {
-		msg.prefix(player, prefix_world, "This world is not loaded.");
+		msg.prefix(sender, prefix_world, "This world is not loaded.");
 		goto("wait");
 	}
 	diffi_string = list.getIndex(args, 2);
 	if(!(diffi_string == "PEACEFUL" || diffi_string == "EASY" || diffi_string == "NORMAL" || diffi_string == "HARD")) {
-		msg.prefix(player, prefix_world, "False input.");
+		msg.prefix(sender, prefix_world, "False input.");
 		goto("wait");
 	}
 	world.setDifficulty(world, diffi_string);
-	msg.prefix(player, prefix_world, "Difficulty changed.");
+	msg.prefix(sender, prefix_world, "Difficulty changed.");
 	goto("wait");
 }
 goto("world_syntax");

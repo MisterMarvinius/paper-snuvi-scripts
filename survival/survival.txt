@@ -78,10 +78,13 @@ inv.setItem(casino_inv, 6, item.custom.create("COPPER_COIN", 1, "§fLottery", lo
 
 bankmenu = inv.new("222200000", text.new("Banker"));
 bankinvid = inv.getId(bankmenu);
-inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", null));
-inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 Snuvis", null));
-inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null));
-inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll Snuvis", null));
+lore_list = list.new();
+list.add(lore_list, text.new("§aLeftclick §f= §eWithdraw"));
+list.add(lore_list, text.new("§cRightclick §f= §eDeposit"));
+inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", lore_list));
+inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 Snuvis", lore_list));
+inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", lore_list));
+inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll Snuvis", lore_list));
 
 msg.string("dev", "§bSurvival §rloaded.");
 @wait

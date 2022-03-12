@@ -4,5 +4,5 @@ if(script_id != null) {
 	minigame.msgAll("§cThere was an error in the game.");
 	minigame.kickAllPlayers(script_id);
 }
-snuvi.debug("Script terminated. Minigame.");
+snuvi.debug("Script terminated (Minigame).");
 term();

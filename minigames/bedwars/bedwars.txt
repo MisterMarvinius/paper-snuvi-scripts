@@ -50,6 +50,8 @@ custom_gold = item.custom.get("GOLD_COIN");
 coin_copper = item.custom.create("COPPER_COIN", 1, null, null);
 coin_silver = item.custom.create("SILVER_COIN", 1, null, null);
 coin_gold = item.custom.create("GOLD_COIN", 1, null, null);
+iron_block_mat = material.get("IRON_BLOCK");
+cobweb_mat = material.get("COBWEB");
 glowstone_dust_mat = material.get("GLOWSTONE_DUST");
 glowstone_dust = item.new(glowstone_dust_mat);
 warp_powder_mat = material.get("GUNPOWDER");
@@ -400,7 +402,7 @@ if(click == "SHIFT_LEFT") {
 	item = item.clone(item);
 	item.setAmount(item, item.getAmount(item) * factor);
 }
-item.removeFlag(priceitem, "HIDE_DESTROYS");
+item.removeFlag(item, "HIDE_DESTROYS");
 player.safeGiveItem(player, item);
 goto("checkgame");
 
@@ -497,7 +499,7 @@ goto("checkgame");
 item = item.entity.get(item_entity);
 if(item.hasTag(item, bed_tag2)) {
 	cancel = true;
-	entity.remove(entity);
+	entity.remove(item_entity);
 }
 goto("checkgame");
 
@@ -689,16 +691,16 @@ goto("checkgame");
 cancel = true;
 block_loc = block.getLocation(block);
 block_type = block.getType(block);
-if(block_type == "minecraft:cobweb") {
+if(block_type == cobweb_mat) {
 	block.setMaterial(block, air);
 } elseif(block.hasTag(block, bed_tag)) {
 	goto("breakbed");
-} elseif(block_type == "minecraft:iron_block") {
+} elseif(block_type == iron_block_mat) {
 	player_item_type = item.getType(living.getEquip(player, "hand"));
 	if(player_item_type == "minecraft:stone_pickaxe" || player_item_type == "minecraft:iron_pickaxe") {
 		cancel = false;
 	}
-} elseif(block_type == "minecraft:string") {
+} elseif(block_type == tripwire_mat) {
 	cancel = false;
 } elseif(list.contains(placedblocks, block)) {
 	cancel = false;
@@ -720,9 +722,14 @@ location2 = loc.mod(location, 0, 1, 0);
 block2 = block.get(location2);
 block_type = block.getType(block);
 block_type2 = block.getType(block2);
-while(!(block.isAir(block) && block.isAir(block2))) {
-	loc.add(location, 0, 1, 0);
-	loc.add(location2, 0, 1, 0);
+c = 0;
+while(!((block.isAir(block) || block_type == cobweb_mat || block_type == tripwire_mat) && (block.isAir(block2) || block_type2 == cobweb_mat || block_type2 == tripwire_mat))) {
+	block = block.mod(block, 0, 1, 0);
+	block2 = block.mod(block2, 0, 1, 0);
+	location = block.getLocation(block);
+	if(loc.getY(location) > 300) {
+		break;
+	}
 }
 entity.teleport(player, location);
 goto("checkgame");
@@ -765,7 +772,7 @@ goto("checkgame");
 
 @living_death
 map.add(deaths, player_name, map.get(deaths, player_name) + 1);
-player.clearInventory(player);
+list.clear(drops);
 tempmap = map.get(lastdamagers, player);
 if(tempmap != null) {
 	nowtime = time.getMillis();

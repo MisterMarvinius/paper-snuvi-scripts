@@ -983,6 +983,7 @@ function string.getTextWithLink(string) {
 		text_link = string.getLinkText(string_link, string_link);
 		return text.merge(text.new(msg_before), text_link, text.new(msg_after));
 	}
+	return text.new(string);
 }
 
 function string.intelligentSplit(string) {
@@ -1092,7 +1093,7 @@ function quest.finish(script, player) {
 }
 
 function quest.finishReward(script, player, reward) {
-	msg.string(player, string.concat("§dQuest finished. Reward: ", money.getString(reward)));
+	msg.string(player, string.concat("§dQuest finished. §rReward: ", money.getString(reward)));
 	money.addBoost(player, reward);
 	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
 	category = sound.getCategory("MASTER");
@@ -1348,7 +1349,7 @@ function msg.team(from, string) {
 			if(player.isLive(p)) {
 				msg(p, text.merge(text.new(string.concat(string.getPrefix("§4Team"), " ", from_name, ": ")), string.getHoverText("§7§oHidden", string)));
 			} else {
-				msg.prefix(p, "§4Team", string.concat("§c", from_name, "§r: ", string));
+				msg.prefix(p, "§4Team", string.getTextWithLink(string.concat("§c", from_name, "§r: ", string)));
 			}
 		}
 	}
@@ -1395,7 +1396,11 @@ function msg.send(from_player, to_name, prefix, message, send_mail) {
 }
 
 function msg.prefix(receiver, prefix, message) {
-	msg.string(receiver, string.concat(string.getPrefix(prefix), " ", message));
+	if(isString(message)) {
+		msg.string(receiver, string.concat(string.getPrefix(prefix), " ", message));
+	} else {
+		msg(receiver, text.merge(text.new(string.concat(string.getPrefix(prefix), " ")), message));
+	}
 }
 
 function msg.online(prefix, message) {
@@ -1675,6 +1680,32 @@ function player.getLeaveMessage(player_or_id) {
 function player.setLeaveMessage(player_or_id, message) {
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "message.leave", message);
+	config.saveAsync(config);
+}
+
+function player.getDeathMessage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	temp = config.getString(config, "message.death", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function player.setDeathMessage(player_or_id, message) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "message.death", message);
+	config.saveAsync(config);
+}
+
+function player.usesCustomMessage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "message.use", true);
+}
+
+function player.activateCustomMessage(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "message.use", boolean);
 	config.saveAsync(config);
 }
 
@@ -2323,11 +2354,10 @@ function block.mod(block, x, y, z) {
 }
 
 function block.gotWater(block) {
-	block_type = block.getType(block);
-	if(block_type == material.get("WATER")) {
-		return true;
+	if(block.canHaveWater(block)) {
+		return block.isWaterlogged(block);
 	}
-	return block.isWaterlogged(block);
+	return false;
 }
 
 //--------------------------------------------------
@@ -3194,7 +3224,9 @@ function perm.removeGroupFromPlayer(player_id, perm_id) {
 	
 	player_uuid = player.getUuidFromId(player_id);
 	player = player.get(player_uuid);
-	perm.unloadGroupFromPlayer(perm_id, player);
+	if(player != null) {
+		perm.unloadGroupFromPlayer(perm_id, player);
+	}
 }
 
 function perm.simUser(player) {
@@ -3999,4 +4031,43 @@ function icon.getHalfHeart() {
 
 function icon.getEmptyHeart() {
 	return string.fromCode(63500);
+}
+
+//--------------------------------------------------
+//Challenge-Utils
+//--------------------------------------------------
+
+function challenge.display(player, challenge, message) {
+	sb.add(player, 11, string.concat("§a", challenge, ": ", message));
+}
+
+function challenge.removeDisplay(player) {
+	sb.remove(player,  11);
+}
+
+function player.resetChallenge(player_or_id) {
+	player.setChallenge(player_or_id, null);
+}
+
+function player.setChallenge(player_or_id, challenge) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "challenge", challenge);
+	config.saveAsync(config);
+}
+
+function player.getChallenge(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	cha = config.getString(config, "challenge", "null");
+	if(cha == "null") {
+		return null;
+	}
+	return cha;
+}
+
+function player.hasChallenge(player_or_id) {
+	return player.getChallenge(player_or_id) != null;
+}
+
+function challenge.playerHas(player_or_id, challenge) {
+	return player.getChallenge(player_or_id) == challenge;
 }

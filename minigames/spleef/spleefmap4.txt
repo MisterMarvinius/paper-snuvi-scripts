@@ -1,0 +1,16 @@
+minplayers = 2;
+maxplayers = 4;
+mapname = "QR Code";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 1011.5, 88, 923.5);
+gamesignloc = minigame.getSignLoc("spleefsign4");
+
+spleef_list = list.new();
+list.add(spleef_list, material.get("white_concrete"));
+list.add(spleef_list, material.get("black_concrete"));
+
+startlocs = list.new();
+list.add(startlocs, loc.new(gamesworld, 995, 101, 1995));
+list.add(startlocs, loc.new(gamesworld, 983, 101, 1995));
+list.add(startlocs, loc.new(gamesworld, 983, 101, 1983));
+list.add(startlocs, loc.new(gamesworld, 995, 101, 1983));

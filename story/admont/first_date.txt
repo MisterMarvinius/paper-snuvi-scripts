@@ -15,13 +15,8 @@ writable_book_mat = material.get("writable_book");
 written_book_mat = material.get("written_book");
 book_chest_block = block.get(loc.new(world.getOverworld(), 128, 72, -32));
 
-wusi_p = read.player("kajetanjohannes");
-
 @wait
 wait();
-if(event == "block_break" && player == wusi_p) {
-	msg(player, text.new("Quest: block_break"));
-}
 if(event == "custom_command") {
 	if(!isPlayer(sender)) {
 		goto("wait");

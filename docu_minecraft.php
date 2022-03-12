@@ -4013,7 +4013,7 @@
 	<table>
         <tr>
             <th class="command">world.getLoadedChunks</th>
-            <th class="desc">returns a list with all loaded chunks</th>
+            <th class="desc">returns an array with all loaded chunks</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
