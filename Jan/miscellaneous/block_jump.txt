@@ -1,0 +1,18 @@
+event.load("block_break");
+
+air_material = material.get("AIR");
+
+@wait
+wait();
+if(player.getName(player) != "SirTerence7"){
+	goto("wait");
+}
+block.setMaterial(block, air_material);
+Look_array = entity.getLook(player);
+Fun_Block = "minecraft:sand";
+tag = string.concat("{BlockState:{Name:\"", Fun_Block, "\"},Time:1,Motion:[0.0,0.5,0.0],DropItem:1,HurtEntities:0}");
+block_loc = loc.mod(block.getLocation(block),0.5,0,0.5);
+falling_block_entity = entity.spawn(block_loc, "FALLING_BLOCK", tag);
+entity.setGravity(falling_block_entity, true);
+entity.setMotion(falling_block_entity, Look_array[0], math.abs(Look_array[1]), Look_array[2]);
+goto("wait");

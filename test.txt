@@ -1,3 +1,4 @@
+term();
 f = file.new("scripts/configs/inv_data/backup");
 file.createFolder(f);
 

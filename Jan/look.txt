@@ -1,0 +1,51 @@
+event.load("block_click");
+
+@wait
+wait();
+
+if(player.getName(player) != "SirTerence7"){
+	goto("wait");
+}
+if(action == "PHYSICAL"){
+	goto("wait");
+}
+player_look = entity.getLook(player);
+main_look = entity.getMainLookDirection(player_look);
+msg("dev", text.new(main_look));
+goto("wait");
+
+function entity.getMainLookDirection(look_array){
+	X = look_array[0];
+	Y = look_array[1];
+	Z = look_array[2];
+	X_abs = math.abs(X);
+	Y_abs = math.abs(Y);
+	Z_abs = math.abs(Z);
+	
+	looks_map = map.new();
+	map.add(looks_map, X_abs, 0);
+	map.add(looks_map, Y_abs, 1);
+	map.add(looks_map, Z_abs, 2);
+	
+	main_direction = map.get(looks_map, math.max(math.max(X_abs, Y_abs), Z_abs)); //0=X,1=Y,2=Z
+	
+	if(main_direction == 0){
+		if(X < 0){
+			return "west";
+		}else{
+			return "east";
+		}
+	}elseif(main_direction == 1){
+		if(Y < 0){
+			return "down";
+		}else{
+			return "up";
+		}
+	}elseif(main_direction == 2){
+		if(Z < 0){
+			return "north";
+		}else{
+			return "south";
+		}
+	}
+}

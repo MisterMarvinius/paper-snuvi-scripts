@@ -1,6 +1,11 @@
 event.load("entity_click");
 event.load("snuvi_click");
 
+slot_head = slot.getHead();
+slot_chest = slot.getChest();
+slot_legs = slot.getLegs();
+slot_feet = slot.getFeet();
+
 amber = item.getAmber();
 ruby = item.getRuby();
 sapphire = item.getSapphire();
@@ -8,17 +13,31 @@ air = item.getAir();
 arrow_right = item.custom.create("ARROW_RIGHT", 1, "§fConvert", null);
 prefix_commands = "§6Commands";
 hint_1 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
-hint_2 = item.custom.create("RUBY", 1, "§fGemstone", null);
-item.addFlag(hint_1, "HIDE_ATTRIBUTES");
+hint_2 = item.getRuby();
+hint_3 = item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
+hint_4 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
+hint_5 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
+hint_6 = item.getSapphire();
+hint_7 = item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
+hint_8 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
+hint_9 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
+hint_10 = item.getAmber();
+hint_11 = item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
+hint_12 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
 item.addFlag(hint_2, "HIDE_ATTRIBUTES");
+item.addFlag(hint_3, "HIDE_ATTRIBUTES");
+item.addFlag(hint_6, "HIDE_ATTRIBUTES");
+item.addFlag(hint_10, "HIDE_ATTRIBUTES");
+item.addFlag(hint_11, "HIDE_ATTRIBUTES");
+item.addDefaultTags(hint_4);
+item.addDefaultTags(hint_8);
+item.addDefaultTags(hint_12);
+item.addAttribute(hint_4, "GENERIC_MAX_HEALTH", slot_chest, 2, "ADD_NUMBER");
+item.addAttribute(hint_8, "GENERIC_ARMOR", slot_chest, 1, "ADD_NUMBER");
+item.addAttribute(hint_12, "GENERIC_KNOCKBACK_RESISTANCE", slot_chest, 0.1, "ADD_NUMBER");
 anvil_use = sound.get("BLOCK_ANVIL_USE");
 sc_master = sound.getCategory("MASTER");
 snuvis = 4096;
-
-slot_head = slot.getHead();
-slot_chest = slot.getChest();
-slot_legs = slot.getLegs();
-slot_feet = slot.getFeet();
 
 tag_helmet = item.getTag("km:helmet");
 tag_chestplate = item.getTag("km:chestplate");
@@ -39,10 +58,22 @@ if(event == "entity_click") {
 	if(human_name != "Ludwig") {
 		goto("wait");
 	}
-	inv = inv.new("011020100022000000", text.new("Gemstone-Anvil"));
+	inv = inv.new("011020100022000000022000000022000000", text.new("Gemstone-Anvil"));
 	inv.setItem(inv, 4, arrow_right);
 	inv.setItem(inv, 10, hint_1);
 	inv.setItem(inv, 11, hint_2);
+	inv.setItem(inv, 12, hint_3);
+	inv.setItem(inv, 15, hint_4);
+	
+	inv.setItem(inv, 19, hint_5);
+	inv.setItem(inv, 20, hint_6);
+	inv.setItem(inv, 21, hint_7);
+	inv.setItem(inv, 24, hint_8);
+	
+	inv.setItem(inv, 28, hint_9);
+	inv.setItem(inv, 29, hint_10);
+	inv.setItem(inv, 30, hint_11);
+	inv.setItem(inv, 33, hint_12);
 	inv.open(inv, player);
 	goto("wait");
 }
@@ -98,8 +129,8 @@ if(event == "snuvi_click") {
 		}
 		elseif(item.isAmber(item_1)) {
 			gem = amber;
-			att_type = "GENERIC_MOVEMENT_SPEED";
-			att_amount =  0.02;
+			att_type = "GENERIC_KNOCKBACK_RESISTANCE";
+			att_amount =  0.1;
 		} else {
 			msg.prefix(player, prefix_commands, "Second slot needs to be one Gemstone (Amber, Ruby, ...).");
 			goto("wait");

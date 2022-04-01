@@ -273,7 +273,7 @@ if(own_message == null || player.isNicked(player) || !player.usesCustomMessage(p
 	}	
 } else {
 	own_message = string.replace(own_message, "&", "§");
-	message = text.new(string.concat("§c§l> §r", fullname, " §9", own_message));
+	message = text.new(string.concat(death_prefix, fullname, " §9", own_message));
 }
 msg.survival(message);
 msg.creative(message);

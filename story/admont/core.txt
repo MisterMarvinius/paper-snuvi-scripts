@@ -72,7 +72,6 @@ item = inv.getItem(inv, inv_slot);
 item.removeFlag(item, "HIDE_DESTROYS");
 title_string = string.text(inv_title);
 if(item == quest_book) {
-	//checkAdmontStable();
 	if(player.hasQuest(player)) {
 		msg.prefix(player, prefix_quest, "You already have a quest.");
 		goto("main");
@@ -270,27 +269,3 @@ if(title_string == "Quests: Lumberjack") {
 	goto("main");
 }
 goto("main");
-
-function checkAdmontStable() {
-	list = living.near($stable_loc, 30);
-	size = list.getSize(list);
-	entities = 0;
-	for(i = 0; i < size; i++) {
-		element = list.getIndex(list, i);
-		entity_type = entity.getType(element); 
-		if(entity_type == "cow" || entity_type == "pig" || entity_type == "sheep") {
-			entities++;
-		}
-	}
-	while(entities > 70) {
-		index = math.random(0, size - 1);
-		element = list.getIndex(list, index);
-		entity_type = entity.getType(element); 
-		if(entity_type == "cow" || entity_type == "pig" || entity_type == "sheep") {
-			entity.remove(element);
-			list.removeIndex(list, index);
-			entities--;
-			size--;
-		}
-	}
-}

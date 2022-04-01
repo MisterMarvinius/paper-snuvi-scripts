@@ -1,7 +1,7 @@
 //Hier werden alle Events abgefangen und beeinflusst, je nachdem ob ein Skill aktiv ist oder nicht
 
 //event.load("projectile_hit");
-//event.load("living_death");
+event.load("living_death");
 event.load("block_break");
 //event.load("player_data_tick");
 event.load("snuvi_click");
@@ -10,8 +10,8 @@ prefix_skill = "§2Skill";
 scroll_menu_item = item.custom.create("SCROLL", 1, "§2Skills", null);
 
 setScriptVar("skills", list.new());
-//skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 100, false, false, true, 0, 0, null);
-//skill.add("Comeback", "skill.comeback", "km:skill55", "Respawn at your death location", 100, false, false, true, 0, 0, null);
+skill.add("Keep Inventory", "skill.subcu_inv", "minecraft:chest", "Keeps the inventory on death", 10, false, false, true, 0, 0, null);
+skill.add("Comeback", "skill.comeback", "minecraft:respawn_anchor", "Respawn at your death location with /comeback", 15, false, false, false, 0, 0, null);
 //skill.add("Head Hunter", "skill.head_human", "minecraft:player_head", "Drops a player's head with a 20% chance if you kill a player (5% if a staff member is killed)", 1000, true, false, false, 0, 0, null);
 //skill.add("Mobheads", "skill.head_monster", "minecraft:zombie_head", "Drops a mobs's head with a 20% chance (zombie / skeleton / creeper)", 500, true, false, false, 0, 0, null);
 //skill.add("Fly 10min", "skill.fly10min", "minecraft:elytra", "You can fly for 10 minutes", 500, false, true, false, 0, 0, 600);
@@ -60,10 +60,14 @@ if(item == scroll_menu_item) {
 			goto("wait");
 		}
 		skill.showShop(player, "skill.timber", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-		//skill.showShop(player, "skill.timber", "skill.better_shears", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 		goto("wait");
 	}
 	if(title_string == "Mage") {
+		if(!player.unlockedMage(player)) {
+			msg.prefix(player, prefix_skill, "Skillshop is locked. Do the 'Mage' quest at the 'Mage Guard' first.");
+			goto("wait");
+		}
+		skill.showShop(player, "skill.subcu_inv", "skill.comeback", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 		//skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
 	}
 	goto("wait");

@@ -1,0 +1,103 @@
+world = world.get("world");
+stable_mid_loc = loc.new(world, 137, 75, 6);
+
+grass_block_material = material.get("GRASS_BLOCK");
+air_material = material.get("AIR");
+
+stable_spawn_loc_list = list.new();
+stable.getSpawn_locs(loc.mod(stable_mid_loc, 0, -1, 0));
+spawn_list_size = list.getSize(stable_spawn_loc_list)-1;
+
+/**/
+event.load("player_toggle_sneak");
+
+@wait
+wait();
+if(player.getName(player) != "SirTerence7"){
+	goto("wait");
+}
+else{
+	stable();
+}
+goto("wait");/**/
+
+
+function stable(stable_mid_loc){
+	living_list = living.near(stable_mid_loc, 10);
+	list_iterator = iterator(living_list);
+	
+	cow_count = 0;
+	pig_count = 0;
+	sheep_count = 0;
+	
+	while(hasnext(list_iterator)){
+		living_entity_type = entity.getType(next(list_iterator));
+		if(living_entity_type == "cow"){
+			cow_count++;
+		}elseif(living_entity_type == "pig"){
+			pig_count++;
+		}elseif(living_entity_type == "sheep"){
+			sheep_count++;
+		}
+	}
+	while(cow_count < 4){//cow_max
+		stable.spawn("COW");
+		cow_count++;
+	}
+	while(pig_count < 3){//pig_max
+		stable.spawn("PIG");
+		pig_count++;
+	}
+	while(sheep_count < 5){//sheep_max
+		stable.spawn("SHEEP");
+		sheep_count++;
+	}
+}
+
+function stable.spawn(type){
+	spawn_location = loc.mod(list.getIndex($stable_spawn_loc_list, math.random(0, $spawn_list_size)), 0.5, 0, 0.5);
+	spawned_entity = entity.spawn(spawn_location, type);
+}
+
+function stable.getSpawn_locs(loc){
+	list.add($stable_spawn_loc_list, loc.mod(loc, 0.5, 1, 0.5));
+	$temp_list = list.new();
+	$temp_list2 = list.new();
+	list.add($temp_list, loc);
+	while(list.getSize($temp_list) != 0){
+		block_loc = list.getIndex($temp_list, 0);
+		list.removeIndex($temp_list, 0);
+		distance = loc.distance(block_loc, loc);
+		if(distance < 25){
+			stable.addLoc_if(loc.mod(block_loc,1,0,0));
+			stable.addLoc_if(loc.mod(block_loc,-1,0,0));
+			stable.addLoc_if(loc.mod(block_loc,0,0,1));
+			stable.addLoc_if(loc.mod(block_loc,0,0,-1));
+			
+			stable.addLoc_if(loc.mod(block_loc,1,1,0));
+			stable.addLoc_if(loc.mod(block_loc,-1,1,0));
+			stable.addLoc_if(loc.mod(block_loc,0,1,1));
+			stable.addLoc_if(loc.mod(block_loc,0,1,-1));
+			
+			stable.addLoc_if(loc.mod(block_loc,1,-1,0));
+			stable.addLoc_if(loc.mod(block_loc,-1,-1,0));
+			stable.addLoc_if(loc.mod(block_loc,0,-1,1));
+			stable.addLoc_if(loc.mod(block_loc,0,-1,-1));
+		}
+	}
+}
+
+function stable.addLoc_if(temp_loc){
+	if(!list.contains($temp_list2, temp_loc)){
+		temp_block = block.get(temp_loc);
+		temp_block2 = loc.mod(temp_loc, 0, 1, 0);
+		temp_type1 = block.getType(temp_block);
+		temp_type2 = block.getType(block.get(temp_block2));
+		temp_type3 = block.getType(block.get(loc.mod(temp_block2, 0, 1, 0)));
+		if(temp_type1 == $grass_block_material && temp_type2 == $air_material && temp_type3 == $air_material){
+			list.add($temp_list, temp_loc);
+			list.add($temp_list2, temp_loc);
+			list.add($stable_spawn_loc_list, temp_block2);
+		}
+	}
+}

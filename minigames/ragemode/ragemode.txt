@@ -1,0 +1,601 @@
+//TODO
+/*
+Axt trift Spieler. Axt despawnt. Spieler wird nicht gekilllt.
+*/
+
+event.load("snuvi_click");
+event.load("inv_close");
+event.load("player_drop");
+event.load("projectile_hit");
+
+rankingtable = "rmranks";
+game_short = "rm";
+specific_lobby_handling = true;
+no_core_reset = true;
+
+axes_list = list.new();
+gamename = "§cRageMode";
+no_emerald = false;
+
+gosub("setstart");
+
+times = map.new();
+time = time.getMillis();
+for(i = 0; i < list.getSize(spawns); i++) {
+	map.add(times, list.getIndex(spawns, i), time);
+}
+
+bow = read.item("{id:\"minecraft:bow\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:infinity\"}],display:{Name:'{\"text\":\"§eRageBow\"}'}}}");
+sword = item.create("iron_sword", 1, "§cRageKnife", null);
+axe = item.create("iron_axe", 1, "§bCombatAxe", null);
+chest = item.create("chest", 1, "§7Inventory organisation", null);
+shop_chest = item.create("chest", 1, "§7Shop", null);
+arrow = item.new(material.get("arrow"));
+
+speed = read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:swiftness\"}}");
+item.addFlag(speed, "HIDE_POTION_EFFECTS");
+item.setName(speed, text.new("§eSpeed"));
+lore_list = list.new();
+list.add(lore_list, text.new("§7Doubles your speed"));
+list.add(lore_list, text.new("§rPrice: §a15 Emeralds"));
+item.setLore(speed, lore_list);
+
+lightning = item.new(material.get("blaze_rod"));
+item.setName(lightning, text.new("§eThors Hand"));
+lore_list = list.new();
+list.add(lore_list, text.new("§7Kill your enimies with the help of Thor."));
+list.add(lore_list, text.new("§rPrice: §a30 Emeralds"));
+item.setLore(lightning, lore_list);
+
+shopmenu = inv.new("220000000", text.new("§8Shop"));
+inv.setItem(shopmenu, 0, speed);
+inv.setItem(shopmenu, 1, lightning);
+
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "minigame_join") {
+	resetplayer(player);
+	player.setSaturation(player, 1000000);
+	sb.add(player, 99, gamename);
+	sb.add(player, 98, "§cTeams are forbidden");
+	sb.add(player, 97, string.concat("§eMap: ", mapname));
+	sb.add(player, 96, sb.getSpacer());
+	return;
+}
+if(event == "player_drop") {
+	cancel = true;
+	return;
+}
+if(event == "inv_close") {
+	counter = 0;
+	for(i = 0; i < 9; i++) {
+		if(item.isAir(inv.getItem(inv, i))) {
+			counter++;
+		}
+	}
+	if(counter == 5) {
+		msg.prefix(player, gamename, "§eChanges saved.");
+	} else {
+		saveDefaultInventory(player);
+		msg.prefix(player, gamename, "§eInvalid change. Set to default.");
+	}
+	return;
+}
+if(event == "block_click") {
+	item = living.getHand(player);
+	if(item == chest && action == "RIGHT_CLICK_AIR") {
+		showRmInventory(player);
+	}
+	return;
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+starttime = time.getMillis();
+
+kills = map.new();
+theoretickills = list.new();
+deaths = map.new();
+killstreak = map.new();
+maxkillstreak = map.new();
+messerkills = map.new();
+axekills = map.new();
+emeralds = map.new();
+lastposition = map.new();
+nemesis = map.new();
+
+sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
+wither_sound = sound.get("ENTITY_WITHER_SPAWN");
+sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
+ambient_sound_category = sound.getCategory("AMBIENT");
+
+minigame.displayAll(99, gamename);
+minigame.displayAll(98, "§aGoal: §r25");
+id = 97;
+for(i = 0; i < size; i++) {
+	for_p = player.get(list.getIndex(player_list, i));
+	for_pname = player.getName(for_p);
+	msg.prefix(for_p, gamename, "The game has started.");
+	minigame.displayAll(id, string.concat("0 §8", for_pname));
+	sb.add(for_p, id, string.concat("0 §e", for_pname));
+	id--;
+
+	@position
+	position = list.getIndex(spawns, math.random(0, list.getSize(spawns) - 1));
+	if(time.getMillis() - map.get(times, position) < 5000) {
+		goto("position");
+	}
+	if(map.get(lastposition, for_pname) == position) {
+		goto("position");
+	}
+	map.add(lastposition, for_pname, position);
+	entity.teleport(for_p, position);
+	map.add(times, position, time.getMillis());
+
+	sound.spawnForPlayer(for_p, sound_harp, ambient_sound_category);
+
+	player.setGamemode(for_p, "SURVIVAL");
+	player.setFly(for_p, false);
+	
+	player.clearInventory(for_p);
+	giveRmInventory(for_p);
+	inv.close(for_p);
+	
+	map.add(kills, for_pname, 0);
+	array = array.new(2);
+	array[0] = for_pname;
+	array[1] = 0;
+	list.add(theoretickills, array);
+	map.add(deaths, for_pname, 0);
+	map.add(killstreak, for_pname, 0);
+	map.add(maxkillstreak, for_pname, 0);
+	map.add(messerkills, for_pname, 0);
+	map.add(axekills, for_pname, 0);
+	map.add(emeralds, for_pname, 0);
+}
+minigame.displayAll(id, "Emeralds: §a0");
+sgoto(16800, "lastminute");
+sgoto(18000, "endgame");
+
+minigame.clearItems(middleloc, radius);
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+} elseif(event == "projectile_hit") {
+	if(!isPlayer(shooter)) {
+		goto("wait");
+	}
+	player = shooter;
+}
+if(player.hasMinigameId(player, script_id)) {
+	player_name = player.getName(player);
+	ignoreGoto(event);
+}
+goto("wait");
+
+@projectile_hit
+if(block_hit != null) {
+	if(entity.getType(projectile) == "snowball") {
+		ent = item.drop(axe, entity.getLocation(projectile));
+		list.add(axes_list, ent);
+		sgoto(600, "removeAxes");
+	}
+	goto("wait");
+}
+if(entity_hit != null) {
+	attacker = shooter;
+	entity.remove(projectile);
+	attacker_name = player.getName(attacker);
+	attacker_uuid = player.getUuid(attacker);
+	if(!list.contains(player_list, attacker_uuid)) {
+		snuvi.debug("Ragemode: Illegaler Spieler");
+		goto("wait");
+	}
+	defender = entity_hit;
+	defender_uuid = player.getUuid(defender);
+	if(!list.contains(player_list, defender_uuid)) {
+		snuvi.debug("Ragemode: Kein PlayerEntity oder illegaler Spieler");
+		goto("wait");
+	}
+	defender_name = player.getName(defender);
+	if(defender_uuid == attacker_uuid) {
+		goto("wait");
+	}
+	if(entity.getType(projectile) == "snowball") {
+		goto("axeCore");
+	}
+	goto("wait");
+}
+goto("wait");
+
+@block_click
+player_item = living.getHand(player);
+if(player_item == axe) {
+	ent = living.shootProjectile(player, "org.bukkit.entity.Snowball");
+	item.entity.set(ent, axe);
+	player.removeItem(player, living.getHand(player));
+	goto("wait");
+}
+if(player_item == shop_chest) {
+	cancel = true;
+	inv.open(shopmenu, player);
+}
+goto("wait");
+
+@entity_damage
+cancel = true;
+defender = player;
+defender_name = player.getName(defender);
+defender_uuid = player.getUuid(defender);
+
+if(!list.contains(player_list, defender_uuid)) {
+	msg.prefix(player, gamename, "§eIllegal player in game.");
+	goto("wait");
+}
+attacker = player.getFromDamageSource(damage_source);
+if(attacker == null) {
+	goto("wait");
+}
+attacker_uuid = player.getUuid(attacker);
+if(!player.hasMinigameId(attacker, script_id)) {
+	goto("wait");
+}
+attacker_name = player.getName(attacker);
+if(defender_uuid == attacker_uuid) {
+	goto("wait");
+}
+if(!list.contains(player_list, attacker_uuid)) {
+	msg.prefix(player, gamename, "§eIllegal player in game.");
+	goto("wait");
+}
+attacker_item = living.getHand(attacker);
+if(attacker_item == axe) {
+	player.removeItem(attacker, attacker_item);
+	goto("axeCore");
+} elseif(attacker_item == iron_sword) {
+	map.add(messerkills, attacker_name, map.get(messerkills, attacker_name) + 1);
+} elseif(item.isAir(attacker_item)) {
+	goto("wait");
+}
+msg.prefix(attacker, gamename, string.concat("§eYou killed §8", defender_name, "."));
+msg.prefix(defender, gamename, string.concat("§8", attacker_name, " §ekilled you."));
+sound.spawnForPlayer(attacker, sound_pling, ambient_sound_category);
+gosub("core");
+goto("wait");
+
+@snuvi_click
+cancel = true;
+if(item != null) {
+	emeraldid = 97 - list.getSize(player_list);
+	if(inv_slot == 0) {
+		if(map.get(emeralds, player_name) >= 15) {
+			living.addEffect(player, "SPEED", 1200, 4);
+			map.add(emeralds, player_name, map.get(emeralds, player_name) - 15);
+			sb.add(player, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, player_name)));
+			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Speed."));
+			inv.close(player);
+		}
+	} elseif(inv_slot == 1) {
+		if(map.get(emeralds, player_name) >= 30) {
+			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Thors Hand."));
+			inv.close(player);
+			map.add(emeralds, player_name, map.get(emeralds, player_name) - 30);
+			no_emerald = true;
+			attacker = player;
+			attacker_name = player_name;
+			sb.add(player, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, player_name)));
+			for(i = 0; i < list.getSize(player_list); i++) {
+				defender = player.get(list.getIndex(player_list, i));
+				defender_name = player.getName(defender);
+				if(defender != attacker) {
+					gosub("core");
+					msg.prefix(attacker, gamename, string.concat("§eYou killed §8", defender_name, "."));
+					msg.prefix(defender, gamename, string.concat("§8", attacker_name, " §ekilled you."));
+				}
+			}
+			no_emerald = false;
+		}
+	}
+}
+goto("wait");
+
+@block_place
+@block_break
+cancel = true;
+goto("wait");
+
+@player_drop
+cancel = true;
+goto("wait");
+
+@removeAxes
+temp = list.getIndex(axes_list, 0);
+entity.remove(temp);
+list.removeIndex(axes_list, 0);
+goto("wait");
+
+@axeCore
+action = "axeHit";
+sound.spawnForPlayer(defender, wither_sound, ambient_sound_category);
+msg.prefix(attacker, gamename, string.concat("§eYou killed §8", defender_name, " §ewith your axe."));
+msg.prefix(defender, gamename, string.concat("§8", attacker_name, " §ekilled you with his axe."));
+msg.prefix(defender, gamename, "Your Kills: §c-25§r%");
+map.add(axekills, attacker_name, map.get(axekills, attacker_name) + 1);
+setTheoreticKills(defender_name, math.rounddown(getTheoreticKills(defender_name) * 0.75));
+gosub("core");
+goto("wait");
+
+@core
+emeraldid = 97 - list.getSize(player_list);
+if(!no_emerald) {
+	msg.prefix(attacker, gamename, "§e+§r1 §aEmerald");
+	map.add(emeralds, attacker_name, map.get(emeralds, attacker_name) + 1);
+	sb.add(attacker, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, attacker_name)));
+}
+if(defender_name == map.get(nemesis, attacker_name)) {
+	msg.prefix(attacker, gamename, "§eYou killed your §cNemesis enemy.");
+	msg.prefix(attacker, gamename, "§e+§r1 §aEmerald");
+	map.add(emeralds, attacker_name, map.get(emeralds, attacker_name) + 1);
+	sb.add(attacker, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, attacker_name)));
+}
+sb.add(attacker, --emeraldid, sb.getSpacer());
+map.add(deaths, defender_name, map.get(deaths, defender_name) + 1);
+map.add(kills, attacker_name, map.get(kills, attacker_name) + 1);
+incTheoreticKills(attacker_name);
+player.clearInventory(defender);
+player.setSaturation(defender, 1000000);
+player.setSaturation(attacker, 1000000);
+map.add(nemesis, defender_name, attacker_name);
+map.add(nemesis, attacker_name, null);
+map.add(killstreak, defender_name, 0);
+map.add(killstreak, attacker_name, map.get(killstreak, attacker_name) + 1);
+if(map.get(killstreak, attacker_name) > map.get(maxkillstreak, attacker_name)) {
+	map.add(maxkillstreak, attacker_name, map.get(maxkillstreak, attacker_name) + 1);
+}
+
+giveRmInventory(defender);
+
+sortTheoreticKills();
+printTheoreticKills();
+
+@newposition
+position = list.getIndex(spawns, math.random(0, list.getSize(spawns) - 1));
+if(time.getMillis() - map.get(times, position) < 5000) {
+	goto("newposition");
+}
+if(map.get(lastposition, defender_name) == position) {
+	goto("newposition");
+}
+map.add(lastposition, defender_name, position);
+entity.teleport(defender, position);
+if(action == "axeHit") {
+	sound.spawnForPlayer(defender, wither_sound, ambient_sound_category);
+}
+action = null;
+map.add(times, position, time.getMillis());
+
+if(getTheoreticKills(attacker_name) >= 25) {
+	winner_name = attacker_name;
+	goto("wincore");
+}
+return;
+
+@endgame
+sortTheoreticKills();
+array = list.getIndex(theoretickills, 0);
+winner_name = array[0];
+goto("wincore");
+
+@player_quit
+@player_giveup
+removeFromTheoreticKills(player_name);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+player_id = player.getId(player);
+minigame.setPlayed(player_id, game_short, minigame.getPlayed(player_id, game_short) + 1);
+sb.clearGame(player);
+sortTheoreticKills();
+printTheoreticKills();
+if(list.getSize(player_list) <= 1) {
+	winner_name = player.getName(player.get(list.getIndex(player_list, 0)));
+	goto("wincore");
+}
+goto("wait");
+
+@lastminute
+minigame.speakAll(gamename, "60 seconds left.");
+goto("wait");
+
+@wincore
+endtime = time.getMillis();
+time = math.round((endtime - starttime) / 1000);
+for(i = 0; i < list.getSize(player_list); i++) {
+	puuid = list.getIndex(player_list, i);
+	p = player.get(puuid);
+	pname = player.getName(p);
+	p_id = player.getId(p);
+	
+	last_record = ranking.getPoints(rankingtable, p_id);
+	record = last_record + map.get(kills, pname);
+	playedgames = minigame.getPlayed(p_id, game_short) + 1;
+	minigame.setPlayed(p_id, game_short, playedgames);
+	ranking.setPoints(rankingtable, p_id, record);
+
+	wongames = minigame.getWon(p, "rm");
+	if(pname == winner_name) {
+		winningtext = "Yes";
+		wongames++;
+		minigame.setWon(p, "rm", wongames);
+		money.addBoost(p, 128);
+	} else {
+		winningtext = "No";
+		money.addBoost(p, 32);
+	}
+	
+	msg.prefix(p, gamename, string.concat("§8", winner_name, " §ehas won §cRageMode."));
+	
+	minigame.statsHeader(p, gamename, "§e");
+	minigame.statsLine(p, "§e", "Time", string.concat(string.number(math.round(time / 60)), " Minuten ", string.number(time % 60), " Sekunden"));
+	minigame.statsLine(p, "§e", "Kills", string.number(map.get(kills, pname)));
+	minigame.statsLine(p, "§e", "Killstreak", string.number(map.get(maxkillstreak, pname)));
+	minigame.statsLine(p, "§e", "Sword-Kills", string.number(map.get(messerkills, pname)));
+	minigame.statsLine(p, "§e", "Axe-Kills", string.number(map.get(axekills, pname)));
+	minigame.statsLine(p, "§e", "Deaths", string.number(map.get(deaths, pname)));
+	minigame.statsLine(p, "§e", "Won games", string.number(wongames));
+	minigame.statsLine(p, "§e", "Played games", string.number(playedgames));
+	if(playedgames != 0) {
+		minigame.statsLine(p, "§e", "Win ratio", string.concat(string.number(math.roundComma((wongames / playedgames) * 100, 2)), "%"));
+	}
+	minigame.statsLine(p, "§e", "Won", winningtext);	
+}
+minigame.clearItems(middleloc, radius);
+script = script.getFromId(script_id);
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();
+
+function setTheoreticKills(player_name, points) {
+	for(i = 0; i < list.getSize($theoretickills); i++) {
+		array = list.getIndex($theoretickills, i);
+		if(array[0] == player_name) {
+			array[1] = points;
+			break;
+		}
+	}
+}
+
+function getTheoreticKills(player_name) {
+	for(i = 0; i < list.getSize($theoretickills); i++) {
+		array = list.getIndex($theoretickills, i);
+		if(array[0] == player_name) {
+			points = array[1];
+			break;
+		}
+	}
+	return points;
+}
+
+function incTheoreticKills(player_name) {
+	setTheoreticKills(player_name, getTheoreticKills(player_name) + 1);
+}
+
+function removeFromTheoreticKills(player_name) {
+	for(i = 0; i < list.getSize($theoretickills); i++) {
+		array = list.getIndex($theoretickills, i);
+		if(array[0] == player_name) {
+			list.removeIndex($theoretickills, i);
+			break;
+		}
+	}
+}
+
+function getIndexFromPlayer(player_name) {
+	for(i = 0; i < list.getSize($theoretickills); i++) {
+		array = list.getIndex($theoretickills, i);
+		if(array[0] == player_name) {
+			return i;
+		}
+	}
+	return null; //Nemesisgegner ist geleavt
+}
+
+function sortTheoreticKills() {
+	size = list.getSize($theoretickills);
+	swapped = true;
+
+	while(swapped) {
+		swapped = false;
+		for(i = 0; i < size - 1; i++) {
+			array = list.getIndex($theoretickills, i);
+			array2 = list.getIndex($theoretickills, i + 1);
+			zahl1 = array[1];
+			zahl2 = array2[1];
+			if(zahl1 < zahl2) {
+				list.setIndex($theoretickills, i, array2);
+				list.setIndex($theoretickills, i + 1, array);
+				swapped = true;
+			}
+		}
+	}
+}
+
+function printTheoreticKills() {
+	id = 97;
+	for(i = 0; i < list.getSize($theoretickills); i++) {
+		array = list.getIndex($theoretickills, i);
+		disp_pname = array[0];
+		disp_p = read.player(disp_pname);
+		points = string.number(array[1]);
+		minigame.displayAll(id, string.concat(points, " §8", disp_pname));
+		sb.add(disp_p, id, string.concat(points, " §e", disp_pname));
+		id--;
+	}
+	for(i = 0; i < list.getSize($player_list); i++) {
+		disp_p = player.get(list.getIndex($player_list, i));
+		disp_pname = player.getName(disp_p);
+		nemesis_name = map.get($nemesis, disp_pname);
+		if(nemesis_name != null) {
+			index = getIndexFromPlayer(nemesis_name);
+			if(index != null) {
+				sb.add(disp_p, 97 - index, string.concat(string.number(getTheoreticKills(nemesis_name)), " §c", nemesis_name));
+			}
+		}
+	}
+}
+
+function giveRmInventory(player) {
+	inv = getRmInventory(player);
+	@tryagain
+	counter = 0;
+	player_inv = player.getInv(player);
+	for(i = 0; i <= 8; i++) {
+		item = inv.getItem(inv, i);
+		if(item.isAir(item)) {
+			counter++;
+		}
+		inv.setItem(player_inv, i, item);
+	}
+	if(counter != 5) {
+		inv = saveDefaultInventory(player);
+		msg.prefix(player, $gamename, "§eUnknown inventory. Used d efault inventory.");
+		goto("tryagain");
+	}
+	inv.setItem(player_inv, 9, $arrow);
+}
+
+function showRmInventory(player) {
+	rm_inv = getRmInventory(player);
+	inv.open(rm_inv, player);
+}
+
+function getRmInventory(player) {
+	map = getScriptVar("rmInventories");
+	inv = map.get(map, player.getUuid(player));
+	if(inv == null) {
+		inv = saveDefaultInventory(player);
+	}
+	return inv;
+}
+
+function saveDefaultInventory(player) {
+	rm_inv = inv.new("111111111", text.new("§8Inventory"));
+	inv.setItem(rm_inv, 0, $bow);
+	inv.setItem(rm_inv, 1, $sword);
+	inv.setItem(rm_inv, 2, $axe);
+	inv.setItem(rm_inv, 8, $shop_chest);
+	saveRmInventory(player, rm_inv);
+	return rm_inv;
+}
+
+function saveRmInventory(player, inv) {
+	map = getScriptVar("rmInventories");
+	map.add(map, player.getUuid(player), inv);
+	setScriptVar("rmInventories", map);
+}

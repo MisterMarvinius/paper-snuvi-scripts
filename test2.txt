@@ -1,2 +1,0 @@
-msg("dev", text.new(string.class(world.getLoadedChunks(world.get("world")))));
-msg("SERVER", text.new(string.class(world.getLoadedChunks(world.get("world")))));

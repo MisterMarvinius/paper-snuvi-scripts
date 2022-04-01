@@ -1,0 +1,22 @@
+gamesignloc = minigame.getSignLoc("rmmaploc5");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, -3110, 202, 1051, -90, 0.0001);
+middleloc = loc.new(gamesworld, -3070, 160, 1050);
+radius = 50;
+mapname = "Spawn";
+maxplayers = 10;
+minplayers = 2;
+
+spawns = list.new();
+list.add(spawns, loc.new(gamesworld, -3054, 156, 1080, 180, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3067.5, 156, 1075.5, 180, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3061.5, 156, 1075.5, 180, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3078.5, 156, 1068.5, -90, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3089.5, 153, 1062.5, -90, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3092.5, 153, 1048.5, 0.0001, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3092.5, 153, 1053.5, -90, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3081.5, 157, 1037.5, 0.0001, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3065.5, 157, 1037.5, 0.0001, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3065.5, 150, 1037.5, 0.0001, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3051.5, 156, 1046.5, 0.0001, 0.0001));
+list.add(spawns, loc.new(gamesworld, -3072.5, 163, 1036.5, 0.0001, 0.0001));

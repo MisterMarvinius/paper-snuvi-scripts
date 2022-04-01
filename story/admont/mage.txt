@@ -87,22 +87,23 @@ if(event == "block_click") {
 		if(set.contains(mage_doors, door_loc)) {
 			if(stage == 1) {
 				stage.increase(player);
-				entity.spawn(zombie_loc, "ZOMBIE");
+				//zombie_ent = entity.spawn(zombie_loc, "ZOMBIE");
+				living.addEffect(entity.spawn(zombie_loc, "ZOMBIE"), "FIRE_RESISTANCE", 10000, 1, false);
 			} elseif(stage == 3) {
 				stage.increase(player);
-				entity.spawn(spider_loc, "SPIDER");
+				living.addEffect(entity.spawn(spider_loc, "SPIDER"), "FIRE_RESISTANCE", 10000, 1, false);
 			} elseif(stage == 5 && mob_killed) {
 				stage.increase(player);
-				entity.spawn(witch_loc, "WITCH");
+				living.addEffect(entity.spawn(witch_loc, "WITCH"), "FIRE_RESISTANCE", 10000, 1, false);
 			} elseif(stage == 7) {
 				stage.increase(player);
-				entity.spawn(blaze_loc, "BLAZE");
+				living.addEffect(entity.spawn(blaze_loc, "BLAZE"), "FIRE_RESISTANCE", 10000, 1, false);
 			} elseif(stage == 9 && mob_killed) {
 				stage.increase(player);
-				entity.spawn(skeleton_loc, "STRAY");
+				living.addEffect(entity.spawn(skeleton_loc, "STRAY"), "FIRE_RESISTANCE", 10000, 1, false);
 			} elseif(stage == 11 && mob_killed) {
 				stage.increase(player);
-				entity.spawn(illusioner_loc, "ILLUSIONER");
+				living.addEffect(entity.spawn(illusioner_loc, "ILLUSIONER"), "FIRE_RESISTANCE", 10000, 1, false);
 			} else {
 				goto("wait");
 			}
@@ -213,7 +214,7 @@ if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
 		stage.increase(player);
 		msg.prefix(player, "§dMage Assistant", "To unluck the skills of the mage you have to do some tasks.");
 		scheduler.msgPrefix(30, player, "§dMage Assistant", "A spider has nested in my cellar. Please go downstairs and kill it.");
-		entity.spawn(cave_spider_loc, "CAVE_SPIDER");
+		living.addEffect(entity.spawn(cave_spider_loc, "CAVE_SPIDER"),"FIRE_RESISTANCE", 10000, 1, false);
 	}
 }
 goto("wait");
@@ -281,7 +282,7 @@ if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
 	if(entity_name == "Mage Assistant") {
 		rest_amount = human.giveItem(entity_name, player, nether_wart_mat, warts_harvested);
 		if(rest_amount == 0) {
-			player.unlockedMage(player);
+			player.unlockMage(player);
 			msg.prefix(player, "§dMage Assistant", "Thank you. You now can go to the Mage and buy skills.");
 			quest.finishReward(script, player, 16);
 		} else {

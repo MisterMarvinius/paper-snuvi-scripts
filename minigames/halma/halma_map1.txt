@@ -1,0 +1,87 @@
+gamesignloc = minigame.getSignLoc("halmasign1");
+mapname = "Sternenhalma";
+maxplayers = 3;
+minplayers = 2;
+
+ox = 2; //Differenz der Felder in x-Richtung
+oz = 3; //Differenz der Felder in z-Richtung
+
+//Mögliche Differenzen in x und z Richtung
+possible_move_differences = list.new();
+list.add(possible_move_differences, getPair(ox, oz));
+list.add(possible_move_differences, getPair(4, 0));
+//Ab hier hüpft die Spielfigur
+jumping_index = 2;
+list.add(possible_move_differences, getPair(2*ox, 2*oz));
+list.add(possible_move_differences, getPair(8, 0));
+
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 1014, 82, 1032);
+spawn_loc = loc.new(gamesworld, 3974.5, 97.5, 2974.5);
+
+point_block = material.get("minecraft:glowstone");
+basic_block = material.get("minecraft:black_concrete");
+
+red_token = "minecraft:red_banner";
+blue_token = "minecraft:light_blue_banner";
+green_token = "minecraft:green_banner";
+
+tokens_map = map.new();
+map.add(tokens_map, 0, red_token);
+map.add(tokens_map, 1, blue_token);
+map.add(tokens_map, 2, green_token);
+
+red_token_mat = material.get(red_token);
+blue_token_mat = material.get(blue_token);
+green_token_mat = material.get(green_token);
+
+tokens_mat_map = map.new();
+map.add(tokens_mat_map, 0, red_token_mat);
+map.add(tokens_mat_map, 1, blue_token_mat);
+map.add(tokens_mat_map, 2, green_token_mat);
+
+tokens_map2 = map.new();
+map.add(tokens_map2, red_token_mat, 0);
+map.add(tokens_map2, blue_token_mat, 1);
+map.add(tokens_map2, green_token_mat, 2);
+
+rotations_map = map.new();
+map.add(rotations_map, 0, "0"); //red
+map.add(rotations_map, 1, "10"); //blue
+map.add(rotations_map, 2, "6"); //green
+
+colors_map = map.new();
+map.add(colors_map, 0, "§c");
+map.add(colors_map, 1, "§b");
+map.add(colors_map, 2, "§a");
+
+north_loc = loc.new(gamesworld, 3974, 97, 2950); //nördlichster punkt
+red_start_locs = createFieldNorth(north_loc, ox, oz);
+
+south_loc =  loc.new(gamesworld, 3974, 97, 2998); //südlichster punkt
+red_aim_locs = createFieldSouth(south_loc, ox, oz);
+
+north_loc = loc.new(gamesworld, 3958, 97, 2974); //nördlichster punkt
+blue_start_locs = createFieldNorth(north_loc, ox, oz);
+
+south_loc =  loc.new(gamesworld, 3990, 97, 2974); //südlichster punkt
+blue_aim_locs = createFieldSouth(south_loc, ox, oz);
+
+north_loc = loc.new(gamesworld, 3990, 97, 2974); //nördlichster punkt
+green_start_locs = createFieldNorth(north_loc, ox, oz);
+
+south_loc =  loc.new(gamesworld, 3958, 97, 2974); //südlichster punkt
+green_aim_locs = createFieldSouth(south_loc, ox, oz);
+
+start_locs = map.new();
+map.add(start_locs, 0, red_start_locs);
+map.add(start_locs, 1, blue_start_locs);
+map.add(start_locs, 2, green_start_locs);
+
+aim_locs = map.new();
+map.add(aim_locs, 0, red_aim_locs);
+map.add(aim_locs, 1, blue_aim_locs);
+map.add(aim_locs, 2, green_aim_locs);
+
+loc = loc.new(gamesworld, 3968, 97, 2965); //von den nördlichsten punkten der westlichste
+center_locs = createFieldCenter(loc, ox, oz);

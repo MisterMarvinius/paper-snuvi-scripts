@@ -1,0 +1,24 @@
+gamesignloc = minigame.getSignLoc("rmmaploc2");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, -989, 96, 4030, 90, 0);
+middleloc = loc.new(gamesworld, -950, 100, 4050);
+radius = 150;
+mapname = "Crazy Map";
+maxplayers = 10;
+minplayers = 2;
+
+spawns = list.new();
+list.add(spawns, loc.new(gamesworld, -998.5, 105, 4022.5));
+list.add(spawns, loc.new(gamesworld, -996.5, 105, 4010.5));
+list.add(spawns, loc.new(gamesworld, -976.5, 108, 4014.5));
+list.add(spawns, loc.new(gamesworld, -959.5, 108, 4011.5));
+list.add(spawns, loc.new(gamesworld, -964.5, 111, 4045.5));
+list.add(spawns, loc.new(gamesworld, -939.5, 105, 4001.5));
+list.add(spawns, loc.new(gamesworld, -907.5, 105, 4001.5));
+list.add(spawns, loc.new(gamesworld, -907.5, 105, 4037.5));
+list.add(spawns, loc.new(gamesworld, -907.5, 105, 4060.5));
+list.add(spawns, loc.new(gamesworld, -904.5, 105, 4098.5));
+list.add(spawns, loc.new(gamesworld, -927.5, 105, 4073.5));
+list.add(spawns, loc.new(gamesworld, -948.5, 105, 4093.5));
+list.add(spawns, loc.new(gamesworld, -973.5, 105, 4093.5));
+list.add(spawns, loc.new(gamesworld, -985.5, 105, 4098.5));

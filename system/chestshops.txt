@@ -69,7 +69,7 @@ if(inv_slot == 3) { //Buy
 		msg.prefix(player, prefix_shop, "Not enough items in chest.");
 		goto("main");
 	}
-	player.safeGiveItem(player, itemstack_2);
+	player.splitGiveItem(player, itemstack_2, true);
 	inv.removeItem(block_inv, itemstack_2);
 	owner_player_id = read.number(sign.getString(sign_block, 3));
 	if(!isDouble(owner_player_id)) {
@@ -139,6 +139,11 @@ if(block.isWallSign(block)) {
 	}
 	chest_block = block.getShopChest(block);
 	if(chest_block == null) {
+		goto("main");
+	}
+	world = loc.getWorld(entity.getLocation(player));
+	world_name = world.getName(world);
+	if(!world.isSurvName(world_name)) {
 		goto("main");
 	}
 	owner_id = shop.getOwner(block);

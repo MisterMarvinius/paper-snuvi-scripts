@@ -24,7 +24,7 @@ items_list = list.new(); //Array-List: Alle Items mit Rezepten
 points = map.new(); //Punktestand der Teams
 sales_map = map.new(); //Key Entity. Value Item
 recipe_menus = map.new(); //Rezept-Menüs für jeden Spieler
-removed_perms = list.new(); //Spieler-Uuids, denen Building-Perms entfernt wurden
+removed_perms = list.new(); //Spieler-Uuids, denen Bypass-Perms entfernt wurden
 waiters = list.new(); //Spieler in der Lobby ohne Teamzugehörigkeit
 
 colorcodes = map.new();
@@ -205,9 +205,9 @@ addItem("minecraft:diamond_boots", air, air, air, diamond, air, diamond, diamond
 addItem("minecraft:iron_helmet", iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, iron_ingot, air, air, air);
 addItem("minecraft:iron_leggings", iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot);
 addItem("minecraft:iron_boots", air, air, air, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot);
-addItem("minecraft:golden_leggings", iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, iron_ingot, iron_ingot, air, iron_ingot);
-addItem("minecraft:golden_helmet", iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot, air, air, air);
-addItem("minecraft:golden_chestplate", iron_ingot, air, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot, iron_ingot);
+addItem("minecraft:golden_leggings", gold_ingot, gold_ingot, gold_ingot, gold_ingot, air, gold_ingot, gold_ingot, air, gold_ingot);
+addItem("minecraft:golden_helmet", gold_ingot, air, gold_ingot, gold_ingot, gold_ingot, gold_ingot, air, air, air);
+addItem("minecraft:golden_chestplate", gold_ingot, air, gold_ingot, gold_ingot, gold_ingot, gold_ingot, gold_ingot, gold_ingot, gold_ingot);
 	
 gosub("setstart");
 
@@ -227,9 +227,8 @@ if(event == "minigame_join") {
 	player.setSaturation(player, 5);
 	player.clearInventory(player);
 	sb.add(player, 99, gamename);
-	sb.add(player, 98, "§7Map:");
-	sb.add(player, 97, string.concat("§3", mapname));
-	sb.add(player, 96, sb.getSpacer());
+	sb.add(player, 98, string.concat("§7Map: §3", mapname));
+	sb.add(player, 97, sb.getSpacer());
 	return;
 }
 if(event == "player_giveup" || event == "player_quit") {
@@ -309,10 +308,9 @@ for(i = 0; i < list.getSize(player_list); i++) {
 	player.setGamemode(p, "SURVIVAL");
 	player.setFly(p, false);
 	player.clearInventory(p);
-	//Building-Perms entfernen
+	//Bypass-Perms entfernen
 	if(perm.has("plot.bypass", p)) {
-		//perm.unregisterPlayer(p_uuid, 1);
-		//perm.unregisterPlayer(p_uuid, 15);
+		perm.remove("plot.bypass", p);
 		list.add(removed_perms, p_uuid);
 	}
 }
@@ -338,7 +336,7 @@ for(i = 0; i < list.getSize(allteams); i++) {
 	direction = map.get(sell_frame_directions, team);
 	frame_loc = list.getIndex(sell_frame_locs, index);
 	entity = list.getIndex(humans_list, index);
-	entity.removeAll("org.bukkit.entity.ItemFrame", frame_loc, 1.5);
+	entity.removeAll("org.bukkit.entity.ItemFrame", frame_loc, 1);
 	item = getItem(getRandomIndex());
 	entity.frame.spawn(frame_loc, direction, item);
 	map.add(sales_map, entity, item);
@@ -383,7 +381,7 @@ if(minutes == 0 && seconds == 30) {
 }
 if(minutes == 0 && seconds == 0) {
 	max = -1;
-	minigame.msgAll(getSpacer());
+	minigame.msgAll(string.getSpacer());
 	for(i = 0; i < list.getSize(allteams); i++) {
 		team = list.getIndex(allteams, i);
 		teampoints = map.get(points, team);
@@ -418,7 +416,7 @@ while(hasNext(iter)) {
 	} else {
 		index = list.getIndexOf(humans_list, key);
 		location = list.getIndex(sell_frame_locs, index);
-		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1.5);
+		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1);
 		step = list.getSize(sell_frame_locs) / numberofteams;
 		team = math.roundDown(index / step);
 		direction = map.get(sell_frame_directions, team);
@@ -498,7 +496,7 @@ if(map.contains(sales_map, human)) {
 		direction = map.get(sell_frame_directions, team);
 		item = getItem(getRandomIndex());
 		location = list.getIndex(sell_frame_locs, list.getIndexOf(humans_list, human));
-		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1.5);
+		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1);
 		entity.frame.spawn(location, direction, item);
 		map.add(sales_map, human, item);
 		time = math.random(30, 60);
@@ -514,7 +512,7 @@ if(map.contains(sales_map, human)) {
 	}
 } else {
 	if(human.getName(human) != "Recipes") {
-		msg.prefix(player, gamename, "Shop not unlocked.");
+		msg.prefix(player, gamename, "Shop locked.");
 	}
 }
 goto("checkgame");
@@ -531,16 +529,16 @@ if(title_string == "Recipes") {
 		goto("checkgame");
 	}
 	if(item_type == paper_mat) {
-		name = item.getName(item);
+		name = string.text(item.getName(item));
 		if(string.contains(name, "<<") || string.contains(name, ">>")) {
-			page = removeFormat(name);
+			page = string.removeFormat(name);
 			page = string.replace(page, "<<", "");
 			page = string.replace(page, ">>", "");
 			page = read.number(page);
-			if(inv_slot == 45) {
+			if(inv_slot == 52) {
 				setRecipePage(player, inv, page);
 			}
-			if(inv_slot == 46) {
+			if(inv_slot == 53) {
 				setRecipePage(player, inv, page);
 			}
 			goto("checkgame");
@@ -555,6 +553,9 @@ if(title_string == "Recipes") {
 goto("checkgame");
 
 @entity_click
+if(slot.isOffHand(hand)) {
+	goto("checkgame");
+}
 if(entity.isHuman(entity)) {
 	if(human.getName(entity) == "Recipes") {
 		player_uuid = player.getUuid(player);
@@ -585,11 +586,10 @@ goto("checkgame");
 minigame.speakAll(gamename, string.concat("§8", player.getName(player), " §rhas left the game."));
 showstats(player, false);
 player_uuid = player.getUuid(player);
-//Building-Perms wieder geben
+//Bypass-Perms wieder geben
 if(list.contains(removed_perms, player_uuid)) {
 	list.remove(removed_perms, player_uuid);
-	//perm.registerPlayer(player_uuid, 1);
-	//perm.registerPlayer(player_uuid, 15);
+	perm.loadGroupToPlayer(16, player);
 }
 if(singleteam) {
 	script = script.getFromId(script_id);
@@ -636,11 +636,12 @@ for(i = 0; i < list.getSize(player_list); i++) {
 		showstats(p, false);
 	}
 }
-//Building-Perms wieder geben
+//Bypass-Perms wieder geben
 for(i = 0; i < list.getSize(removed_perms); i++) {
 	player_uuid = list.getIndex(removed_perms, i);
-	//perm.registerPlayer(player_uuid, 1);
-	//perm.registerPlayer(player_uuid, 15);
+	p = player.get(player_uuid);
+	perm.add("plot.bypass", p);
+	perm.loadGroupToPlayer(16, p);
 }
 script = script.getFromId(script_id);
 minigame.kickAllPlayers(script);
@@ -718,7 +719,7 @@ function getRandomIndex() {
 function getIndexFromItemType(item_type) {
 	for(i = 0; i < list.getSize($items_list); i++) {
 		array = list.getIndex($items_list, i);
-		if(array[0] == item_type) {
+		if(item.getType(array[0]) == item_type) {
 			return i;
 		}
 	}
@@ -787,7 +788,7 @@ function resetSigns() {
 	for(i = 0; i < list.getSize($sell_frame_locs); i++) {
 		if(counter != 0) { //Erste Locs werden übersprungen. Kein Schild platzieren = Freigeschalteter Shop
 			loc = list.getIndex($sell_frame_locs, i);
-			entity.removeAll("org.bukkit.entity.ItemFrame", loc, 1.5);
+			entity.removeAll("org.bukkit.entity.ItemFrame", loc, 1);
 			direction = map.get($sell_frame_directions, team);
 			block = block.get(loc);
 			block.setMaterial(block, oak_wall_sign);
@@ -813,7 +814,7 @@ function resetFrames() {
 		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, $air_item);
 		entity.frame.spawn(loc.mod(loc, 0, -2, 0), direction, $air_item);
 		entity.frame.spawn(loc.mod(loc, 0, -3, 0), direction, $air_item);
-		if(direction == "north" || direction == "south") {
+		if(direction == "NORTH" || direction == "SOUTH") {
 			entity.frame.spawn(loc.mod(loc, 1, -1, 0), direction, $air_item);
 			entity.frame.spawn(loc.mod(loc, -1, -1, 0), direction, $air_item);
 			entity.frame.spawn(loc.mod(loc, 1, -2, 0), direction, $air_item);
@@ -821,7 +822,7 @@ function resetFrames() {
 			entity.frame.spawn(loc.mod(loc, 1, -3, 0), direction, $air_item);
 			entity.frame.spawn(loc.mod(loc, -1, -3, 0), direction, $air_item);
 		}
-		if(direction == "east" || direction == "west") {
+		if(direction == "EAST" || direction == "WEST") {
 			entity.frame.spawn(loc.mod(loc, 0, -1, 1), direction, $air_item);
 			entity.frame.spawn(loc.mod(loc, 0, -1, -1), direction, $air_item);
 			entity.frame.spawn(loc.mod(loc, 0, -2, 1), direction, $air_item);
@@ -857,26 +858,25 @@ function setRecipePage(player, menu, page) {
 		return;
 	}
 	if(page > 1) {
-		inv.setItem(menu, 45, item.create("PAPER", 1, string.concat("§e", string.number(page - 1), " <<"), null));
+		inv.setItem(menu, 52, item.create("PAPER", 1, string.concat("§e", string.number(page - 1), " <<"), null));
 	} else {
-		inv.setItem(menu, 45, black_glass_pane);
+		inv.setItem(menu, 52, $black_glass_pane);
 	}
 	if(page < max_page) {
-		inv.setItem(menu, 46, item.create("PAPER", 1, string.concat("§e>> ", string.number(page + 1)), null));
+		inv.setItem(menu, 53, item.create("PAPER", 1, string.concat("§e>> ", string.number(page + 1)), null));
 	} else {
-		inv.setItem(menu, 46, black_glass_pane);
+		inv.setItem(menu, 53, $black_glass_pane);
 	}
 	max_index = size - 1;
 	for(i = 0; i < 45; i++) {
 		list_index = i + 45 * (page - 1);
 		if(list_index > max_index) {
-			inv.setItem(menu, i, black_glass_pane);
+			inv.setItem(menu, i, $black_glass_pane);
 		} else {
 			array = list.getIndex($items_list, list_index);
 			inv.setItem(menu, i, array[0]);
 		}
 	}
-	inv.update(player);
 }
 
 function getAllEntites() {

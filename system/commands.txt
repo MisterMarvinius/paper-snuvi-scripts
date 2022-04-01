@@ -1,5 +1,6 @@
 error_counter = 0;
 last_error_message = null;
+
 @on_error
 error_counter++;
 if(error_counter > 1) {
@@ -53,19 +54,18 @@ command.register("ass", "Armor Stand Signs");
 command.register("back", "Teleports to the last position");
 command.register("ban", "Bans a player");
 command.register("block", "Block commands");
-command.register("boost", "Boosts you up to the clouds");
 //command.register("clan", "Clan-Commands");
 command.register("color", "Shows all colors");
+command.register("comeback", "Teleports to your death location");
 command.register("copyisland", "Copyisland-Commands");
 command.register("creative", "Teleports to creative-spawn");
 command.register("customitems", "Shows all custom items");
 command.register("databank", "Databank-Commands");
 command.register("datatools", "Datatools-Commands");
+command.register("dev", "Dev-Commands");
 command.register("enchant", "Enchants an item in your hand");
 command.register("enderchest", "Shows enderchests");
-command.register("entities", "Lists all entities in a world");
 command.register("error", "Error-Logger");
-command.register("errordebug", "Debug-Logger");
 command.register("feed", "Fills hunger bar");
 command.register("fly", "Toggles fly");
 command.register("friend", "Friend-Commands");
@@ -94,7 +94,6 @@ command.register("kick", "Kicks a player");
 command.register("lastseen", "Shows the last players online");
 command.register("lightning", "Summons a lightning_bolt");
 command.register("list", "List all players online");
-command.register("logo", "Gives the Mundus Crassus logo on a banner");
 command.register("mail", "Mail-Commands");
 command.register("mailbox", "Mailbox-Commands");
 command.register("memory", "Returns RAM-usage");
@@ -160,7 +159,6 @@ command.register("warn", "Warns a player");
 command.register("warp", "Warp-Commands");
 command.register("weather", "Weather-Commands");
 command.register("world", "World-Commands");
-command.register("yeet", "Throws you in sight");
 
 command.registerAlias("as", "armorstand");
 command.registerAlias("h", "home");
@@ -186,9 +184,9 @@ command.registerAlias("thor", "lightning");
 composter_par = particle.get("COMPOSTER");
 wall_signs_tag = block.getTag("minecraft:wall_signs");
 beds_tag = block.getTag("minecraft:beds");
-chest_tag = block.getTag("forge:chests");
+chest_tag = block.getTag("km:container");
 sign_tag = block.getTag("minecraft:signs");
-dirt_tag = block.getTag("forge:dirt");
+//dirt_tag = block.getTag("minecraft:dirt");
 prefix_shop = "§6Shop";
 prefix_clan = "§2Clan";
 prefix_tips = "§eTips";
@@ -233,6 +231,7 @@ delkeytimes = map.new(); //Player_uuid, Liste mit Zeitpunkten zum Löschen der E
 deluuid = list.new(); //Alle Player_uuids zum Löschen der Einladungen
 party_invitations = map.new(); //Player_uuid, Liste mit Player_uuids aller Einlader
 party_invite_ids = map.new(); //Player_uuid, partyid
+sign_copy_map = map.new();
 
 list = getScriptVar("block_commands_list");
 if(list == null) {
@@ -703,7 +702,7 @@ if(event == "block_click") {
 					cancel = false;
 				}
 			}
-			if(!access) {
+			if(!access && !plot.hasBlock(block_loc)) {
 				msg.prefix(player, prefix_plot, "This chest is locked for you.");
 			}
 		}
@@ -1220,6 +1219,7 @@ if(arg0 == "info") {
 	msg.string(player, string.concat("§6X §r", x, " §6Y §r", y, " §6Z §r", z));
 	msg.string(player, string.concat("§6Type: §r", block.getType(block)));
 	msg.string(player, string.concat("§6Public: §r", plot.hasBlock(target_loc)));
+	msg.string(player, string.concat("§6Data: §r", block.getData(block)));
 	goto("wait");
 }
 if(arg0 == "public") {
@@ -1285,10 +1285,6 @@ if(arg0 == "fix") {
 }
 goto("blockhelp");
 
-@logo
-player.giveItem(player, logo);
-goto("wait");
-
 @settings
 inv = inv.new("222222222", text.new("§8Settings"));
 inv.setItem(inv, 0, item.create("minecraft:oak_door", 1, "§fAutomatic Doors", item.createLore(player.getAutoCloseDoor(player))));
@@ -1331,6 +1327,10 @@ if(arg0 == "create") {
 		msg.prefix(player, prefix_shop, "No chest under sign.");
 		goto("wait");
 	}
+	if(sign.getString(sign_block, 0) != "") {
+		msg.prefix(player, prefix_shop, "Sign is not empty.");
+		goto("wait");
+	}
 	sign_loc = block.getLocation(sign_block);
 	sign.setString(sign_block, 0, "[Shop]");
 	sign.setString(sign_block, 3, string.number(player.getId(player)));
@@ -1344,8 +1344,13 @@ if(arg0 == "buy" || arg0 == "sell") {
 	}
 	amount = list.getIndex(args, 1);
 	price = list.getIndex(args, 2);
-	if(!isDouble(amount) || !isDouble(amount)) {
+	if(!isDouble(amount) || !isDouble(price)) {
 		msg.prefix(player, prefix_shop, "Number expected.");
+		goto("wait");
+	}
+	amount = math.round(amount);
+	if(amount < 0) {
+		msg.prefix(player, prefix_shop, "Positive number expected.");
 		goto("wait");
 	}
 	if(price < 0) {
@@ -1508,51 +1513,6 @@ if(arg0 == "show") {
 		msg.prefix(player, prefix_commands, "/mailbox show");
 	}
 }
-goto("wait");
-
-@entities
-if(size != 1) {
-	msg.prefix(player, prefix_quest, "/entities <world>");
-	goto("wait");
-}
-world_name = string.toLowerCase(list.getIndex(args, 0));
-world = world.get(world_name);
-if(world == null) {
-	msg.prefix(player, prefix_world, "This world is not loaded.");
-	goto("wait");
-}
-list = world.getEntities(world);
-size = list.getSize(list);
-map = map.new();
-living = 0;
-for(i = 0; i < size; i++) {
-	element = list.getIndex(list, i);
-	if(isLiving(element)) {
-		living++;
-		entity_type = entity.getType(element);
-		n = map.get(map, entity_type);
-		if(n == null) {
-			map.add(map, entity_type, 1);
-		} else {
-			map.add(map, entity_type, n + 1);
-		}
-	}
-}
-msg.string(player, "§0-------------------------------------------------");
-msg.string(player, string.concat("Living: ", living));
-iter = map.iterator(map);
-table = table.new("§b", 14, 14);
-msg.string(player, table.getStart(table));
-while(hasNext(iter)) {
-	element1 = next(iter);
-	if(hasNext(iter)) {
-		element2 = next(iter);
-	} else {
-		element2 = "";
-	}
-	msg.string(player, table.get(table, element1, element2));
-}
-msg.string(player, table.getEnd(table));
 goto("wait");
 
 @RickRole_play
@@ -2554,32 +2514,6 @@ if(arg0 == "list") {
 if(arg0 == "clear") {
 	error.clear();
 	msg.prefix(player, "§cError", "All errors deleted.");
-	goto("wait");
-}
-goto("wait");
-
-@errordebug
-if(size < 1) {
-	msg.prefix(player, "§cErrorDebugs", "/errordebug ...");
-	msg.string(player, "§c - list §rLists all errordebugs");
-	msg.string(player, "§c - clear §rDeletes all errordebugs");
-	goto("wait");
-}
-arg0 = string.toLowerCase(list.getIndex(args, 0));
-if(arg0 == "list") {
-	error_size = debug.getSize();
-	if(error_size == 0) {
-		msg.prefix(player, "§cErrorDebugs", "No errordebugs existing.");
-		goto("wait");
-	}
-	for(i = 0; i < error_size; i++) {
-		msg.string(player, debug.getIndex(i));
-	}
-	goto("wait");
-}
-if(arg0 == "clear") {
-	debug.clear();
-	msg.prefix(player, "§cErrorDebugs", "All errordebugs deleted.");
 	goto("wait");
 }
 goto("wait");
@@ -3934,7 +3868,7 @@ if(size == 0) {
 	}
 	print_side = side - 1;
 	if(print_side < 0 || print_side > max_side) {
-		msg.prefix(sender, prefix_commands, string.concat("Möglich: 1 - ", string.number(math.roundDown(max_side + 1))));
+		msg.prefix(sender, prefix_commands, string.concat("Possible: 1 - ", string.number(math.roundDown(max_side + 1))));
 		goto("wait");
 	}
 }
@@ -4005,6 +3939,12 @@ elseif(arg0 == "challenges") {
 		script.term(script);
 	}
 	script.startNamed("AllEntities", "utils/u_error", "challenges/all_entities", "utils/u_general");
+	
+	script = script.get("AllItems");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("AllItems", "utils/u_error", "challenges/all_items", "utils/u_general");
 }
 elseif(arg0 == "commands") {
 	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_cmdhelp", "utils/u_skills");
@@ -4246,7 +4186,7 @@ elseif(arg0 == "survival") {
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general");
+	script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general", "utils/u_skills");
 }
 else {
 	goto("starthelp");
@@ -5095,7 +5035,12 @@ goto("wait");
 
 @sign
 if(size == 0) {
-	msg.prefix(player, prefix_commands, "/sign <1-4> [text]");
+	msg.prefix(player, prefix_shop, "/shop ...");
+	msg.string(player, "§6 - <row:1-4> [text] §rSet a sign line");
+	if(perm.has("sign.copy", player)) {
+		msg.string(player, "§6 - copy §rCopy a sign content");
+		msg.string(player, "§6 - paste §rPaste a sign content");
+	}
 	goto("wait");
 }
 block = player.getTargetBlock(player, 5);
@@ -5105,6 +5050,30 @@ if(block == null) {
 }
 if(!block.hasTag(block, sign_tag)) {
 	msg.prefix(player, prefix_commands, "Look at a sign.");
+	goto("wait");
+}
+arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "copy") {
+	a = array.new(4);
+	a[0] = sign.getString(block, 0);
+	a[1] = sign.getString(block, 1);
+	a[2] = sign.getString(block, 2);
+	a[3] = sign.getString(block, 3);
+	map.add(sign_copy_map, player.getId(player), a);
+	msg.prefix(player, prefix_commands, "Sign copied.");
+	goto("wait");
+}
+if(arg0 == "paste") {
+	a = map.get(sign_copy_map, player.getId(player));
+	if(a == null) {
+		msg.prefix(player, prefix_commands, "Use '/sign copy' first.");
+		goto("wait");
+	}
+	sign.setString(block, 0, a[0]);
+	sign.setString(block, 1, a[1]);
+	sign.setString(block, 2, a[2]);
+	sign.setString(block, 3, a[3]);;
+	msg.prefix(player, prefix_commands, "Sign pasted.");
 	goto("wait");
 }
 line = list.getIndex(args, 0);
@@ -5352,13 +5321,13 @@ if(size == 0) {
 	msg.string(player, "§d - create3D §rCreates a 3D (sub-)plot");
 	msg.string(player, "");
 	msg.string(player, "§d - remove [id] §rRemoves a plot");
-	msg.string(player, "§d - expand <anzahl> [direction] [id] §rExpands a plot");
+	msg.string(player, "§d - expand <value> [direction] [id] §rExpands a plot");
 	msg.string(player, "§d - name [id] <name> §rRenames a plot");
 	msg.string(player, "");
 	msg.string(player, "§d - share <player> [id] §rAdd a player to a plot");
 	msg.string(player, "§d - kick <player> [id] §rRemove a player from a plot");
-	msg.string(player, "§d - leader <player> [id] §rPromote to plot-leader");
-	msg.string(player, "§d - mod <player> [id] §rPromote to plot-mod");
+	msg.string(player, "§d - leader <player> [id] §rSet a new plot leader");
+	msg.string(player, "§d - mod <player> [id] §rPromote to plot mod");
 	msg.string(player, "§d - chest <player> [id] §rAllows a player to open chests");
 	msg.string(player, "");
 	msg.string(player, "§d - raise §rRaises a plot to a city. Costs §610 gold snuvis§r.");
@@ -5369,6 +5338,7 @@ if(size == 0) {
 		msg.string(player, "§d - moreinfo [id] §rReturns more detailed infos");
 		msg.string(player, "§d - listall §rLists all plots");
 		msg.string(player, "§d - flags <flags> <boolean> §rSet all flags to the boolean");
+		msg.string(player, "§d - move <value> [direction] [id] §rMoves a block");
 	}
 	goto("wait");
 }
@@ -5759,6 +5729,20 @@ if(arg0 == "remove") {
 			plot.remove(sub_plot, world);
 		}
 	}
+	//10% money back
+	x1 = plot.getMinX(plot);
+	z1 = plot.getMinZ(plot);
+	x2 = plot.getMaxX(plot);
+	z2 = plot.getMaxZ(plot);
+	length = x2 - x1 + 1;
+	width = z2 - z1 + 1;
+	snuvis = math.round(plot.calcCost(world, length, width) / 10);
+	leader_id = plot.getLeaderId(plot);
+	if(leader_id != null) {
+		money.add(leader_id, snuvis);
+		msg.prefix(player, prefix_plot, string.concat("Returned 10% of plot costs: ", money.getString(snuvis)));
+	}
+	//remove plot
 	plot.removeAllPlayers(plot);
 	plot.delMoveEvent(plot);
 	plot.remove(plot, world);
@@ -5768,7 +5752,7 @@ if(arg0 == "remove") {
 }
 if(arg0 == "expand") {
 	if(size < 2) {
-		msg.prefix(player, prefix_commands, "/plot expand <anzahl> [direction] [plot_id]");
+		msg.prefix(player, prefix_commands, "/plot expand <value> [direction] [plot_id]");
 		goto("wait");
 	}
 	location = entity.getLocation(player);
@@ -5803,7 +5787,7 @@ if(arg0 == "expand") {
 		}
 	} else {
 		if(size != 4) {
-			msg.prefix(player, prefix_commands, "/plot expand <anzahl> [<direction> <plot_id>]");
+			msg.prefix(player, prefix_commands, "/plot expand <value> [<direction> <plot_id>]");
 			goto("wait");
 		}
 		direction = string.toLowerCase(list.getIndex(args, 2));
@@ -5887,6 +5871,96 @@ if(arg0 == "expand") {
 	plot.delMoveEvent(plot);
 	plot.setMoveEvent(new_plot, world);
 	msg.prefix(player, prefix_plot, expand_message);
+	plot.savePlots(world);
+	goto("wait");
+}
+if(arg0 == "move") {
+	if(!perm.has("plot.move", player)) {
+		perm.no("plot.move", player);
+		goto("wait");
+	}
+	if(size < 2) {
+		msg.prefix(player, prefix_commands, "/plot move <value> [direction] [plot_id]");
+		goto("wait");
+	}
+	location = entity.getLocation(player);
+	world = loc.getWorld(location);
+	anzahl = list.getIndex(args, 1);
+	if(!isDouble(anzahl) || anzahl < 0) {
+		msg.prefix(player, prefix_plot, "Positive number expected.");
+		goto("wait");
+	}
+	if(size == 2) {
+		yaw = loc.getYaw(location);
+		direction = getDirection(yaw);
+		if(direction == null) {
+			msg.prefix(player, prefix_plot, "Direction of view too imprecise.");
+			goto("wait");
+		}
+		plot_list = plot.get(location);
+		amount = list.getSize(plot_list);
+		if(amount == 0) {
+			msg.prefix(player, prefix_plot, "You aren´t on a plot.");
+			goto("wait");
+		}
+		plot = list.getIndex(plot_list, 0);
+		if(amount > 1) {
+			msg.prefix(player, prefix_plot, "Multiple plots present:");
+			for(i = 0; i < amount; i++) {
+				plot = list.getIndex(plot_list, i);
+				plot_id = plot.getId(plot);
+				msg(player, text.merge(string.getClickText(" [§cSelect§r] ", string.concat("/plot move ", anzahl, " ", direction, " ", plot_id)), text.new(string.concat("#", string.number(plot_id), " ", plot.getType(plot), " §6", plot.getName(plot), " §r", plot.getLeaderName(plot)))));
+			}
+			goto("wait");
+		}
+	} else {
+		if(size != 4) {
+			msg.prefix(player, prefix_commands, "/plot move <value> [<direction> <plot_id>]");
+			goto("wait");
+		}
+		direction = string.toLowerCase(list.getIndex(args, 2));
+		plot_id = list.getIndex(args, 3);
+		plot = plot.getFromId(plot_id, world);
+		if(plot == null) {
+			msg.prefix(player, prefix_plot, "Unknown plot or not in this world.");
+			goto("wait");
+		}
+	}
+	if(plot.isSub(plot)) {
+		msg.prefix(player, prefix_plot, "Sub plots can´t be moved.");
+		goto("wait");
+	}
+	x1 = plot.getMinX(plot);
+	y1 = plot.getMinY(plot);
+	z1 = plot.getMinZ(plot);
+	x2 = plot.getMaxX(plot);
+	y2 = plot.getMaxY(plot);
+	z2 = plot.getMaxZ(plot);
+	old_length = math.abs(x1 - x2) + 1;
+	old_width = math.abs(z1 - z2) + 1;
+	if(direction == "east") {
+		x1 += anzahl;
+		x2 += anzahl;
+	} elseif(direction == "south") {
+		z1 += anzahl;
+		z2 += anzahl;
+	} elseif(direction == "west") {
+		x1 -= anzahl;
+		x2 -= anzahl;
+	} elseif(direction == "north") {
+		z1 -= anzahl;
+		z2 -= anzahl;
+	} else {
+		msg.prefix(player, prefix_plot, "Unknown direction [north/east/south/west].");
+		goto("wait");
+	}
+	//Move plot
+	gs_edge1 = loc.new(world, x1, y1, z1);
+	gs_edge2 = loc.new(world, x2, y2, z2);
+	new_plot = plot.setEdges(plot, gs_edge1, gs_edge2);
+	plot.delMoveEvent(plot);
+	plot.setMoveEvent(new_plot, world);
+	msg.prefix(player, prefix_plot, "The plot has been moved.");
 	plot.savePlots(world);
 	goto("wait");
 }
@@ -8244,6 +8318,28 @@ msg.string(player, "  &n §n(underline)");
 msg.string(player, "  &o §o(italic)");
 goto("wait");
 
+@comeback
+if(player.isOnAdventure(player)) {
+	msg.prefix(player, prefix_skill, "Comeback not allowed during adventure.");
+	goto("wait");
+}
+amount = skill.getAmount(player, "skill.comeback");
+if(amount <= 0) {
+	msg.prefix(player, prefix_skill, "You have not bought that skill.");
+	goto("wait");
+}
+loc = player.getDeathLoc(player);
+if(loc == null) {
+	msg.prefix(player, prefix_skill, "No death location found.");
+	goto("wait");
+}
+new_amount = amount - 1;
+skill.setAmount(player, "skill.comeback", new_amount);
+msg.prefix(player, prefix_skill, string.concat("Used Comeback. New amount: ", string.number(new_amount)));
+entity.teleport(player, loc);
+player.resetDeathLoc(player);
+goto("wait");
+
 @setspawn
 if(size != 1) {
 	@setspawnhelp
@@ -8459,9 +8555,110 @@ if(arg0 == "loadfrom") {
 }
 goto("wait");
 
-@boost
-entity.setMotion(player, 0, 5, 0);
-goto("wait");
+@dev
+if(size == 0) {
+	@dev_syntax
+	msg.prefix(sender, prefix_commands, "/dev ...");
+	msg.string(sender, "§6 - boost §rBoosts you up to the clouds");
+	msg.string(sender, "§6 - debug <list/clear> §rManages logged debug messages");
+	msg.string(sender, "§6 - entities <world> §rLists all entities in a world");
+	msg.string(sender, "§6 - logo §rGives the Mundus Crassus logo on a banner");
+	msg.string(sender, "§6 - yeet §rThrows you in sight");
+	goto("wait");
+}
+arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "logo") {
+	player.giveItem(player, logo);
+	goto("wait");
+}
+if(arg0 == "boost") {
+	entity.setMotion(player, 0, 5, 0);
+	goto("wait");
+}
+if(arg0 == "yeet") {
+	if(size != 2){
+		msg.prefix(player, prefix_commands, "/dev yeet <strength>");
+		goto("wait");
+	}
+	yeet_strength = list.getIndex(args, 1);
+	yeet(player,math.abs(yeet_strength));
+	msg.string(player, "§4YEET");
+	goto("wait");
+}
+if(arg0 == "debug") {
+	arg1 = string.toLowerCase(list.getIndex(args, 1));
+	if(arg1 == "list") {
+		error_size = debug.getSize();
+		if(error_size == 0) {
+			msg.prefix(player, prefix_commands, "No debugs logged.");
+			goto("wait");
+		}
+		for(i = 0; i < error_size; i++) {
+			msg.string(player, debug.getIndex(i));
+		}
+		goto("wait");
+	}
+	if(arg1 == "clear") {
+		debug.clear();
+		msg.prefix(player, prefix_commands, "All logged debugs deleted.");
+		goto("wait");
+	}
+	goto("wait");
+}
+if(arg0 == "entities") {
+	if(size != 2) {
+		msg.prefix(player, prefix_quest, "/dev entities <world>");
+		goto("wait");
+	}
+	world_name = string.toLowerCase(list.getIndex(args, 1));
+	world = world.get(world_name);
+	if(world == null) {
+		msg.prefix(player, prefix_world, "This world is not loaded.");
+		goto("wait");
+	}
+	list = world.getEntities(world);
+	size = list.getSize(list);
+	map = map.new();
+	living = 0;
+	for(i = 0; i < size; i++) {
+		element = list.getIndex(list, i);
+		if(isLiving(element)) {
+			living++;
+			entity_type = entity.getType(element);
+			n = map.get(map, entity_type);
+			if(n == null) {
+				map.add(map, entity_type, 1);
+			} else {
+				map.add(map, entity_type, n + 1);
+			}
+		}
+	}
+	msg.string(player, "§0-------------------------------------------------");
+	msg.string(player, string.concat("Living: ", living));
+	iter = map.iterator(map);
+	table = table.new("§b", 14, 14);
+	msg.string(player, table.getStart(table));
+	while(hasNext(iter)) {
+		element1 = next(iter);
+		if(hasNext(iter)) {
+			element2 = next(iter);
+		} else {
+			element2 = "";
+		}
+		msg.string(player, table.get(table, element1, element2));
+	}
+	msg.string(player, table.getEnd(table));
+	goto("wait");
+}
+goto("dev_syntax");
+
+function yeet(player, strength){
+	array = entity.getLook(player);
+	x = array[0] * (math.log(strength) + 1);
+	y = math.abs(array[1]) * (math.log(strength) + 1);
+	z = array[2] * (math.log(strength) + 1);
+	entity.setMotion(player, x, y, z);
+}
 
 @memory
 msg.prefix(sender, prefix_commands, string.concat("Used RAM: ", string.number(usedMemory()), " / ", string.number(math.round(allocatedMemory())), " MB"));
@@ -8602,24 +8799,6 @@ if(arg0 == "diffi") {
 	goto("wait");
 }
 goto("world_syntax");
-
-@yeet
-if(size == 0){
-	msg.prefix(player, prefix_commands, "/yeet <strength>");
-	goto("wait");
-}
-yeet_strength = list.getIndex(args, 0);
-yeet(player,math.abs(yeet_strength));
-msg.string(player, "§4YEET");
-goto("wait");
-
-function yeet(player, strength){
-	array = entity.getLook(player);
-	x = array[0] * (math.log(strength) + 1);
-	y = math.abs(array[1]) * (math.log(strength) + 1);
-	z = array[2] * (math.log(strength) + 1);
-	entity.setMotion(player, x, y, z);
-}
 
 @giveup
 script_id = quest.getFromPlayer(player);

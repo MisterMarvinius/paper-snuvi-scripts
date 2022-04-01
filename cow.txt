@@ -1,0 +1,11 @@
+
+uuid = "6cc9f8c7-9dfd-44f4-a3f2-af30054411a8";//"e41b5335-3c74-46e9-a6c5-dafc6334a477"; (marvinius)
+player = player.get(uuid);
+mid_loc = entity.getLocation(player);
+
+entity.removeAll("org.bukkit.entity.Ghast", mid_loc, 120);
+//entity.removeAll("org.bukkit.entity.Pig", mid_loc, 20);
+//entity.removeAll("org.bukkit.entity.Sheep", mid_loc, 20);
+
+msg("dev", text.new("ERFOLG"));
+term();

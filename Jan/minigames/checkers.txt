@@ -1,0 +1,46 @@
+//cornerpieces
+
+corner1 = loc.new();//black
+corner2 = loc.new();//white
+facing("south"); //the way the skulls of the black side face
+//south: Z++
+add_x = -1;
+add_z = 1;
+
+air_material = material.get("AIR");
+world = world.get("games");
+
+black_disc = material.get("WITHER_SKELETON_SKULL");
+white_disc = material.get("SKELETON_SKULL");
+black_tile = material.get("DARK_OAK_PLANKS");
+
+
+function checkers.clear_field(){
+	temp_it = loc.iterator(world, x1,y1,z1,x2,y2,z2);
+	while(hasnext(temp_it)){
+		block.setMaterial(block.get(next(temp_it)), $air_material);
+	}
+}
+
+function checkers.set_field(){
+	checkers.clear_field();
+	temp_black = $corner1;
+	for(a = 0; a < 4; a++){
+		setcorner1 = loc.mod($corner1, add_x*2*a, 0, add_z*2*a);
+		setcorner2 = loc.mod($corner2, -add_x*2*a, 0, -add_z*2*a);
+		
+		block.set(block.get(loc.mod(setcorner1, 0, 0, 0)), $black_disc);
+		block.set(block.get(loc.mod(setcorner1, add_x, 0, add_z)), $black_disc);
+		block.set(block.get(loc.mod(setcorner1, 0, 0, 2*add_z)), $black_disc);
+		
+		block.set(block.get(loc.mod(setcorner2, 0, 0, 0)), $white_disc);
+		block.set(block.get(loc.mod(setcorner2, -add_x, 0, -add_z)), $white_disc);
+		block.set(block.get(loc.mod(setcorner2, 0, 0, -2*add_z)), $white_disc);
+	}
+}
+
+function checkers.move_is_valid(){
+	if(block.getType != $black_tile){
+		return false;
+	}
+}

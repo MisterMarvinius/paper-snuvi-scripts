@@ -79,14 +79,14 @@ function human.giveItem(human_name, player, needed_type_or_tag, needed_amount) {
 		}
 	}
 	if(needed) {
-		rest_item = player.removeItem(player, item.new(item_type, needed_amount));
-		if(rest_item == 0) {
+		amount_not_removed = player.removeItem(player, item.new(item_type, needed_amount));
+		if(amount_not_removed == 0) {
 			return 0;
 		}
-		amount_not_removed = item.getAmount(rest_item);
 		player.removeItem(player, item.new(item_type, amount_not_removed));
 		rest_item_amount = needed_amount - amount_not_removed;
 		
+		rest_item = item.new(item_type, rest_item_amount);
 		rest_item = player.removeItemNbt(player, rest_item);
 		rest_item_amount = item.getAmount(rest_item);
 		if(rest_item_amount > 0) {
@@ -94,14 +94,133 @@ function human.giveItem(human_name, player, needed_type_or_tag, needed_amount) {
 				rest_item = player.removeItemTag(player, needed_type_or_tag, rest_item_amount);
 				rest_item_amount = item.getAmount(rest_item);
 				if(rest_item_amount > 0) {
-					msg.prefix(player, human_name, string.concat("I need ", text.number(rest_item_amount), " more of these please."));
+					msg.prefix(player, human_name, string.concat("I need ", string.number(rest_item_amount), " more of these please."));
 				}
 			} else {
-				msg.prefix(player, human_name, string.concat("I need ", text.number(rest_item_amount), " more of these please."));
+				msg.prefix(player, human_name, string.concat("I need ", string.number(rest_item_amount), " more of these please."));
 			}
 		}
 		return rest_item_amount;
 	}
 	msg.prefix(player, human_name, "I do not need this.");
 	return needed_amount;
+}
+
+/*
+ stable(stable_mid_loc, stable_spawn_loc_list) while there aren't enough, spawns animals
+*/
+function stable(stable_mid_loc, stable_spawn_loc_list){
+	living_list = living.near(stable_mid_loc, 10);
+	list_iterator = iterator(living_list);
+	
+	cow_count = 0;
+	pig_count = 0;
+	sheep_count = 0;
+	
+	while(hasnext(list_iterator)){
+		living_entity_type = entity.getType(next(list_iterator));
+		if(living_entity_type == "cow"){
+			cow_count++;
+		}elseif(living_entity_type == "pig"){
+			pig_count++;
+		}elseif(living_entity_type == "sheep"){
+			sheep_count++;
+		}
+	}
+	while(cow_count < 4){//cow_max
+		spawned_entity = entity.spawn(loc.mod(list.getIndex(stable_spawn_loc_list, math.random(0, $spawn_list_size)), 0.5, 0, 0.5), "COW");
+		cow_count++;
+	}
+	while(pig_count < 3){//pig_max
+		spawned_entity = entity.spawn(loc.mod(list.getIndex(stable_spawn_loc_list, math.random(0, $spawn_list_size)), 0.5, 0, 0.5), "PIG");
+		pig_count++;
+	}
+	while(sheep_count < 5){//sheep_max
+		spawned_entity = entity.spawn(loc.mod(list.getIndex(stable_spawn_loc_list, math.random(0, $spawn_list_size)), 0.5, 0, 0.5), "SHEEP");
+		sheep_count++;
+	}
+}
+
+/*
+ stable.getSpawn_locs(loc) returns list with all spawn_locations for animals in given surrounding stable
+*/
+function stable.getSpawn_locs(loc){
+	stable_spawn_loc_list = list.new();
+	list.add(stable_spawn_loc_list, loc.mod(loc, 0.5, 1, 0.5));
+	$stable_temp_list = list.new();
+	$stable_temp_list2 = list.new();
+	list.add($stable_temp_list, loc);
+	while(list.getSize($stable_temp_list) != 0){
+		block_loc = list.getIndex($stable_temp_list, 0);
+		list.removeIndex($stable_temp_list, 0);
+		distance = loc.distance(block_loc, loc);
+		if(distance < 25){
+			temp_block = stable.addLoc_if(loc.mod(block_loc,1,0,0));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,-1,0,0));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,0,0,1));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,0,0,-1));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			
+			temp_block = stable.addLoc_if(loc.mod(block_loc,1,1,0));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,-1,1,0));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,0,1,1));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,0,1,-1));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			
+			temp_block = stable.addLoc_if(loc.mod(block_loc,1,-1,0));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,-1,-1,0));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,0,-1,1));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+			temp_block = stable.addLoc_if(loc.mod(block_loc,0,-1,-1));
+			if(temp_block != null){
+				list.add(stable_spawn_loc_list, temp_block);
+			}
+		}
+	}
+	return stable_spawn_loc_list;
+}
+
+function stable.addLoc_if(temp_loc){
+	if(!list.contains($stable_temp_list2, temp_loc)){
+		temp_block = block.get(temp_loc);
+		temp_block2 = loc.mod(temp_loc, 0, 1, 0);
+		temp_type1 = block.getType(temp_block);
+		temp_type2 = block.getType(block.get(temp_block2));
+		temp_type3 = block.getType(block.get(loc.mod(temp_block2, 0, 1, 0)));
+		if(temp_type1 == $grass_block_material && temp_type2 == $air_material && temp_type3 == $air_material){
+			list.add($stable_temp_list, temp_loc);
+			list.add($stable_temp_list2, temp_loc);
+			return temp_block2;
+		}
+	}
 }

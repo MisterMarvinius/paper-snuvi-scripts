@@ -1,0 +1,331 @@
+//coords
+
+/*
+snake head places blocks saved as key in map with the value of its facing-direction[x,y,z (out of which only one is +- 1)]
+snake tail destroys blocks and moves in their stored direction, or waits 1 turn if food has been eaten
+*/
+world = world.get("creative");
+
+
+air_material = material.get("AIR");
+head_material = material.get("RED_TERRACOTTA");
+body_material = material.get("GREEN_TERRACOTTA");
+second_body_material = material.get("LIME_TERRACOTTA");
+tail_material = material.get("CYAN_TERRACOTTA");
+food_material = material.get("RED_WOOL");
+
+snake_has_eaten = false;
+
+item_down = item.new(material.get("purple_concrete"),1);
+item.setName(item_down, text.new("down"));
+item_up = item.new(material.get("yellow_concrete"),1);
+item.setName(item_up, text.new("up"));
+item_north = item.new(material.get("pink_concrete"),1);
+item.setName(item_north, text.new("north"));
+item_south = item.new(material.get("magenta_concrete"),1);
+item.setName(item_south, text.new("south"));
+item_west = item.new(material.get("red_concrete"),1);
+item.setName(item_west, text.new("west"));
+item_east = item.new(material.get("blue_concrete"),1);
+item.setName(item_east, text.new("east"));
+
+item_reset = item.new(material.get("stone"),1);
+item.setName(item_reset, text.new("reset"));
+item_turn = item.new(material.get("arrow"),1);
+item.setName(item_turn, text.new("turn"));
+
+
+possible_names_map = list.new();
+list.add(possible_names_map, "down");
+list.add(possible_names_map, "up");
+list.add(possible_names_map, "north");
+list.add(possible_names_map, "south");
+list.add(possible_names_map, "west");
+list.add(possible_names_map, "east");
+list.add(possible_names_map, "reset");
+list.add(possible_names_map, "turn");
+//"88822148-d046-4345-a64a-da6bbfb684ca" Mareeeen
+//"6cc9f8c7-9dfd-44f4-a3f2-af30054411a8" SirTerence7
+//"e41b5335-3c74-46e9-a6c5-dafc6334a477" marvinius
+uuid = "6cc9f8c7-9dfd-44f4-a3f2-af30054411a8";
+player = player.get(uuid);
+player_inv = player.getInv(player);
+
+inv.setItem(player_inv, 0, item_down);
+inv.setItem(player_inv, 1, item_up);
+inv.setItem(player_inv, 2, item_north);
+inv.setItem(player_inv, 3, item_south);
+inv.setItem(player_inv, 4, item_west);
+inv.setItem(player_inv, 5, item_east);
+inv.setItem(player_inv, 7, item_turn);
+inv.setItem(player_inv, 8, item_reset);
+
+Edge_loc1 = loc.new(world, 3068, 52, 2946);
+Edge_loc2 = loc.new(world, 3086, 68, 2964);
+possible_food_locations = snake_food_create(Edge_loc1, Edge_loc2, 0, 0, 0);
+food_list_Size = list.getSize(possible_food_locations);
+
+event.load("block_click");
+reset = false;
+
+difficulty = "hard";
+loop_times = map.new();
+map.add(loop_times, "trivial", 120);
+map.add(loop_times, "very easy", 80);
+map.add(loop_times, "easy", 60);
+map.add(loop_times, "medium", 40);
+map.add(loop_times, "hard", 20);
+map.add(loop_times, "very hard", 15);
+map.add(loop_times, "impossible", 10);
+
+loop_time = map.get(loop_times, difficulty);
+
+for(a = 0; a < map.get(loop_times, difficulty); a = a + 5){
+	snake.food();
+}
+
+sgoto(40,"loop");
+
+@Start
+$head_loc = loc.new(world, 3074, 58, 2958);
+snake_parts = map.new();
+middle_parts = list.new();
+
+die = false;
+
+current_direction = array.new(3);
+current_direction[0] = 0;
+current_direction[1] = 1;
+current_direction[2] = 0;
+
+if(reset){
+	snake.reset();
+	reset = false;
+}
+snake.spawn();
+
+@checkgame
+wait();
+
+if(event == "block_click"){
+	if(player.getName(player) != "SirTerence7" && player.getName(player) != "Mareeeen"){
+		goto("checkgame");
+	}
+	if(action == "PHYSICAL"){
+		goto("checkgame");
+	}
+	player_hand = living.getHand(player);
+	if(!item.hasName(player_hand)){
+		goto("checkgame");
+	}
+	item_name = string.text(item.getName(player_hand));
+	if(item_name == "reset"){
+		snake.reset();
+		reset = true;
+		goto("Start");
+	}elseif(item_name == "turn"){
+		snake.setDirection(entity.getMainLookDirection(entity.getLook(player)));
+	}else{
+		snake.setDirection(item_name);
+	}
+	cancel = true;
+}
+goto("checkgame");
+
+
+
+@loop
+die = snake.head_move();
+if(die){
+	snake.die();
+	goto("checkgame");
+}
+if(snake_has_eaten){
+	snake_has_eaten = false;
+}else{
+	snake.tail_move();
+}
+sgoto(loop_time, "loop");
+goto("checkgame");
+
+
+function snake.setDirection(item_name){
+	if(item_name == "down"){
+		$current_direction[0] = 0;
+		$current_direction[1] = -1;
+		$current_direction[2] = 0;
+	}elseif(item_name == "up"){
+		$current_direction[0] = 0;
+		$current_direction[1] = 1;
+		$current_direction[2] = 0;
+	}elseif(item_name == "north"){
+		$current_direction[0] = 0;
+		$current_direction[1] = 0;
+		$current_direction[2] = -1;
+	}elseif(item_name == "east"){
+		$current_direction[0] = 1;
+		$current_direction[1] = 0;
+		$current_direction[2] = 0;
+	}elseif(item_name == "south"){
+		$current_direction[0] = 0;
+		$current_direction[1] = 0;
+		$current_direction[2] = 1;
+	}elseif(item_name == "west"){
+		$current_direction[0] = -1;
+		$current_direction[1] = 0;
+		$current_direction[2] = 0;
+	}
+}
+
+function snake.head_move(){
+	save_direction = array.new(3);
+	save_direction[0] = $current_direction[0];
+	save_direction[1] = $current_direction[1];
+	save_direction[2] = $current_direction[2];
+	
+	new_body_loc = loc.mod($head_loc, save_direction[0], save_direction[1], save_direction[2]);
+	new_body_block = block.get(new_body_loc);
+	
+	new_head_loc = loc.mod($head_loc, 2*save_direction[0], 2*save_direction[1], 2*save_direction[2]);
+	new_head_block = block.get(new_head_loc);
+	new_head_block_type = block.getType(new_head_block);
+	if(block.getType(new_body_block) != $air_material){
+		return true;
+	}
+	if(new_head_block_type != $air_material){
+		if(new_head_block_type == $food_material){
+			$snake_has_eaten = true;
+		}
+		else{
+			return true;
+		}
+	}
+	map.add($snake_parts, loc.mod($head_loc, 0, 0, 0), save_direction);
+	list.add($middle_parts, new_body_block);
+	
+	block.setMaterial(block.get($head_loc), $body_material, false);
+	block.setMaterial(new_body_block, $second_body_material, false);
+	block.setMaterial(new_head_block, $head_material, false);
+	
+	loc.add($head_loc, 2*save_direction[0], 2*save_direction[1], 2*save_direction[2]);
+	if($snake_has_eaten){
+		snake.food();
+	}
+	return false;
+}
+
+function snake.tail_move(){
+	save_direction = map.get($snake_parts, $tail_loc);
+	map.remove($snake_parts, $tail_loc);
+	
+	mid_loc = loc.mod($tail_loc, save_direction[0], save_direction[1], save_direction[2]);
+	
+	mid_block = block.get(mid_loc);
+	
+	block.setMaterial(block.get($tail_loc), $air_material, false);
+	block.setMaterial(mid_block, $air_material, false);
+	
+	list.remove($middle_parts, mid_block);
+	
+	$tail_loc = loc.mod(mid_loc, save_direction[0], save_direction[1], save_direction[2]);
+	block.setMaterial(block.get($tail_loc), $tail_material, false);
+}
+
+function snake.die(){
+	Snake_Size = map.getSize($snake_parts);
+	if(Snake_Size >= $food_list_Size - 3){
+		msg("dev", text.new(""));
+	}
+	msg("dev", text.new(Snake_Size));
+}
+
+function snake.reset(){
+	map_iterator = map.iterator($snake_parts);
+	while(hasnext(map_iterator)){
+		block.setMaterial(block.get(map.getKey(next(map_iterator))), $air_material);
+	}
+	list_iterator = iterator($middle_parts);
+	while(hasnext(list_iterator)){
+		block.setMaterial(next(list_iterator), $air_material);
+	}
+	block.setMaterial(block.get($head_loc), $air_material);
+	block.setMaterial(block.get($tail_loc), $air_material);
+	map.clear($snake_parts);
+	list.clear($middle_parts);
+}
+
+function snake.food(){
+	temp_block = list.getIndex($possible_food_locations, math.random(0,$food_list_Size-1));
+	a = 0;
+	while(block.getType(temp_block) != $air_material && a < $food_list_Size){
+		temp_block = list.getIndex($possible_food_locations, math.random(0,$food_list_Size-1));
+		a++;
+	}
+	if(a < $food_list_Size){
+		block.setMaterial(temp_block, $food_material, false);
+	}
+}
+
+function snake_food_create(loc1, loc2, X, Y, Z){//X,Y,Z 0/1 if uneven
+	possible_food_locations = list.new();
+	x1 = loc.getX(loc1);
+	y1 = loc.getY(loc1);
+	z1 = loc.getZ(loc1);
+	x2 = loc.getX(loc2);
+	y2 = loc.getY(loc2);
+	z2 = loc.getZ(loc2);
+	box_iterator = loc.iterator(loc.getWorld(loc1), x1,y1,z1,x2,y2,z2);
+	while(hasnext(box_iterator)){
+		temp_block = block.get(next(box_iterator));
+		temp_loc = block.getLocation(temp_block);
+		if(loc.getX(temp_loc)%2 == X && loc.getY(temp_loc)%2 == Y && loc.getZ(temp_loc)%2 == Z && block.getType(temp_block) == $air_material){
+			list.add(possible_food_locations, temp_block);
+		}
+	}
+	return possible_food_locations;
+}
+
+function snake.spawn(){
+	block.setMaterial(block.get($head_loc), $head_material, false);
+	block.setMaterial(block.get(loc.mod($head_loc, -$current_direction[0], -$current_direction[1], -$current_direction[2])), $body_material, false);
+	$tail_loc = loc.mod($head_loc, -2*$current_direction[0], -2*$current_direction[1], -2*$current_direction[2]);
+	block.setMaterial(block.get($tail_loc), $tail_material, false);
+	
+	map.add($snake_parts, $tail_loc, $current_direction);
+}
+
+function entity.getMainLookDirection(look_array){
+	X = look_array[0];
+	Y = look_array[1];
+	Z = look_array[2];
+	X_abs = math.abs(X);
+	Y_abs = math.abs(Y);
+	Z_abs = math.abs(Z);
+	
+	looks_map = map.new();
+	map.add(looks_map, X_abs, 0);
+	map.add(looks_map, Y_abs, 1);
+	map.add(looks_map, Z_abs, 2);
+	
+	main_direction = map.get(looks_map, math.max(math.max(X_abs, Y_abs), Z_abs)); //0=X,1=Y,2=Z
+	
+	if(main_direction == 0){
+		if(X < 0){
+			return "west";
+		}else{
+			return "east";
+		}
+	}elseif(main_direction == 1){
+		if(Y < 0){
+			return "down";
+		}else{
+			return "up";
+		}
+	}elseif(main_direction == 2){
+		if(Z < 0){
+			return "north";
+		}else{
+			return "south";
+		}
+	}
+}

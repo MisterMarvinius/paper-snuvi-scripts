@@ -161,7 +161,7 @@ function skill.getShopItem(player_or_id, tech_name) {
 	}
 	skill_name = skill.getName(tech_name);
 	lore_list = list.new();
-	list.add(lore_list, text.new(string.concat("§fCost: §e", money.getString(skill[4]))));
+	list.add(lore_list, text.new(string.concat("§fCost: ", money.getString(skill[4]))));
 	list.transfer(string.intelligentSplit(skill[3]), lore_list);
 	list.add(lore_list, text.new(type));
 	list.add(lore_list, text.new(tog));

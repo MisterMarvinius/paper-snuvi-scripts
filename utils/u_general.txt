@@ -193,6 +193,27 @@ function player.giveSingleItem(player, item) {
 	}
 }
 
+function player.splitGiveItem(player, item, safe_give) {
+	amount = item.getAmount(item);
+	max_amount = item.getMaxAmount(item);
+	max_item = item.clone(item);
+	item.setAmount(max_item, max_amount);
+	while(amount > max_amount) {
+		if(safe_give) {
+			player.safeGiveItem(player, max_item);
+		} else {
+			player.giveItem(player, max_item);
+		}
+		amount -= max_amount;
+	}
+	item.setAmount(item, amount);
+	if(safe_give) {
+		player.safeGiveItem(player, item);
+	} else {
+		player.safeGiveItem(player, item);
+	}
+}
+
 function player.safeGiveItem(player, item) {
 	rest_amount = player.giveItem(player, item);
 	if(rest_amount > 0) {
@@ -1077,6 +1098,7 @@ function quest.addCounter(player, amount) {
 	if(new_amount == 500) {
 		offerRank(player, "rank.altruist");
 		perm.addGroupToPlayer(player.getId(player), 17);
+		waitfor(20);
 	} elseif(new_amount == 50) {
 		offerRank(player, "rank.friend");
 	} elseif(new_amount == 15) {
@@ -1720,6 +1742,27 @@ function player.getLoggedIp(player_or_id) {
 	return config.getString(config, "ip", "-");
 }
 
+function player.resetDeathLoc(player) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "deathloc", "null");
+	config.saveAsync(config);
+}
+
+function player.setDeathLoc(player) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "deathloc", string.location(entity.getLocation(player)));
+	config.saveAsync(config);
+}
+
+function player.getDeathLoc(player) {
+	config = playerdata.getSurvival(player);
+	loc = config.getString(config, "deathloc", "null");
+	if(loc == "null") {
+		return null;
+	}
+	return read.location(loc);
+}
+
 function player.isLive(player) {
 	player_uuid = player.getUuid(player);
 	live_set = getScriptVar("live_set");
@@ -1764,7 +1807,7 @@ function player.setTabName(player) {
 	player.setDisplayName(player, text.new(tab_name));
 }
 
-function player.removeItemNbt(player, itemstack) {
+function player.removeItemNbt(player, itemstack) { //Might be deprecated
 	//Make a copy
 	item_type = item.getType(itemstack);
 	amount = item.getAmount(itemstack);
@@ -2501,6 +2544,10 @@ function displayMoney(player, money) { //Deprecated
 }
 
 function money.getString(money) {
+	return money.getStringColor(money, "§f");
+}
+
+function money.getStringColor(money, color) {
 	a = money.split(money);
 	gold = a[0];
 	silver = a[1];
@@ -2508,20 +2555,20 @@ function money.getString(money) {
 	if(gold == 0) {
 		gold_string = "";
 	} else {
-		gold_string = string.concat(icon.getGoldCoin(), string.number(gold));;
+		gold_string = string.concat(icon.getGoldCoin(), color, string.number(gold));;
 	}
 	if(silver == 0) {
 		silver_string = "";
 	} else {
-		silver_string = string.concat(icon.getSilverCoin(), string.number(silver));;
+		silver_string = string.concat(icon.getSilverCoin(), color, string.number(silver));;
 	}
 	if(copper == 0) {
 		copper_string = "";
 	} else {
-		copper_string = string.concat(icon.getCopperCoin(), string.number(copper));;
+		copper_string = string.concat(icon.getCopperCoin(), color, string.number(copper));;
 	}
 	if(gold == 0 && silver == 0 && copper == 0) {
-		copper_string = string.concat(icon.getCopperCoin(), string.number(0));;
+		copper_string = string.concat(icon.getCopperCoin(), color, string.number(0));;
 	}
 	return string.concat(gold_string, silver_string, copper_string);
 }
@@ -4037,37 +4084,46 @@ function icon.getEmptyHeart() {
 //Challenge-Utils
 //--------------------------------------------------
 
-function challenge.display(player, challenge, message) {
-	sb.add(player, 11, string.concat("§a", challenge, ": ", message));
+function challenge.display(player, id, challenge, message, stage, all_stages) {
+	sb.add(player, id, string.concat("§a", challenge, ": ", message, " [", string.number(stage), "/", string.number(all_stages), "]"));
 }
 
-function challenge.removeDisplay(player) {
-	sb.remove(player,  11);
+function challenge.removeDisplay(player, id) {
+	sb.remove(player,  id);
 }
 
-function player.resetChallenge(player_or_id) {
-	player.setChallenge(player_or_id, null);
-}
-
-function player.setChallenge(player_or_id, challenge) {
+function player.addChallenge(player_or_id, challenge) {
 	config = playerdata.getSurvival(player_or_id);
-	config.set(config, "challenge", challenge);
+	string = config.getString(config, "challenge", "");
+	if(string == "") {
+		config.set(config, "challenge", challenge);
+	} else {
+		config.set(config, "challenge", string.concat(string, "%", challenge));
+	}
 	config.saveAsync(config);
 }
 
-function player.getChallenge(player_or_id) {
+function player.removeChallenge(player_or_id, challenge) {
 	config = playerdata.getSurvival(player_or_id);
-	cha = config.getString(config, "challenge", "null");
-	if(cha == "null") {
-		return null;
-	}
-	return cha;
+	string = config.getString(config, "challenge", "");
+	string = string.replace(string, string.concat(challenge, "%"), "");
+	string = string.replace(string, string.concat("%", challenge), "");
+	string = string.replace(string, challenge, "");
+	config.set(config, "challenge", string);
+	config.saveAsync(config);
 }
 
-function player.hasChallenge(player_or_id) {
-	return player.getChallenge(player_or_id) != null;
+function player.getChallenges(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "challenge", "");
+	a = string.split("%", string);
+	s = set.new();
+	for(i = 0; i < array.getSize(a); i++) {
+		set.add(s, a[i]);
+	}
+	return s;
 }
 
 function challenge.playerHas(player_or_id, challenge) {
-	return player.getChallenge(player_or_id) == challenge;
+	return set.contains(player.getChallenges(player_or_id), challenge);
 }

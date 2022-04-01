@@ -15,12 +15,11 @@ goto("simplelobby");
 
 @specificLobbyHandling
 if(event == "player_join") {
-	entity.cleareffects(player);
+	living.cleareffects(player);
 	living.setHealth(player, 20);
 	player.setHunger(player, 20);
 	player.setSaturation(player, 5);
 	player.clearInventory(player);
-	display.reset(player);
 }
 return;
 
@@ -28,7 +27,7 @@ return;
 player_list = minigame.getPlayers(script_id);
 
 event.load("player_jump");
-event.load("living_pre_hurt");
+event.load("entity_damage");
 event.load("block_click");
 event.load("block_break");
 event.load("block_place");
@@ -44,7 +43,7 @@ for(i = 0; i < amount_players; i++) {
 	list.add(templist, p_uuid);
 	map.add(times, p_uuid, start_life_time);
 	map.add(jump_strength, p_uuid, 0);
-	player.setGamemode(p, "adventure");
+	player.setGamemode(p, "ADVENTURE");
 	player.setFly(p, false);
 	menger.tpPlayer(p);
 }
@@ -71,11 +70,11 @@ sgoto(20, "loop");
 
 @checkgame
 wait();
-if(event == "living_pre_hurt") {
-	if(!isPlayer(living_entity)) {
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
 		goto("checkgame");
 	}
-	player = living_entity;
+	player = entity;
 }
 if(player.hasMinigameId(player, script_id)) {
 	ignoreGoto(event);
@@ -93,18 +92,25 @@ player_hand = living.getHand(player);
 if(!item.hasName(player_hand)){
 	goto("checkgame");
 }
-item_name = string.text(item.getName(player_hand));
+item_name = item.getName(player_hand);
 
 p_uuid = player.getUuid(player);
 key = number.getfromName(item_name);
 skill = list.getIndex(jan_mr_skills, key);
 skill_name = skill[0];
 strength = skill[2];
+jump_boost_strength = skill[3];
 if(map.get(jump_strength, p_uuid) == strength){
-	message = text.concat("Your Jump Strength is already set to ", skill_name, ".");
+	message = string.concat("Your Jump Strength is already set to ", skill_name, ".");
 }else{
+	if(key == 0){
+		living.clearEffects(player);
+	}else{
+		living.clearEffects(player);
+		living.addEffect(player, "JUMP", 99999999, jump_boost_strength, false);
+	}
 	map.add(jump_strength, p_uuid, strength);
-	message = text.concat("Your Jump Strength is now set to ", skill_name, ".");
+	message = string.concat("Your Jump Strength is now set to ", skill_name, ".");
 }
 msg.prefix(player, gamename, message);
 goto("checkgame");
@@ -112,16 +118,24 @@ goto("checkgame");
 @player_jump
 jump = map.get(jump_strength, player.getUuid(player));
 if(jump > 0){
-	array = entity.getLook(living_entity);
-	array2 = entity.getMotion(living_entity);
-	x = array[0] * strength + array2[0];
-	y = math.abs(array[1]) * strength + array2[1];
-	z = array[2] * strength + array2[2];
-	entity.throw(living_entity, x, y, z);
+	look_array = entity.getLook(player);
+	motion_array = entity.getMotion(player);
+	
+	/*jump_x = 1.25 * look_array[0] * jump + motion_array[0];
+	jump_y = 0.75 * math.abs(look_array[1]) * jump + motion_array[1];
+	jump_z = 1.25 * look_array[2] * jump + motion_array[2];*/
+	
+	jump_boost_amp = (living.getEffectAmplifier(player, "JUMP")+1)/2+1;
+	
+	jump_x = (jump_boost_amp/4*(jump * look_array[0] + motion_array[0]))*0.5;
+	jump_y = (jump_boost_amp*(jump * look_array[1] * jump))*0.75;
+	jump_z = (jump_boost_amp/4*(jump * look_array[2] + motion_array[2]))*0.5;
+	
+	entity.setMotion(player, jump_x, jump_y, jump_z);
 }
 goto("checkgame");
 
-@living_pre_hurt
+@entity_damage
 defender = player;
 attacker = player.getFromDamageSource(damage_source);
 if(attacker == null) {
@@ -199,59 +213,57 @@ for(i = 0; i < list.getSize(seekerlist); i++) {
 	seconds = map.get(times, player_uuid) - 1;
 	map.add(times, player_uuid, seconds);
 	if(seconds == 0) {
-		minigame.speakAll(gamename, concat("§6", player.getName(player), "§r's time has run out."));
+		minigame.speakAll(gamename, string.concat("§6", player.getName(player), "§r's time has run out."));
 		gosub("menger_kick"); 
 	}
-	display.reset(player);
-	display.add(player, 0, gamename);
-	display_index = 1;
+	sb.add(player, 99, gamename);
+	sb_index = 98;
 	for(h = 0; h < list.getSize(player_list); h++) {
 		p_uuid = list.getIndex(player_list, h);
 		p = player.get(p_uuid);
 		seconds = map.get(times, p_uuid);
-		minutes = text.number(math.roundDown(seconds / 60));
+		minutes = string.number(math.roundDown(seconds / 60));
 		seconds = seconds % 60;
 		if(seconds < 10) {
-			seconds = concat("0", text.number(seconds));
+			seconds = string.concat("0", string.number(seconds));
 		} else {
-			seconds = text.number(seconds);
+			seconds = string.number(seconds);
 		}
-		time_string = concat(minutes, ":", seconds);
+		time_string = string.concat(minutes, ":", seconds);
 		if(list.contains(seekerlist, p_uuid)) {
-			minigame.displayAll(display_index++, concat(time_string, " §e", player.getName(p)));
+			minigame.displayAll(sb_index--, string.concat(time_string, " §e", player.getName(p)));
 		} else {
-			minigame.displayAll(display_index++, concat(time_string, " ", player.getName(p)));
+			minigame.displayAll(sb_index--, string.concat(time_string, " ", player.getName(p)));
 		}
+		sb.add(p, 88, sb.getSpacer());
 	}
 }
 sgoto(20, "loop");
 goto("checkgame");
 
 function setSeeker(player) {
-	setStackIcons(player);
 	player_uuid = player.getUuid(player);
 	living.setHealth(player, 20);
 	player.setHunger(player, 20);
 	player.setSaturation(player, 100);
-	entity.clearEffects(player);
 	player.clearInventory(player);
+	setStackIcons(player);
 	list.add($seekerlist, player_uuid);
 	list.remove($escaperlist, player_uuid);
-	entity.addEffect(player, "glowing", $max_life_time * 20 * $maxplayers, 1, false);
+	living.addEffect(player, "glowing", $max_life_time * 20 * $maxplayers, 1, false);
 	player.setSpeed(player, 2.6);
 }
 
 function setEscaper(player) {
-	setStackIcons(player);
 	player_uuid = player.getUuid(player);
 	living.setHealth(player, 20);
 	player.setHunger(player, 20);
 	player.setSaturation(player, 100);
-	entity.clearEffects(player);
 	player.clearInventory(player);
+	setStackIcons(player);
 	list.add($escaperlist, player_uuid);
 	list.remove($seekerlist, player_uuid);
-	entity.addEffect(player, "glowing", $max_life_time * 20 * $maxplayers, 1, false);
+	living.addEffect(player, "glowing", $max_life_time * 20 * $maxplayers, 1, false);
 	player.setSpeed(player, 2.5);
 }
 
@@ -259,28 +271,30 @@ function setStackIcons(player) {
 	player_inv = player.getInv(player);
 	for(h = 0; h < list.getSize($jan_mr_skills); h++) {
 		skill = list.getIndex($jan_mr_skills, h);
-		icon = skill[1];
-		inv.setItem(player_inv, h, icon);
+		item = skill[1];
+		inv.setItem(player_inv, h, item);
 	}
 }
 
-function addMengerSkill(skill_name, icon, menger_strength) {
-	skill = array.new(3);
+function addMengerSkill(skill_name, item, menger_strength, jump_boost_strength) {
+	skill = array.new(4);
 	skill[0] = skill_name;
-	skill[1] = icon;
+	skill[1] = item;
 	skill[2] = menger_strength;
+	skill[3] = jump_boost_strength;
 	list.add($jan_mr_skills, skill);
 }
 
 @player_logout
 @player_giveup
-minigame.speakAll(gamename, concat("§6", player.getName(player), " §rhas left the game."));
+minigame.speakAll(gamename, string.concat("§6", player.getName(player), " §rhas left the game."));
 gosub("menger_kick"); 
 goto("checkgame");
 
 @menger_kick
 script = script.getFromId(script_id);
 player.setSpeed(player, 1);
+living.clearEffects(player);
 minigame.kickPlayer(script, player);
 player_uuid = player.getUuid(player);
 showStats(player, false);
@@ -324,6 +338,7 @@ winner = player.get(winner_uuid);
 msg.prefix(winner, gamename, "§6You won the game.");
 showStats(winner, true);
 player.setSpeed(winner, 1);
+living.clearEffects(winner);
 script = script.getFromId(script_id);
 minigame.kickPlayer(script, winner);
 minigame.term(script, gamesignloc);
@@ -340,10 +355,10 @@ function showStats(player, won) {
 	ranking.setPoints($rankingtable, player_id, last_record);
 
 	minigame.statsHeader(player, $gamename, "§e");
-	minigame.statsLine(player, "§e", "Played games", text.number(playedgames));
-	minigame.statsLine(player, "§e", "Won games", text.number(last_record));
+	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+	minigame.statsLine(player, "§e", "Won games", string.number(last_record));
 	if(playedgames != 0) {
-		minigame.statsLine(player, "§e", "Win ratio", concat(text.number(math.roundComma((last_record / playedgames) * 100, 2)), "%"));
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((last_record / playedgames) * 100, 2)), "%"));
 	}
 }
 
@@ -364,7 +379,7 @@ function menger.tpPlayer(player) {
 	loc1 = loc.new(world, x, y, z);
 	loc2 = loc.mod(loc1, 0, 1, 0);
 	loc3 = loc.mod(loc1, 0, 2, 0);
-	if(block.isSolid(loc1) && block.isAir(loc2) && block.isAir(loc3)) {
+	if(block.isSolid(block.get(loc1)) && block.isAir(block.get(loc2)) && block.isAir(block.get(loc3))) {
 		entity.teleport(player, loc.mod(loc2, 0.5, 0, 0.5));
 		return;
 	}
@@ -394,3 +409,42 @@ function number.getfromName(item_name){
 		return 9;
 	}
 }
+
+function block.isSolid(block){
+	if(block.isAir(block)){
+		return false;
+	}
+	//if(list.contains($non_solid_material_list, block.getType(block))){
+	//	return false;
+	//}
+	return true;
+}
+/*
+non_solid_material_list = list.new();
+n_s_m_l_a("ACACIA_BUTTON");
+n_s_m_l_a("ACACIA_DOOR");
+n_s_m_l_a("ACACIA_FENCE");
+n_s_m_l_a("ACACIA_FENCE_GATE");
+n_s_m_l_a("ACACIA_PRESSURE_PLATE");
+n_s_m_l_a("ACACIA_SAPLING");
+n_s_m_l_a("ACACIA_SIGN");
+n_s_m_l_a("ACACIA_TRAPDOOR");
+n_s_m_l_a("ACACIA_WALL_SIGN");
+
+n_s_m_l_a("ACTIVATOR_RAIL");
+n_s_m_l_a("AIR");
+n_s_m_l_a("ALLIUM");
+n_s_m_l_a("AMETHYST_CLUSTER");
+n_s_m_l_a("ATTACHED_MELON_STEM");
+n_s_m_l_a("ATTACHED_PUMPKIN_STEM");
+n_s_m_l_a("AZALEA");
+n_s_m_l_a("AZUR_BLUET");
+n_s_m_l_a("BAMBOO");
+n_s_m_l_a("AZALEA_SAPLING");
+n_s_m_l_a("BEETROOTS");
+
+
+
+function n_s_m_l_a(arg){
+	list.add(non_solid_material_list, material.get(arg));*/
+//}

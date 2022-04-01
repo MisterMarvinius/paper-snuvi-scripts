@@ -1,0 +1,484 @@
+rankingtable = "fncranks";
+game_short = "hs";
+
+cooldown_map = map.new();
+brokenblocks = map.new();
+placedblocks = list.new();
+points = map.new();
+times = map.new();
+seekerlist = list.new();
+escaperlist = list.new();
+winpoints = 30; //Punkte für Win
+gamename = "§9Hide and Seek";
+
+seeker_skills = list.new();
+hider_skills = list.new();
+//addSeekerSkill("Speed", 20, "km:skill54", 5, 2, false, "speed");
+//addSeekerSkill("JumpBoost", 12, "km:skill15", 3, 5, false, "jump_boost");
+//addSeekerSkill("Haste", 25, "km:skill50", 7, 3, false, "haste");
+//addSeekerSkill("Slowness", 25, "km:skill53", 3, 1, true, "slowness");
+//addSeekerSkill("Glowing", 50, "km:skill3", 2, 1, true, "glowing");
+
+//addHiderSkill("Invisibility", 45, "km:skill47", 10, 1, false, "invisibility");
+//addHiderSkill("Haste", 25, "km:skill50", 7, 3, false, "haste");
+//addHiderSkill("Slowness", 25, "km:skill53", 3, 1, true, "slowness");
+//addHiderSkill("Blindness", 25, "km:skill55", 3, 1, true, "blindness");
+//addHiderSkill("Nausea", 25, "km:skill36", 10, 10, true, "nausea");
+
+specific_lobby_handling = true;
+no_core_reset = true;
+gosub("setstart");
+
+spawnprotect = list.new();
+list.add(spawnprotect, middleloc);
+list.add(spawnprotect, loc.mod(middleloc, 0, 1, 0));
+list.add(spawnprotect, loc.mod(middleloc, -1, 0, 0));
+list.add(spawnprotect, loc.mod(middleloc, -1, 1, 0));
+list.add(spawnprotect, loc.mod(middleloc, 1, 0, 0));
+list.add(spawnprotect, loc.mod(middleloc, 1, 1, 0));
+list.add(spawnprotect, loc.mod(middleloc, 0, 0, 1));
+list.add(spawnprotect, loc.mod(middleloc, 0, 1, 1));
+list.add(spawnprotect, loc.mod(middleloc, 0, 0, -1));
+list.add(spawnprotect, loc.mod(middleloc, 0, 1, -1));
+
+list.add(spawnprotect, escaper_spawn_loc);
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 0, 1, 0));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, -1, 0, 0));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, -1, 1, 0));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 1, 0, 0));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 1, 1, 0));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 0, 0, 1));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 0, 1, 1));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 0, 0, -1));
+list.add(spawnprotect, loc.mod(escaper_spawn_loc, 0, 1, -1));
+
+list.add(spawnprotect, seeker_spawn_loc);
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 0, 1, 0));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, -1, 0, 0));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, -1, 1, 0));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 1, 0, 0));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 1, 1, 0));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 0, 0, 1));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 0, 1, 1));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 0, 0, -1));
+list.add(spawnprotect, loc.mod(seeker_spawn_loc, 0, 1, -1));
+
+escaper_spawn_loc = loc.mod(escaper_spawn_loc, 0.5, 0, 0.5);
+seeker_spawn_loc = loc.mod(seeker_spawn_loc, 0.5, 0, 0.5);
+diamond_block_mat = material.get("DIAMOND_BLOCK");
+
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "minigame_join") {
+	living.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+
+event.load("player_post_respawn");
+//event.load("function_key");
+
+//Temp-Kopie von player_list erstellen
+templist = list.new();
+for(i = 0; i < list.getSize(player_list); i++) {
+	p_uuid = list.getIndex(player_list, i);
+	p = player.get(p_uuid);
+	msg.prefix(p, gamename, "The game has started.");
+	list.add(templist, p_uuid);
+	map.add(points, p_uuid, 0);
+	player.setGamemode(p, "SURVIVAL");
+	player.setFly(p, false);
+}
+
+diapickaxe = read.item("{id:\"minecraft:diamond_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:efficiency\"}]}}");
+blocks512 = item.create("minecraft:cut_sandstone", 512, null, null);
+stick = read.item("{id:\"minecraft:stick\",Count:1b,tag:{HideFlags:2,Enchantments:[{lvl:1s,id:\"minecraft:knockback\"}],display:{Name:'{\"text\":\"§bKnüppel\"}'},AttributeModifiers:[{UUIDMost:1,UUIDLeast:1,Amount:100.0d,Slot:\"mainhand\",AttributeName:\"generic.attackSpeed\",Operation:0,Name:\"modifier\"}]}}");
+ironpickaxe = item.create("minecraft:iron_pickaxe", 1, null, null);
+blocks64 = item.create("minecraft:cut_sandstone", 64, null, null);
+
+for(i = 0; i < seeker_amount; i++) {
+	p_uuid = list.getIndex(templist, math.random(0, list.getSize(templist) - 1));
+	p = player.get(p_uuid);
+	list.remove(templist, p_uuid);
+	setSeeker(p);
+	msg.prefix(p, gamename, "Catch other players!");
+}
+
+for(i = 0; i < list.getSize(templist); i++) {
+	p_uuid = list.getIndex(templist, i);
+	p = player.get(p_uuid);
+	setEscaper(p);
+	msg.prefix(p, gamename, "Run away!!!");
+}
+
+sgoto(20, "loop");
+gosub("updatedisplay");
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+/*@function_key
+if(list.contains(seekerlist, player.getUuid(player))) {
+	skills_list = seeker_skills;
+	type = "seeker";
+} else {
+	skills_list = hider_skills;
+	type = "hider";
+}
+if(key > list.getSize(skills_list)) {
+	goto("checkgame");
+}
+skill = list.getIndex(skills_list, key - 1);
+skill_name = skill[0];
+needed_cooldown = skill[1];
+effecttime = skill[3] * 20;
+amplifier = skill[4];
+offensive = skill[5];
+tech_name = skill[6];
+last_exe_time = getCatchLastExeTime(player, skill_name);
+diff_time = math.roundUp((time.getMillis() - last_exe_time) / 1000);
+if(diff_time < needed_cooldown) {
+	player.action(player, string.concat("§a", string.number(needed_cooldown - diff_time), "s cooldown left"));
+	goto("checkgame");
+}
+if(offensive) {
+	if(type == "seeker") {
+		iter = iterator(escaperlist);
+		while(hasNext(iter)) {
+			p = player.get(next(iter));
+			entity.addEffect(p, tech_name, effecttime, amplifier, false);
+		}
+	} else {
+		iter = iterator(seekerlist);
+		while(hasNext(iter)) {
+			p = player.get(next(iter));
+			entity.addEffect(p, tech_name, effecttime, amplifier, false);
+		}
+	}
+} else {
+	entity.addEffect(player, tech_name, effecttime, amplifier, false);
+}
+setCatchLastExeTime(player, skill_name);
+status.addTimed(player, key, needed_cooldown * 20, string.concat("CD ", skill_name));
+minigame.speakAll(gamename, string.concat("§6", player.getName(player), "§r used §2", skill_name, "."));
+goto("checkgame");*/
+
+@entity_damage
+defender = player;
+attacker = player.getFromDamageSource(damage_source);
+if(attacker == null) {
+	goto("checkgame");
+}
+defender_uuid = player.getUuid(defender);
+if(!list.contains(player_list, defender_uuid)) {
+	cancel = true;
+	msg.prefix(attacker, gamename, "§eIllegal player in game.");
+	goto("checkgame");
+}
+if(!player.hasMinigameId(attacker, script_id)) {
+	goto("checkgame");
+}
+attacker_uuid = player.getUuid(attacker);
+if(defender_uuid == attacker_uuid) {
+	goto("checkgame");
+}
+if(!list.contains(player_list, attacker_uuid)) {
+	msg.prefix(defender, gamename, "§eIllegal player in game.");
+	goto("checkgame");
+}
+if(list.contains(seekerlist, attacker_uuid) && list.contains(escaperlist, defender_uuid)) {
+	setSeeker(defender);
+	msg.prefix(defender, gamename, "Catch other players!");
+	setEscaper(attacker);
+	msg.prefix(attacker, gamename, "Run away!!!");
+	gosub("updatedisplay");
+}
+goto("checkgame");
+
+@player_post_respawn
+if(list.contains(escaperlist, player.getUuid(player))) {
+	//Random-Seeker zum Escaper machen
+	p_uuid = list.getIndex(seekerlist, math.random(0, list.getSize(seekerlist) - 1));
+	p = player.get(p_uuid);
+	setEscaper(p);
+	msg.prefix(p, gamename, "Run away!!!");
+	//Escaper wird zum Seeker
+	setSeeker(player);
+	msg.prefix(player, gamename, "Catch other players!");
+	gosub("updatedisplay");
+} else {
+	player.clearInventory(player);
+	giveSeekerItems(player);
+	entity.teleport(player, seeker_spawn_loc);
+}
+goto("checkgame");
+
+@block_break
+cancel = true;
+block_loc = block.getLocation(block);
+if(list.contains(spawnprotect, block_loc)) {
+	goto("checkgame");
+}
+if(list.contains(placedblocks, block)) {
+	cancel = false;
+	list.remove(placedblocks, block);
+	goto("checkgame");
+}
+block_type = block.getType(block);
+if(set.contains(allowed_breaks, block_type)) {
+	cancel = false;
+	map.add(brokenblocks, block, block_type);
+	goto("checkgame");
+}
+if(block_type == diamond_block_mat) {
+	player_uuid = player.getUuid(player);
+	if(list.contains(escaperlist, player_uuid)) {
+		cancel = false;
+		temp = map.get(points, player_uuid) + 1;
+		map.add(points, player_uuid, temp);
+		if(temp >= winpoints) {
+			winner_uuid = player_uuid;
+			goto("win");
+		}
+		sgoto(60, "replacedia");
+		goto("checkgame");
+	}
+}
+goto("checkgame");
+
+@block_place
+block_loc = block.getLocation(block);
+if(list.contains(spawnprotect, block_loc)) {
+	cancel = true;
+	goto("checkgame");
+}
+block_type = block.getType(block);
+if(block_type == diamond_block_mat) {
+	cancel = true;
+	goto("checkgame");
+}
+cancel = false;
+list.add(placedblocks, block);
+goto("checkgame");
+
+@replacedia
+block.setMaterial(dia_block, diamond_block_mat);
+goto("checkgame");
+
+@loop
+//Zeit wird nur Escapern angezeigt
+for(i = 0; i < list.getSize(escaperlist); i++) {
+	p_uuid = list.getIndex(escaperlist, i);
+	seconds = map.get(times, p_uuid) - 1;
+	if(seconds <= 0) {
+		seconds = 30;
+		temp = map.get(points, p_uuid) + 2;
+		map.add(points, p_uuid, temp);
+		if(temp >= winpoints) {
+			winner_uuid = p_uuid;
+			goto("win");
+		}
+	}
+	map.add(times, p_uuid, seconds);
+}
+sgoto(20, "loop");
+gosub("updatedisplay");
+goto("checkgame");
+
+@updatedisplay
+minigame.displayClearAll();
+displayindex = 99;
+minigame.displayAll(displayindex--, "§6Catcher");
+for(i = 0; i < list.getSize(seekerlist); i++) {
+	minigame.displayAll(displayindex--, player.getName(list.getIndex(seekerlist, i)));
+}
+minigame.displayAll(displayindex--, "");
+minigame.displayAll(displayindex--, string.concat("§6Points §r(Goal: ", string.number(winpoints), ")"));
+for(i = 0; i < list.getSize(player_list); i++) {
+	p_uuid = list.getIndex(player_list, i);
+	minigame.displayAll(displayindex--, string.concat(string.number(map.get(points, p_uuid)), " ", player.getName(p_uuid)));
+}
+for(i = 0; i < list.getSize(escaperlist); i++) {
+	p_uuid = list.getIndex(escaperlist, i);
+	p = player.get(p_uuid);
+	sb.add(p, displayindex--, "");
+	sb.add(p, displayindex--, "§6Counter");
+	sb.add(p, displayindex--, string.concat(string.number(map.get(times, p_uuid))));
+}
+minigame.displayAll(displayindex--, sb.getSpacer());
+return;
+
+function setSeeker(player) {
+	//setStackIcons(player, $seeker_skills);
+	player_uuid = player.getUuid(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	living.cleareffects(player);
+	player.clearInventory(player);
+	list.add($seekerlist, player_uuid);
+	list.remove($escaperlist, player_uuid);
+	giveSeekerItems(player);
+	entity.teleport(player, $seeker_spawn_loc);
+	living.addEffect(player, "SLOW", $slowtime, 6);
+	living.addEffect(player, "JUMP", $slowtime, 128);
+}
+
+function setEscaper(player) {
+	//setStackIcons(player, $hider_skills);
+	player_uuid = player.getUuid(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	living.cleareffects(player);
+	player.clearInventory(player);
+	list.add($escaperlist, player_uuid);
+	list.remove($seekerlist, player_uuid);
+	player.giveItem(player, $diapickaxe);
+	player.giveItem(player, $stick);
+	player.giveItem(player, $blocks512);
+	map.add($times, player_uuid, 30);
+	entity.teleport(player, $escaper_spawn_loc);
+}
+
+function giveSeekerItems(player) {
+	player.giveItem(player, $ironpickaxe);
+	player.giveItem(player, $blocks64);
+}
+
+function setCatchLastExeTime(player, skill_name) {
+	player_uuid = player.getUuid(player);
+	player_map = map.getOrDefault($cooldown_map, player_uuid, map.new());
+	map.add(player_map, skill_name, time.getMillis());
+	map.add($cooldown_map, player_uuid, player_map);
+}
+
+function getCatchLastExeTime(player, skill_name) {
+	player_map = map.get($cooldown_map, player.getUuid(player));
+	if(player_map == null) {
+		return 0;
+	}
+	return map.getOrDefault(player_map, skill_name, 0);
+}
+
+/*function setStackIcons(player, skills_list) {
+	stacks.clear(player);
+	for(h = 0; h < list.getSize(skills_list); h++) {
+		skill = list.getIndex(skills_list, h);
+		icon = skill[2];
+		stacks.set(player, h, icon);
+	}
+	stacks.setActive(player, true);
+}*/
+
+/*function addSeekerSkill(skill_name, cooldown, icon, effecttime, amplifier, offensive, tech_name) {
+	skill = array.new(7);
+	skill[0] = skill_name;
+	skill[1] = cooldown; //s
+	skill[2] = icon;
+	skill[3] = effecttime; //s
+	skill[4] = amplifier;
+	skill[5] = offensive;
+	skill[6] = tech_name;
+	list.add($seeker_skills, skill);
+}
+
+function addHiderSkill(skill_name, cooldown, icon, effecttime, amplifier, offensive, tech_name) {
+	skill = array.new(7);
+	skill[0] = skill_name;
+	skill[1] = cooldown; //s
+	skill[2] = icon;
+	skill[3] = effecttime; //s
+	skill[4] = amplifier;
+	skill[5] = offensive;
+	skill[6] = tech_name;
+	list.add($hider_skills, skill);
+}*/
+
+@player_quit
+@player_giveup
+minigame.speakAll(gamename, string.concat("§6", player.getName(player), " §rhas left the game."));
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+player_uuid = player.getUuid(player);
+map.remove(points, player_uuid);
+list.remove(seekerlist, player_uuid);
+list.remove(escaperlist, player_uuid);
+if(list.getSize(player_list) < minplayers) {
+	minplayers--;
+	if(--seeker_amount == 0) {
+		winner_uuid = list.getIndex(player_list, 0);
+		goto("win");
+	}
+}
+if(list.contains(seekerlist, player_uuid)) {
+	//Ersatz-Sucher erstellen
+	p = player.get(list.getIndex(escaperlist, math.random(0, list.getSize(escaperlist) - 1)));
+	setSeeker(p);
+	msg.prefix(p, gamename, "A catcher has left. You are a catcher now.");
+	gosub("updatedisplay");
+}
+goto("checkgame");
+
+@win
+winnername = player.getName(winner_uuid);
+for(i = 0; i < list.getSize(player_list); i++) {
+	p_uuid = list.getIndex(player_list, i);
+	p = player.get(p_uuid);
+	msg.prefix(p, gamename, string.concat("§6", winnername, "§r has won."));
+	player.tpGamesLobby(p);
+	resetplayer(p);
+	money.addBoost(p, math.round(map.get(points, p_uuid)));
+	
+	p_id = player.getId(p);
+	last_record = ranking.getPoints(rankingtable, p_id);
+	if(p_uuid == winner_uuid) {
+		last_record++;
+	}
+	playedgames = minigame.getPlayed(p_id, game_short) + 1;
+	minigame.setPlayed(p_id, game_short, playedgames);
+	ranking.setPoints(rankingtable, p_id, last_record);
+	
+	minigame.statsHeader(p, gamename, "§e");
+	minigame.statsLine(p, "§e", "Played games", string.number(playedgames));
+	minigame.statsLine(p, "§e", "Won games", string.number(last_record));
+	if(playedgames != 0) {
+		minigame.statsLine(p, "§e", "Win ratio", string.concat(string.number(math.roundComma((last_record / playedgames) * 100, 2)), "%"));
+	}
+}
+air_mat = material.getAir();
+iter = iterator(placedblocks);
+while(hasNext(iter)) {
+	block.setMaterial(next(iter), air_mat);
+}
+iter = map.iterator(brokenblocks);
+while(hasNext(iter)) {
+	element = next(iter);
+	block = map.getKey(element);
+	type = map.getValue(element);
+	block.setMaterial(block, type);
+}
+block.setMaterial(dia_block, diamond_block_mat);
+minigame.clearItems(middleloc, radius);
+	
+script = script.getFromId(script_id);
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();

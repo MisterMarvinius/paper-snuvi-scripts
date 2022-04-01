@@ -308,6 +308,15 @@ function minigame.displayRemoveAll(line) {
 	}
 }
 
+function minigame.displayClearAll() {
+	iter = iterator(minigame.getPlayers($script_id));
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		sb.clearGame(p);
+	}
+}
+
 function minigame.statsHeader(player, gamename, colorcode) {
 	msg.string(player, string.concat("[", gamename, "§r] §r---= ", colorcode, "Statistic §r=---"));
 }

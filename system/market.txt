@@ -254,7 +254,7 @@ function newSellItem(item, amount, price) {
     if(price > 1) {
         s = "s";
     }
-    list.add(lore, text.new(string.concat("§eBuy §6", string.number(amount), "§e for §6", string.number(price), "§e Snuvi", s)));
+    list.add(lore, text.new(string.concat("§eBuy §6", string.number(amount), "§e for §6", money.getStringColor(price, "§6"))));
     item.setLore(item, lore);
     return item;
 }
@@ -266,16 +266,8 @@ function newItem(material) {
         lore = list.new();
     }
     calculatePrices(material);
-    s = "";
-    if($buySnuviAmount > 1) {
-        s = "s";
-    }
-    list.add(lore, text.new(string.concat("§eBuy §6", string.number($buyAmount), "§e for §6", string.number($buySnuviAmount), "§e Snuvi", s)));
-    s = "";
-    if($sellSnuviAmount > 1) {
-        s = "s";
-    }
-    list.add(lore, text.new(string.concat("§eSell §6", string.number($sellAmount), "§e for §6", string.number($sellSnuviAmount), "§e Snuvi", s)));
+    list.add(lore, text.new(string.concat("§eBuy §6", string.number($buyAmount), "§e for §f", money.getStringColor($buySnuviAmount, "§6"))));
+    list.add(lore, text.new(string.concat("§eSell §6", string.number($sellAmount), "§e for §f", money.getStringColor($sellSnuviAmount, "§6"))));
     list.add(lore, text.new(string.concat("§6", string.number($onStock), "§e on stock")));
     item.setLore(item, lore);
     return item;

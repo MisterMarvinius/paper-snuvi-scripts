@@ -1,0 +1,18 @@
+maxplayers = 6;
+minplayers = 3;
+mapname = "Egypt";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 945.5, 87, 973.5);
+gamesignloc = minigame.getSignLoc("hideandseeksign1");
+radius = 150;
+middleloc = loc.new(gamesworld, 4000, 100, 2000);
+
+seeker_amount = 2;
+dia_block = block.get(loc.new(gamesworld, 4000, 96, 2000));
+escaper_spawn_loc = loc.new(gamesworld, 4000, 100, 1992, 0.0001, 0.0001);
+seeker_spawn_loc = loc.new(gamesworld, 4000, 100, 2008, 180, 0.0001);
+slowtime = 200; //Zeit in Ticks, wie lange Seeker slowness haben
+
+allowed_breaks = set.new();
+set.add(allowed_breaks, material.get("minecraft:cut_sandstone"));
+set.add(allowed_breaks, material.get("minecraft:sandstone"));

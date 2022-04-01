@@ -1,6 +1,7 @@
 all_lines = 0;
 real_lines = 0;
 code_lines = 0;
+sumUpDirectory(file.new("scripts/challenges"));
 sumUpDirectory(file.new("scripts/minigames"));
 sumUpDirectory(file.new("scripts/story"));
 sumUpDirectory(file.new("scripts/survival"));

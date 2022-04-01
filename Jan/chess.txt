@@ -1,0 +1,74 @@
+
+board_edge = loc.new(world, -375, 138, -21);
+chessboard = array.new(8,8);
+
+chess_skins_value = map.new();
+chess_skins_signature = map.new();
+map.add(chess_skins_value, "Pink_King", "ewogICJ0aW1lc3RhbXAiIDogMTY0Nzk2ODkxMDIwMCwKICAicHJvZmlsZUlkIiA6ICI5MThhMDI5NTU5ZGQ0Y2U2YjE2ZjdhNWQ1M2VmYjQxMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJCZWV2ZWxvcGVyIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2NkODczMjY2NWE4YWJhMmY5YzQ3MDU0YzhjODdhZWFiNjQ3YTg3MmVjODA2MmQ3ZmFiYzkxYWJmODZmOWJhYWMiCiAgICB9CiAgfQp9")
+map.add(chess_skins_signature, "Pink_King", "JwER1lBG9QcnyAY1blr1tcA4sVUpISQcl9flu0FZyRunPwF4u6Efxo+MctRRUaCrYwp6fC9Sdjm5iVmesVpczyQ2ImyQ2/wIMqpFPQXs080gxc6FAqYiJZmDixunn907NJeBP0WKI04DtpD2a0KB3HPN5MyrORHuDBGcgSDsXYck73HCS5IMKE+LqCnSrp49fM4JJK1fNgLWFWSEHpSzWoRhvTphbBcrEaGo2fUSzAnTNtt9P6sH6PTV+pKarNcysp3Psc0yzIKC1Bs0tFZshpoJ6KN+PyaJJdDEjZ7ax2N+mj53wUuc+HxWkIFF5QpiVOWiZ9QWV3W4iBk+xUpnfuce2yn2sP+crMyWpoyuSBOXFOmRMk17VuQgY1IsIv/bfuxgUSZbW/18IglTfNaApCQlmTbTK4Bo7rJ/+10xKAH7LKWAI5P2ZctZJykE0fwz7QDDFoiNYeL7ZEaNLmqyTvVvhFfOJr5A2qh11DJD1UT8WxifFI2GonPZ193dgbaNlup4bnoDCLrn6ggMlggoW7fhqmsIvkokcYqFyFhhSJOemdTrH87ICHkstv1dvFEY3tyNPCYVEN9XnkKgg4dZqOHvepXumAA8THn0ersp8uZydtNkI0bLpbLOgAh92uGQ4yP3ShbVuruJf554i/tn24C7aqLVENmkWL3Uaet9vTI=")
+
+colourcode = map.new();
+map.add(colourcode, "white", "§f")
+map.add(colourcode, "black", "§0")
+
+@wait
+wait()
+goto("wait");
+
+function chess.reset(game_figures_reset_list, active_game_figures_list){
+	list_iterator = iterator(active_game_figures_list);
+	while(hasnext(map_iterator)){
+		entity.remove(next(map_iterator));
+	}
+	list_iterator = iterator(game_figures_reset_list);
+	while(hasnext(list_iterator)){
+		chess.spawn_piece(next(list_iterator));
+	}
+	new_active_game_figures_list;
+	return new_active_game_figures_list;
+}
+
+function chess.move_piece(piece, to_loc){
+	from_loc = entity.getLocation(piece);
+	to_Board_loc_array = chess.getBoardLocation(to_loc);
+	possible_piece = $chessboard[to_Board_loc_array[0], to_Board_loc_array[1]];
+	if(chess.isValidMove(possible_piece, piece)){
+		entity.remove(possible_piece);
+	}
+	from_Board_loc_array = chess.getBoardLocation(from_loc);
+	$chessboard[from_Board_loc_array[0], from_Board_loc_array[1]] = null;
+	$chessboard[to_Board_loc_array[0], to_Board_loc_array[1]] = piece;
+	id = human.moveTo(piece, to_loc);
+}
+
+function chess.spawn_piece(spawn_array){
+	temp_human = human.spawn(spawn_array[0], map.get($chess_names, spawn_array[1]));
+	human.setSkin(temp_human, map.get($chess_skins_value, spawn_array[1]));
+}
+
+function chess.isValidMove(possible_piece, piece){
+	if(possible_piece == null){
+		return true;
+	}
+	if(chess.getTeamOfPiece(possible_piece) == chess.getTeamOfPiece(piece)){
+		return true;
+	}
+	return false;
+}
+
+function chess.getTeamOfPiece(piece){
+	piece_name = string.text(entity.getName(piece));
+	if(string.contains(map.get($colourcode, "white"))){
+		return "white";
+	}elsif(string.contains(map.get($colourcode, "black"))){
+		return "black";
+	}
+	return;
+}
+
+function chess.getBoardLocation(from_loc){
+	Board_loc_array = array.new(2);
+	Board_loc_array[0] = loc.getX(from_loc) - loc.getX($board_edge);
+	Board_loc_array[1] = loc.getZ(from_loc) - loc.getZ($board_edge);
+	return Board_loc_array;
+}

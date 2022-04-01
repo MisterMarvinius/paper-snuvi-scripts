@@ -4,14 +4,26 @@ spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
 
 lore_list = list.new();
 list.add(lore_list, text.new("Kill all entities in the given order."));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(8192), " + 1 Amber")));
 list.add(lore_list, text.new(""));
 list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
 list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
 all_entities = item.create("NETHERITE_SWORD", 1, "§cAll Entities", lore_list);
 item.addFlag(all_entities, "HIDE_ATTRIBUTES");
 
+lore_list = list.new();
+list.add(lore_list, text.new("Collect all items in the given order."));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(32768), " + 1 Amber")));
+list.add(lore_list, text.new(""));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+all_items = item.create("CHEST_MINECART", 1, "§cAll Items", lore_list);
+
 butcher_inv = inv.new("222222222", text.new("Challenges: Butcher"));
 inv.setItem(butcher_inv, 0, all_entities);
+
+librarian_inv = inv.new("222222222", text.new("Challenges: Librarian"));
+inv.setItem(librarian_inv, 0, all_items);
 
 msg("dev", text.new("§bChallenges §rloaded."));
 @wait
@@ -24,12 +36,16 @@ item = inv.getItem(inv, inv_slot);
 item.removeFlag(item, "HIDE_DESTROYS");
 title_string = string.text(inv_title);
 if(item == spyglass) {
-	if(!perm.has("isTeam", player)) {
-		perm.no("isTeam", player);
-		goto("wait");
-	}
 	if(title_string == "Butcher") {
 		inv.open(butcher_inv, player);
+		goto("wait");
+	}
+	if(title_string == "Librarian") {
+		if(!perm.has("isTeam", player)) {
+			perm.no("isTeam", player);
+			goto("wait");
+		}
+		inv.open(librarian_inv, player);
 		goto("wait");
 	}
 	goto("wait");

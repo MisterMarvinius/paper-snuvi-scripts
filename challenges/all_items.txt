@@ -1,0 +1,372 @@
+event.load("living_pickup");
+event.load("pre_craft");
+event.load("craft");
+event.load("player_join");
+event.load("snuvi_click");
+
+prefix_challenge = "§aChallenge";
+challenge_short = "aitems";
+challenge_name = "All Items";
+reward = 32768;
+sb_id = 12;
+
+lore_list = list.new();
+list.add(lore_list, text.new("Collect all items in the given order."));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 1 Amber")));
+list.add(lore_list, text.new(""));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+aitems = item.create("CHEST_MINECART", 1, "§cAll Items", lore_list);
+
+next_items = map.new(); //player_id -> material
+done_items = map.new(); //player_id -> set -> material
+todo_items = map.new(); //player_id -> list -> material
+
+sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+category = sound.getCategory("MASTER");
+	
+a = material.getAll();
+mat_list = list.new();
+for(i = 0; i < array.getSize(a); i++) {
+	mat = a[i];
+	if(material.isItem(mat)) {
+		list.add(mat_list, mat);
+	}
+}
+list.remove(mat_list, material.get("DRAGON_EGG"));
+list.remove(mat_list, material.get("AXOLOTL_SPAWN_EGG"));
+list.remove(mat_list, material.get("BAT_SPAWN_EGG"));
+list.remove(mat_list, material.get("BEE_SPAWN_EGG"));
+list.remove(mat_list, material.get("BLAZE_SPAWN_EGG"));
+list.remove(mat_list, material.get("CAT_SPAWN_EGG"));
+list.remove(mat_list, material.get("CAVE_SPIDER_SPAWN_EGG"));
+list.remove(mat_list, material.get("CHICKEN_SPAWN_EGG"));
+list.remove(mat_list, material.get("COD_SPAWN_EGG"));
+list.remove(mat_list, material.get("COW_SPAWN_EGG"));
+list.remove(mat_list, material.get("CREEPER_SPAWN_EGG"));
+list.remove(mat_list, material.get("DOLPHIN_SPAWN_EGG"));
+list.remove(mat_list, material.get("DONKEY_SPAWN_EGG"));
+list.remove(mat_list, material.get("DROWNED_SPAWN_EGG"));
+list.remove(mat_list, material.get("ELDER_GUARDIAN_SPAWN_EGG"));
+list.remove(mat_list, material.get("ENDERMAN_SPAWN_EGG"));
+list.remove(mat_list, material.get("ENDERMITE_SPAWN_EGG"));
+list.remove(mat_list, material.get("EVOKER_SPAWN_EGG"));
+list.remove(mat_list, material.get("FOX_SPAWN_EGG"));
+list.remove(mat_list, material.get("GHAST_SPAWN_EGG"));
+list.remove(mat_list, material.get("GLOW_SQUID_SPAWN_EGG"));
+list.remove(mat_list, material.get("GOAT_SPAWN_EGG"));
+list.remove(mat_list, material.get("GUARDIAN_SPAWN_EGG"));
+list.remove(mat_list, material.get("HOGLIN_SPAWN_EGG"));
+list.remove(mat_list, material.get("HORSE_SPAWN_EGG"));
+list.remove(mat_list, material.get("HUSK_SPAWN_EGG"));
+list.remove(mat_list, material.get("LLAMA_SPAWN_EGG"));
+list.remove(mat_list, material.get("MAGMA_CUBE_SPAWN_EGG"));
+list.remove(mat_list, material.get("MOOSHROOM_SPAWN_EGG"));
+list.remove(mat_list, material.get("MULE_SPAWN_EGG"));
+list.remove(mat_list, material.get("OCELOT_SPAWN_EGG"));
+list.remove(mat_list, material.get("PANDA_SPAWN_EGG"));
+list.remove(mat_list, material.get("PARROT_SPAWN_EGG"));
+list.remove(mat_list, material.get("PHANTOM_SPAWN_EGG"));
+list.remove(mat_list, material.get("PIG_SPAWN_EGG"));
+list.remove(mat_list, material.get("PIGLIN_SPAWN_EGG"));
+list.remove(mat_list, material.get("PIGLIN_BRUTE_SPAWN_EGG"));
+list.remove(mat_list, material.get("PILLAGER_SPAWN_EGG"));
+list.remove(mat_list, material.get("POLAR_BEAR_SPAWN_EGG"));
+list.remove(mat_list, material.get("PUFFERFISH_SPAWN_EGG"));
+list.remove(mat_list, material.get("RABBIT_SPAWN_EGG"));
+list.remove(mat_list, material.get("RAVAGER_SPAWN_EGG"));
+list.remove(mat_list, material.get("SALMON_SPAWN_EGG"));
+list.remove(mat_list, material.get("SHEEP_SPAWN_EGG"));
+list.remove(mat_list, material.get("SHULKER_SPAWN_EGG"));
+list.remove(mat_list, material.get("SILVERFISH_SPAWN_EGG"));
+list.remove(mat_list, material.get("SKELETON_SPAWN_EGG"));
+list.remove(mat_list, material.get("SKELETON_HORSE_SPAWN_EGG"));
+list.remove(mat_list, material.get("SLIME_SPAWN_EGG"));
+list.remove(mat_list, material.get("SPIDER_SPAWN_EGG"));
+list.remove(mat_list, material.get("SQUID_SPAWN_EGG"));
+list.remove(mat_list, material.get("STRAY_SPAWN_EGG"));
+list.remove(mat_list, material.get("STRIDER_SPAWN_EGG"));
+list.remove(mat_list, material.get("TRADER_LLAMA_SPAWN_EGG"));
+list.remove(mat_list, material.get("TROPICAL_FISH_SPAWN_EGG"));
+list.remove(mat_list, material.get("TURTLE_SPAWN_EGG"));
+list.remove(mat_list, material.get("VEX_SPAWN_EGG"));
+list.remove(mat_list, material.get("VILLAGER_SPAWN_EGG"));
+list.remove(mat_list, material.get("VINDICATOR_SPAWN_EGG"));
+list.remove(mat_list, material.get("WANDERING_TRADER_SPAWN_EGG"));
+list.remove(mat_list, material.get("WITCH_SPAWN_EGG"));
+list.remove(mat_list, material.get("WITHER_SKELETON_SPAWN_EGG"));
+list.remove(mat_list, material.get("WOLF_SPAWN_EGG"));
+list.remove(mat_list, material.get("ZOGLIN_SPAWN_EGG"));
+list.remove(mat_list, material.get("ZOMBIE_SPAWN_EGG"));
+list.remove(mat_list, material.get("ZOMBIE_HORSE_SPAWN_EGG"));
+list.remove(mat_list, material.get("ZOMBIE_VILLAGER_SPAWN_EGG"));
+list.remove(mat_list, material.get("ZOMBIFIED_PIGLIN_SPAWN_EGG"));
+list.remove(mat_list, material.get("BARRIER"));
+list.remove(mat_list, material.get("SPAWNER"));
+list.remove(mat_list, material.get("END_PORTAL_FRAME"));
+list.remove(mat_list, material.get("END_PORTAL"));
+list.remove(mat_list, material.get("NETHER_PORTAL"));
+list.remove(mat_list, material.get("FARMLAND"));
+list.remove(mat_list, material.get("INFESTED_STONE"));
+list.remove(mat_list, material.get("INFESTED_COBBLESTONE"));
+list.remove(mat_list, material.get("INFESTED_STONE_BRICKS"));
+list.remove(mat_list, material.get("INFESTED_MOSSY_STONE_BRICKS"));
+list.remove(mat_list, material.get("INFESTED_CRACKED_STONE_BRICKS"));
+list.remove(mat_list, material.get("INFESTED_CHISELED_STONE_BRICKS"));
+list.remove(mat_list, material.get("INFESTED_DEEPSLATE"));
+list.remove(mat_list, material.get("AIR"));
+list.remove(mat_list, material.get("BEDROCK"));
+list.remove(mat_list, material.get("BUDDING_AMETHYST"));
+list.remove(mat_list, material.get("PETRIFIED_OAK_SLAB"));
+list.remove(mat_list, material.get("CHORUS_PLANT"));
+list.remove(mat_list, material.get("DIRT_PATH"));
+list.remove(mat_list, material.get("TALL_GRASS"));
+list.remove(mat_list, material.get("LARGE_FERN"));
+list.remove(mat_list, material.get("REPEATING_COMMAND_BLOCK"));
+list.remove(mat_list, material.get("CHAIN_COMMAND_BLOCK"));
+list.remove(mat_list, material.get("STRUCTURE_VOID"));
+list.remove(mat_list, material.get("SCULK_SENSOR"));
+list.remove(mat_list, material.get("JIGSAW"));
+list.remove(mat_list, material.get("BUNDLE"));
+list.remove(mat_list, material.get("PLAYER_HEAD"));
+list.remove(mat_list, material.get("COMMAND_BLOCK_MINECART"));
+list.remove(mat_list, material.get("DEBUG_STICK"));
+list.remove(mat_list, material.get("COMMAND_BLOCK"));
+all_stages = list.getSize(mat_list);
+
+online_list = players.toList();
+iter = iterator(online_list);
+while(hasNext(iter)) {
+	p = next(iter);
+	if(challenge.playerHas(p, challenge_short)) {
+		stage = loadDoneItems(p);
+		type = loadNextItem(p);
+		challenge.display(p, sb_id, challenge_name, type, stage, all_stages);
+	}
+}
+
+msg.string("dev", "§bAllItems §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+stage = loadDoneItems(player);
+type = loadNextItem(player);
+challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
+goto("wait");
+
+@snuvi_click
+item = inv.getItem(inv, inv_slot);
+item.removeFlag(item, "HIDE_DESTROYS");
+title_string = string.text(inv_title);
+if(item == aitems) {
+	if(click == "LEFT") {
+		if(challenge.playerHas(player, challenge_short)) {
+			msg.prefix(player, prefix_challenge, "You already started this challenge.");
+			goto("wait");
+		}
+		player_id = player.getId(player);
+		map.add(todo_items, player_id, list.copy(mat_list));
+		map.add(done_items, player_id, set.new());
+		player.addChallenge(player, challenge_short);
+		type = getRandomType(player);
+		stage = setNextItem(player, type);
+		challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
+		msg.string(player, string.getSpacer());
+		msg.prefix(player, prefix_challenge, "Challenge started.");
+		msg.prefix(player, prefix_challenge, "Crafted and picked up items will count.");
+		msg.prefix(player, prefix_challenge, "§cCounted items will be deleted!");
+		goto("wait");
+	}
+	if(click == "RIGHT") {
+		if(!challenge.playerHas(player, challenge_short)) {
+			msg.prefix(player, prefix_challenge, "Challenge not active.");
+			goto("wait");
+		}
+		resetAItems(player);
+		challenge.removeDisplay(player, sb_id);
+		player.removeChallenge(player, challenge_short);
+		msg.prefix(player, prefix_challenge, "Challenge canceled.");
+		goto("wait");
+	}
+	goto("wait");
+	
+}
+goto("wait");
+
+@pre_craft
+player = list.getIndex(players, 0);
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+my_inv = inv;
+goto("wait");
+
+@craft
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+player_loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(player_loc));
+if(!world.isSurvName(world_name)) {
+	goto("wait");
+}
+if(item == null) {
+	goto("wait");
+}
+item_type = item.getType(item);
+if(!isNextItem(player, item_type)) {
+	goto("wait");
+}
+item.setAmount(item, item.getAmount(item) - 1);
+inv.clear(my_inv);
+player.safeGiveItem(player, item);
+sound.spawnForPlayer(player, sound, category);
+new_type = getRandomType(player);
+if(new_type == null) {
+	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
+	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
+	money.add(player, reward);
+	player.giveItem(player, item.getAmber());
+	resetAItems(player);
+	challenge.removeDisplay(player, sb_id);
+	player.removeChallenge(player, challenge_short);
+	goto("wait");
+}
+saveDoneItems(player, item_type);
+stage = setNextItem(player, new_type);
+msg.prefix(player, prefix_challenge, string.concat("Item collected. Next item: ", new_type));
+challenge.display(player, sb_id, challenge_name, new_type, stage, all_stages);
+goto("wait");
+
+@living_pickup
+if(!isPlayer(living_entity)) {
+	goto("wait");
+}
+player = living_entity;
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+player_loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(player_loc));
+if(!world.isSurvName(world_name)) {
+	goto("wait");
+}
+item = item.entity.get(item_entity);
+item_type = item.getType(item);
+if(!isNextItem(player, item_type)) {
+	goto("wait");
+}
+item_amount = item.getAmount(item);
+if(item_amount > 1) {
+	item.setAmount(item, item_amount - 1);
+	item.entity.set(item_entity, item);
+} else {
+	cancel = true;
+	entity.remove(item_entity);
+}
+sound.spawnForPlayer(player, sound, category);
+new_type = getRandomType(player);
+if(new_type == null) {
+	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
+	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
+	money.add(player, reward);
+	player.giveItem(player, item.getAmber());
+	resetAItems(player);
+	challenge.removeDisplay(player, sb_id);
+	player.removeChallenge(player, challenge_short);
+	goto("wait");
+}
+saveDoneItems(player, item_type);
+stage = setNextItem(player, new_type);
+msg.prefix(player, prefix_challenge, string.concat("Item collected. Next item: ", new_type));
+challenge.display(player, sb_id, challenge_name, new_type, stage, all_stages);
+goto("wait");
+
+function getRandomType(player) {
+	player_id = player.getId(player);
+	l = map.get($todo_items, player_id);
+	l_size = list.getSize(l);
+	if(l_size == 0) {
+		return null;
+	}
+	r = math.random(0, l_size - 1);
+	return list.getIndex(l, r);
+}
+
+function isNextItem(player, item_type) {
+	player_id = player.getId(player);
+	next_type = map.get($next_items, player_id);
+	return next_type == item_type;
+}
+
+function setNextItem(player_or_id, item_type) {
+	player_id = player.getValidId(player_or_id);
+	map.add($next_items, player_id, item_type);
+	saveNextItem(player_or_id, item_type);
+	
+	l = map.get($todo_items, player_id);
+	list.remove(l, item_type);
+	return $all_stages - list.getSize(l) - 1;
+}
+
+function loadNextItem(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	player_id = player.getValidId(player_or_id);
+	type = material.get(config.getString(config, "cha.aitems.next", "null"));
+	map.add($next_items, player_id, type);
+	l = map.get($todo_items, player_id);
+	list.remove(l, type);
+	return type;
+}
+
+function saveNextItem(player_or_id, item_type) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.aitems.next", string(item_type));
+	config.saveAsync(config);
+}
+
+function loadDoneItems(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "cha.aitems.done", "");
+	a = string.split("%", string);
+	s = set.new();
+	l = list.copy($mat_list);
+	for(i = 0; i < array.getSize(a); i++) {
+		type = a[i];
+		set.add(s, type);
+		list.remove(l, type);
+	}
+	player_id = player.getValidId(player_or_id);
+	map.add($done_items, player_id, s);
+	map.add($todo_items, player_id, l);
+	return set.getSize(map.get($done_items, player_id));
+}
+
+function saveDoneItems(player_or_id, item_type) {
+	player_id = player.getValidId(player_or_id);
+	s = map.get($done_items, player_id);
+	set.add(s, item_type);
+	
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "cha.aitems.done", "");
+	item_type = string(item_type);
+	if(string == "") {
+		config.set(config, "cha.aitems.done", item_type);
+	} else {
+		config.set(config, "cha.aitems.done", string.concat(string, "%", item_type));
+	}
+	config.saveAsync(config);
+}
+
+function resetAItems(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.aitems.done", "");
+	config.set(config, "cha.aitems.next", "");
+	config.saveAsync(config);
+}

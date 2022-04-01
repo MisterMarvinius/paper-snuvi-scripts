@@ -1011,6 +1011,46 @@
             <td>block.isLeaves(block)</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">block.canHaveWater</th>
+            <th class="desc">returns true if a block can have water</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>block.canHaveWater(block)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">block.isWater</th>
+            <th class="desc">returns true if a block is water</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>block.isWater(block)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">block.isWaterLogged</th>
+            <th class="desc">returns true if a block is waterlogged</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>block.isWaterLogged(block)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">block.setWaterLogged</th>
+            <th class="desc">set the waterlogged property of a block</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>block.setWaterLogged(block, boolean)</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Databank">
@@ -1286,6 +1326,46 @@
         <tr>
             <td class="bold">Format</td>
             <td>material.get(<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Material.html" target="_blank">material_name</a>)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">material.getAll</th>
+            <th class="desc">returns an array with all materials</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>material.getAll()</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">material.isItem</th>
+            <th class="desc">returns true if a material is an holdable item</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>material.isSolid(material)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">material.isBlock</th>
+            <th class="desc">returns true if a material is an placeable block</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>material.isSolid(material)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">material.isSolid</th>
+            <th class="desc">returns true if a material is a block and solid (can be built upon)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>material.isSolid(material)</td>
         </tr>
     </table>
 	<table>
@@ -2506,7 +2586,7 @@
 	<table>
         <tr>
             <th class="command">plot.addBlock</th>
-            <th class="desc">adds a block protection</th>
+            <th class="desc">makes a block public</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -2516,7 +2596,7 @@
 	<table>
         <tr>
             <th class="command">plot.removeBlock</th>
-            <th class="desc">removes a block protection</th>
+            <th class="desc">makes a block non-public</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -2526,7 +2606,7 @@
 	<table>
         <tr>
             <th class="command">plot.hasBlock</th>
-            <th class="desc">returns true if a block is protected</th>
+            <th class="desc">returns true if a block is public</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -4319,6 +4399,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>entity.getLook(entity)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity.setLook</th>
+            <th class="desc">sets the look of an entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.setLook(entity, x, y, z)</td>
         </tr>
     </table>
 	<table>

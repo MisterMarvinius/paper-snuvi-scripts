@@ -1,0 +1,432 @@
+rankingtable = "halmaranks";
+game_short = "halma";
+game_tab = "§eHalma";
+
+teams = map.new();
+pointed_block = block.get(loc.new(gamesworld, 0, 0, 0)); //Default-Wert, um Error zu verhindern
+gamename = "§eHalma";
+specific_lobby_handling = true;
+no_core_reset = true;
+
+air_mat = material.getAir();
+
+gosub("setstart");
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "minigame_join") {
+	living.cleareffects(player);
+	living.setHealth(player, 20);
+	player.setHunger(player, 20);
+	player.setSaturation(player, 5);
+	player.clearInventory(player);
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+minigame.speakAll(gamename, "The game has started.");
+
+//Sechseck leeren
+iter = iterator(center_locs);
+while(hasNext(iter)) {
+	entry = next(iter);
+	block.setMaterial(entry, air_mat);
+}
+//Start-Felder leeren
+map_iter = map.iterator(start_locs);
+while(hasNext(map_iter)) {
+	list = map.getValue(next(map_iter));
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		entry = next(iter);
+		block.setMaterial(entry, air_mat);
+	}
+}
+//Ziel-Felder leeren
+map_iter = map.iterator(aim_locs);
+while(hasNext(map_iter)) {
+	list = map.getValue(next(map_iter));
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		entry = next(iter);
+		block.setMaterial(entry, air_mat);
+	}
+}
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	player = player.get(list.getIndex(player_list, i));
+	entity.teleport(player, spawn_loc);
+	player.setGamemode(player, "SURVIVAL");
+	player.setFly(player, true);
+	//Team-Zuweisung
+	map.add(teams, player, i);
+	//Start-Feld bestücken
+	list = map.get(start_locs, i);
+	banner_type = map.get(tokens_map, i);
+	rotation = map.get(rotations_map, i);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		entry = next(iter);
+		block.setData(entry, read.blockData(string.concat(banner_type, "[rotation=", rotation, "]")));
+	}
+	color = map.get(colors_map, i);
+	minigame.setTabName(player, game_tab, color);
+}
+
+next_player = player.get(list.getIndex(player_list, math.random(0, list.getSize(player_list) - 1)));
+setNextPlayer(next_player);
+jump_moves = false;
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(event == "custom_command") {
+	if(!isPlayer(sender)) {
+		goto("wait");
+	}
+	player = sender;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("wait");
+}
+if(action != "RIGHT_CLICK_BLOCK") {
+	goto("wait");
+}
+//Korrekter Spieler?
+if(player != next_player) {
+	msg.prefix(player, gamename, "It´s not your turn.");
+	goto("wait");
+}
+//Spielfigur ausgewählt?
+block_type = block.getType(block);
+block_loc = block.getLocation(block);
+if(map.contains(tokens_map2, block_type)) {
+	//Spielfigur der eigenen Farbe ausgewählt?
+	if(map.get(tokens_map2, block_type) == map.get(teams, player)) {
+		//Zuletzt ausgewählte Spielfigur der eigenen Farbe speichern, wenn nicht bereits gezogen (gesprungen) wurde
+		if(jump_moves) {
+			msg.prefix(player, gamename, "Already moved with another game piece.");
+			goto("wait");
+		}
+		token_loc = block_loc;
+		block.setMaterial(pointed_block, basic_block);
+		pointed_block = block.mod(block, 0, -1, 0);
+		block.setMaterial(pointed_block, point_block);
+	} else {
+		msg.prefix(player, gamename, "Not your game piece.");
+	}
+	goto("wait");
+}
+//Wurde am Spielbrett ein gültiges Feld angeklickt?
+if(block_type == basic_block) {
+	//Wurde bereits eine Spielfigur der eigenen Farbe ausgewählt?
+	if(token_loc != null) {
+		//Ist der Zug gültig? Ziehen / Springen,
+		diff_x = loc.getX(block_loc) - loc.getX(token_loc);
+		diff_z = loc.getZ(block_loc) - loc.getZ(token_loc);
+		possible_move = false;
+		for(i = 0; i < list.getSize(possible_move_differences); i++) {
+			a = list.getIndex(possible_move_differences, i);
+			x = a[0];
+			z = a[1];
+			//Passt der Vektor des Zuges?
+			if(math.abs(diff_x) == x && math.abs(diff_z) == z) {
+				possible_move = true;
+				move_type = "drag";
+				if(i >= jumping_index) {
+					//Sprung. Checken, ob sich eine Spielfigur auf halber Strecke befindet
+					middle_block = block.get(loc.mod(token_loc, diff_x / 2, 0, diff_z / 2));
+					if(!map.contains(tokens_map2, block.getType(middle_block))) {
+						msg.prefix(player, gamename, "Invalid move.");
+						goto("wait");
+					}
+					move_type = "jump";
+				}
+				//Ist der Zielblock belegt?
+				aim_block = block.mod(block, 0, 1, 0);
+				if(block.getType(aim_block) != air_mat) {
+					goto("wait");
+				}
+				//Die Spielfigur kann nicht gezogen werden, wenn bereits gesprungen wurde
+				if(move_type == "drag" && jump_moves) {
+					msg.prefix(player, gamename, "Move not possible. Already overjumped a game piece.");
+					goto("wait");
+				}
+				//Zug der Spielfigur
+				team = map.get(teams, player);
+				banner_type = map.get(tokens_map, team);
+				rotation = map.get(rotations_map, team);
+				block.setMaterial(block.get(token_loc), air_mat);
+				block.setData(aim_block, read.blockData(string.concat(banner_type, "[rotation=", rotation, "]")));
+				token_loc = block.getLocation(aim_block);
+				block.setMaterial(pointed_block, basic_block);
+				if(move_type == "drag") {
+					goto("nextplayer");
+				}
+				jump_moves = true;
+				pointed_block = block;
+				block.setMaterial(pointed_block, point_block);
+			}
+		}
+		if(!possible_move) {
+			msg.prefix(player, gamename, "Invalid move.");
+			goto("wait");
+		}
+	}
+}
+goto("wait");
+
+@nextplayer
+//Gewonnen?
+team = map.get(teams, player);
+token = map.get(tokens_mat_map, team);
+list = map.get(aim_locs, team);
+iter = iterator(list);
+won = true;
+while(hasNext(iter)) {
+	entry = next(iter);
+	if(block.getType(entry) != token) {
+		won = false;
+	}
+}
+if(won) {
+	winner = player;
+	for(i = 0; i < list.getSize(player_list); i++) {
+		p = player.get(list.getIndex(player_list, i));
+		if(p == winner) {
+			money.addBoost(p, 128);
+		} else {
+			money.addBoost(p, 32);
+		}
+	}
+	goto("win");
+}
+token_loc = null;
+jump_moves = false;
+//Nächsten Spieler setzen
+index = list.getIndexOf(player_list, player.getUuid(next_player)) + 1;
+if(index >= list.getSize(player_list)) {
+	index = 0;
+}
+next_player = player.get(list.getIndex(player_list, index));
+setNextPlayer(next_player);
+block.setMaterial(pointed_block, basic_block);
+goto("wait");
+
+@custom_command
+if(command == "nextplayer") {
+	if(player == next_player) {
+		goto("nextplayer");
+	}
+}
+goto("wait");
+
+@block_break
+@block_place
+@entity_damage
+cancel = true;
+goto("wait");
+
+@win
+script = script.getFromId(script_id);
+minigame.speakAll(gamename, string.concat("§6", player.getName(winner), " §rhas won."));
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	if(p == winner) {
+		showstats(p, true);
+	} else {
+		showstats(p, false);
+	}
+	player.setFly(p, false);
+}
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();
+
+@player_quit
+@player_giveup
+minigame.speakAll(gamename, string.concat("§8", player.getName(player), " §ehas left the game."));
+player.setFly(player, false);
+showstats(player, false);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+size = list.getSize(player_list);
+if(size < minplayers) {
+	block.setMaterial(pointed_block, basic_block);
+	winner = player.get(list.getIndex(player_list, 0));
+	goto("win");
+}
+team = map.get(teams, player);
+token = map.get(tokens_mat_map, team);
+removeSpecificToken(token);
+goto("wait");
+
+function setNextPlayer(next_player) {
+	team = map.get($teams, next_player);
+	color = map.get($colors_map, team);
+	next_player_name = player.getName(next_player);
+	if(string.endsWith(next_player_name, "s")) {
+		minigame.speakAll($gamename, string.concat("It´s ", color, next_player_name, "' §rturn."));
+	} else {
+		minigame.speakAll($gamename, string.concat("It´s ", color, next_player_name, "'s §rturn."));
+	}
+	sound.spawnForPlayer(next_player, $pling_sound, $sound_category_ambient);
+	msg(next_player, string.getClickText("§r[§eEnd turn§r]", "/nextplayer"));
+}
+
+function removeSpecificToken(token) {
+	//Sechseck nach festgelegter Spielfigur leeren
+	iter = iterator($center_locs);
+	while(hasNext(iter)) {
+		entry = next(iter);
+		if(block.getType(entry) == token) {
+			block.setMaterial(entry, air_mat);
+		}
+	}
+	//Ziel-Felder nach festgelegter Spielfigur leeren
+	map_iter = map.iterator($aim_locs);
+	while(hasNext(map_iter)) {
+		list = map.getValue(next(map_iter));
+		iter = iterator(list);
+		while(hasNext(iter)) {
+			entry = next(iter);
+			if(block.getType(entry) == token) {
+				block.setMaterial(entry, air_mat);
+			}
+		}
+	}
+	//Start-Felder nach festgelegter Spielfigur leeren
+	map_iter = map.iterator($start_locs);
+	while(hasNext(map_iter)) {
+		list = map.getValue(next(map_iter));
+		iter = iterator(list);
+		while(hasNext(iter)) {
+			entry = next(iter);
+			if(block.getType(entry) == token) {
+				block.setMaterial(entry, air_mat);
+			}
+		}
+	}
+}
+
+function showstats(player, won) { //Player player, Boolean won
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	if(won) {
+		last_record++;
+	}
+	playedgames = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, playedgames);
+	ranking.setPoints($rankingtable, player_id, last_record);
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Won games", string.number(last_record));
+	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((last_record / playedgames) * 100, 2)), "%"));
+	}
+}
+
+function getPair(a, b) {
+      c = array.new(2);
+      c[0] = a;
+      c[1] = b;
+      return c;
+}
+
+function createFieldNorth(north_loc, ox, oz) {
+	list = list.new();
+	north_block = block.get(north_loc);
+	list.add(list, north_block);
+	list.add(list, block.mod(north_block, -ox, 0, oz));
+	list.add(list, block.mod(north_block, ox, 0, oz));
+	list.add(list, block.mod(north_block, -2*ox, 0, 2*oz));
+	list.add(list, block.mod(north_block, 0, 0, 2*oz));
+	list.add(list, block.mod(north_block, 2*ox, 0, 2*oz));
+	list.add(list, block.mod(north_block, -3*ox, 0, 3*oz));
+	list.add(list, block.mod(north_block, -ox, 0, 3*oz));
+	list.add(list, block.mod(north_block, ox, 0, 3*oz));
+	list.add(list, block.mod(north_block, 3*ox, 0, 3*oz));
+	list.add(list, block.mod(north_block, -4*ox, 0, 4*oz));
+	list.add(list, block.mod(north_block, -2*ox, 0, 4*oz));
+	list.add(list, block.mod(north_block, 0, 0, 4*oz));
+	list.add(list, block.mod(north_block, 2*ox, 0, 4*oz));
+	list.add(list, block.mod(north_block, 4*ox, 0, 4*oz));
+	return list;
+}
+
+function createFieldSouth(south_loc, ox, oz) {
+	list = list.new();
+	south_block = block.get(south_loc);
+	list.add(list, south_block);
+	list.add(list, block.mod(south_block, -ox, 0, -oz));
+	list.add(list, block.mod(south_block, ox, 0, -oz));
+	list.add(list, block.mod(south_block, -2*ox, 0, -2*oz));
+	list.add(list, block.mod(south_block, 0, 0, -2*oz));
+	list.add(list, block.mod(south_block, 2*ox, 0, -2*oz));
+	list.add(list, block.mod(south_block, -3*ox, 0, -3*oz));
+	list.add(list, block.mod(south_block, -ox, 0, -3*oz));
+	list.add(list, block.mod(south_block, ox, 0, -3*oz));
+	list.add(list, block.mod(south_block, 3*ox, 0, -3*oz));
+	list.add(list, block.mod(south_block, -4*ox, 0, -4*oz));
+	list.add(list, block.mod(south_block, -2*ox, 0, -4*oz));
+	list.add(list, block.mod(south_block, 0, 0, -4*oz));
+	list.add(list, block.mod(south_block, 2*ox, 0, -4*oz));
+	list.add(list, block.mod(south_block, 4*ox, 0, -4*oz));
+	return list;
+}
+
+function createFieldCenter(loc, ox, oz) {
+	list = list.new();
+	block = block.get(loc);
+	list.add(list, block);
+	list.add(list, block.mod(block, 2*ox, 0, 0));
+	list.add(list, block.mod(block, 4*ox, 0, 0));
+	list.add(list, block.mod(block, 6*ox, 0, 0));
+	list.add(list, block.mod(block, -ox, 0, oz));
+	list.add(list, block.mod(block, ox, 0, oz));
+	list.add(list, block.mod(block, 3*ox, 0, oz));
+	list.add(list, block.mod(block, 5*ox, 0, oz));
+	list.add(list, block.mod(block, 7*ox, 0, oz));
+	list.add(list, block.mod(block, -2*ox, 0, 2*oz));
+	list.add(list, block.mod(block, 0, 0, 2*oz));
+	list.add(list, block.mod(block, 2*ox, 0, 2*oz));
+	list.add(list, block.mod(block, 4*ox, 0, 2*oz));
+	list.add(list, block.mod(block, 6*ox, 0, 2*oz));
+	list.add(list, block.mod(block, 8*ox, 0, 2*oz));
+	list.add(list, block.mod(block, -3*ox, 0, 3*oz));
+	list.add(list, block.mod(block, -ox, 0, 3*oz));
+	list.add(list, block.mod(block, ox, 0, 3*oz));
+	list.add(list, block.mod(block, 3*ox, 0, 3*oz));
+	list.add(list, block.mod(block, 5*ox, 0, 3*oz));
+	list.add(list, block.mod(block, 7*ox, 0, 3*oz));
+	list.add(list, block.mod(block, 9*ox, 0, 3*oz));
+	list.add(list, block.mod(block, -2*ox, 0, 4*oz));
+	list.add(list, block.mod(block, 0, 0, 4*oz));
+	list.add(list, block.mod(block, 2*ox, 0, 4*oz));
+	list.add(list, block.mod(block, 4*ox, 0, 4*oz));
+	list.add(list, block.mod(block, 6*ox, 0, 4*oz));
+	list.add(list, block.mod(block, 8*ox, 0, 4*oz));
+	list.add(list, block.mod(block, -ox, 0, 5*oz));
+	list.add(list, block.mod(block, ox, 0, 5*oz));
+	list.add(list, block.mod(block, 3*ox, 0, 5*oz));
+	list.add(list, block.mod(block, 5*ox, 0, 5*oz));
+	list.add(list, block.mod(block, 7*ox, 0, 5*oz));
+	list.add(list, block.mod(block, 0, 0, 6*oz));
+	list.add(list, block.mod(block, 2*ox, 0, 6*oz));
+	list.add(list, block.mod(block, 4*ox, 0, 6*oz));
+	list.add(list, block.mod(block, 6*ox, 0, 6*oz));
+	return list;
+}

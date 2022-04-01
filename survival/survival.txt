@@ -23,13 +23,17 @@ overworld = world.getOverWorld();
 moveid_gamesspawn = event.addMoveData(loc.new(overworld, 93, 61, -31), loc.new(overworld, 97, 65, -30), 5, -1);
 moveid_creaspawn = event.addMoveData(loc.new(overworld, 102, 60, -20), loc.new(overworld, 103, 64, -16), 5, -1);
 moveid_mobarena = event.addMoveData(loc.new(overworld, 81, 59, -28), loc.new(overworld, 82, 63, -24), 5, -1);
+moveid_afk_down = event.addMoveData(loc.new(overworld, 135, 66, -59), loc.new(overworld, 136, 67, -58), 20, -1);
+moveid_afk_up = event.addMoveData(loc.new(overworld, 170, 34, -47), loc.new(overworld, 171, 35, -46), 20, -1);
 
 config = getScriptVar("server_config");
 adventure_chest_loc = loc.new(overworld, 177, 74, 237);
 adventure_aim_loc = loc.new(overworld, 180, 70, 241);
 mobarena_spawn = loc.new(overworld, 1150.5, -5, 1087, 90, 0);
+afk_down_loc = loc.new(overworld, 168.5, 34, -46.5, 135, 25);
+afk_up_loc = loc.new(overworld, 137.5, 66.6, -56.5, -35, 0);
+prefix_skill = "§2Skill";
 prefix_money = "§2Money";
-death_loc_map = map.new();
 
 redstone_mat = material.get("redstone");
 ice_mat = material.get("ice");
@@ -90,6 +94,16 @@ msg.string("dev", "§bSurvival §rloaded.");
 @wait
 wait();
 if(event == "player_move") {
+	if(id == moveid_afk_up) {
+		player.setBackPosLoc(player, afk_down_loc);
+		player.teleport(player, afk_up_loc, false);
+		goto("wait");
+	}
+	if(id == moveid_afk_down) {
+		player.setBackPosLoc(player, afk_up_loc);
+		player.teleport(player, afk_down_loc, false);
+		goto("wait");
+	}
 	if(id == moveid_mobarena) {
 		player.setBackPosLoc(player, world.getServerSpawn());
 		player.teleport(player, mobarena_spawn, false);
@@ -123,8 +137,7 @@ goto("wait");
 
 @living_death
 if(isPlayer(living_entity)) {
-	player = living_entity;
-	setDeathLoc(player);
+	player.setDeathLoc(living_entity);
 }
 goto("wait");
 
@@ -631,15 +644,7 @@ if(set.contains(survival_respawn, player_uuid)) {
 		entity.teleport(player, tp_loc);
 		goto("wait");
 	}
-	/*amount = skill.getAmount(player, "skill.comeback");
-	if(skill.isActivated(player, "skill.comeback") && amount > 0) {
-		new_amount = amount - 1;
-		skill.setAmount(player, "skill.comeback", new_amount);
-		msg.prefix(player, prefix_skill, concat("Used Comeback. New amount: ", string.number(new_amount)));
-		entity.teleport(player, getDeathLoc(player));
-		goto("wait");
-	}*/
-	//entity.teleport(player, world.getServerSpawn());
+	entity.teleport(player, world.getServerSpawn());
 }
 goto("wait");
 
@@ -667,14 +672,6 @@ function lottery.add(location, amount) {
 	amount = text.convert(text.subString(name, 15, text.length(name))) + 1;
 	entity.setName(text_entity, string.concat("Snuvis to win: ", string.number(amount)), true);
 	return amount;
-}
-
-function setDeathLoc(player) {
-	map.add($death_loc_map, player.getUuid(player), entity.getLocation(player));
-}
-
-function getDeathLoc(player) {
-	return map.getOrDefault($death_loc_map, player.getUuid(player), world.getServerSpawn());
 }
 
 function lottery.addValue(value) {

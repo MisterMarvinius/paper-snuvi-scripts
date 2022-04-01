@@ -1,0 +1,46 @@
+oak_fence_material = material.get("OAK_FENCE");
+world = world.get("creative");
+Norm_X = 2598;
+Norm_Y = 82;
+
+
+String_Sound = sound.get("BLOCK_NOTE_BLOCK_HARP");
+Master_Cat = sound.getCategory("MASTER");
+
+event.load("block_click");
+
+@wait
+wait();
+
+if(block == null){
+	goto("wait");
+}
+if(action != "LEFT_CLICK_BLOCK" && action != "RIGHT_CLICK_BLOCK"){
+	goto("wait");
+}
+block_loc = block.getLocation(block);
+if(loc.getWorld(block_loc) != world){
+	goto("wait");
+}
+if(loc.getZ(block_loc) != 2630){
+	goto("wait");
+}
+block_type = block.getType(block);
+if(block_type != oak_fence_material){
+	goto("wait");
+}
+X = loc.getX(block_loc);
+X_Dif = X - Norm_X;
+if(math.abs(X_Dif) > 6){
+	goto("wait");
+}
+Y = loc.getY(block_loc);
+Y_Dif = Y - Norm_Y;
+if(math.abs(Y_Dif) > 6){
+	goto("wait");
+}
+pitch = math.pow(2, (X_Dif * 3.5 - Y_Dif)/ 12);
+cancel = true;
+sound.spawn(block_loc, String_Sound, Master_Cat, 1, pitch);
+
+goto("wait");

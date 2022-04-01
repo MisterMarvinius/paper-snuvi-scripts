@@ -148,7 +148,7 @@ function box.rotate(from_rotation, to_rotation){
 	entity.teleport($player, teleport_location);
 	entity.setGravity($player, true);
 	entity.setMotion($player, New_Motion[0], New_Motion[1], New_Motion[2]);
-	//entity.setLook($player, New_Look[0], New_Look[1], New_Look[2]);
+	entity.setLook($player, New_Look[0], New_Look[1], New_Look[2]);
 	return to_rotation;
 }
 

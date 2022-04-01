@@ -1,0 +1,28 @@
+air_material = material.get("AIR");
+
+event.load("projectile_hit");
+	
+@wait
+wait();
+if(event == "projectile_hit") {
+	if(shooter == null) {
+		goto("wait");
+	}
+	if(!isPlayer(shooter)){
+		goto("wait");
+	}
+	shooter_name = player.getName(shooter);
+	if(shooter_name != "SirTerence7"){
+		goto("wait");
+	}
+	hit_location = entity.getLocation(projectile);
+	if(block.getType(block.get(hit_location)) == air_material && block.getType(block.get(loc.mod(hit_location, 0, 1, 0))) == air_material){
+		entity.remove(projectile);
+		shooter_look = entity.getLook(shooter);
+		shooter_motion = entity.getMotion(shooter);
+		entity.teleport(shooter, hit_location);
+		entity.setMotion(shooter, shooter_motion[0], shooter_motion[2], shooter_motion[2]);
+		entity.setLook(shooter, shooter_look[0], shooter_look[1], shooter_look[2]);
+	}
+}
+goto("wait");

@@ -2,7 +2,7 @@ whitelist.enable();
 whitelist.add("e41b5335-3c74-46e9-a6c5-dafc6334a477");
 whitelist.add("51e240f9-ab10-4ea6-8a5d-779319f51257");
 
-debug.setConsolePrint(true);
+debug.setConsolePrint(false);
 
 config = config.new("scripts/configs", "server");
 if(config.exists(config)) {
@@ -38,7 +38,7 @@ script.startNamed("Mails", "utils/u_error", "system/mailsystem", "utils/u_genera
 script.startNamed("Market", "utils/u_error", "system/market", "utils/u_general");
 script.startNamed("ChestShops", "utils/u_error", "system/chestshops", "utils/u_general");
 script.startNamed("Humans", "utils/u_error", "system/humans", "utils/u_general");
-script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general");
+script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general", "utils/u_skills");
 script.startNamed("Teleporter", "utils/u_error", "survival/teleporter", "utils/u_general");
 script.startNamed("Skills", "utils/u_error", "survival/skills", "utils/u_general", "utils/u_skills", "utils/u_quest");
 script.startNamed("Gamecenter", "utils/u_error", "minigames/gamecenter", "utils/u_general", "utils/u_games");
@@ -54,12 +54,14 @@ script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general
 script.startNamed("Mobarena", "utils/u_error", "survival/mobarena", "utils/u_general");
 script.startNamed("Challenges", "utils/u_error", "survival/challenges", "utils/u_general");
 script.startNamed("AllEntities", "utils/u_error", "challenges/all_entities", "utils/u_general");
+script.startNamed("AllItems", "utils/u_error", "challenges/all_items", "utils/u_general");
 script.startNamed("TicTacToe", "utils/u_error", "minigames/tictactoe/tictactoe", "utils/u_general");
 script.startNamed("TipLoop", "utils/u_error", "system/tiploop", "utils/u_general");
 script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
 
 whitelist.disable();
-setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.1§f]\n§cMentorMentos §7- §bCommunity Server");
+//setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cMentorMentos §7- §bCommunity Server");
+setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cNew: §a§lCHALLENGES");
 
 error.setConsolePrint(false);
 term();

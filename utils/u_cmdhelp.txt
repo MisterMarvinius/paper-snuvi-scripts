@@ -46,8 +46,8 @@ function setCommandHelps() {
 	
 	commandhelp.add("afk");
 	commandhelp.add("back");
-	commandhelp.add("boost");
 	commandhelp.add("color");
+	commandhelp.add("comeback");
 	commandhelp.add("customitems");
 	commandhelp.add("giveup");
 	commandhelp.add("hack");
@@ -62,7 +62,6 @@ function setCommandHelps() {
 	commandhelp.add("leave");
 	commandhelp.add("lightning");
 	commandhelp.add("live");
-	commandhelp.add("logo");
 	commandhelp.add("memory");
 	commandhelp.add("nowb");
 	commandhelp.add("ping");
@@ -386,6 +385,10 @@ function setCommandHelps() {
 	command.addHelpChild(helpArg1, command.newHelpLiteral("streamer"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("sponsor"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("creative"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("notickets"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("bypass"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("altruist"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("legend"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	//perm removeall <player>
@@ -502,10 +505,6 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("reset", "mail.reset"));
 	command.addHelp(help);
 	
-	help = command.newHelp("entities", "entities");
-	command.addHelpChild(help, command.newHelpString("world", false));
-	command.addHelp(help);
-	
 	help = command.newHelp("playtime", "playtime");
 	//playtime [player]
 	command.addHelpChild(help, command.newHelpSpecial("Player", "player"));
@@ -605,20 +604,19 @@ function setCommandHelps() {
 	command.addHelp(help);
 	
 	help = command.newHelp("sign", "sign");
+	//sign <1-4> [text]
 	helpArg0 = command.newHelpInt("1-4", 1, 4);
 	command.addHelpChild(helpArg0, command.newHelpString("text", true));
 	command.addHelpChild(help, helpArg0);
+	//sign <copy/paste>
+	command.addHelpChild(help, command.newHelpLiteral("copy"));
+	command.addHelpChild(help, command.newHelpLiteral("paste"));
 	command.addHelp(help);
 	
 	help = command.newHelp("speed", "speed");
 	helpArg0 = command.newHelpInt("int", 1, 10);
 	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player", "speed.other"));
 	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	
-	help = command.newHelp("errordebug", "errordebug");
-	command.addHelpChild(help, command.newHelpLiteral("list"));
-	command.addHelpChild(help, command.newHelpLiteral("clear"));
 	command.addHelp(help);
 	
 	help = command.newHelp("error", "error");
@@ -970,8 +968,24 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
-	help = command.newHelp("yeet", "yeet");
-	command.addHelpChild(help, command.newHelpInt("strength", 1, 10000000000000));
+	help = command.newHelp("dev", "dev");
+	//dev boost
+	command.addHelpChild(help, command.newHelpLiteral("boost"));
+	//dev logo
+	command.addHelpChild(help, command.newHelpLiteral("logo"));
+	//dev yeet <strength>
+	helpArg0 = command.newHelpLiteral("yeet");
+	command.addHelpChild(helpArg0, command.newHelpInt("strength", 1, 10000000000000));
+	command.addHelpChild(help, helpArg0);
+	//dev debug <list/clear>
+	helpArg0 = command.newHelpLiteral("debug");
+	command.addHelpChild(helpArg0, command.newHelpLiteral("list"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("clear"));
+	command.addHelpChild(help, helpArg0);
+	//dev entities <world>
+	helpArg0 = command.newHelpLiteral("entities");
+	command.addHelpChild(helpArg0, command.newHelpString("world", false));
+	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
 	command.sendHelp();
@@ -1218,9 +1232,27 @@ function addPlotHelp(command) {
 	command.addHelpChild(helpArg1, command.newHelpBool("boolean"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
-	//plot expand <anzahl>
+	//plot expand <value>
 	helpArg0 = command.newHelpLiteral("expand");
-	helpArg1 = command.newHelpInt("anzahl", 1, 1000);
+	helpArg1 = command.newHelpInt("value", 1, 1000);
+	helpArg3 = command.newHelpInt("id", 1, 10000);
+	helpArg2 = command.newHelpLiteral("north");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	helpArg2 = command.newHelpLiteral("east");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	helpArg2 = command.newHelpLiteral("south");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	helpArg2 = command.newHelpLiteral("west");
+	command.addHelpChild(helpArg2, helpArg3);
+	command.addHelpChild(helpArg1, helpArg2);
+	command.addHelpChild(helpArg0, helpArg1);
+	command.addHelpChild(help, helpArg0);
+	//plot move <value>
+	helpArg0 = command.newHelpLiteral("move");
+	helpArg1 = command.newHelpInt("value", 1, 1000);
 	helpArg3 = command.newHelpInt("id", 1, 10000);
 	helpArg2 = command.newHelpLiteral("north");
 	command.addHelpChild(helpArg2, helpArg3);

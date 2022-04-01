@@ -1,0 +1,61 @@
+event.load("entity_damage");
+
+soul_part = particle.get("SOUL");
+part = list.new();
+level = 1;
+max_level = 2;
+
+@wait
+wait();
+
+damager_e = damage.getTrueSource(damage_source);
+if(damager_e == null){
+	goto("wait");
+}
+if(!isplayer(damager_e)){
+	goto("wait");
+}
+if(player.getName(damager_e) != "SirTerence7" && player.getName(damager_e) != "Mareeeen"){
+	goto("wait");
+}
+player = damager_e;
+ent_loc = entity.getLocation(entity);
+part_loc = loc.mod(ent_loc, 0, 1, 0);
+part_array = array.new(4);
+part_array[0] = part_loc;
+part_array[1] = player;
+part_array[2] = damage;
+part_array[3] = level;
+list.add(part, part_array);
+
+goto("heal");
+goto("wait");
+
+@heal
+list_iterator = iterator(part);
+while(hasnext(list_iterator)){
+	particle_array = next(list_iterator);
+	particle_loc = particle_array[0];
+	pl_loc = loc.mod(entity.getLocation(particle_array[1]), 0, 1, 0);
+	if(loc.getWorld(particle_loc) != loc.getWorld(pl_loc)){
+		list.remove(part, particle_array);
+		goto("wait");
+	}
+	else{
+		loc_dist = loc.distance(pl_loc, particle_loc);
+		X_dist = particle_array[3]*(loc.getX(pl_loc)-loc.getX(particle_loc))/loc_dist;
+		Y_dist = particle_array[3]*(loc.getY(pl_loc)-loc.getY(particle_loc))/loc_dist;
+		Z_dist = particle_array[3]*(loc.getZ(pl_loc)-loc.getZ(particle_loc))/loc_dist;
+		particle_array[0] = loc.mod(particle_loc, X_dist, Y_dist, Z_dist);
+		particle.spawn(particle_array[0], soul_part, math.roundUp(math.ln(particle_array[2]/2)), 0, 0.2, 0.25, 0.2);
+		if(loc_dist < 2){
+			living.heal(particle_array[1], level/max_level*particle_array[2]/2);
+			list.remove(part, particle_array);
+			goto("wait");
+		}
+	}
+}
+if(list.getSize(part)>0){
+	sgoto(7, "heal");
+}
+goto("wait");

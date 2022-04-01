@@ -1,0 +1,685 @@
+//Events
+event.load("block_place");
+event.load("block_break");
+event.load("block_click");
+event.load("snuvi_click");
+event.load("chat");
+
+//scriptname
+scriptname = "§b4D recursive Fractalmaker";
+
+//Start
+air_material = material.get("AIR");
+
+age = 0;
+default_age = age;
+Fractal_List = list.new();//für später undo und redo
+
+currently_active_dimensions = 0; //0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
+current_layer = array.new(6);
+current_layer[0] = 0;//0 = W, 1 = X, 2 = Z
+current_layer[1] = 0;//current_layer[a] 0 = W, 1 = X, 2 = Z
+current_layer[2] = 0;
+current_layer[3] = 0;
+current_layer[4] = 0;
+current_layer[5] = 0;
+
+//Fractalhelp
+FractalHelp = array.new(7, 2);
+FractalHelp[0,0] = "§e§lFractal§6§lPlace";
+FractalHelp[0,1] = "to start placing the pattern";
+FractalHelp[1,0] = "§e§lFractal§6§lStart";
+FractalHelp[1,1] = "to start generating the fractal";
+FractalHelp[2,0] = "§e§lFractal§6§lBuildHere";
+FractalHelp[2,1] = "to place the fractal at current location";
+FractalHelp[3,0] = "§e§lFractal§6§lNew";
+FractalHelp[3,1] = "to start again";
+FractalHelp[4,0] = "§e§lFractal§6§lPause";
+FractalHelp[4,1] = "to stop fractal/fractal-pattern placement";
+FractalHelp[5,0] = "§e§lFractal§6§lResume";
+FractalHelp[5,1] = "to unpause";
+FractalHelp[6,0] = "§e§lFractal§6§lSettings";
+FractalHelp[6,1] = "open Fractal creation settings";
+
+//Settingsinv
+Settings_Inv = array.new(9);
+Settings_Inv[0] = item.create("minecraft:slime_ball",1,"Decay",null);
+Settings_Inv[1] = item.custom.create("REFRESH_RED",1,"Set to default",null);
+Settings_Inv[2] = item.custom.create("ARROW_LEFT",1,"- 10",null);
+Settings_Inv[3] = item.custom.create("ARROW_LEFT",1,"- 1",null);
+Settings_Inv[4] = item.custom.create("DIGIT_0",1,null,null);
+Settings_Inv[5] = item.custom.create(string.concat("DIGIT_",string.number(age)),1,null,null);
+Settings_Inv[6] = item.custom.create("ARROW_RIGHT",1,"+ 1",null);
+Settings_Inv[7] = item.custom.create("ARROW_RIGHT",1,"+ 10",null);
+Settings_Inv[8] = item.custom.create("CHECK_GREEN",1,"Confirm",null);
+
+//SetttingsInv Setup
+Fractal_Settings_Inv = inv.new("022200222",text.new("Fractal Settings"));//022200222
+F_S_I_ID = inv.getID(Fractal_Settings_Inv);
+for(a = 0; a < array.getSize(Settings_Inv); a++){
+	inv.setItem(Fractal_Settings_Inv, a, Settings_Inv[a]);
+}
+
+//Playerinv
+uuid = "6cc9f8c7-9dfd-44f4-a3f2-af30054411a8";
+player = player.get(uuid);
+player_inv = player.getInv(player);
+inv.setItem(player_inv, 0, item.custom.create("ARROW_LEFT",1,"Turn down","Interdimensionally"));
+inv.setItem(player_inv, 1, item.custom.create("ARROW_RIGHT",1,"Turn up","Interdimensionally"));
+inv.setItem(player_inv, 2, item.custom.create("ARROW_DOWN",1,"Move down","background axis"));
+inv.setItem(player_inv, 3, item.custom.create("ARROW_UP",1,"Move up","background axis"));
+
+//Number Items
+numbers = map.new(); 
+map.add(numbers, 0, item.custom.create("DIGIT_0",1,"0",null));
+map.add(numbers, 1, item.custom.create("DIGIT_1",1,"1",null));
+map.add(numbers, 2, item.custom.create("DIGIT_2",1,"2",null));
+map.add(numbers, 3, item.custom.create("DIGIT_3",1,"3",null));
+map.add(numbers, 4, item.custom.create("DIGIT_4",1,"4",null));
+map.add(numbers, 5, item.custom.create("DIGIT_5",1,"5",null));
+map.add(numbers, 6, item.custom.create("DIGIT_6",1,"6",null));
+map.add(numbers, 7, item.custom.create("DIGIT_7",1,"7",null));
+map.add(numbers, 8, item.custom.create("DIGIT_8",1,"8",null));
+map.add(numbers, 9, item.custom.create("DIGIT_9",1,"9",null));
+
+//"Script loaded"
+msg("dev", text.new(string.concat(scriptname," §rloaded.")));
+
+//Bossbar
+dim_bossbar = boss.create("XYZ W=0", "GREEN", "SOLID");
+boss.addPlayer(dim_bossbar, player);
+boss.setTitle(dim_bossbar, "XYZ W=0");
+
+//@Start
+@Start
+Blocks = map.new();
+Block_Coords = list.new();
+Active_Blocks = map.new();//all blocks (of the fractal) that are currently phyically there [0], and their predecessor as material [1]
+Min_Max = array.new(4, 2); //Min_Max(XorYorZorW, MinOrMax)
+msg.prefix(player, scriptname, "You can place the pattern now.");
+start = true; 
+build = false;
+pause = false;
+
+//eventcatcher
+@wait
+wait();
+if(player.getName(player) == "SirTerence7"){
+	ignoreGoto(event);
+}
+goto("wait");
+
+//events
+@block_place
+block_loc = block.getLocation(block);
+if(start && !pause){
+	original_block = block.get(block_loc);
+	if(list.getSize(Block_Coords) == 0){
+		first_block_loc = block_loc;
+		centre_X = loc.getX(block_loc);
+		centre_Y = loc.getY(block_loc);
+		centre_Z = loc.getZ(block_loc);
+		centre_W = current_layer[currently_active_dimensions];
+		
+		//set Minimum
+		Min_Max[0,0] = 0;
+		Min_Max[1,0] = 0;
+		Min_Max[2,0] = 0;
+		Min_Max[3,0] = 0;
+		//set Maximum
+		Min_Max[0,1] = 0;
+		Min_Max[1,1] = 0;
+		Min_Max[2,1] = 0;
+		Min_Max[3,1] = 0;
+		Coord_Array = Dim.getPlaceLoc(block_loc, current_layer, currently_active_dimensions, first_block_loc);//creates an Array with relative 4D-Coords
+	}else{//zuerst immer einmal if abruf
+		Coord_Array = Dim.getPlaceLoc(block_loc, current_layer, currently_active_dimensions, first_block_loc);//unschön aber gerade nicht besser lösbar
+		Min_Max = Dim.TestForExtremes(Min_Max, Coord_Array);
+	}
+	//pre_block = block; //ACTIVE BLOCKS
+	cancel = false;
+
+	block_type = block.getType(block);
+	map.add(Blocks, Coord_Array, block_type); //Blocks <Map> {Array with relative 4D-Coords, block_type}	
+	list.add(Block_Coords, block_loc); //ACTIVE BLOCKS
+	map.add(Active_Blocks, block_loc, original_block);//ACTIVE BLOCKS WIP
+}
+elseif(build){
+	cancel = true;
+	player_loc = block_loc;
+	goto("place_fractal");
+}
+goto("wait"); 
+
+@block_break
+if(list.getSize(Block_Coords) != 0){
+	block_loc = block.getLocation(block);
+	Coord_Array = Dim.getPlaceLoc(block_loc, current_layer, currently_active_dimensions, first_block_loc);
+	if(start && !pause){
+		if(map.contains(Blocks, Coord_Array)){
+			cancel = false;
+			map.remove(Blocks, Coord_Array);
+			list.remove(Block_Coords, block_loc);
+			map.remove(Active_Blocks, block_loc);//ACTIVE BLOCKS WIP
+		}else{
+			msg.prefix(player, scriptname, "Wrong Block");
+			cancel = true;
+		}
+	}
+	elseif(start && pause){
+		if(map.contains(Blocks, Coord_Array)){
+			cancel = true;
+		}
+	}
+}
+goto("wait"); 
+
+@block_click
+if(slot.isoffhand(hand)){
+	goto("wait");
+}
+if(action == "PHYSICAL"){
+	goto("wait");
+}
+player_hand = living.getHand(player);
+if(!item.hasName(player_hand)){
+	goto("wait");
+}
+item_name = string.text(item.getName(player_hand));
+if(item_name == "Turn down"){
+	goto("dimensional_turn_down");
+}
+if(item_name == "Turn up"){
+	goto("dimensional_turn_up");
+}
+if(item_name == "Move down"){
+	goto("remove_layer");
+}
+if(item_name == "Move up"){
+	goto("add_layer");
+}
+goto("wait");
+
+@snuvi_click
+if(inv_id == F_S_I_ID){
+	ignoreGoto(text.number(inv_slot));
+	goto("wait");
+}
+
+@chat
+string_message = string.text(message);
+if(string.contains(string_message, "%fractal")){
+	goto_message = string.subString(string_message,1,string.length(string_message));
+	ignoreGoto(goto_message);
+}
+goto("wait");
+
+//layer
+@remove_layer
+current_layer[currently_active_dimensions]--;
+dim.bossbar.update(currently_active_dimensions, current_layer);
+if(list.getSize(Block_Coords) != 0){
+	remove_blocks(Active_Blocks);
+	place_blocks(current_layer, currently_active_dimensions, Blocks, first_block_loc);
+}
+goto("wait");
+
+@add_layer
+current_layer[currently_active_dimensions]++;
+dim.bossbar.update(currently_active_dimensions, current_layer);
+if(list.getSize(Block_Coords) != 0){
+	remove_blocks(Active_Blocks);
+	place_blocks(current_layer, currently_active_dimensions, Blocks, first_block_loc);
+}
+goto("wait");
+
+//turn
+@dimensional_turn_up
+if(currently_active_dimensions >= 5){
+	currently_active_dimensions = 0;
+}else{
+	currently_active_dimensions++;
+}
+dim.bossbar.update(currently_active_dimensions, current_layer);
+if(list.getSize(Block_Coords) != 0){
+	remove_blocks(Active_Blocks);
+	place_blocks(current_layer, currently_active_dimensions, Blocks, first_block_loc);
+}
+goto("wait");
+
+@dimensional_turn_down
+if(currently_active_dimensions <= 0){
+	currently_active_dimensions = 5;
+}else{
+	currently_active_dimensions--;
+}
+dim.bossbar.update(currently_active_dimensions, current_layer);
+if(list.getSize(Block_Coords) != 0){
+	remove_blocks(Active_Blocks);
+	place_blocks(current_layer, currently_active_dimensions, Blocks, first_block_loc);
+}
+goto("wait");
+
+//Inventory Click numbers	
+@0
+temp_age = default_age;
+setnumber(Fractal_Settings_Inv, 20, 21, temp_age);
+if(temp_age == age){
+	inv.setItem(Fractal_Settings_Inv, 16, Settings_Inv[16]);
+}else{
+	inv.setItem(Fractal_Settings_Inv, 16, item.create("minecraft:gray_dye",1,"Decay",null));
+}
+inv.update(player);
+goto("wait");
+
+@1
+temp_age -= 10;
+if(temp_age < 0){
+	temp_age = 0;
+}else{
+	setnumber(Fractal_Settings_Inv, 20, 21, temp_age);
+	if(temp_age == age){
+		inv.setItem(Fractal_Settings_Inv, 16, Settings_Inv[16]);
+	}else{
+		inv.setItem(Fractal_Settings_Inv, 16, item.create("minecraft:gray_dye",1,"Decay",null));
+	}
+}
+inv.update(player);
+goto("wait");
+
+@2
+temp_age--;
+if(temp_age < 0){
+	temp_age = 0;
+}else{
+	setnumber(Fractal_Settings_Inv, 20, 21, temp_age);
+	if(temp_age == age){
+		inv.setItem(Fractal_Settings_Inv, 16, Settings_Inv[16]);
+	}else{
+		inv.setItem(Fractal_Settings_Inv, 16, item.create("minecraft:gray_dye",1,"Decay",null));
+	}
+}
+inv.update(player);
+goto("wait");
+
+@3
+temp_age++;
+if(temp_age > 99){
+	temp_age = 99;
+}else{
+	setnumber(Fractal_Settings_Inv, 20, 21, temp_age);
+	if(temp_age == age){
+		inv.setItem(Fractal_Settings_Inv, 16, Settings_Inv[16]);
+	}else{
+		inv.setItem(Fractal_Settings_Inv, 16, item.create("minecraft:gray_dye",1,"Decay",null));
+	}
+}
+inv.update(player);
+goto("wait");
+
+@4
+temp_age += 10;
+if(temp_age > 99){
+	temp_age = 99;
+}else{
+	setnumber(Fractal_Settings_Inv, 20, 21, temp_age);
+	if(temp_age == age){
+		inv.setItem(Fractal_Settings_Inv, 16, Settings_Inv[16]);
+	}else{
+		inv.setItem(Fractal_Settings_Inv, 16, item.create("minecraft:gray_dye",1,"Decay",null));
+	}
+}
+inv.update(player);
+goto("wait");
+
+@5
+age = temp_age;
+inv.setItem(Fractal_Settings_Inv, 16, Settings_Inv[16]);
+inv.update(player);
+if(build){
+	goto("iter_jump");
+}
+goto("wait");
+
+//Fractalcommands
+@fractalhelp
+temp_size = array.getSize(FractalHelp);
+for(a = 0; a < temp_size-1; a++){
+	temp_key = FractalHelp[a,0];
+	temp_value = FractalHelp[a,1];
+	fractal_command = text.hover(text.click(text.new(temp_key), temp_value), text.new(temp_value));
+	msg(player, fractal_command);	
+}
+
+goto("wait");
+
+@fractalplace
+msg.prefix(player, scriptname, "You can place the pattern now.");
+start = true;
+goto("wait");
+
+@fractalstart
+if(start && map.getSize(Blocks) > 1){
+	@iter_jump
+	Fractal_Created = Dim.Fractal.create(Min_Max, Blocks);
+	Blocks = Fractal_Created;
+	build = true;
+	start = false;
+	pause = false;
+}else{
+	msg.prefix(player, scriptname, "You have not yet made a pattern.");
+}
+goto("wait");
+
+@fractalbuildhere
+if(build){
+	player_loc = entity.getLocation(player);
+	@place_fractal
+	first_block_loc = player_loc;
+	msg.prefix(player, scriptname, "Fractal is beeing placed");
+	place_blocks(current_layer, currently_active_dimensions, Fractal_Created, player_loc);
+	msg.prefix(player, scriptname, "Fractal has been placed");
+}else{
+	msg.prefix(player, scriptname, "You have not yet generated a fractal.");
+}
+goto("wait");
+
+@fractalnew
+msg.prefix(player, scriptname, "Restarting");
+goto("Start");
+goto("wait");
+
+@fractalpause
+if(pause){
+	msg.prefix(player, scriptname, "You have already paused, type \"fractalresume\" to continue.");
+	goto("wait");
+}else{
+	pause = true;
+	build = false;
+	msg.prefix(player, scriptname, "You have paused the fractal-placement.");
+}
+goto("wait");
+
+@fractalresume
+if(pause){
+	pause = false;
+	build = true;
+	msg.prefix(player, scriptname, "You can resume placing now.");
+}else{
+	msg.prefix(player, scriptname, "You have not paused.");
+}
+goto("wait");
+
+@fractalsettings
+temp_age = age;
+inv.open(Fractal_Settings_Inv, player);
+goto("wait");
+
+@fractalend
+msg.prefix(player, scriptname, "Will now terminate.");
+boss.removeAll(dim_bossbar);
+term();
+goto("wait");
+
+//Functions
+function Dim.getPlaceLoc(block_coords, current_layer, currently_active_dimensions, first_block_loc){
+	CoordArray = array.new(4);
+	
+	Original_LocX = loc.getX(block_coords) - loc.getX(first_block_loc);
+	Original_LocY = loc.getY(block_coords) - loc.getY(first_block_loc);
+	Original_LocZ = loc.getZ(block_coords) - loc.getZ(first_block_loc);
+	BackgroundLoc = current_layer[currently_active_dimensions];
+	
+	CoordArray[1] = Original_LocY;
+	
+	if(currently_active_dimensions == 0){		//X = X, 	Z = Z
+		CoordArray[0] = Original_LocX;
+		CoordArray[2] = Original_LocZ;
+		CoordArray[3] = BackgroundLoc;
+	}elseif(currently_active_dimensions == 1){	//X = W, 	Z = Z
+		CoordArray[0] = BackgroundLoc;
+		CoordArray[2] = Original_LocZ;
+		CoordArray[3] = Original_LocX;
+	}elseif(currently_active_dimensions == 2){	//X = W, 	Z = X
+		CoordArray[0] = Original_LocZ;
+		CoordArray[2] = BackgroundLoc;
+		CoordArray[3] = Original_LocX;
+	}elseif(currently_active_dimensions == 3){	//X = Z, 	Z = X
+		CoordArray[0] = Original_LocZ;
+		CoordArray[2] = Original_LocX;
+		CoordArray[3] = BackgroundLoc;
+	}elseif(currently_active_dimensions == 4){	//X = Z, 	Z = W
+		CoordArray[0] = BackgroundLoc;
+		CoordArray[2] = Original_LocX;
+		CoordArray[3] = Original_LocZ;
+	}elseif(currently_active_dimensions == 5){	//X = X, 	Z = W
+		CoordArray[0] = Original_LocX;
+		CoordArray[2] = BackgroundLoc;
+		CoordArray[3] = Original_LocZ;
+	}
+	return CoordArray; //Returns Array with relative Coords
+}
+
+function Dim.TestForExtremes(Min_Max, Coord_Array){
+	for(a = 0; a < 4; a++){
+		if(Min_Max[a,0] > Coord_Array[a]){
+			Min_Max[a,0] = Coord_Array[a];
+		}elseif(Min_Max[a,1] < Coord_Array[a]){
+			Min_Max[a,1] = Coord_Array[a];
+		}
+	}
+	return Min_Max;
+}
+
+function remove_blocks(Active_Blocks){
+	c = 0;
+	iterator = map.iterator(Active_Blocks);
+	while(hasnext(iterator)){
+		if(c > 500){
+			c = 0;
+			waitfor(2);
+		}
+		element = next(iterator);
+		value = map.getValue(element);
+		block.setMaterial(value, $air_material, false);
+	}
+	waitfor(2);
+}
+
+function place_blocks(current_layer, currently_active_dimensions, Blocks, first_block_loc){//currently_active_dimensions 0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
+	c = 0;
+	temp_c_l = current_layer[currently_active_dimensions];
+	iterator = map.iterator(Blocks);
+	World = loc.getWorld(first_block_loc);
+	first_X = math.roundDown(loc.getX(first_block_loc));
+	first_Y = math.roundDown(loc.getY(first_block_loc));
+	first_Z = math.roundDown(loc.getZ(first_block_loc));
+	if(math.abs(first_X) > 32000 || math.abs(first_Y) > 32000 || math.abs(first_Z) > 32000){
+		msg("dev",text.new("FirstCoords bigger than 32K"));
+		term();
+	}
+	wusi = false;//ob die koordinaten existieren und verändert worden sind
+	while(hasnext(iterator)){
+		wusi = false;
+		element = next(iterator);
+		Coord_Array = map.getKey(element);//map.get(Blocks, key) ist der Block-Type, bei remove egal. D_Array[0] = x, D_Array[1] = y, D_Array[2] = z, D_Array[3] = w
+		//0 = XYZ, 1 = WYZ, 2 = XYW
+		X_place = 0;
+		Y_place = 0;
+		Z_place = 0;
+		
+		c++;
+		if(c > 500){
+			c = 0;
+			waitfor(2);
+		}
+		
+		if(currently_active_dimensions == 0){//0 = XYZ
+			if(Coord_Array[3] == temp_c_l){
+				wusi = true;
+				X_place = Coord_Array[0];
+				Y_place = Coord_Array[1];
+				Z_place = Coord_Array[2];
+			}
+		}elseif(currently_active_dimensions == 1){//1 = WYZ
+			if(Coord_Array[0] == temp_c_l){
+				wusi = true;
+				X_place = Coord_Array[3];
+				Y_place = Coord_Array[1];
+				Z_place = Coord_Array[2];
+			}
+		}elseif(currently_active_dimensions == 2){//2 = WYX
+			if(Coord_Array[2] == temp_c_l){
+				wusi = true;
+				X_place = Coord_Array[3];
+				Y_place = Coord_Array[1];
+				Z_place = Coord_Array[0];
+			}
+		}elseif(currently_active_dimensions == 3){//3 = ZYX
+			if(Coord_Array[3] == temp_c_l){
+				wusi = true;
+				X_place = Coord_Array[2];
+				Y_place = Coord_Array[1];
+				Z_place = Coord_Array[0];
+			}
+		}elseif(currently_active_dimensions == 4){//4 = ZYW
+			if(Coord_Array[0] == temp_c_l){
+				wusi = true;
+				X_place = Coord_Array[2];
+				Y_place = Coord_Array[1];
+				Z_place = Coord_Array[3];
+			}
+		}elseif(currently_active_dimensions == 5){//5 = XYW
+			if(Coord_Array[2] == temp_c_l){
+				wusi = true;
+				X_place = Coord_Array[0];
+				Y_place = Coord_Array[1];
+				Z_place = Coord_Array[3];
+			}
+		}
+		if(math.abs(X_place) > 32000){
+			msg("dev",text.new("X_Coords bigger than 32K"));
+			msg("dev",text.new(X_place));
+			msg("dev",text.new(Y_place));
+			msg("dev",text.new(Z_place));
+			term();
+		}
+		if(math.abs(Y_place) > 32000 ){
+			msg("dev",text.new("Y_Coords bigger than 32K"));
+			msg("dev",text.new(X_place));
+			msg("dev",text.new(Y_place));
+			msg("dev",text.new(Z_place));
+			term();
+		}
+		if(math.abs(Z_place) > 32000){
+			msg("dev",text.new("Z_Coords bigger than 32K"));
+			msg("dev",text.new(X_place));
+			msg("dev",text.new(Y_place));
+			msg("dev",text.new(Z_place));
+			term();
+		}
+		if(wusi){
+			c += 2;
+			X_place += first_X;
+			Y_place += first_Y;
+			Z_place += first_Z;
+			if(math.abs(X_place) > 32000 || math.abs(Y_place) > 32000 || math.abs(Z_place) > 32000){
+				msg("dev",text.new("Coords bigger than 32K"));
+				term();
+			}
+			place_location = loc.new(World, X_place, Y_place, Z_place);
+			place_block = map.get(Blocks, Coord_Array);
+			map.add($Active_Blocks, place_location, block.get(place_location));
+			block.setmaterial(block.get(place_location), place_block, false);
+		}
+	}
+}
+
+function Dim.Fractal.create(Min_Max, Blocks){
+	Max_Block_Amount = 2500;
+	HyperCuboid = array.new(4);
+	for(a = 0; a < 4; a -= -1){
+		HyperCuboid[a] = Min_Max[a,1]-Min_Max[a,0];
+	}
+	Iterations = math.roundDown(math.ln(Max_Block_Amount)/math.ln(map.getSize(Blocks)));
+	msg.prefix($player, $scriptname, string.concat("Fractal will now generate with ", Iterations, " iterations."));
+	relative_blocks = map.new();
+	iterator = map.iterator(Blocks);
+	c = 0;
+	while(hasnext(iterator)){//über map Blocks 
+		element = next(iterator);
+		original_key = map.getKey(element);
+		key_array = array.new(4);
+		for(a = 0; a < 4; a++){
+			key_array[a] = original_key[a] - Min_Max[a,0];
+		}
+		block_type = map.get(Blocks, original_key);
+		map.add(relative_blocks, key_array, block_type);
+		c++;
+		if(c > 750){
+			c = 0;
+			waitfor(2);
+		}
+	}
+	Pattern = relative_blocks;
+	for(a = 0; a < Iterations; a++){
+		temp_map = Dim.Fractal.create_Iter(relative_blocks, HyperCuboid, Pattern);
+		relative_blocks = temp_map;
+	}
+	msg.prefix($player, $scriptname, "Fractal has generated.");
+	return relative_blocks;
+}
+
+function Dim.Fractal.create_Iter(relative_blocks, HyperCuboid, Pattern){
+	relative_blocks_with_Pattern = map.new();
+	c = 0;
+	iterator = map.iterator(relative_blocks);
+	while(hasnext(iterator)){
+		element = next(iterator);
+		original_key = map.getKey(element);
+		iterator2 = map.iterator(Pattern);
+		while(hasnext(iterator2)){
+			element2 = next(iterator2);
+			c++;
+			if(c > 625){
+				c = 0;
+				waitfor(2);
+			}
+			pattern_coord_array = map.getKey(element2);
+			r_b_w_P_Array = array.new(4);
+			for(a = 0; a < 4; a++){
+				r_b_w_P_Array[a] = original_key[a]*(HyperCuboid[a] + 1) + pattern_coord_array[a];
+			}
+			map.add(relative_blocks_with_Pattern, r_b_w_P_Array, map.get(Pattern, pattern_coord_array));
+		}
+	}
+	return relative_blocks_with_Pattern;
+}
+
+function setnumber(Inv, First_Slot, Second_Slot, Number){
+	if(Number > 100){
+		Number = 99;
+	}
+	First_Digit = map.get($numbers, math.roundDown(Number / 10));
+	Second_Digit = map.get($numbers, Number - 10 * math.roundDown(Number / 10));
+	inv.setItem(Inv, First_Slot, First_Digit);
+	inv.setItem(Inv, Second_Slot, Second_Digit);
+}
+
+function dim.bossbar.update(currently_active_dimensions, current_layer){//0 = XYZ, 1 = WYZ, 2 = WYX, 3 = ZYX, 4 = ZYW, 5 = XYW
+	if(currently_active_dimensions == 0){
+		Dimensions_String = "XYZ W=";
+	}elseif(currently_active_dimensions == 1){
+		Dimensions_String = "WYZ X=";
+	}elseif(currently_active_dimensions == 2){
+		Dimensions_String = "WYX Z=";
+	}elseif(currently_active_dimensions == 3){
+		Dimensions_String = "ZYX W=";
+	}elseif(currently_active_dimensions == 4){
+		Dimensions_String = "ZYW X=";
+	}elseif(currently_active_dimensions == 5){
+		Dimensions_String = "XYW Z=";
+	}
+	boss_string = (string.concat(Dimensions_String, current_layer[currently_active_dimensions]));
+	boss.setTitle($dim_bossbar, boss_string);
+}

@@ -379,7 +379,7 @@ player_inv = player.getInv(player);
 if(inv.getItemAmount(player_inv, priceitem) < item.getAmount(priceitem)) {
 	goto("checkgame");
 }
-player.removeItemNbt(player, priceitem);
+inv.removeItem(player_inv, priceitem);
 if(item_type == red_bed_mat) {
 	goto("setnewbed");
 }
@@ -696,7 +696,7 @@ if(block_type == cobweb_mat) {
 } elseif(block.hasTag(block, bed_tag)) {
 	goto("breakbed");
 } elseif(block_type == iron_block_mat) {
-	player_item_type = item.getType(living.getEquip(player, "hand"));
+	player_item_type = item.getType(living.getEquip(player, slot.getHand()));
 	if(player_item_type == "minecraft:stone_pickaxe" || player_item_type == "minecraft:iron_pickaxe") {
 		cancel = false;
 	}

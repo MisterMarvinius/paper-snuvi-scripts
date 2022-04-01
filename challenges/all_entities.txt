@@ -6,9 +6,11 @@ prefix_challenge = "§aChallenge";
 challenge_short = "ae";
 challenge_name = "All Entities";
 reward = 8192;
+sb_id = 11;
 
 lore_list = list.new();
 list.add(lore_list, text.new("Kill all entities in the given order."));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 1 Amber")));
 list.add(lore_list, text.new(""));
 list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
 list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
@@ -18,6 +20,9 @@ item.addFlag(ae_item, "HIDE_ATTRIBUTES");
 next_entities = map.new(); //player_id -> entity_type
 done_entities = map.new(); //player_id -> set -> entity_type
 todo_entities = map.new(); //player_id -> list -> entity_type
+
+sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+category = sound.getCategory("MASTER");
 
 entity_list = list.new();
 list.add(entity_list, "axolotl");
@@ -90,15 +95,16 @@ list.add(entity_list, "zombie");
 list.add(entity_list, "zombie_villager");
 list.add(entity_list, "ender_dragon");
 list.add(entity_list, "wither");
+all_stages = list.getSize(entity_list);
 
 online_list = players.toList();
 iter = iterator(online_list);
 while(hasNext(iter)) {
 	p = next(iter);
 	if(challenge.playerHas(p, challenge_short)) {
-		loadDoneEntities(p);
+		stage = loadDoneEntities(p);
 		type = loadNextEntity(p);
-		challenge.display(p, challenge_name, type);
+		challenge.display(p, sb_id, challenge_name, type, stage, all_stages);
 	}
 }
 
@@ -112,9 +118,9 @@ goto("wait");
 if(!challenge.playerHas(player, challenge_short)) {
 	goto("wait");
 }
-loadDoneEntities(player);
+stage = loadDoneEntities(player);
 type = loadNextEntity(player);
-challenge.display(player, challenge_name, type);
+challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
 goto("wait");
 
 @snuvi_click
@@ -123,17 +129,17 @@ item.removeFlag(item, "HIDE_DESTROYS");
 title_string = string.text(inv_title);
 if(item == ae_item) {
 	if(click == "LEFT") {
-		if(player.hasChallenge(player)) {
-			msg.prefix(player, prefix_challenge, "You already have a challenge.");
+		if(challenge.playerHas(player, challenge_short)) {
+			msg.prefix(player, prefix_challenge, "You already started this challenge.");
 			goto("wait");
 		}
 		player_id = player.getId(player);
 		map.add(todo_entities, player_id, list.copy(entity_list));
 		map.add(done_entities, player_id, set.new());
-		player.setChallenge(player, challenge_short);
+		player.addChallenge(player, challenge_short);
 		type = getRandomType(player);
-		setNextEntity(player, type);
-		challenge.display(player, challenge_name, type);
+		stage = setNextEntity(player, type);
+		challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
 		msg.prefix(player, prefix_challenge, "Challenge started.");
 		goto("wait");
 	}
@@ -143,8 +149,8 @@ if(item == ae_item) {
 			goto("wait");
 		}
 		resetAE(player);
-		challenge.removeDisplay(player);
-		player.resetChallenge(player);
+		challenge.removeDisplay(player, sb_id);
+		player.removeChallenge(player, challenge_short);
 		msg.prefix(player, prefix_challenge, "Challenge canceled.");
 		goto("wait");
 	}
@@ -170,6 +176,7 @@ entity_type = entity.getType(living_entity);
 if(!isNextEntity(player, entity_type)) {
 	goto("wait");
 }
+sound.spawnForPlayer(player, sound, category);
 new_type = getRandomType(player);
 if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All entities killed. Challenge done!");
@@ -177,14 +184,14 @@ if(new_type == null) {
 	money.add(player, reward);
 	player.giveItem(player, item.getAmber());
 	resetAE(player);
-	challenge.removeDisplay(player);
-	player.resetChallenge(player);
+	challenge.removeDisplay(player, sb_id);
+	player.removeChallenge(player, challenge_short);
 	goto("wait");
 }
 saveDoneEntity(player, entity_type);
-setNextEntity(player, new_type);
+stage = setNextEntity(player, new_type);
 msg.prefix(player, prefix_challenge, string.concat("Entity killed. Next entity: ", new_type));
-challenge.display(player, challenge_name, new_type);
+challenge.display(player, sb_id, challenge_name, new_type, stage, all_stages);
 goto("wait");
 
 function getRandomType(player) {
@@ -211,6 +218,7 @@ function setNextEntity(player_or_id, entity_type) {
 	
 	l = map.get($todo_entities, player_id);
 	list.remove(l, entity_type);
+	return $all_stages - list.getSize(l) - 1;
 }
 
 function loadNextEntity(player_or_id) {
@@ -243,6 +251,7 @@ function loadDoneEntities(player_or_id) {
 	player_id = player.getValidId(player_or_id);
 	map.add($done_entities, player_id, s);
 	map.add($todo_entities, player_id, l);
+	return set.getSize(map.get($done_entities, player_id));
 }
 
 function saveDoneEntity(player_or_id, entity_type) {
