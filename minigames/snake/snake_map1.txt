@@ -1,0 +1,9 @@
+gamesignloc = minigame.getSignLoc("snake_1");
+
+games = world.getGames();
+Edge_loc1 = loc.new(games, -1980, 52, -980);
+Edge_loc2 = loc.new(games, -1998, 68, -998);
+
+head_start_loc = loc.new(games, -1990, 58, -990);
+
+Start_Pos = loc.new(games, -1992, 58, -992);

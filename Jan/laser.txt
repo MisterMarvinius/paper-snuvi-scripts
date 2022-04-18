@@ -1,0 +1,181 @@
+event.load("block_place");
+event.load("block_break");
+
+observer_mat = material.get("OBSERVER");
+dispenser_mat = material.get("DISPENSER");
+dropper_mat = material.get("DROPPER");
+glass_mat = material.get("GLASS");
+water_mat = material.get("WATER");
+glass_pane_mat = material.get("GLASS_PANE");
+
+air_mat = material.get("AIR");
+
+end_part = particle.get("REVERSE_PORTAL");
+green_part = particle.get("VILLAGER_HAPPY");
+laser_particle = end_part;
+
+max_length = 30; //amount of blocks a laser travels from last redirection
+max_redirections = 20;
+
+blocks_map = map.new();
+
+laser_list = list.new();
+
+sgoto(10, "loop");
+
+receiver_var = false;
+
+@wait
+wait();
+
+player_name = player.getName(player);
+if(player_name != "SirTerence7"){
+	goto("wait");
+}
+
+if(event == "block_place"){
+	if(block.getType(block) == observer_mat){
+		directional_string = block.getDirectionalFace(block);
+		directional_vector = block.getFacingVector(directional_string, true);
+		map.add(blocks_map, block, directional_vector);
+		
+	}
+}
+if(event == "block_break"){
+	if(block.getType(block) == observer_mat){
+		if(map.contains(blocks_map, block)){
+			map.remove(blocks_map, block);
+		}
+	}
+}
+goto("wait");
+
+@loop
+iterator = map.iterator(blocks_map);
+while(hasnext(iterator)){
+	laser_locs_list = list.new();
+	
+	receiver_var = false;
+	
+	iterator_element = next(iterator);
+	loop_block = map.getKey(iterator_element);
+	loop_direction = map.getValue(iterator_element);
+	
+	redirect_count = 0;
+	@laser
+	loop_loc = block.getLocation(loop_block);
+	for(a = 1; a < max_length; a++){
+		new_loc = loc.mod(loop_loc, a*loop_direction[0], a*loop_direction[1], a*loop_direction[2]);
+		new_block = block.get(new_loc);
+		new_mat = block.getType(new_block);
+		if(new_mat == dispenser_mat){
+			if(redirect_count < max_redirections){
+				loop_block = new_block;
+				old_direction = loop_direction;
+				loop_direction =  block.getFacingVector(block.getDirectionalFace(new_block), false);
+				
+				list.add(laser_locs_list, loc.mod(new_loc, 0.5 - old_direction[0]/3, 0.5 - old_direction[1]/3, 0.5 - old_direction[2]/3));
+				list.add(laser_locs_list, loc.mod(new_loc, 0.5, 0.5, 0.5));
+				list.add(laser_locs_list, loc.mod(new_loc, 0.5 + loop_direction[0]/3, 0.5 + loop_direction[1]/3, 0.5 + loop_direction[2]/3));
+				
+				if(laser.ismirrored(old_direction, loop_direction)){
+					break;
+				}
+				redirect_count++;
+				goto("laser");
+			}else{
+				break;
+			}
+		}elseif(new_mat == dropper_mat){
+			old_direction = loop_direction;
+			loop_direction =  block.getFacingVector(block.getDirectionalFace(new_block), false);
+			if(laser.ismirrored(old_direction, loop_direction)){
+				receiver_var = true;
+				break;
+			}
+			break;
+		}
+		elseif(new_mat == air_mat || new_mat == glass_mat || new_mat == glass_pane_mat || new_mat == water_mat || !material.isSolid(new_mat)){
+			list.add(laser_locs_list, loc.mod(new_loc, 0.5 - loop_direction[0]/3, 0.5 - loop_direction[1]/3, 0.5 - loop_direction[2]/3));
+			list.add(laser_locs_list, loc.mod(new_loc, 0.5, 0.5, 0.5));
+			list.add(laser_locs_list, loc.mod(new_loc, 0.5 + loop_direction[0]/3, 0.5 + loop_direction[1]/3, 0.5 + loop_direction[2]/3));
+		}
+		else{
+			list.add(laser_locs_list, loc.mod(new_loc, 0.5 - loop_direction[0]/3, 0.5 - loop_direction[1]/3, 0.5 - loop_direction[2]/3));
+			break;
+		}
+	}
+	laser_array = array.new(2);
+	laser_array[0] = laser_locs_list;
+	laser_array[1] = receiver_var;
+	list.add(laser_list, laser_array);
+}
+
+iterator = iterator(laser_list);
+while(hasnext(iterator)){
+	temp_laser_array = next(iterator);
+	
+	if(temp_laser_array[1]){//doshit: true if receiver is powered by laser
+		laser_particle = green_part;
+	}else{
+		laser_particle = end_part;
+	}
+	
+	iterator2 = iterator(temp_laser_array[0]);
+	while(hasnext(iterator2)){
+		particle.spawn(next(iterator2), laser_particle, 1, 0, 0, 0, 0);
+	}
+	list.clear(temp_laser_array[0]);
+}
+list.clear(laser_list);
+
+sgoto(10, "loop");
+goto("wait");
+
+function block.getFacingVector(direction, inverted){
+	Vector = array.new(3);
+	
+	if(direction == "DOWN"){
+		Vector[0] = 0;
+		Vector[1] = -1;
+		Vector[2] = 0;
+	}elseif(direction == "UP"){
+		Vector[0] = 0;
+		Vector[1] = 1;
+		Vector[2] = 0;
+	}elseif(direction == "NORTH"){
+		Vector[0] = 0;
+		Vector[1] = 0;
+		Vector[2] = -1;
+	}elseif(direction == "SOUTH"){
+		Vector[0] = 0;
+		Vector[1] = 0;
+		Vector[2] = 1;
+	}elseif(direction == "WEST"){
+		Vector[0] = -1;
+		Vector[1] = 0;
+		Vector[2] = 0;
+	}elseif(direction == "EAST"){
+		Vector[0] = 1;
+		Vector[1] = 0;
+		Vector[2] = 0;
+	}
+	if(inverted){
+		Vector[0] = -1 * Vector[0];
+		Vector[1] = -1 * Vector[1];
+		Vector[2] = -1 * Vector[2];
+	}
+	
+	return Vector;
+}
+
+function laser.ismirrored(old_direction, loop_direction){
+	new_vector = array.new(3);
+	new_vector[0] = old_direction[0] + loop_direction[0];
+	new_vector[1] = old_direction[1] + loop_direction[1];
+	new_vector[2] = old_direction[2] + loop_direction[2];
+	if(new_vector[0] == 0 && new_vector[1] == 0 && new_vector[2] == 0){
+		return true;
+	}
+	return false;
+}

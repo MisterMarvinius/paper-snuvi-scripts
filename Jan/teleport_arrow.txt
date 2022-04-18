@@ -1,4 +1,6 @@
 air_material = material.get("AIR");
+grass_block_mat = material.get("GRASS_BLOCK");
+mat_to_set = material.get("SLIME_BLOCK");
 
 event.load("projectile_hit");
 	
@@ -12,7 +14,7 @@ if(event == "projectile_hit") {
 		goto("wait");
 	}
 	shooter_name = player.getName(shooter);
-	if(shooter_name != "SirTerence7"){
+	if(shooter_name != "SirTerence7" && shooter_name != "fireeagle013" && shooter_name != "Mareeeen"){
 		goto("wait");
 	}
 	hit_location = entity.getLocation(projectile);
@@ -23,6 +25,10 @@ if(event == "projectile_hit") {
 		entity.teleport(shooter, hit_location);
 		entity.setMotion(shooter, shooter_motion[0], shooter_motion[2], shooter_motion[2]);
 		entity.setLook(shooter, shooter_look[0], shooter_look[1], shooter_look[2]);
+		block_under = block.get(loc.mod(hit_location, 0, -1, 0));
+		if(block.getType(block_under) == grass_block_mat){
+			block.setMaterial(block_under, mat_to_set, false);
+		}
 	}
 }
 goto("wait");

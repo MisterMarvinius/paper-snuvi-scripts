@@ -1,0 +1,295 @@
+sign.started(gamesignloc);
+maxplayers = 1;
+gamename = "§aGravity";
+
+x1 = math.min(loc.getX(edge1), loc.getX(edge2));
+x2 = math.max(loc.getX(edge1), loc.getX(edge2));
+y1 = math.min(loc.getY(edge1), loc.getY(edge2));
+y2 = math.max(loc.getY(edge1), loc.getY(edge2));
+z1 = math.min(loc.getZ(edge1), loc.getZ(edge2));
+z2 = math.max(loc.getZ(edge1), loc.getZ(edge2));
+
+mid_x = (x1+x2)/2;
+mid_y = (y1+y2)/2;
+mid_z = (z1+z2)/2;
+
+//------------------
+
+air_material = material.get("AIR");
+stone_material = material.get("STONE");
+
+/*box_iterator = loc.iterator(games, x1,y1,z1,x2,y2,z2);
+
+grav_down = list.new();
+
+while(hasnext(box_iterator)){
+	temp_block = block.get(next(box_iterator));
+	temp_type = block.getType(temp_block);
+	if(temp_type != air_material){
+		temp_array = array.new(2);
+		temp_array[0] = temp_block;
+		temp_array[1] = temp_type;
+		list.add(grav_down, temp_array);
+	}
+}
+
+//grav_down
+grav_up = list.new();
+grav_north = list.new();
+grav_south = list.new();
+grav_west = list.new();
+grav_east = list.new();
+
+box.create_rotations();*/
+
+active_grav = "down";
+
+possible_names_map = list.new();
+list.add(possible_names_map, "down");
+list.add(possible_names_map, "up");
+list.add(possible_names_map, "north");
+list.add(possible_names_map, "south");
+list.add(possible_names_map, "west");
+list.add(possible_names_map, "east");
+
+item_down = item.new(material.get("purple_concrete"),1);
+item.setName(item_down, text.new("down"));
+item_up = item.new(material.get("yellow_concrete"),1);
+item.setName(item_up, text.new("up"));
+item_north = item.new(material.get("pink_concrete"),1);
+item.setName(item_north, text.new("north"));
+item_south = item.new(material.get("magenta_concrete"),1);
+item.setName(item_south, text.new("south"));
+item_west = item.new(material.get("red_concrete"),1);
+item.setName(item_west, text.new("west"));
+item_east = item.new(material.get("blue_concrete"),1);
+item.setName(item_east, text.new("east"));
+
+
+//---events---
+
+event.load("block_click");
+event.load("entity_damage");
+event.load("player_move");
+event.load("player_quit");
+event.load("player_giveup");
+event.load("minigame_join");
+event.load("block_break");
+
+//------------
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(!player.hasMinigameId(player, script_id)) {
+	goto("wait");
+}
+if(event == "minigame_join"){
+	player.clearInventory(player);
+	entity.teleport(player, Start_Pos);
+	player_inv = player.getInv(player);
+	inv.setItem(player_inv, 0, item_down);
+	inv.setItem(player_inv, 1, item_up);
+	inv.setItem(player_inv, 2, item_north);
+	inv.setItem(player_inv, 3, item_south);
+	inv.setItem(player_inv, 4, item_west);
+	inv.setItem(player_inv, 5, item_east);
+	
+	box_iterator = loc.iterator(games, x1,y1,z1,x2,y2,z2);
+
+	grav_down = list.new();
+
+	while(hasnext(box_iterator)){
+		temp_block = block.get(next(box_iterator));
+		temp_type = block.getType(temp_block);
+		if(temp_type != air_material){
+			temp_array = array.new(2);
+			temp_array[0] = temp_block;
+			temp_array[1] = temp_type;
+			list.add(grav_down, temp_array);
+		}
+	}
+
+	//grav_down
+	grav_up = list.new();
+	grav_north = list.new();
+	grav_south = list.new();
+	grav_west = list.new();
+	grav_east = list.new();
+
+	box.create_rotations();
+}
+if(event == "block_break"){
+	cancel = true;
+	goto("wait");
+}
+if(event == "entity_damage") {
+	cancel = true;
+	goto("wait");
+}
+if(event == "block_click"){
+	if(action == "PHYSICAL"){
+		goto("wait");
+	}
+	player_hand = living.getHand(player);
+	if(!item.hasName(player_hand)){
+		goto("wait");
+	}
+	item_name = string.text(item.getName(player_hand));
+	if(!list.contains(possible_names_map, item_name)){
+		goto("wait");
+	}
+	cancel = true;
+	active_grav = box.rotate(active_grav, item_name);
+}
+if(event == "player_move"){
+	game_stop("You did it!");
+	goto("wait");
+}
+if(event == "player_quit"){
+	box.rotate(active_grav, "down");
+	game_stop(null);
+}
+if(event == "player_giveup"){
+	box.rotate(active_grav, "down");
+	game_stop("You have left the game");
+}
+goto("wait");
+
+//---functions---
+
+function box.create_rotations(){
+	list_iterator = iterator($grav_down);
+	a = 0;
+	while(hasnext(list_iterator)){
+		if(a++ > 75){
+			waitfor(2);
+			a = 0;
+		}
+		temp_array = next(list_iterator);
+		temp_loc = block.getLocation(temp_array[0]);
+		list.add($grav_up, array.create(block.get(box.rotate_location(temp_loc, "down", "up")), temp_array[1]));
+		list.add($grav_north, array.create(block.get(box.rotate_location(temp_loc, "down", "north")), temp_array[1]));
+		list.add($grav_south, array.create(block.get(box.rotate_location(temp_loc, "down", "south")), temp_array[1]));
+		list.add($grav_west, array.create(block.get(box.rotate_location(temp_loc, "down", "west")), temp_array[1]));
+		list.add($grav_east, array.create(block.get(box.rotate_location(temp_loc, "down", "east")), temp_array[1]));
+	}
+}
+
+function array.create(arg1, arg2){
+	temp_array = array.new(2);
+	temp_array[0] = arg1;
+	temp_array[1] = arg2;
+	return temp_array;
+}
+
+function box.rotate(from_rotation, to_rotation){
+	New_Motion = box.rotate_Rotation(box.rotate_Rotation(entity.getMotion($player), from_rotation), to_rotation);
+	Look_Array = entity.getLook($player);
+	New_Look = box.rotate_Rotation(box.rotate_Rotation(Look_Array, from_rotation), to_rotation);
+	player_loc = entity.getLocation($player);
+	teleport_location = box.rotate_location(player_loc, from_rotation, to_rotation);
+	entity.setGravity($player, false);
+	entity.setMotion($player, 0, 0, 0);
+	box.place(from_rotation, true);//clear
+	box.place(to_rotation, false);//place
+	entity.teleport($player, teleport_location);
+	entity.setGravity($player, true);
+	entity.setMotion($player, New_Motion[0], New_Motion[1], New_Motion[2]);
+	entity.setLook($player, New_Look[0], New_Look[1], New_Look[2]);
+	return to_rotation;
+}
+
+function box.place(rotation, clear){
+	if(rotation == "down"){
+		list_iterator = iterator($grav_down);
+	}elseif(rotation == "up"){
+		list_iterator = iterator($grav_up);
+	}elseif(rotation == "north"){
+		list_iterator = iterator($grav_north);
+	}elseif(rotation == "south"){
+		list_iterator = iterator($grav_south);
+	}elseif(rotation == "west"){
+		list_iterator = iterator($grav_west);
+	}elseif(rotation == "east"){
+		list_iterator = iterator($grav_east);
+	}
+	while(hasnext(list_iterator)){
+		temp_array = next(list_iterator);
+		if(clear){
+			block_type = $air_material;
+		}else{
+			block_type = temp_array[1];
+		}
+		block.setMaterial(temp_array[0], block_type, false);//block.getType(temp_block));
+	}
+}
+
+function box.rotate_location(loc, from_rotation, to_rotation){
+	abs_loc = loc.mod(loc, 0, 0, 0);
+	if(from_rotation == to_rotation){
+		return abs_loc;
+	}
+	Coord_Array = array.new(3);
+	Coord_Array[0] = loc.getX(abs_loc)-$mid_x;//X
+	Coord_Array[1] = loc.getY(abs_loc)-$mid_y;//Y
+	Coord_Array[2] = loc.getZ(abs_loc)-$mid_z;//Z
+	
+	//Coord_Array = box.rotate_Rotation(Coord_Array, from_rotation);
+	Coord_Array = box.rotate_Rotation(box.rotate_Rotation(Coord_Array, from_rotation), to_rotation);
+	
+	loc.set(abs_loc, Coord_Array[0] + $mid_x, Coord_Array[1] + $mid_y, Coord_Array[2] + $mid_z);
+	return abs_loc;
+}
+
+function box.rotate_Rotation(Coord_Array, rotation){
+	New_Coord_Array = array.new(3);
+	
+	if(rotation == "down"){
+		return Coord_Array;
+	}elseif(rotation == "up"){
+		New_Coord_Array[0] = Coord_Array[0];	// X = X
+		New_Coord_Array[1] = -Coord_Array[1];	// Y = -Y
+		New_Coord_Array[2] = Coord_Array[2];	// Z = Z
+	}elseif(rotation == "north"){
+		New_Coord_Array[0] = Coord_Array[0];	// X = X
+		New_Coord_Array[1] = Coord_Array[2];	// Y = Z
+		New_Coord_Array[2] = Coord_Array[1];	// Z = Y
+	}elseif(rotation == "south"){
+		New_Coord_Array[0] = Coord_Array[0];	// X = X
+		New_Coord_Array[1] = -Coord_Array[2];	// Y = -Z
+		New_Coord_Array[2] = -Coord_Array[1];	// Z = -Y
+	}elseif(rotation == "west"){
+		New_Coord_Array[0] = Coord_Array[1];	// X = -Y
+		New_Coord_Array[1] = Coord_Array[0];	// Y = X
+		New_Coord_Array[2] = Coord_Array[2];	// Z = Z
+	}elseif(rotation == "east"){
+		New_Coord_Array[0] = -Coord_Array[1];	// X = Y
+		New_Coord_Array[1] = -Coord_Array[0];	// Y = -X
+		New_Coord_Array[2] = Coord_Array[2];	// Z = Z
+	}
+	return New_Coord_Array;
+}
+
+function box.rotate_look(){
+	return;
+}
+
+function box.get_look(){
+	return;
+}
+
+function game_stop(message){
+	if(message != null){
+		msg.prefix($player, $gamename, message);
+	}
+	script = script.getFromId($script_id);
+	minigame.kickPlayer(script, $player);
+	minigame.term(script, $gamesignloc);
+	term();
+}

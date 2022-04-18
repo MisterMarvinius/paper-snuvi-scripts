@@ -1,0 +1,15 @@
+p_uuid = "88822148-d046-4345-a64a-da6bbfb684ca";//"53d0c280-5933-48e5-b0fe-89280887b4a4";
+piet = player.get(p_uuid);
+
+for(i = 0; i <100; i++){
+	for(x = -0.5; x < 0.75; x = x + 0.25){
+		for(y = -0.5; y < 0.75; y = y + 0.25){
+			for(z = -0.5; z < 0.75; z = z + 0.25){
+				look = entity.getLook(piet);
+				entity.setLook(piet, look[0] + x, look[1] + y, look[2] + z);
+				waitfor(5);
+			}
+		}
+	}
+}
+term();

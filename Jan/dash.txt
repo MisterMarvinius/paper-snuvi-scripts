@@ -1,0 +1,70 @@
+event.load("block_click");
+
+Sword_Mat = material.get("NETHERITE_SWORD");
+
+reach = 5;
+
+particle = particle.get("CAMPFIRE_COSY_SMOKE");
+air_material = material.get("AIR");
+
+@wait
+wait();
+
+if(player.getName(player) != "SirTerence7"){
+	goto("wait");
+}
+if(action != "RIGHT_CLICK_BLOCK" && action != "RIGHT_CLICK_AIR"){
+	goto("wait");
+}
+Equip = living.getEquip(player, hand);
+if(item.getType(Equip) != Sword_Mat){
+	goto("wait");
+}
+
+Look = entity.getLook(player);
+Motion = entity.getMotion(player);
+
+entity_list = living.near(player, reach);
+player_loc = loc.mod(entity.getLocation(player), 0, 0, 0);
+
+hit_loc = hit_loc.getfromVector(player_loc, Look, reach, entity_list);
+//msg("dev", text.new(hit_loc));
+entity.teleport(player, hit_loc);
+entity.setMotion(player, Look[0], Look[1], Look[2]);
+
+goto("wait");
+
+function hit_loc.getfromVector(start_loc, Vector, Reach, entity_list){
+	temp_loc = loc.mod(start_loc, 0, 0, 0);
+	ent_loc_list = list.new();
+	iterator = iterator(entity_list);
+	while(hasnext(iterator)){
+		entity_from_list = next(iterator);
+		if(isPlayer(entity_from_list)){
+			if(entity_from_list != $player){
+				list.add(ent_loc_list,entity.getLocation(entity_from_list));
+			}
+		}else{
+			list.add(ent_loc_list,entity.getLocation(entity_from_list));
+		}
+	}
+	detail = 4;
+	if(Vector[1] < 0){
+		Vector[1] = 0;
+	}
+	for(a = 0; a < Reach * detail; a = a + 1/detail){
+		iterator = iterator(ent_loc_list);
+		temp_loc = loc.mod(temp_loc, Vector[0]/detail, Vector[1]/detail, Vector[2]/detail);
+		if(material.isSolid(block.getType(block.get(temp_loc)))){
+			return loc.mod(temp_loc, -Vector[0], -Vector[1]/3, -Vector[2]);
+		}
+		particle.spawn(loc.mod(temp_loc,0,1,0), $particle, 1, 0, 0, 0, 0);
+		while(hasnext(iterator)){
+			loc_to_check = next(iterator);
+			if(loc.distance(temp_loc, loc_to_check) < 2.5){
+				return loc_to_check;
+			}
+		}
+	}
+	return temp_loc;
+}

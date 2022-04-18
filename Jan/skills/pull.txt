@@ -30,6 +30,10 @@ if(a < 50 && loc.distance(shooter_loc, hit_loc) > 0.1 && loc.getWorld(shooter_lo
 	if(arrow == null){
 		goto("wait");
 	}
+	player_name = player.getName(player);
+	if(player_name != "SirTerence7"){
+		goto("wait");
+	}
 	shooter_loc = entity.getLocation(player);
 	hit_loc = entity.getLocation(arrow);
 	entity.teleport(player, hit_loc);

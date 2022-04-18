@@ -1248,7 +1248,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>gamerule.setBool(gamerule_value, boolean)</td>
+            <td>gamerule.setBool(world, gamerule_value, boolean)</td>
         </tr>
     </table>
 	<table>
@@ -1258,7 +1258,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>gamerule.setInt(gamerule_key, value)</td>
+            <td>gamerule.setInt(world, gamerule_key, value)</td>
         </tr>
     </table>
     </table>
@@ -1345,7 +1345,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>material.isSolid(material)</td>
+            <td>material.isItem(material)</td>
         </tr>
     </table>
 	<table>
@@ -1355,7 +1355,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>material.isSolid(material)</td>
+            <td>material.isBlock(material)</td>
         </tr>
     </table>
 	<table>

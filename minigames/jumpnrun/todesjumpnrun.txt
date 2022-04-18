@@ -467,9 +467,9 @@ elseif(jumpstage == 10 || jumpstage == 41 || jumpstage == 48 || jumpstage == 44)
 	player.giveItem(player, arrow);
 }
 elseif(jumpstage == 28 || jumpstage == 29) {
-	block.set(loc.new(gamesworld, 3944, 122, -5905), "minecraft:lever[powered=false,facing=west,face=wall]");
-	block.set(loc.new(gamesworld, 3946, 122, -5905), "minecraft:air");
-	block.set(loc.new(gamesworld, 3946, 122, -5905), "minecraft:redstone_wire");
+	block.setData(block.get(loc.new(gamesworld, 3944, 122, -5905)), read.blockData("minecraft:lever[powered=false,facing=west,face=wall]"));
+	block.setMaterial(block.get(loc.new(gamesworld, 3946, 122, -5905)), material.getAir());
+	block.setMaterial(block.get(loc.new(gamesworld, 3946, 122, -5905)), material.get("redstone_wire"));
 }
 elseif(jumpstage == 30) {
 	block.addItem(loc.new(gamesworld, 3929, 92, -5935), item.create("minecraft:arrow", 576, null, null));
@@ -478,9 +478,9 @@ elseif(jumpstage == 43) {
 	block.addItem(loc.new(gamesworld, 3932, 106, -5947), item.create("minecraft:hay_block", 576, null, null));
 }
 elseif(jumpstage == 47) {
-	block.set(loc.new(gamesworld, 3968, 77, -5962), "minecraft:lever[powered=true,facing=north,face=wall]");
-	entity.removeAll("net.minecraft.entity.projectile.ArrowEntity", loc.new(gamesworld, 3980, 77, -5960), 5);
-	entity.removeAll("net.minecraft.entity.projectile.ArrowEntity", loc.new(gamesworld, 3981, 77, -5955), 5);
+	block.setData(block.get(loc.new(gamesworld, 3968, 77, -5962)), read.blockData("minecraft:lever[powered=true,facing=north,face=wall]"));
+	entity.removeAll("org.bukkit.entity.Arrow", loc.new(gamesworld, 3980, 77, -5960), 5);
+	entity.removeAll("org.bukkit.entity.Arrow", loc.new(gamesworld, 3981, 77, -5955), 5);
 }
 return;
 

@@ -94,6 +94,9 @@ minigame.addSign("among_us_sign1", false, loc.new(gamesworld, -417, 157, -41), "
 minigame.addSign("jr_sign_4D_1", true, loc.new(gamesworld, -396, 156, -51), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map1", true);
 minigame.addSign("jr_sign_4D_3", true, loc.new(gamesworld, -396, 156, -49), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map3", true);
 minigame.addSign("s_sign_4D_1", true, loc.new(gamesworld, -396, 156, -50), "minigames/jumpnrun/4d/3d_shadow/shadow_jump_core", "minigames/jumpnrun/4d/3d_shadow/3d_s_map1", true);
+minigame.addSign("portal_1", true, loc.new(gamesworld, -401, 158, -73), "minigames/puzzle/portal/portal_core", "minigames/puzzle/portal/portal_map1", true);
+minigame.addSign("gravity_1", true, loc.new(gamesworld, -401, 158, -72), "minigames/puzzle/gravity/gravity_core", "minigames/puzzle/gravity/gravity_map1", true);
+minigame.addSign("snake_1", true, loc.new(gamesworld, -401, 158, -71), "minigames/snake/snake_core", "minigames/snake/snake_map1", true);
 setScriptVar("gamesigns", gamesignsmap);
 
 amongus_head = read.item("{Count:1b,id:'minecraft:player_head',tag:{SkullOwner:{Id:[I;1974515746,1982350500,-1169583430,618614082],Properties:{textures:[{Signature:'RO9IGJ16KwIM79JS04eY82CRaWXDEkIqtz4xA8odVaP0Uk4Ox1sHRa69Hh1V2Zo5KRGJ1dDNECvf0XHmzFn9xcDwXmGsk9HC/t2Ndxe2jLebtJk7Ytl3/kFsNQgluS/TikWkF1MgPnucQ/M0ftggu4B1c6SE4Hat0HAIGuhgC8+2jwrTcgDxWeKy9uO4ibopjDR8+S89XzYAPqqqf2CZtZnUP28DNR7pa2uJIT5+/kP3y6euRN+VOOAdTKLUnlfiCZTOxanIkDnC20tVvQQz5lPIGH18rq+9YIF/jok0G3zqWXCgiWk24QogYQErRa9h040sg7ganrC5A5iHBwzHmvzN8k9T/XXu2gDyKih5mzb2EAOxV+pe9HfG1qIZHDhjH8+2vLsUzUDpUINQPorYJ+Qk/YnWPc38EwW4H6byneDGP1xSHmcd5SnTeGYuyXHgHs9I55u5wxTxhZref3/BkS4vIL7w5tkc4YWHOU5HbEmdillLnc0Pepk7JxYLBcnSCcRdhvRPZ3ajGEPKfDwx0RgeZsah4+MFOWi8lXOcpBwnaqpNUYRNgLAahMpuyAUUHZ17Urd6hEadbrWttDFuTO+oHBH45Ueu0vD4pgdXjP1SHZWyPvQVVKRph4eF7xVtobHGkQeJk0u7DFx2Yn+XiPmflQWBGa/oYfitYayO4Kw=',Value:'ewogICJ0aW1lc3RhbXAiIDogMTYwMzk4NTQxMjIxNCwKICAicHJvZmlsZUlkIiA6ICIwNjEzY2I1Y2QxYjg0M2JjYjI4OTk1NWU4N2QzMGEyYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJicmVhZGxvYWZzcyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kNWEzNjhlNGI1MTc3NTljNTZhN2Q0ZDUxMWU1YmM5ZTNkOWVlNDA1Yzc5ZGFiNzZlY2IwMDdhYjBjYTg3ODc4IgogICAgfQogIH0KfQ=='}]}}}}");
@@ -190,7 +193,7 @@ if(command == "game") {
 	} else {
 		arg0 = string.toLowerCase(list.getIndex(args, 0));
 		block = player.getTargetBlock(player, 5);
-		if(!block.hasTag(block, sign_tag)) {
+		if(block == null || !block.hasTag(block, sign_tag)) {
 			msg.prefix(player, "§6Games", "Look at a sign.");
 			goto("wait");
 		}

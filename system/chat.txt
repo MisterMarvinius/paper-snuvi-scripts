@@ -128,7 +128,6 @@ if(event == "living_death") {
 	player = living_entity;
 }
 player_name = player.getName(player);
-nickname = player.getNickname(player);
 fullname = player.getFullName(player);
 ignoreGoto(event);
 goto("wait");
@@ -229,11 +228,12 @@ if(player.isMuted(player)) {
 	msg.prefix(player, "§6Commands", "You are muted.");
 	goto("wait");
 }
-if(perm.has("color", player)) {
-	string_message = string.replace(string_message, "&", "§");
+if(player.isGameMuted(player)) {
+	msg.prefix(player, "§6Commands", "You are muted (Minigame).");
+	goto("wait");
 }
 if(perm.has("color", player)) {
-	message = text.new(string.replace(string_message, "&", "§"));
+	string_message = string.replace(string_message, "&", "§");
 }
 msg.chat(player, string.getTextWithLink(string_message));
 goto("wait");

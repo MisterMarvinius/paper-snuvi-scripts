@@ -1,0 +1,11 @@
+event.load("entity_damage");
+
+@wait
+wait();
+//if(entity.getType(entity) == "PILLAGER"){
+	if(cause == "HOT_FLOOR"){
+		msg("dev", text.new(true));
+		cancel = true;
+	}
+//}
+goto("wait");

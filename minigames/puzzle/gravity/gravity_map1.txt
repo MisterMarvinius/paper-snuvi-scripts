@@ -1,0 +1,7 @@
+gamesignloc = minigame.getSignLoc("gravity_1"); //"The Box"
+
+games = world.getGames();
+Start_Pos = loc.new(games, 2002.5, 111, 1011.5, -90, 0);
+edge1 = loc.new(games, 2005, 106, 1017);
+edge2 = loc.new(games, 2017, 118, 1005);
+end = event.addMoveData(loc.new(games, 2020, 111, 1013), loc.new(games, 2021, 113, 1010), 5, -1);

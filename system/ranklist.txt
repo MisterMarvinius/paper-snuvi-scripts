@@ -33,6 +33,7 @@ ranking.add("§e", "Halma", "halma", "halmaranks", "Wins", "DESC", null);
 ranking.add("§e", "ShoppingChaos", "sc", "shoppingranks", "Max Items", "DESC", null);
 ranking.add("§e", "MengerRun", "mr", "mrranks", "Wins", "DESC", null);
 ranking.add("§c", "AmongUs", "among_us", "among_us_ranks", "Time", "ASC", null);
+ranking.add("§2", "Snake", "snake", "snakeranks", "Size Record", "DESC", null);
 
 ranking.register("invertranks5x5");
 ranking.register("invertranks7x7");

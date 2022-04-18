@@ -132,6 +132,7 @@ list.remove(mat_list, material.get("PLAYER_HEAD"));
 list.remove(mat_list, material.get("COMMAND_BLOCK_MINECART"));
 list.remove(mat_list, material.get("DEBUG_STICK"));
 list.remove(mat_list, material.get("COMMAND_BLOCK"));
+list.remove(mat_list, material.get("LIGHT"));
 all_stages = list.getSize(mat_list);
 
 online_list = players.toList();

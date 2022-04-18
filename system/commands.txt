@@ -2451,8 +2451,8 @@ msg.string(player, string.getSpacer());
 if(size == 0) {
 	link1 = "https://minecraft-server.eu/vote/index/2227F";
 	link2 = "https://minecraft-server-list.com/server/478200/vote/";
-	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server.eu", link1)));
-	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("minecraft-server-list.com", link2)));
+	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("§r<§dminecraft-server.eu§r>", link1)));
+	msg(player, text.merge(text.new(string.getPrefix(prefix_vote)), text.new(" "), string.getLinkText("§r<§dminecraft-server-list.com§r>", link2)));
 	p_id = player.getId(player);
 } else {
 	if(!perm.has("user.other", player)) {
@@ -5035,7 +5035,7 @@ goto("wait");
 
 @sign
 if(size == 0) {
-	msg.prefix(player, prefix_shop, "/shop ...");
+	msg.prefix(player, prefix_commands, "/sign ...");
 	msg.string(player, "§6 - <row:1-4> [text] §rSet a sign line");
 	if(perm.has("sign.copy", player)) {
 		msg.string(player, "§6 - copy §rCopy a sign content");
@@ -8607,7 +8607,7 @@ if(arg0 == "debug") {
 }
 if(arg0 == "entities") {
 	if(size != 2) {
-		msg.prefix(player, prefix_quest, "/dev entities <world>");
+		msg.prefix(player, prefix_commands, "/dev entities <world>");
 		goto("wait");
 	}
 	world_name = string.toLowerCase(list.getIndex(args, 1));

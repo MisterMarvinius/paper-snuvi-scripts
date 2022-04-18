@@ -11,6 +11,10 @@ colourcode = map.new();
 map.add(colourcode, "white", "§f")
 map.add(colourcode, "black", "§0")
 
+game_figures_reset_list = list.new();
+array = array.new();
+list.add(game_figures_reset_list, array);
+
 @wait
 wait()
 goto("wait");
@@ -24,8 +28,8 @@ function chess.reset(game_figures_reset_list, active_game_figures_list){
 	while(hasnext(list_iterator)){
 		chess.spawn_piece(next(list_iterator));
 	}
-	new_active_game_figures_list;
-	return new_active_game_figures_list;
+	game_figures_reset_list;
+	return game_figures_reset_list;
 }
 
 function chess.move_piece(piece, to_loc){

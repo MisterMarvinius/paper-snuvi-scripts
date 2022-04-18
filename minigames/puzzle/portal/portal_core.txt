@@ -1,0 +1,141 @@
+sign.started(gamesignloc);
+
+event.load("player_move");
+event.load("entity_damage");
+event.load("player_quit");
+event.load("player_giveup");
+event.load("minigame_join");
+event.load("block_break");
+gamename = "§aPortal";
+maxplayers = 1;
+
+//----------------------------------------------------
+
+@wait
+wait();
+
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(!player.hasMinigameId(player, script_id)) {
+	goto("wait");
+}
+if(event == "minigame_join"){
+	player.clearInventory(player);
+	entity.teleport(player, Start_Pos);
+}
+if(event == "player_move"){
+	move_type = map.getOrDefault(id_effects, id, "none");
+	if(move_type == "speed_gel"){
+		gel.speed(player);
+	}
+	elseif(move_type == "jump_gel"){
+		gel.jump(player);
+	}
+	elseif(move_type == "portal"){
+		portal.enter(player, id);
+	}
+	elseif(move_type == "end"){
+		game_stop("You did it!");
+	}
+}
+if(event == "block_break"){
+	cancel = true;
+	goto("wait");
+}
+if(event == "entity_damage") {
+	cancel = true;
+	goto("wait");
+}
+if(event == "player_quit"){
+	game_stop(null);
+}
+if(event == "player_giveup"){
+	game_stop("You have left the game");
+}
+goto("wait");
+
+//----------------------------------------------------
+
+function gel.speed(player){
+	living.addEffect(player,"SPEED",5,3,true);
+}
+function gel.jump(player){
+	if(!player.isSneaking(player)){
+		motion = entity.getMotion(player);
+		look = entity.getLook(player);
+		
+		x = motion[0]+look[0]/3;
+		y = 1.01;
+		z = motion[2]+look[2]/3;
+		entity.setMotion(player, x, y, z);
+	}
+}
+
+function portal.create(to_loc, mid_loc, Direction_in, Direction_out){
+	array = array.new(4);
+	array[0] = Direction_in;//east // south
+	array[1] = Direction_out;//east -> +X, west -> -X, south -> +Z, north -> -Z
+	array[2] = to_loc;
+	array[3] = mid_loc;
+	return array;
+}
+function portal.enter(player, id){
+	array = map.get($portals, id);
+	Direction_in = array[0];
+	Direction_out = array[1];
+	to_loc = array[2];
+	mid_loc = array[3];
+	
+	player_loc = entity.getLocation(player);
+	player_yaw = loc.getYaw(player_loc);
+	
+	if(Direction_in == "east"){
+		player_X = loc.getX(player_loc);
+		mid_X = loc.getX(mid_loc);
+		dif = mid_X - player_X;
+		rel_yaw = player_yaw+90;
+	}
+	elseif(Direction_in == "south"){
+		player_Z = loc.getZ(player_loc);
+		mid_Z = loc.getZ(mid_loc);
+		dif = mid_Z - player_Z;
+		rel_yaw = player_yaw;
+	}
+	if(Direction_out == "east"){
+		tp_loc = loc.mod(to_loc, 2*dif, 0, 0);
+		rel_yaw += -90;
+	}
+	elseif(Direction_out == "south"){
+		tp_loc = loc.mod(to_loc, 0, 0, 2*dif);
+	}
+	elseif(Direction_out == "west"){
+		tp_loc = loc.mod(to_loc, -2*dif, 0, 0);
+		rel_yaw += 90;
+	}
+	elseif(Direction_out == "north"){
+		tp_loc = loc.mod(to_loc, 0, 0, -2*dif);
+		rel_yaw += 180;
+	}
+	if(rel_yaw > 180){
+		rel_yaw -= 360;
+	}elseif(rel_yaw <= -180){
+		rel_yaw += 360;
+	}
+	loc.setYaw(tp_loc, rel_yaw);
+	loc.setPitch(tp_loc, loc.getPitch(player_loc));
+	entity.teleport(player, tp_loc);
+}
+
+function game_stop(message){
+	if(message != null){
+		msg.prefix($player, $gamename, message);
+	}
+	script = script.getFromId($script_id);
+	minigame.kickPlayer(script, $player);
+	minigame.term(script, $gamesignloc);
+	term();
+}

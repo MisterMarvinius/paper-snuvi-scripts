@@ -201,7 +201,7 @@ function save() {
 }
 
 function giveSnuvis(player, amount) {
-    msg(player, text.new(string.concat("§eYou earned §6", string.number(amount), "§e Snuvis.")));
+    msg(player, text.new(string.concat("§eYou earned §f", money.getStringColor(amount, "§6"), "§e Snuvis.")));
 	money.add(player, amount);
 }
 
@@ -250,11 +250,11 @@ function newSellItem(item, amount, price) {
     if(lore == null) {
         lore = list.new();
     }
-    s = "";
+	s = "";
     if(price > 1) {
         s = "s";
     }
-    list.add(lore, text.new(string.concat("§eBuy §6", string.number(amount), "§e for §6", money.getStringColor(price, "§6"))));
+    list.add(lore, text.new(string.concat("§eBuy §6", string.number(amount), "§e for §6", string.number(price), " §eSnuvi", s)));
     item.setLore(item, lore);
     return item;
 }
@@ -395,7 +395,7 @@ if(lore == null || list.getSize(lore) == 0) {
     }
     if(lostSnuvis > 0) {
 		money.popUp(player, lostSnuvis * -1, false);
-        msg(player, text.new(string.concat("§eYou spent §6", string.number(lostSnuvis), "§e Snuvis.")));
+        msg(player, text.new(string.concat("§eYou spent §f", money.getStringColor(lostSnuvis, "§6"), "§e Snuvis.")));
     }
 } else {
     for(i = 0; i < clicks; i++) {
@@ -420,7 +420,7 @@ if(lore == null || list.getSize(lore) == 0) {
     }
     if(lostSnuvis > 0) {
 		money.popUp(player, lostSnuvis * -1, false);
-        msg(player, text.new(string.concat("§eYou spent §6", string.number(lostSnuvis), "§e Snuvis.")));
+        msg(player, text.new(string.concat("§eYou spent §f", money.getStringColor(lostSnuvis, "§6"), "§e Snuvis.")));
         updateItem(inv, inv_slot, material);
         save();
     }
@@ -456,4 +456,3 @@ if(gotSnuvis > 0) {
     save();
 }
 goto("loop");
-
