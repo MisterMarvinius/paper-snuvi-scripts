@@ -3298,8 +3298,8 @@ goto("wait");
 @nickname
 if(size < 1) {
 	msg.prefix(player, "§eNickname", "/nickname ...");
-	msg.string(player, "§e - <name> ", "Sets a nickname");
-	msg.string(player, "§e - remove ", "Removes a nickname");
+	msg.string(player, string.concat("§e - <name> ", "Sets a nickname"));
+	msg.string(player, string.concat("§e - remove ", "Removes a nickname"));
 	goto("wait");
 }
 nickname = string.replace(string.concatList(args, " ", 0, size - 1), "&", "§");

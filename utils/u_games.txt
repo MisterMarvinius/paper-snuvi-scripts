@@ -619,7 +619,7 @@ function sign.closed(sign_block) {
 //--------------------------------------------------
 
 function sb.clearGame(player) {
-	for(i = 81; i < 100; i++) {
+	for(i = 80; i < 100; i++) {
 		sb.remove(player, i);
 	}
 }

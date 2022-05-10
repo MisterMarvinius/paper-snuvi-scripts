@@ -1,2 +1,0 @@
-p = read.player("marvinius");
-player.setFly(p, true);

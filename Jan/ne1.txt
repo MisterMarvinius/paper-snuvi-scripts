@@ -1,0 +1,50 @@
+event.load("player_move");
+
+creative = world.get("creative");
+
+switch1 = event.addMoveData(loc.new(creative, 3106,59, 2710), loc.new(creative, 3102,62,2706), 5, -1);
+switch2 = event.addMoveData(loc.new(creative, 3119,59, 2721), loc.new(creative, 3123,62,2717), 5, -1);
+mid_switch1 = loc.new(creative, 3104, 61, 2708);
+mid_switch2 = loc.new(creative, 3121, 61, 2719);
+
+
+fall = event.addMoveData(loc.new(creative, 3106,56, 2728), loc.new(creative, 3102,64,2732), 5, -1);
+mid_fall_loc_from = loc.new(creative, 3104, 61, 2730);
+mid_fall_loc_to = loc.new(creative, 3112, 61, 2719);
+
+@wait
+wait();
+if(id == switch1){
+	en.switch(player);
+}elseif(id == switch2){
+	//en.switch(player);
+}elseif(id == fall){
+	en.fall(player);
+}
+goto("wait");
+
+function en.switch(player){
+	ent_loc = entity.getLocation(player);
+	Look = entity.getLook(player);
+	Motion = entity.getMotion(player);
+	X = loc.getX($mid_switch2) - (loc.getY(ent_loc) - loc.getY($mid_switch1));
+	Y = loc.getY($mid_switch2) - (loc.getZ(ent_loc) - loc.getZ($mid_switch1));
+	Z = loc.getZ($mid_switch2) - (loc.getX(ent_loc) - loc.getX($mid_switch1)) + 1;
+	ent_loc_to = loc.new($creative, X,Y,Z);
+	entity.teleport(player, ent_loc_to);
+	entity.setLook(player, -Look[1], Look[2], -Look[0]);
+	entity.setMotion(player, -Motion[1], Motion[2], -Motion[0]);
+}
+
+function en.fall(player){
+	ent_loc = entity.getLocation(player);
+	Look = entity.getLook(player);
+	Motion = entity.getMotion(player);
+	X = loc.getX($mid_fall_loc_to) - (loc.getY(ent_loc) - loc.getY($mid_fall_loc_from));
+	Y = loc.getY($mid_fall_loc_to) - (loc.getZ(ent_loc) - loc.getZ($mid_fall_loc_from));
+	Z = loc.getZ($mid_fall_loc_to) + (loc.getX(ent_loc) - loc.getX($mid_fall_loc_from));
+	ent_loc_to = loc.new($creative, X,Y,Z);
+	entity.teleport(player, ent_loc_to);
+	entity.setLook(player, -Look[1], -Look[2], Look[0]);
+	entity.setMotion(player, -Motion[1], -Motion[2], Motion[0]);
+}

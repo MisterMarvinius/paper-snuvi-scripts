@@ -41,10 +41,6 @@ if(item == spyglass) {
 		goto("wait");
 	}
 	if(title_string == "Librarian") {
-		if(!perm.has("isTeam", player)) {
-			perm.no("isTeam", player);
-			goto("wait");
-		}
 		inv.open(librarian_inv, player);
 		goto("wait");
 	}

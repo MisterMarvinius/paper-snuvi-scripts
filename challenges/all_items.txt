@@ -133,6 +133,7 @@ list.remove(mat_list, material.get("COMMAND_BLOCK_MINECART"));
 list.remove(mat_list, material.get("DEBUG_STICK"));
 list.remove(mat_list, material.get("COMMAND_BLOCK"));
 list.remove(mat_list, material.get("LIGHT"));
+list.remove(mat_list, material.get("STRUCTURE_BLOCK"));
 all_stages = list.getSize(mat_list);
 
 online_list = players.toList();
@@ -142,6 +143,7 @@ while(hasNext(iter)) {
 	if(challenge.playerHas(p, challenge_short)) {
 		stage = loadDoneItems(p);
 		type = loadNextItem(p);
+		snuvi.debug(getRandomType(p));
 		challenge.display(p, sb_id, challenge_name, type, stage, all_stages);
 	}
 }
@@ -339,7 +341,7 @@ function loadDoneItems(player_or_id) {
 	s = set.new();
 	l = list.copy($mat_list);
 	for(i = 0; i < array.getSize(a); i++) {
-		type = a[i];
+		type = material.get(a[i]);
 		set.add(s, type);
 		list.remove(l, type);
 	}

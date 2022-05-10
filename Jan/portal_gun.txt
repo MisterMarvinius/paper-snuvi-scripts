@@ -1,0 +1,326 @@
+event.load("block_click");
+event.load("player_move");
+
+Reach = 25;
+Portal_Surface_Mat = material.get("IRON_BLOCK");
+Portal_Mat = material.get("GLOW_LICHEN");
+air_mat = material.get("AIR");
+
+left_portal_particle = particle.get("ELECTRIC_SPARK");
+right_portal_particle = particle.get("GLOW");
+
+Existing_Portals = map.new(); // right/left, id of player_move
+Portal_Locs = map.new(); // right/left, locs as array
+
+portals = map.new(); // id, portal.create(in_mid_loc, out_mid_loc, facing_in, facing_out));
+
+Portal_directions = map.new(); // right/left, direction as string
+
+@wait
+wait();
+if(event == "block_click"){
+	if(player.getName(player) != "SirTerence7" && player.getName(player) != "Mareeeen"){
+		goto("wait");
+	}
+	if(action == "PHYSICAL"){
+		goto("wait");
+	}
+	player_hand = living.getHand(player);
+	if(!item.hasName(player_hand)){
+		goto("wait");
+	}
+	item_name = string.text(item.getName(player_hand));
+	if(item_name != "Portal Gun"){
+		goto("wait");
+	}
+	loc = entity.getLocation(player);
+	look = entity.getLook(player);
+
+	if(player.isSneaking(player)){
+		shoot_loc = loc.mod(loc, 0, 1.25, 0);
+	}else{
+		shoot_loc = loc.mod(loc, 0, 1.55, 0);
+	}
+	portal.shoot(action, shoot_loc, look);
+	cancel = true;
+	
+	goto("wait");
+}
+if(event == "player_move"){
+	if(!map.contains(portals, id)){
+		goto("wait");
+	}
+	portal.enter(player, id);
+}
+
+goto("wait");
+
+
+
+
+
+function portal.shoot(action, loc, look){
+	if(action == "LEFT_CLICK_AIR" || action == "LEFT_CLICK_BLOCK"){
+		portal_to_place = "left";
+		portal_particle = $left_portal_particle;
+	}elseif(action == "RIGHT_CLICK_AIR" || action == "RIGHT_CLICK_BLOCK"){
+		portal_to_place = "right";
+		portal_particle = $right_portal_particle;
+	}else{
+		return;
+	}
+	
+	Yaw = loc.getYaw(loc);
+	
+	for(a = 0; a < $Reach * 3; a++){
+		new_loc = loc.mod(loc, a*look[0]/3, a*look[1]/3, a*look[2]/3);
+		new_block = block.get(new_loc);
+		new_mat = block.getType(new_block);
+		
+		particle.spawn(new_loc, portal_particle, 1, 0, 0, 0, 0);
+		
+		if(material.isSolid(new_mat)){
+			if(new_mat == $Portal_Surface_Mat){
+				portal.place(new_loc, loc.mod(new_loc, -look[0]/3, -look[1]/3, -look[2]/3), portal_to_place, Yaw);
+				break;
+			}else{
+				break;
+			}
+		}
+	}
+	return;
+}
+
+function portal.place(to_loc, from_loc, portal_to_place, yaw){
+	block_loc = block.getLocation(block.get(to_loc));
+	direction = portal.getDirection(block_loc, from_loc);
+	
+	if(direction == "EAST" || direction == "WEST" || direction == "SOUTH" || direction == "NORTH"){
+		mid_Y = loc.getY(block_loc) + 0.5;
+		to_Y = loc.getY(from_loc);
+		if(mid_Y - to_Y < 0){
+			block2_loc = loc.mod(block_loc, 0, 1, 0);
+		}else{
+			block2_loc = loc.mod(block_loc, 0, -1, 0);
+		}
+	}else{
+		yaw = yaw + 180;
+		if((yaw > 60 && yaw < 120) || (yaw > 240 && yaw < 300)){
+			mid_X = loc.getX(block_loc) + 0.5;
+			to_X = loc.getX(from_loc);
+			if(mid_X - to_X < 0){
+				block2_loc = loc.mod(block_loc, 1, 0, 0);
+			}else{
+				block2_loc = loc.mod(block_loc, -1, 0, 0);
+			}
+		}else{
+			mid_Z = loc.getZ(block_loc) + 0.5;
+			to_Z = loc.getZ(from_loc);
+			if(mid_Z - to_Z < 0){
+				block2_loc = loc.mod(block_loc, 0, 0, 1);
+			}else{
+				block2_loc = loc.mod(block_loc, 0, 0, -1);
+			}
+		}
+	}
+	if(block.getType(block.get(block2_loc)) != $Portal_Surface_Mat){
+		return;
+	}
+	to_surface_array = direction_array(direction);
+	portal_loc1 = loc.mod(block_loc, to_surface_array[0], to_surface_array[1], to_surface_array[2]);
+	portal_loc2 = loc.mod(block2_loc, to_surface_array[0], to_surface_array[1], to_surface_array[2]);
+	
+	portal_block1 = block.get(portal_loc1);
+	portal_block2 = block.get(portal_loc2);
+	
+	portal_1_mat = block.getType(portal_block1);
+	portal_2_mat = block.getType(portal_block2);
+	
+	if(portal_1_mat != $air_mat){
+		if(portal_1_mat != $Portal_Mat){
+			return;
+		}
+		Other_Portal_Locs_Array = map.get($Portal_Locs, portal.getOther(portal_to_place));
+		if(Other_Portal_Locs_Array != null){
+			if(Other_Portal_Locs_Array[0] == portal_loc1 || Other_Portal_Locs_Array[1] == portal_loc1){
+				return;
+			}
+		}
+	}
+	if(portal_2_mat != $air_mat){
+		if(portal_2_mat != $Portal_Mat){
+			return;
+		}
+		Other_Portal_Locs_Array = map.get($Portal_Locs, portal.getOther(portal_to_place));
+		if(Other_Portal_Locs_Array != null){
+			if(Other_Portal_Locs_Array[0] == portal_loc2 || Other_Portal_Locs_Array[1] == portal_loc2){
+				return;
+			}
+		}
+	}
+	
+	if(map.contains($Portal_Locs, portal_to_place)){
+		Portal_array = map.get($Portal_Locs, portal_to_place);
+		block.setMaterial(block.get(Portal_array[0]), $air_mat);
+		block.setMaterial(block.get(Portal_array[1]), $air_mat);
+	}
+	
+	block.setMaterial(portal_block1, $Portal_Mat);
+	block.setMaterial(portal_block2, $Portal_Mat);
+	//block.setDirectionalFace(portal_block1, direction);
+	//block.setDirectionalFace(portal_block2, direction);
+	
+	if(map.contains($Existing_Portals, portal_to_place)){
+		id_to_remove = map.get($Existing_Portals, portal_to_place);
+		event.removeMoveData(id_to_remove);
+	}
+	
+	in_mid_loc = loc.getMid(portal_loc1, portal_loc2);
+	
+	new_id = event.addMoveData(loc.mod(in_mid_loc, -0.25, -0.25, -0.25), loc.mod(in_mid_loc, 0.25, 0.25, 0.25), 5, -1, $player);
+	map.add($Existing_Portals, portal_to_place, new_id);
+	Portal_array = array.new(2);
+	Portal_array[0] = portal_loc1;
+	Portal_array[1] = portal_loc2;
+	map.add($Portal_Locs, portal_to_place, Portal_array);
+	map.add($Portal_directions, portal_to_place, direction);
+	
+	if(map.getSize($Existing_Portals) > 1){
+		map.clear($portals);// id, portal.create(in_mid_loc, out_mid_loc, facing_in, facing_out));
+		
+		other_portal = portal.getOther(portal_to_place);
+		Other_Portal_array = map.get($Portal_Locs, other_portal);
+		out_mid_loc = loc.getMid(Other_Portal_array[0], Other_Portal_array[1]);
+		oth_id = map.get($Existing_Portals, other_portal);
+		
+		map.add($portals, new_id, portal.create(out_mid_loc, in_mid_loc, direction, map.get($Portal_directions, other_portal)));
+		map.add($portals, oth_id, portal.create(in_mid_loc, out_mid_loc, map.get($Portal_directions, other_portal), direction));
+	}
+}
+
+function portal.getDirection(block_loc, from_loc){
+	X = loc.getBlockX(from_loc) - loc.getX(block_loc);
+	Y = loc.getBlockY(from_loc) - loc.getY(block_loc);
+	Z = loc.getBlockZ(from_loc) - loc.getZ(block_loc);
+	
+	if(X == -1){
+		return("EAST");
+	}elseif(X == 1){
+		return("WEST");
+	}elseif(Y == 1){
+		return("DOWN");
+	}elseif(Y == -1){
+		return("UP");
+	}elseif(Z == -1){
+		return("SOUTH");
+	}elseif(Z == 1){
+		return("NORTH");
+	}
+}
+
+function direction_array(direction){
+	array = array.new(3);
+	
+	if(direction == "UP"){
+		array[0] = 0;
+		array[1] = -1;
+		array[2] = 0;
+	}elseif(direction == "DOWN"){
+		array[0] = 0;
+		array[1] = 1;
+		array[2] = 0;
+	}elseif(direction == "EAST"){
+		array[0] = -1;
+		array[1] = 0;
+		array[2] = 0;
+	}elseif(direction == "WEST"){
+		array[0] = 1;
+		array[1] = 0;
+		array[2] = 0;
+	}elseif(direction == "SOUTH"){
+		array[0] = 0;
+		array[1] = 0;
+		array[2] = -1;
+	}elseif(direction == "NORTH"){
+		array[0] = 0;
+		array[1] = 0;
+		array[2] = 1;
+	}
+	return(array);
+}
+
+function portal.getOther(Portal){
+	if(Portal == "left"){
+		return "right";
+	}else{
+		return "left";
+	}
+}
+
+function portal.create(to_loc, mid_loc, Direction_in, Direction_out){
+	array = array.new(4);
+	array[0] = Direction_in;//east // south
+	array[1] = Direction_out;//east -> +X, west -> -X, south -> +Z, north -> -Z
+	array[2] = to_loc;
+	array[3] = mid_loc;
+	return array;
+}
+
+/*
+portal.enter muss umstrukturiert werden zur Inkulsion von UP und DOWN -> get und setlook verwenden
+*/
+
+function portal.enter(player, id){
+	array = map.get($portals, id);
+	Direction_in = array[0];
+	Direction_out = array[1];
+	to_loc = array[2];
+	mid_loc = array[3];
+	
+	player_loc = entity.getLocation(player);
+	player_yaw = loc.getYaw(player_loc);
+	
+	if(Direction_in == "EAST" || Direction_in == "WEST"){
+		player_X = loc.getX(player_loc);
+		mid_X = loc.getX(mid_loc);
+		dif = mid_X - player_X;
+		rel_yaw = player_yaw+90;
+	}
+	elseif(Direction_in == "SOUTH" || Direction_in == "NORTH"){
+		player_Z = loc.getZ(player_loc);
+		mid_Z = loc.getZ(mid_loc);
+		dif = mid_Z - player_Z;
+		rel_yaw = player_yaw;
+	}
+	if(Direction_out == "EAST"){
+		tp_loc = loc.mod(to_loc, 2*dif, 0, 0);
+		rel_yaw += -90;
+	}
+	elseif(Direction_out == "SOUTH"){
+		tp_loc = loc.mod(to_loc, 0, 0, 2*dif);
+	}
+	elseif(Direction_out == "WEST"){
+		tp_loc = loc.mod(to_loc, -2*dif, 0, 0);
+		rel_yaw += 90;
+	}
+	elseif(Direction_out == "NORTH"){
+		tp_loc = loc.mod(to_loc, 0, 0, -2*dif);
+		rel_yaw += 180;
+	}
+	if(rel_yaw > 180){
+		rel_yaw -= 360;
+	}elseif(rel_yaw <= -180){
+		rel_yaw += 360;
+	}
+	loc.setYaw(tp_loc, rel_yaw);
+	loc.setPitch(tp_loc, loc.getPitch(player_loc));
+	entity.teleport(player, tp_loc);
+}
+
+function loc.getMid(loc1, loc2){
+	loc1_world = loc.getWorld(loc1);
+	if(loc1_world != loc.getWorld(loc2)){
+		return null;
+	}
+	return loc.new(loc1_world, (loc.getX(loc1) + loc.getX(loc2))/2 + 0.5, (loc.getY(loc1) + loc.getY(loc2))/2 + 0.5, (loc.getZ(loc1) + loc.getZ(loc2))/2 + 0.5);
+}

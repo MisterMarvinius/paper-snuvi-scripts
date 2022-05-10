@@ -16,7 +16,7 @@ array = array.new();
 list.add(game_figures_reset_list, array);
 
 @wait
-wait()
+wait();
 goto("wait");
 
 function chess.reset(game_figures_reset_list, active_game_figures_list){

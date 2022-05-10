@@ -1,0 +1,150 @@
+world = world.get("creative");
+Mandelbrot_Start = loc.new(world,1000,125,1000);
+Juliaset_Start = loc.new(world,1000,75,1000);
+
+iterations = 15;
+size = 200;
+
+black_wool_mat = material.get("BLACK_WOOL");
+
+event.load("block_click");
+/*
+array = Mandelbrot();
+place_from_Array(array, Mandelbrot_Start);
+*/
+@wait
+wait();
+if(player.getName(player) != "SirTerence7"){
+	goto("wait");
+}
+if(block == null){
+	goto("wait");
+}
+if(block.getType(block) != black_wool_mat){
+	goto("wait");
+}
+if(outofrange(block.getLocation(block))){
+	goto("wait");
+}
+array = JuliaSet(block);
+place_from_Array(array, Juliaset_Start);
+
+cancel = true;
+
+goto("wait");
+
+function outofrange(loc){
+	if(loc.distance(loc, loc.mod($Mandelbrot_Start, $size/2, 0, $size/2)) > $size/2){
+		return true;
+	}
+	return false;
+}
+
+function complex(a,b){
+	c = array.new(2);
+	c[0] = a;
+	c[1] = b;
+	return c;
+}
+
+function complex_mult(a,b){
+	c = array.new(2);
+	c[0] = a[0]*b[0] - a[1]*b[1];
+	c[1] = a[0]*b[1] + a[1]*b[0];
+	return c;
+}
+
+function complex_add(a,b){
+	a[0] += b[0];
+	a[1] += b[1];
+	return a;
+}
+
+function complex_abs(a){
+	return math.abs(a[0]) + math.abs(a[1]);
+}
+
+function Mandelbrot(){
+	Mandelbrot_array = array.new($size, $size);
+	for(i = 0; i < $size; i++){
+		c1 = 4*i/$size-2;
+		for(j = 0; j < $size; j++){
+			
+			if(j%50 == 0){
+				waitfor(2);
+			}
+			
+			c2 = 4*j/$size-2;
+			c = complex(c1,c2);
+			z = complex(0,0);
+			count = 0;
+			for(k = 0; k < $iterations; k++){
+				z = complex_add(complex_mult(z,z),c);
+				count++;
+				if(complex_abs(z) > 4){
+					break;
+				}
+			}
+			Mandelbrot_array[i,j] = count;
+		}
+		if(i%10 == 0){
+			msg("dev", text.new(i/$size));
+		}
+	}
+	return Mandelbrot_array;
+}
+
+function JuliaSet(block){
+	block_loc = block.getLocation(block);
+	origin_loc = $Juliaset_Start;
+	p1 = 4*(loc.getX(block_loc)-loc.getX(origin_loc))/$size-2;
+	p2 = 4*(loc.getZ(block_loc)-loc.getZ(origin_loc))/$size-2;
+	Julia_array = array.new($size, $size);
+	for(i = 0; i < $size; i++){
+		z1 = 4*i/$size-2;
+		for(j = 0; j < $size; j++){
+			
+			if(j%50 == 0){
+				waitfor(2);
+			}
+			
+			z2 = 4*j/$size-2;
+			z = complex(z1,z2);
+			c = complex(p1,p2);
+			count = 0;
+			for(k = 0; k < $iterations; k++){
+				z = complex_add(complex_mult(z,z),c);
+				count++;
+				if(complex_abs(z) > 4){
+					break;
+				}
+			}
+			Julia_array[i,j] = count;
+		}
+		if(i%10 == 0){
+			msg("dev", text.new(i/$size));
+		}
+	}
+	return Julia_array;
+}
+
+function place_from_Array(array, start_loc){
+	world = loc.getWorld(start_loc);
+	X = loc.getX(start_loc);
+	Y = loc.getY(start_loc);
+	Z = loc.getZ(start_loc);
+	for(i = 0; i < $size; i++){
+		for(j = 0; j < $size; j++){
+			if(j%50 == 0){
+				waitfor(2);
+			}
+			element = array[i,j];
+			if(element < $iterations - 1){
+				continue;
+			}
+			block = block.get(loc.new(world, X + i, Y, Z + j));
+			block.setMaterial(block, $black_wool_mat, false);
+		}
+	}
+	msg("dev", text.new("done"));
+}
