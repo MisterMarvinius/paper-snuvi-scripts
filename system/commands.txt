@@ -703,7 +703,9 @@ if(event == "block_click") {
 				}
 			}
 			if(!access && !plot.hasBlock(block_loc)) {
-				msg.prefix(player, prefix_plot, "This chest is locked for you.");
+				if(!world.isGamesName(world_name)) {
+					msg.prefix(player, prefix_plot, "This chest is locked for you.");
+				}
 			}
 		}
 		goto("wait");
@@ -2133,7 +2135,7 @@ if(bool == "on") {
 		msg.prefix(p, prefix_commands, "You are vanished.");
 	}
 	set.add(vanish_set, player.getUuid(p));
-	player.hide(p);
+	player.hideOnline(p);
 } elseif(bool == "off") {
 	if(p != player) {
 		msg.prefix(player, prefix_commands, string.concat(p_name, " is no longer vanished."));
@@ -2142,7 +2144,7 @@ if(bool == "on") {
 		msg.prefix(p, prefix_commands, "You are no longer vanished.");
 	}
 	set.remove(vanish_set, player.getUuid(p));
-	player.show(p);
+	player.showOnline(p);
 } else {
 	msg.prefix(player, prefix_commands, "/vanish [on/off] [player]");
 }

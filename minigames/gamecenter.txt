@@ -307,6 +307,8 @@ if(script_id == null) {
 		modTimer(-100);
 		if(pfad2 == "minigames/itemhunt/itemhunt" || pfad2 == "minigames/itemhunt/ihranked") {
 			script = script.start(pfad, "minigames/itemhunt/itemhuntitems", pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+		} elseif(pfad2 == "minigames/among_us/among_us") {
+			script = script.start(pfad, pfad2, "utils/u_games", "utils/u_general");
 		} else {
 			script = script.start(pfad, pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
 		}

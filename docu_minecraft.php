@@ -3706,21 +3706,21 @@
 	<table>
         <tr>
             <th class="command">player.hide</th>
-            <th class="desc">hides a player</th>
+            <th class="desc">hides a player from another player</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>player.hide(player)</td>
+            <td>player.hide(player, player_to_hide)</td>
         </tr>
     </table>
 	<table>
         <tr>
             <th class="command">player.show</th>
-            <th class="desc">shows a player</th>
+            <th class="desc">shows a player or another player</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>player.show(player)</td>
+            <td>player.show(player, player_to_show)</td>
         </tr>
     </table>
 	<table>

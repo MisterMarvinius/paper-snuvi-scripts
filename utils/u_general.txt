@@ -2333,6 +2333,24 @@ function player.checkHandsForTag(player, tag) {
 	return item.hasTag(offhand, tag);
 }
 
+function player.hideOnline(player) {
+	list = players.toList();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		player.hide(p, player);
+	}
+}
+
+function player.showOnline(player) {
+	list = players.toList();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		player.show(p, player);
+	}
+}
+
 //--------------------------------------------------
 //Chestshop-Utils
 //--------------------------------------------------

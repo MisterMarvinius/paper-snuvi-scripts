@@ -3,7 +3,7 @@ lobbyspawnloc = loc.new(gamesworld, 906, 84, 945);
 mapname = "The Skeld";
 manual_start = true;
 
-multi_minplayers = 2;
+multi_minplayers = 3;
 minplayers = 1;
 maxplayers = 10;
 gamesignloc = minigame.getSignLoc("among_us_sign1");
@@ -15,6 +15,7 @@ amount_meetings_max = 5;
 meeting_cooldown = 15; //s
 meeting_cooldown_min = 10; //s
 meeting_cooldown_max = 50; //s
+default_sabo_cooldown = 30; //s
 kill_cooldown = 30; //s
 kill_cooldown_min = 10; //s
 kill_cooldown_max = 60; //s
@@ -59,10 +60,10 @@ list.add(seat_locs, loc.new(gamesworld, 907, 84, 946));
 list.add(seat_locs, loc.new(gamesworld, 907, 84, 947));
 list.add(seat_locs, loc.new(gamesworld, 907, 84, 948));
 
-item_arrow_left = item.custom.create("ARROW_LEFT", 1, null, null);
-item_arrow_right = item.custom.create("ARROW_RIGHT", 1, null, null);
-item_arrow_up = item.custom.create("ARROW_UP", 1, null, null);
-item_arrow_down = item.custom.create("ARROW_DOWN", 1, null, null);
+vent_left_item = item.custom.create("ARROW_LEFT", 1, "§fVent left", null);
+vent_right_item = item.custom.create("ARROW_RIGHT", 1, "§fVent right", null);
+vent_up_item = item.custom.create("ARROW_UP", 1, "§fVent up", null);
+vent_down_item = item.custom.create("ARROW_DOWN", 1, "§fVent down", null);
 goto("game_core");
 
 @init_map_specific
@@ -344,20 +345,20 @@ for(i = 0; i < list.getSize(all_vent_locs); i++) {
 }
 
 vent_map_3 = map.new();
-addVentIcons(cafe_vent_loc, item_arrow_left, admin_vent_loc, item_arrow_down, hall_vent_loc);
-addVentIcons(weap_vent_loc, item_arrow_up, navi_1_vent_loc, null, null);
-addVentIcons(navi_1_vent_loc, item_arrow_left, weap_vent_loc, null, null);
-addVentIcons(navi_2_vent_loc, null, null, item_arrow_right, shie_vent_loc);
-addVentIcons(hall_vent_loc, item_arrow_down, cafe_vent_loc, item_arrow_right, admin_vent_loc);
-addVentIcons(shie_vent_loc, null, null, item_arrow_right, navi_2_vent_loc);
-addVentIcons(admin_vent_loc, item_arrow_right, hall_vent_loc, item_arrow_left, cafe_vent_loc);
-addVentIcons(ue_vent_loc, null, null, item_arrow_up, reac_1_vent_loc);
-addVentIcons(reac_1_vent_loc, item_arrow_left, ue_vent_loc, null, null);
-addVentIcons(reac_2_vent_loc, null, null, item_arrow_down, le_vent_loc);
-addVentIcons(le_vent_loc, null, null, item_arrow_up, reac_2_vent_loc);
-addVentIcons(secu_vent_loc, item_arrow_down, elec_vent_loc, item_arrow_right, med_vent_loc);
-addVentIcons(med_vent_loc, arrow_down, secu_vent_loc, item_arrow_right, elec_vent_loc);
-addVentIcons(elec_vent_loc, item_arrow_left, med_vent_loc, item_arrow_down, secu_vent_loc);
+addVentIcons(cafe_vent_loc, vent_left_item, admin_vent_loc, vent_down_item, hall_vent_loc);
+addVentIcons(weap_vent_loc, vent_up_item, navi_1_vent_loc, null, null);
+addVentIcons(navi_1_vent_loc, vent_left_item, weap_vent_loc, null, null);
+addVentIcons(navi_2_vent_loc, null, null, vent_right_item, shie_vent_loc);
+addVentIcons(hall_vent_loc, vent_down_item, cafe_vent_loc, vent_right_item, admin_vent_loc);
+addVentIcons(shie_vent_loc, null, null, vent_right_item, navi_2_vent_loc);
+addVentIcons(admin_vent_loc, vent_right_item, hall_vent_loc, vent_left_item, cafe_vent_loc);
+addVentIcons(ue_vent_loc, null, null, vent_up_item, reac_1_vent_loc);
+addVentIcons(reac_1_vent_loc, vent_left_item, ue_vent_loc, null, null);
+addVentIcons(reac_2_vent_loc, null, null, vent_down_item, le_vent_loc);
+addVentIcons(le_vent_loc, null, null, vent_up_item, reac_2_vent_loc);
+addVentIcons(secu_vent_loc, vent_down_item, elec_vent_loc, vent_right_item, med_vent_loc);
+addVentIcons(med_vent_loc, arrow_down, secu_vent_loc, vent_right_item, elec_vent_loc);
+addVentIcons(elec_vent_loc, vent_left_item, med_vent_loc, vent_down_item, secu_vent_loc);
 
 move_id_le = event.addMoveData(loc.new(gamesworld, 3051, 108, 3982), loc.new(gamesworld, 3042, 113, 3972), 10, -1); //Lower Engine
 move_id_sec = event.addMoveData(loc.new(gamesworld, 3054, 108, 3967), loc.new(gamesworld, 3058, 111, 3958), 10, -1); //Security

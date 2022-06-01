@@ -1,0 +1,2 @@
+entity = read.player("Mareeeen");
+entity.setGravity(entity, true);

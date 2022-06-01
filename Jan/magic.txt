@@ -1,0 +1,92 @@
+event.load("block_click");
+
+magic_particle = particle.get("ELECTRIC_SPARK");
+Reach = 50;
+
+mat1 = material.get("GREEN_WOOL");
+mat2 = material.get("RED_WOOL");
+mat3 = material.get("ORANGE_WOOL");
+
+@wait
+wait();
+if(event == "block_click"){
+	if(player.getName(player) != "SirTerence7"){// && player.getName(player) != "Mareeeen"){
+		goto("wait");
+	}
+	if(action == "PHYSICAL"){
+		goto("wait");
+	}
+	/*player_hand = living.getHand(player);
+	if(!item.hasName(player_hand)){
+		goto("wait");
+	}
+	item_name = string.text(item.getName(player_hand));
+	if(item_name != "wand"){
+		goto("wait");
+	}*/
+	magic.shoot(player, entity.getLook(player));
+}
+goto("wait");
+
+function magic.shoot(player, look){
+	player_loc = loc.mod(entity.getLocation(player),0,1.25,0);
+	b = $Reach*3/2;
+	
+	for(a = 0; a < $Reach * 3; a++){
+		new_loc = loc.mod(player_loc, a*look[0]/3, a*look[1]/3, a*look[2]/3);
+		new_block = block.get(new_loc);
+		new_mat = block.getType(new_block);
+		
+		if(material.isSolid(new_mat)){
+			b = a;
+			break;
+		}
+	}
+	if(b == null){
+		b = $Reach*3/2;
+	}
+	mid_loc = loc.mod(player_loc, (math.random(0,100)/5-10)*b*1/(4*$Reach)+b*look[0]/6, (math.random(0,100)/5-10)*b*1/(4*$Reach)+b*look[1]/6, (math.random(0,100)/5-10)*b*1/(4*$Reach)+b*look[2]/6);
+	end_loc = new_loc;
+	
+	block.setMaterial(block.get(mid_loc), $mat1);
+	block.setMaterial(block.get(end_loc), $mat2);
+	
+	vector1 = array.new(3);//start to mid
+	vector2 = array.new(3);//mid to end
+	vector3 = array.new(3);
+	
+	detail = 15;
+	
+	startX = loc.getX(player_loc);
+	startY = loc.getY(player_loc);
+	startZ = loc.getZ(player_loc);
+	
+	midX = loc.getX(mid_loc);
+	midY = loc.getY(mid_loc);
+	midZ = loc.getZ(mid_loc);
+	
+	vector1[0] = (midX-startX);
+	vector1[1] = (midY-startY);
+	vector1[2] = (midZ-startZ);
+	
+	vector2[0] = -(loc.getX(end_loc)-midX);
+	vector2[1] = -(loc.getY(end_loc)-midY);
+	vector2[2] = -(loc.getZ(end_loc)-midZ);
+	
+	for(a = 0; a < detail; a++){
+		waitfor(2);
+		perc = a/detail;
+		vector3[0] = (midX+vector2[0]*perc - startX-vector1[0]*perc)*perc;
+		vector3[1] = (midY+vector2[1]*perc - startY-vector1[1]*perc)*perc;
+		vector3[2] = (midZ+vector2[2]*perc - startZ-vector1[2]*perc)*perc;
+		
+		new_loc = loc.mod(player_loc, vector3[0], vector3[1],vector3[2]);
+		new_block = block.get(new_loc);
+		new_mat = block.getType(new_block);
+		if(material.isSolid(new_mat)){
+			break;
+		}
+		particle.spawn(new_loc, $magic_particle, 1, 0, 0, 0, 0);
+	}
+	block.setMaterial(new_block, $mat3);
+}
