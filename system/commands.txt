@@ -128,6 +128,7 @@ command.register("skills", "Shows all skills");
 command.register("skipnight", "Skips the night");
 command.register("spawn", "Teleports to spawn");
 command.register("speed", "Sets your speed");
+command.register("sponsor", "See what a sponsor can do");
 command.register("start", "Starts a script");
 command.register("startgame", "Reduces start-countdown for a minigame");
 command.register("stats", "Statistics-Commands");
@@ -386,18 +387,18 @@ rank.add(24, "rank.user", "3User");
 setScriptVar("ranks", rank_array);
 
 month_array = array.new(12, 2);
-month.add(0, "Jan", 31);
-month.add(1, "Feb", 28);
-month.add(2, "Mar", 31);
-month.add(3, "Apr", 30);
-month.add(4, "May", 31);
-month.add(5, "Jun", 30);
-month.add(6, "Jul", 31);
-month.add(7, "Aug", 31);
-month.add(8, "Sep", 30);
-month.add(9, "Oct", 31);
-month.add(10, "Nov", 30);
-month.add(11, "Dec", 31);
+month.register(0, "Jan", 31);
+month.register(1, "Feb", 28);
+month.register(2, "Mar", 31);
+month.register(3, "Apr", 30);
+month.register(4, "May", 31);
+month.register(5, "Jun", 30);
+month.register(6, "Jul", 31);
+month.register(7, "Aug", 31);
+month.register(8, "Sep", 30);
+month.register(9, "Oct", 31);
+month.register(10, "Nov", 30);
+month.register(11, "Dec", 31);
 
 jailed_list = list.new();
 ironbars = item.create("minecraft:iron_bars", 1, "§r", null);
@@ -1336,7 +1337,7 @@ if(arg0 == "create") {
 	sign_loc = block.getLocation(sign_block);
 	sign.setString(sign_block, 0, "[Shop]");
 	sign.setString(sign_block, 3, string.number(player.getId(player)));
-	msg.prefix(player, prefix_shop, "§rCreated Shop.");
+	msg.prefix(player, prefix_shop, "Created Shop.");
 	goto("wait");
 }
 if(arg0 == "buy" || arg0 == "sell") {
@@ -1382,7 +1383,7 @@ if(arg0 == "buy" || arg0 == "sell") {
 	} else {
 		sign.setString(sign_block, 2, string.concat("Sell ", string.number(amount), " for ", string.number(price)));
 	}
-	msg.prefix(player, prefix_shop, "§rPrice set.");
+	msg.prefix(player, prefix_shop, "Price set.");
 	goto("wait");
 }
 if(arg0 == "remove") {
@@ -1413,7 +1414,7 @@ if(arg0 == "remove") {
 		msg.prefix(player, prefix_shop, "§6/shop remove <buy/sell>");
 		goto("wait");
 	}
-	msg.prefix(player, prefix_shop, "§rPrice removed.");
+	msg.prefix(player, prefix_shop, "Price removed.");
 	goto("wait");
 }
 if(arg0 == "owner") {
@@ -2244,7 +2245,7 @@ if(arg0 == "addmoney") {
 	p_uuid = player.getUuid(p_name);
 	p_id = player.getId(p_uuid);
 	addMoney(p_id, money);
-	msg.prefix(sender, prefix_commands, string.concat("Added ", string.number(money), " snuvis to ", player.getName(p_uuid), "."));
+	msg.prefix(sender, prefix_commands, string.concat("Added ", money.getString(money), " to ", player.getName(p_uuid), "."));
 	goto("wait");
 }
 if(arg0 == "setmoney") {
@@ -2425,7 +2426,7 @@ if(arg0 == "list") {
 	for(i = 0; i <= listsize - 1; i++) {
 		friend_name = player.getNameFromId(list.getIndex(friendlist, i));
 		if(friend_name != null) {
-			msg.string(player, string.concat("§r- ", friend_name));
+			msg.string(player, string.concat("- ", friend_name));
 		}
 	}
 	goto("wait");
@@ -3328,7 +3329,7 @@ goto("wait");
 @perm
 if(size == 0) {
 	@perm_syntax
-	msg.prefix(player, prefix_perms, "§r/perm ...");
+	msg.prefix(player, prefix_perms, "/perm ...");
 	if(perm.has("perm.give", player)) {
 		msg.string(player, "§6 - give <player> <perm>");
 	}
@@ -3557,7 +3558,7 @@ goto("wait");
 @weather
 if(size == 0) {
 	@weather_syntax
-	msg.prefix(player, "§eWeather", "§r/weather ...");
+	msg.prefix(player, "§eWeather", "/weather ...");
 	msg.string(player, "§e - clear [duration]");
 	msg.string(player, "§e - rain [duration]");
 	msg.string(player, "§e - thunder [duration]");
@@ -3590,7 +3591,7 @@ if(arg0 == "clear" || arg0 == "rain" || arg0 == "thunder") {
 	}
 	if(arg0 == "rain") {
 		if(size > 2) {
-			msg.prefix(player, prefix_commands, "§r/weather rain [duration]");
+			msg.prefix(player, prefix_commands, "/weather rain [duration]");
 			goto("wait");
 		}
 		world.setRain(world, duration);
@@ -3734,7 +3735,7 @@ goto("wait");
 
 @tip
 if(size == 0) {
-	msg.prefix(player, prefix_tips, "§r/tip ...");
+	msg.prefix(player, prefix_tips, "/tip ...");
 	msg.string(player, "§e - list §rList all tips");
 	msg.string(player, "§e - add <tip> <text> §rAdds a tip");
 	msg.string(player, "§e - remove <tip> §rRemoves a tip");
@@ -3744,7 +3745,7 @@ if(size == 0) {
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "list") {
-	msg.string(player, "§r--==§eTipps§r==--");
+	msg.string(player, "--==§eTipps§r==--");
 	list = tip.getAll();
 	if(list.getSize(list) == 0) {
 		msg.prefix(player, prefix_tips, "No tips available.");
@@ -4363,18 +4364,14 @@ if(size == 0) {
 		msg.string(player, table.getStart(table));
 		msg.string(player, table.get(table, string.number(year), "Playtime", "Change"));
 		msg.string(player, table.getMiddle(table));
-		//Erstes Mitternacht des gewählten Jahres festlegen
-		now_day = time.getDay(calendar);
-		time.nextDay(calendar);
-		midnight = time.from(calendar) - (time.getDaysBetween(1, 1, year, now_day, now_month, now_year) + 1) * 86400000;
 		//Monats-Spielzeit berechnen
 		temp_list = list.new();
-		list.add(temp_list, playtime.getInterval(midnight - time.getMonthDays(12, year - 1) * 86400000, midnight)); //Dezember des Vorjahres hinzufügen
+		list.add(temp_list, playtime.getInterval(time.getCal(year - 1, 12, 1, 0, 0, 0), time.getCal(year, 1, 1, 0, 0, 0))); //Dezember des Vorjahres hinzufügen
 		for(i = 1; i <= 12; i++) {
-			midnight_2 = midnight + time.getMonthDays(i, now_year) * 86400000; //Alle Tage eines Monats * 24 Stunden
+			midnight = time.getCal(year, i, 1, 0, 0, 0);
+			midnight_2 = time.getCal(year, i + 1, 1, 0, 0, 0);
 			minutes = playtime.getInterval(midnight, midnight_2);
 			list.add(temp_list, minutes);
-			midnight = midnight_2;
 			if(i == now_month && year == now_year) {
 				minutes += since_minutes;
 			}
@@ -4420,6 +4417,7 @@ if(size == 0) {
 			goto("wait");
 		}
 		calendar = time.new(time.getMillis());
+		now_day = time.getDay(calendar);
 		now_month = time.getMonth(calendar);
 		now_year = time.getYear(calendar);
 		year = now_year;
@@ -4457,16 +4455,18 @@ if(size == 0) {
 		msg.string(player, table.getStart(table));
 		msg.string(player, table.get(table, month.getShortName(month), "Playtime", "Players"));
 		msg.string(player, table.getMiddle(table));
-		//Erstes Mitternacht des gewählten Monats festlegen
-		now_day = time.getDay(calendar);
-		time.nextDay(calendar);
-		midnight = time.from(calendar) - (time.getDaysBetween(1, month, year, now_day, now_month, now_year) + 1) * 86400000;
 		//Tages-Spielzeit berechnen
-		for(i = 1; i <= time.getMonthDays(month, year); i++) {
-			players = playtime.getPlayersPerInterval(midnight, midnight + 86400000);
+		month_days = time.getMonthDays(month, year);
+		for(i = 1; i <= month_days; i++) {
+			midnight = time.getCal(year, month, i, 0, 0, 0);
+			if(i == month_days) {
+				midnight_2 = time.getCal(year, month + 1, 1, 0, 0, 0);
+			} else {
+				midnight_2 = time.getCal(year, month, i + 1, 0, 0, 0);
+			}
+			players = playtime.getPlayersPerInterval(midnight, midnight_2);
 			sum_players += players;
-			minutes = playtime.getInterval(midnight, midnight + 86400000);
-			midnight += 86400000; //24 Stunden
+			minutes = playtime.getInterval(midnight, midnight_2);
 			if(i == now_day && month == now_month && year == now_year) {
 				minutes += since_minutes;
 			}
@@ -4505,18 +4505,30 @@ if(size == 0) {
 		msg.prefix(player, prefix_commands, "Server-Playtime");
 		//Von allen Online-Spielern die Onlinezeit abrufen, summieren und zur Heute-Spielzeit addieren
 		since_minutes = playtime.getTotalOnlineMinutes();
-		now_time = time.getMillis();
 		//Spielzeit heute
-		calendar = time.new(now_time);
-		time.nextDay(calendar);
-		midnight = time.from(calendar) - 86400000; //24 Stunden von nächstem Mitternacht abziehen
-		minutes = playtime.getInterval(midnight, now_time) + since_minutes;
+		now_cal = time.new(time.getMillis());
+		now_day = time.getDay(now_cal);
+		now_month = time.getMonth(now_cal);
+		now_year = time.getYear(now_cal);
+		midnight = time.getCal(now_year, now_month, now_day, 0, 0, 0);
+		minutes = playtime.getInterval(midnight, now_cal) + since_minutes;
 		hours = string.number(math.roundDown(minutes / 60));
 		minutes = string.number(minutes % 60);
 		msg.string(player, string.concat("§6Today: §r", hours, " h ", minutes, " min"));
 		//Spielzeit 30 Tage für alle Spieler
-		oneMonthAgo = now_time - 2592000000; //30 Tage von jetzt an
-		minutes = playtime.getInterval(oneMonthAgo, now_time) + since_minutes;
+		year = now_year;
+		month = now_month;
+		day = now_day - 30;
+		if(day < 1) {
+			month -= 1;
+			if(month < 1) {
+				year -= 1;
+				month = 12;
+			}
+			day += time.getMonthDays(month, year);
+		}
+		thirtyDaysAgo = time.getCal(year, month, day, time.getHour(now_cal), time.getMinute(now_cal), time.getSecond(now_cal));
+		minutes = playtime.getInterval(thirtyDaysAgo, now_cal) + since_minutes;
 		hours = string.number(math.roundDown(minutes / 60));
 		minutes = string.number(minutes % 60);
 		msg.string(player, string.concat("§630 Days: §r", hours, " h ", minutes, " min"));
@@ -4536,7 +4548,6 @@ if(!checkIfEverOnline(arg0)) {
 	msg.prefix(player, prefix_commands, "This player has never been online.");
 	goto("wait");
 }
-now_time = time.getMillis();
 p_uuid = player.getUuid(arg0);
 arg0 = player.getName(p_uuid);
 p_id = player.getId(p_uuid);
@@ -4552,16 +4563,29 @@ if(isOnline(arg0)) {
 	msg.string(player, "§6Status: §cOffline");
 }
 //Spielzeit heute
-calendar = time.new(now_time);
-time.nextDay(calendar);
-midnight = time.from(calendar) - 86400000; //24 Stunden von nächstem Mitternacht abziehen
-minutes = playtime.getPlayerInterval(p_id, midnight, now_time) + since_minutes;
+now_cal = time.new(time.getMillis());
+now_day = time.getDay(now_cal);
+now_month = time.getMonth(now_cal);
+now_year = time.getYear(now_cal);
+midnight = time.getCal(now_year, now_month, now_day, 0, 0, 0);
+minutes = playtime.getPlayerInterval(p_id, midnight, now_cal) + since_minutes;
 hours = string.number(math.roundDown(minutes / 60));
 minutes = string.number(minutes % 60);
 msg.string(player, string.concat("§6Today: §r", hours, " h ", minutes, " min"));
 //Spielzeit 30 Tage
-oneMonthAgo = now_time - 2592000000; //30 Tage von jetzt an
-minutes = playtime.getPlayerInterval(p_id, oneMonthAgo, now_time) + since_minutes;
+year = now_year;
+month = now_month;
+day = now_day - 30;
+if(day < 1) {
+	month -= 1;
+	if(month < 1) {
+		year -= 1;
+		month = 12;
+	}
+	day += time.getMonthDays(month, year);
+}
+thirtyDaysAgo = time.getCal(year, month, day, time.getHour(now_cal), time.getMinute(now_cal), time.getSecond(now_cal));
+minutes = playtime.getPlayerInterval(p_id, thirtyDaysAgo, now_cal) + since_minutes;
 hours = string.number(math.roundDown(minutes / 60));
 minutes = string.number(minutes % 60);
 msg.string(player, string.concat("§630 Days: §r", hours, " h ", minutes, " min"));
@@ -4688,7 +4712,7 @@ if(arg0 == "item-lore") {
 }
 if(arg0 == "entity-name") {
 	if(size < 2) {
-		msg.prefix(player, prefix_datatools, "§r/datatools entity-name <name>");
+		msg.prefix(player, prefix_datatools, "/datatools entity-name <name>");
 		goto("wait");
 	}
 	templist = living.near(player, 3);
@@ -4706,7 +4730,7 @@ if(arg0 == "entity-name") {
 }
 if(arg0 == "name-visibility") {
 	if(size != 2) {
-		msg.prefix(player, prefix_datatools, "§r/datatools name-visibility <boolean>");
+		msg.prefix(player, prefix_datatools, "/datatools name-visibility <boolean>");
 		goto("wait");
 	}
 	templist = living.near(player, 3);
@@ -4724,7 +4748,7 @@ if(arg0 == "name-visibility") {
 }
 if(arg0 == "frame-hide") {
 	if(size != 1) {
-		msg.prefix(player, prefix_datatools, "§r/datatools frame-hide");
+		msg.prefix(player, prefix_datatools, "/datatools frame-hide");
 		goto("wait");
 	}
 	entity = player.getTargetEntity(player, 5);
@@ -4743,7 +4767,7 @@ if(arg0 == "frame-hide") {
 }
 if(arg0 == "frame-show") {
 	if(size != 1) {
-		msg.prefix(player, prefix_datatools, "§r/datatools frame-show");
+		msg.prefix(player, prefix_datatools, "/datatools frame-show");
 		goto("wait");
 	}
 	entity = player.getTargetEntity(player, 5);
@@ -4762,7 +4786,7 @@ if(arg0 == "frame-show") {
 }
 if(arg0 == "entity-hide") {
 	if(size != 1) {
-		msg.prefix(player, prefix_datatools, "§r/datatools entity-hide");
+		msg.prefix(player, prefix_datatools, "/datatools entity-hide");
 		goto("wait");
 	}
 	templist = living.near(player, 3);
@@ -4778,7 +4802,7 @@ if(arg0 == "entity-hide") {
 }
 if(arg0 == "entity-show") {
 	if(size != 1) {
-		msg.prefix(player, prefix_datatools, "§r/datatools entity-show");
+		msg.prefix(player, prefix_datatools, "/datatools entity-show");
 		goto("wait");
 	}
 	templist = living.near(player, 3);
@@ -7199,15 +7223,11 @@ if(size == 0) {
 	@warpsyntax
 	msg.prefix(player, prefix_commands, "/warp ...");
 	if(perm.has("warp.create", player)) {
-		msg.string(player, "§6 - set [group] <warp> §rSets a warp");
-		msg.string(player, "§6 - delete [group] <warp> §rDeletes a warp");
-		msg.string(player, "§6 - [group] <warp> §rTeleports to a warp");
-		msg.string(player, "§6 - list [group] §rLists all warps");
-		msg.string(player, "§6 - groups §rLists all warp groups");
-	} else {
-		msg.string(player, "§6 - <warp> §rTeleports to a warp");
-		msg.string(player, "§6 - list §rLists all warps");
+		msg.string(player, "§6 - set <warp> §rSets a warp");
+		msg.string(player, "§6 - delete <warp> §rDeletes a warp");
 	}
+	msg.string(player, "§6 - <warp> §rTeleports to a warp");
+	msg.string(player, "§6 - list §rLists all warps");
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -7216,53 +7236,26 @@ if(arg0 == "delete") {
 		perm.no("warp.create", player);
 		goto("wait");
 	}
-	if(size < 2) {
+	if(size != 2) {
 		goto("warpsyntax");
 	}
-	if(size == 2) {
-		warp_name = string.toLowerCase(list.getIndex(args, 1));
-		warp_group = "default";
-	} else {
-		warp_group = string.toLowerCase(list.getIndex(args, 1));
-		warp_name = string.toLowerCase(list.getIndex(args, 2));
-	}
-	if(warp.delete(warp_group, warp_name)) {
-		msg.prefix(player, prefix_commands, string.concat("Warp ", warp_name, " in group ", warp_group, " deleted."));
+	warp_name = string.toLowerCase(list.getIndex(args, 1));
+	if(warp.delete(warp_name)) {
+		msg.prefix(player, prefix_commands, string.concat("Warp ", warp_name, " deleted."));
 	} else {
 		msg.prefix(player, prefix_commands, "Warpname doesn´t exist.");
 	}
 	goto("wait");
 }
 if(arg0 == "list") {
-	if(size == 1) {
-		warp_group = "default";
-	} else {
-		if(!perm.has("warp.create", player)) {
-			perm.no("warp.create", player);
-			goto("wait");
-		}
-		warp_group = string.toLowerCase(list.getIndex(args, 1));
-	}
-	warps_list = warp.getList(warp_group);
+	warps_list = warp.getList();
 	if(list.getSize(warps_list) == 0) {
 		msg.prefix(player, prefix_commands, "No warps existing.");
-	} else {
-		msg.prefix(player, prefix_commands, string.concat("§6", warp_group, "§r warps:"));
-		for(i = 0; i < list.getSize(warps_list); i++) {
-			msg.string(player, string.concat("§6 - §r", list.getIndex(warps_list, i)));
-		}
-	}
-	goto("wait");
-}
-if(arg0 == "groups") {
-	if(!perm.has("warp.create", player)) {
-		perm.no("warp.create", player);
 		goto("wait");
 	}
-	groups_list = warp.getGroups();
-	msg.prefix(player, prefix_commands, "All warp groups:");
-	for(i = 0; i < list.getSize(groups_list); i++) {
-		msg.string(player, string.concat("§6 - §r", list.getIndex(groups_list, i)));
+	msg.prefix(player, prefix_commands, string.concat("§6Warps:"));
+	for(i = 0; i < list.getSize(warps_list); i++) {
+		msg.string(player, string.concat("§6 - §r", list.getIndex(warps_list, i)));
 	}
 	goto("wait");
 }
@@ -7271,37 +7264,21 @@ if(arg0 == "set") {
 		perm.no("warp.create", player);
 		goto("wait");
 	}
-	if(size < 2) {
+	if(size != 2) {
 		goto("warpsyntax");
 	}
-	if(size == 2) {
-		warp_name = string.toLowerCase(list.getIndex(args, 1));
-		warp_group = "default";
-	} else {
-		warp_group = string.toLowerCase(list.getIndex(args, 1));
-		warp_name = string.toLowerCase(list.getIndex(args, 2));
-	}
-	if(warp.exists(warp_group, warp_name)) {
+	warp_name = string.toLowerCase(list.getIndex(args, 1));
+	if(warp.exists(warp_name)) {
 		msg.prefix(player, prefix_commands, "Warpname already exists.");
 		goto("wait");
 	}
-	warp.create(warp_group, warp_name, entity.getLocation(player));
-	msg.prefix(player, prefix_commands, string.concat("Warp ", warp_name, " in group ", warp_group, " set."));
+	warp.create(warp_name, entity.getLocation(player));
+	msg.prefix(player, prefix_commands, string.concat("Warp ", warp_name, " set."));
 	goto("wait");
 }
 //Teleportation
-if(size == 1) {
-	warp_name = arg0;
-	warp_group = "default";
-} else {
-	if(!perm.has("warp.create", player)) {
-		perm.no("warp.create", player);
-		goto("wait");
-	}
-	warp_name = string.toLowerCase(list.getIndex(args, 1));
-	warp_group = arg0;
-}
-warp_loc = warp.get(warp_group, warp_name);
+warp_name = string.toLowerCase(arg0);
+warp_loc = warp.get(warp_name);
 if(warp_loc == null) {
 	msg.prefix(player, prefix_commands, "Warpname doesn´t exist.");
 	goto("wait");
@@ -7657,7 +7634,7 @@ goto("wait");
 @clan
 if(size == 0) {
 	@clanhelp
-	msg.prefix(player, prefix_clan, "§r/clan...");
+	msg.prefix(player, prefix_clan, "/clan...");
 	msg.string(player, "§2 - info [id/name/tag] §rReturns info about a clan");
 	msg.string(player, "§2 - list §rLists all clans");
 	msg.string(player, "");
@@ -7885,11 +7862,11 @@ if(arg0 == "info") {
 	}
 	msg.string(player, string.concat("§6§lClan §r", clan_name, " (", clan_tag, " #ID:", string.number(clan_id), ")"));
 	msg.string(player, "§6Leader");
-	msg.string(player, "§r", leader);
+	msg.string(player, leader);
 	msg.string(player, "§6Mods");
-	msg.string(player, "§r", mods);
+	msg.string(player, mods);
 	msg.string(player, "§6Members");
-	msg.string(player, "§r", members);
+	msg.string(player, members);
 	msg.string(player, "§6Money");
 	msg.string(player, string.number(clan.getMoney(clan_id)));
 	goto("wait");
@@ -8399,6 +8376,9 @@ goto("wait");
 if(size == 0) {
 	@invhelp
 	msg.prefix(player, prefix_commands, "/inv ...");
+	if(perm.has("inv.backups", player)) {
+		msg.string(player, "§6 - backups <player> §rToggles inventory change on world change");
+	}
 	if(perm.has("inv.ignore", player)) {
 		msg.string(player, "§6 - ignore §rToggles inventory change on world change");
 	}
@@ -8417,6 +8397,59 @@ if(size == 0) {
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
+if(arg0 == "backups") {
+	if(!perm.has("inv.backups", player)) {
+		perm.no("inv.backups", player);
+		goto("wait");
+	}
+	if(size < 2) {
+		msg.prefix(player, prefix_commands, "/inv backups <player>");
+		goto("wait");
+	}
+	p_name = list.getIndex(args, 1);
+	p_uuid = player.getUuid(p_name);
+	if(p_uuid == null) {
+		msg.prefix(player, prefix_commands, "This player has never been online.");
+		goto("wait");
+	}
+	player_id = player.getId(p_uuid);
+	dir = file.new(string.concat("scripts/configs/inv_data/backup/", player_id));
+	if(!file.exists(dir)) {
+		msg.prefix(player, prefix_commands, "No backups available.");
+		goto("wait");
+	}
+	file_list = file.getList(dir);
+	if(list.getSize(file_list) == 0) {
+		msg.prefix(player, prefix_commands, "No backups available.");
+		goto("wait");
+	}
+	f_map = map.new();
+	table = table.new("§b", 3, 14);
+	msg.string(player, table.getStart(table));
+	msg.string(player, table.get(table, "#", p_name));
+	msg.string(player, table.getMiddle(table));
+	iter = iterator(file_list);
+	while(hasNext(iter)) {
+		f = next(iter);
+		f_name = file.getName(f);
+		split_array = string.split("_", f_name);
+		time_array = string.split("-", split_array[2]);
+		year = time_array[0];
+		month = time.getStringFromNumber(read.number(time_array[1]));
+		day = time.getStringFromNumber(read.number(time_array[2]));
+		hour = time.getStringFromNumber(read.number(time_array[3]));
+		minute = time.getStringFromNumber(read.number(time_array[4]));
+		second = time.getStringFromNumber(read.number(time_array[5]));
+		time_string = string.concat(day, ".", month, ".", year, " ", hour, ":", minute, ":", second);
+		map.add(f_map, read.number(split_array[1]), time_string);
+	}
+	for(i = 1; i <= 10; i++) {
+		time_string = map.get(f_map, i);
+		msg.string(player, table.get(table, string.number(i), time_string));
+	}
+	msg.string(player, table.getEnd(table));
+	goto("wait");
+}
 if(arg0 == "ignore") {
 	if(!perm.has("inv.ignore", player)) {
 		perm.no("inv.ignore", player);
@@ -8555,6 +8588,14 @@ if(arg0 == "loadfrom") {
 	msg.prefix(player, prefix_commands, "Inventory loaded.");
 	goto("wait");
 }
+goto("wait");
+
+@sponsor
+msg.prefix(sender, prefix_commands, "Be a fancy sponsor and ...");
+msg.string(sender, string.concat(" §a+ §cUse §dcolors §rand §bicons§r", icon.getGoldCoin(), icon.getCraftingTable(), icon.getHeart()));
+msg.string(sender, " §a+ §rEquip your head with §b/hat");
+msg.string(sender, " §a+ §rGet all online players in a party with §b/joinme");
+msg.string(sender, " §a+ §rSet your own §bjoin, leave §rand §bdeath message");
 goto("wait");
 
 @dev
@@ -9069,8 +9110,8 @@ function tipp.exists(tipp_key) {
 //Warp-Utils
 //--------------------------------------------------
 
-function warp.create(warp_group, warp_name, location) {
-	config = config.new(string.concat("scripts/configs/warps/", warp_group), warp_name);
+function warp.create(warp_name, location) {
+	config = config.new(string.concat("scripts/configs/warps"), warp_name);
 	config.set(config, "world", world.getName(loc.getWorld(location)));
 	config.set(config, "x", loc.getX(location));
 	config.set(config, "y", loc.getY(location));
@@ -9080,25 +9121,13 @@ function warp.create(warp_group, warp_name, location) {
 	config.saveAsync(config);
 }
 
-function warp.exists(warp_group, warp_name) {
-	config = config.new(string.concat("scripts/configs/warps/", warp_group), warp_name);
+function warp.exists(warp_name) {
+	config = config.new(string.concat("scripts/configs/warps"), warp_name);
 	return config.exists(config);
 }
 
-function warp.getGroups() {
-	file = file.new("scripts/configs/warps");
-	file_list = file.getList(file);
-	groups_list = list.new();
-	iter = iterator(file_list);
-	while(hasNext(iter)) {
-		warp = file.getName(next(iter));
-		list.add(groups_list, warp);
-	}
-	return groups_list;
-}
-
-function warp.get(warp_group, warp_name) {
-	config = config.new(string.concat("scripts/configs/warps/", warp_group), warp_name);
+function warp.get(warp_name) {
+	config = config.new(string.concat("scripts/configs/warps"), warp_name);
 	if(config.exists(config)) {
 		config.load(config);
 	}
@@ -9112,12 +9141,11 @@ function warp.get(warp_group, warp_name) {
 	z = config.getDouble(config, "z", 0);
 	yaw = config.getDouble(config, "yaw", 0);
 	pitch = config.getDouble(config, "pitch", 0);
-	location = loc.new(world, x, y, z, yaw, pitch);
-	return location;
+	return loc.new(world, x, y, z, yaw, pitch);
 }
 
-function warp.delete(warp_group, warp_name) {
-	config = config.new(string.concat("scripts/configs/warps/", warp_group), warp_name);
+function warp.delete(warp_name) {
+	config = config.new(string.concat("scripts/configs/warps"), warp_name);
 	if(!config.exists(config)) {
 		return false;
 	}
@@ -9125,11 +9153,11 @@ function warp.delete(warp_group, warp_name) {
 	return true;
 }
 
-function warp.getList(warp_group) {
-	file = file.new(string.concat("scripts/configs/warps/", warp_group));
+function warp.getList() {
+	dir = file.new(string.concat("scripts/configs/warps"));
 	warps_list = list.new();
-	if(file.exists(file)) {
-		file_list = file.getList(file);
+	if(file.exists(dir)) {
+		file_list = file.getList(dir);
 		iter = iterator(file_list);
 		while(hasNext(iter)) {
 			warp = file.getName(next(iter));
@@ -9268,10 +9296,10 @@ function playtime.getTotalOnlineMinutes() {
 }
 
 //Spielzeit in einem Zeitraum exkl. der Spielzeit der Online-Spieler
-function playtime.getInterval(from, to) {
+function playtime.getInterval(from_cal, to_cal) {
 	stmt = databank.prepare("SELECT SUM(leave_time - join_time) FROM playtime WHERE join_time > ? AND join_time < ?;");
-	databank.setLong(stmt, 1, from);
-	databank.setLong(stmt, 2, to);
+	databank.setLong(stmt, 1, time.from(from_cal));
+	databank.setLong(stmt, 2, time.from(to_cal));
 	result = databank.execute(stmt);
 	if(databank.next(result)) {
 		minutes = databank.getLong(result, 1) / 1000 / 60;
@@ -9297,11 +9325,11 @@ function playtime.getTotal() {
 }
 
 //Spielzeit eines Spielers in einem Zeitraum exkl. der Online-Spielzeit
-function playtime.getPlayerInterval(player_id, from, to) {
+function playtime.getPlayerInterval(player_id, from_cal, to_cal) {
 	stmt = databank.prepare("SELECT SUM(leave_time - join_time) FROM playtime WHERE player_id = ? AND join_time > ? AND join_time < ?;");
 	databank.setInt(stmt, 1, player_id);
-	databank.setLong(stmt, 2, from);
-	databank.setLong(stmt, 3, to);
+	databank.setLong(stmt, 2, time.from(from_cal));
+	databank.setLong(stmt, 3, time.from(to_cal));
 	result = databank.execute(stmt);
 	if(databank.next(result)) {
 		minutes = databank.getLong(result, 1) / 1000 / 60;
@@ -9313,11 +9341,11 @@ function playtime.getPlayerInterval(player_id, from, to) {
 	return minutes;
 }
 
-function playtime.getPlayersPerInterval(from, to) {
+function playtime.getPlayersPerInterval(from_cal, to_cal) {
 	set = set.new();
 	stmt = databank.prepare("SELECT player_id FROM playtime WHERE join_time > ? AND join_time < ?;");
-	databank.setLong(stmt, 1, from);
-	databank.setLong(stmt, 2, to);
+	databank.setLong(stmt, 1, time.from(from_cal));
+	databank.setLong(stmt, 2, time.from(to_cal));
 	result = databank.execute(stmt);
 	while(databank.next(result)) {
 		set.add(set, databank.getInt(result, 1));
@@ -9344,48 +9372,7 @@ function time.getMonthDays(month, year) {
 	return days;
 }
 
-function time.getDaysBetween(day1, month1, year1, day2, month2, year2) {
-	d_days = 0;
-	m_days = 0;
-	y_days = 0;
-	y = 0;
-	m = 0;
-	d = 0;
-	//Volle Jahre
-	for(year = year1 + 1; year < year2; year++) {
-		y_days += time.getYearDays(year);
-		y++;
-	}
-	if(year1 == year2) {
-		//Volle Monate
-		for(month = month1 + 1; month < month2; month++) {
-			m_days += time.getMonthDays(month, year1);
-		}
-		//Volle Tage
-		if(month1 == month2) {
-			d_days = day2 - day1;
-		} else {
-			d_days += month.getDays(month1) - day1;
-			d_days += day2;
-		}
-	} else {
-		//Volle Monate
-		for(month = month1 + 1; month < 13; month++) {
-			m_days += time.getMonthDays(month, year1);
-			m++;
-		}
-		for(month = 1; month < month2; month++) {
-			m_days += time.getMonthDays(month, year2);
-			m++;
-		}
-		//Volle Tage
-		d_days += month.getDays(month1) - day1;
-		d_days += day2;
-	}
-	return y_days + m_days + d_days;
-}
-
-function month.add(month_index, shortname, days) {
+function month.register(month_index, shortname, days) {
 	$month_array[month_index, 0] = shortname;
 	$month_array[month_index, 1] = days;
 }

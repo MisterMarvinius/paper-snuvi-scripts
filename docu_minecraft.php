@@ -389,7 +389,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>command as string<br>*cancel</td>
+            <td>player<br>command as string<br>permission as string<br>command_class as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -2370,6 +2370,20 @@
         <tr>
             <td class="bold">Format</td>
             <td>text.chest(show_text, chest_text)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">text.color</th>
+            <th class="desc">returns rgb colored text</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>text.color(text, red, green, blue)</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>red green blue from 0 to 255</td>
         </tr>
     </table>
 </section>

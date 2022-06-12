@@ -31,6 +31,13 @@ set.add(set, item.custom.get("DIGIT_8"));
 set.add(set, item.custom.get("DIGIT_9"));
 setScriptVar("digits", set);
 
+//---------- Directories ----------
+
+dir = file.new("scripts/configs/inv_data/backup");
+if(!file.exists(dir)) {
+	file.createFolder(dir);
+}
+
 //---------- Tables ----------
 
 table.setsize("f", 5);

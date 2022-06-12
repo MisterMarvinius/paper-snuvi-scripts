@@ -1,26 +1,16 @@
 /*
 
-//TODO
-- killing
-- reporten
-
-Doppelte Kill Cooldown Leiste. Eine davon sollte Sabotage Cooldown sein. Eine davon hat keinen Counter.
-zombies invisble machen wegen ""(empty) nametag
-cam.leave gravity still on bug
-kill und sabo bar bei meeting entfernen und bei continue wieder anzeigen
-
-Fixed bugs to test:
-+ Kill Cooldown zeigt keine Zeit an (?)
+Bugs:
+ * spiel startet bei 2 spielern
 
 --- Version 2 ---
 //PERMS
 Hats
-Door Closing
-Visual TasksTasks
+Sabotage: Door Closing
+Visual Tasks
 Stay in lobby after win
-rauswerf animation. mit no gravity stufenweise in die mitte tpen
-full vision/blindness
-geister vanishen, auch bei sich ändernden effekten
+rauswerf animation. tp auf tisch. float effect.
+setting: full vision/blindness (darkness effect? 1.19)
 
 */
 
@@ -471,6 +461,7 @@ holded_kill_cooldown = map.new();
 report_map = map.new();
 meeting_amounts = map.new();
 removed_perms = list.new(); //Spieler-Uuids, denen Building-Perms entfernt wurden
+gravity_list = list.new();
 
 short_tasks = list.new();
 list.addAll(short_tasks, 1, 3, 5, 6, 7, 9, 14, 15, 17);
@@ -746,6 +737,7 @@ for(i = 0; i < amount_impostors; i++) {
 }
 if(player_list_size == 1) {
 	amount_all_tasks = 17;
+	amount_all_tasks_per_player = amount_all_tasks;
 	freeplay = true;
 } else {
 	minplayers = multi_minplayers;
@@ -768,7 +760,6 @@ for(i = 0; i < player_list_size; i++) {
 	sound.spawnForPlayer(p, pling_sound, sound_category_ambient);
 	player.setGamemode(p, "SURVIVAL");
 	player.setFly(p, false);
-	entity.setName(p, text.new(""));
 }
 
 for(h = 0; h < player_list_size; h++) {
@@ -885,7 +876,7 @@ if(freeplay) {
 	}
 }
 
-setSaboCooldown(0);
+setSaboCooldown(default_sabo_cooldown);
 
 event.unload("entity_dismount");
 event.load("chat");
@@ -897,6 +888,7 @@ event.load("player_data_tick");
 sgoto(10, "space_loop");
 sgoto(10, "task_part_loop");
 sgoto(5, "imp_par_loop");
+sbtoggle = false;
 if(amount_all_tasks_per_player > 8) {
 	sbtoggle = true;
 	sgoto(100, "scoreboard_toggler");
@@ -908,17 +900,88 @@ goto("loop");
 wait();
 if(event == "entity_damage") {
 	if(isPlayer(entity)) {
-		player = entity;
-		if(player.hasMinigameId(player, script_id)) {
+		//damaged entity is a player
+		damaged_player = entity;
+		if(player.hasMinigameId(damaged_player, script_id)) {
 			cancel = true;
 		}
-	} else {
-		player = player.getFromDamageSource(damage_source);
-		if(player == null) {
+		attacker = player.getFromDamageSource(damage_source);
+		if(attacker == null) {
 			goto("checkgame");
 		}
-		if(player.hasMinigameId(player, script_id)) {
-			cancel = true;
+		if(!isPlayer(attacker)) {
+			goto("checkgame");
+		}
+		if(!player.hasMinigameId(attacker, script_id)) {
+			goto("checkgame");
+		}
+		if(!isImpostor(attacker)) {
+			goto("checkgame");
+		}
+		//kill crewmate
+		item = living.getHand(attacker);
+		if(item != kill_item) {
+			goto("checkgame");
+		}
+		cooldown = data.getTimer(attacker, "Kill Cooldown");
+		if(cooldown == null || cooldown == -1) {
+			if(!player.isOnCam(damaged_player) && !player.isGhost(damaged_player)) {
+				if(isCrewmate(damaged_player)) {
+					killCrewmate(attacker, damaged_player);
+					goto("checkwin");
+				}
+				msg.prefix(attacker, gamename, "Not a crewmate.");
+				goto("checkgame");
+			}
+		} else {
+			msg.prefix(attacker, gamename, string.concat("Remaining kill cooldown: ", string.number(math.roundDown(cooldown / 20)), "s"));
+		}
+		goto("checkgame");
+	}
+	//damaged entity is not a player
+	attacker = player.getFromDamageSource(damage_source);
+	if(attacker == null) {
+		goto("checkgame");
+	}
+	if(player.hasMinigameId(attacker, script_id)) {
+		cancel = true;
+	}
+	//report body
+	if(entity.getType(entity) == "zombie") {
+		if(player.isGhost(attacker)) {
+			goto("checkgame");
+		}
+		found_player_uuid = map.get(report_map, entity);
+		if(found_player_uuid == null) {
+			entity.remove(entity);
+			msg.prefix(attacker, gamename, "Defect entity removed.");
+			goto("checkgame");
+		}
+		reportBody(attacker, found_player_uuid);
+	}
+	//kill crewmate at cam
+	if(entity.isHuman(entity)) {
+		item = living.getHand(attacker);
+		if(item != kill_item) {
+			goto("checkgame");
+		}
+		cooldown = data.getTimer(attacker, "Kill Cooldown");
+		if(cooldown == null || cooldown == -1) {
+			p_uuid = map.get(cam_map_4, entity);
+			if(p_uuid == null) {
+				entity.remove(entity);
+				msg.prefix(attacker, gamename, "Defect entity removed.");
+				goto("checkgame");
+			}
+			p = player.get(p_uuid);
+			if(isCrewmate(p)) {
+				cam.leave(p);
+				killCrewmate(attacker, p);
+				goto("checkwin");
+			}
+			msg.prefix(attacker, gamename, "Not a crewmate.");
+		} else {
+			msg.prefix(attacker, gamename, string.concat("Remaining kill cooldown: ", string.number(math.roundDown(cooldown / 20)), "s"));
 		}
 	}
 	goto("checkgame");
@@ -969,6 +1032,40 @@ if(old_room_id != id) {
 	amongus.updateAdminTable(old_room_id, amount_players);
 }
 goto("checkgame");
+
+function amongus.setMeeting(bool) {
+	$meeting = bool;
+}
+
+function amongus.isMeeting() {
+	return $meeting;
+}
+
+function amongus.manageEffects(player) {
+	living.clearEffects(player);
+	if(amongus.isMeeting()) {
+		time = $discuss_time * 20 + $vote_time * 20;
+		living.addEffect(player, "JUMP", time, 128, false);
+		living.addEffect(player, "SLOW", time, 6, false);
+		return;
+	}
+	if(player.isGhost(player)) {
+		living.addEffect(player, "NIGHT_VISION", 999999, 0, false);
+		return;
+	}
+	if(player.isOnCam(player)) {
+		living.addEffect(player, "NIGHT_VISION", 999999, 0, false);
+		return;
+	}
+	if($lights_sabotaged) {
+		if(isImpostor(player)) {
+			living.addEffect(player, "NIGHT_VISION", 999999, 0, false);
+		} else {
+			living.addEffect(player, "BLINDNESS", 999999, 0, false);
+		}
+		return;
+	}
+}
 
 function amongus.updateAdminTable(room_id, amount_players) {
 	if(amount_players == 0) {
@@ -1155,6 +1252,7 @@ if(set.contains(cams_locs, block_loc)) {
 		human.setSkinUuid(ent, player_uuid);
 		color = amongus.getPlayerColor(player);
 		amongus.equip(ent, color);
+		living.setInvisible(ent, true);
 	}
 	cam.enter(player);
 	goto("checkgame");
@@ -2123,6 +2221,10 @@ if(title_string == "§cSABOTAGE") {
 	//Keine Sabotagen während bestehender Sabotage möglich
 	if(amongus.isAlert()) {
 		msg.prefix(player, gamename, "A sabotage is already active.");
+		goto("checkgame");
+	}
+	if(meeting) {
+		msg.prefix(player, gamename, "Sabotage during meeting not possible.");
 		goto("checkgame");
 	}
 	cooldown = data.getTimer(player, "Sabotage Cooldown");
@@ -3244,10 +3346,6 @@ if(meeting) {
 }
 goto("checkgame");
 
-@entity_damage
-cancel = true;
-goto("checkgame");
-
 @player_data_tick
 if(var == "Discussion Time") {
 	player.giveItem(player, open_vote_menu_item);
@@ -3294,138 +3392,6 @@ if(var == "sound.vote.end.2") {
 }
 if(var == "sound.vote.end.1") {
 	sound.spawnForPlayer(player, vote_ends_sound, master_sound_category);
-	goto("checkgame");
-}
-goto("checkgame");
-
-//TODO
-@function_key
-//report body
-if(key == 1) {
-	if(player.isGhost(player)) {
-		goto("checkgame");
-	}
-	ent = player.getTargetEntity(player, 4, "net.minecraft.entity.monster.ZombieEntity");
-	if(ent == null) {
-		ent = entity.get(entity.getLocation(player), 4, "net.minecraft.entity.monster.ZombieEntity");
-		if(ent == null) {
-			msg.prefix(player, gamename, "No body detected.");
-			goto("checkgame");
-		}
-	}
-	found_player_uuid = map.get(report_map, ent);
-	reportBody(player, found_player_uuid);
-	goto("checkgame");
-}
-if(key == 4) {
-	if(isCrewmate(player)) {
-		goto("checkgame");
-	}
-	if(player.isGhost(player)) {
-		goto("checkgame");
-	}
-	//kill crewmate
-	cooldown = data.getTimer(player, "Kill Cooldown");
-	if(cooldown == null || cooldown == -1) {
-		//Schaut der Spieler einen anderen Spieler an?
-		p = player.getTargetEntity(player, 4, "net.minecraft.entity.player.PlayerEntity");
-		if(p != null) {
-			//Angeschauten Spieler töten
-			if(!player.isOnCam(p) && !player.isGhost(p)) {
-				if(isCrewmate(p)) {
-					killCrewmate(player, p);
-					goto("checkwin");
-				}
-				msg.prefix(player, gamename, string.concat("Not a crewmate."));
-				goto("checkgame");
-			}
-		}
-		//Schaut der Spieler einen Kamera-Human an?
-		human = player.getTargetEntity(player, 4, "me.km.entities.EntityHuman");
-		if(human != null) {
-			p_uuid = map.get(cam_map_4, human);
-			if(p_uuid == null) {
-				entity.remove(human);
-				msg.prefix(player, gamename, string.concat("Fehlerhaftes Human-Entity entfernt."));
-				goto("checkgame");
-			}
-			p = player.get(p_uuid);
-			//Angeschauten Spieler töten
-			cam.leave(p);
-			if(isCrewmate(p)) {
-				killCrewmate(player, p);
-				goto("checkwin");
-			}
-			msg.prefix(player, gamename, string.concat("Not a crewmate."));
-			goto("checkgame");
-		}
-		//Spieler nearby suchen und töten
-		nearest_player = null;
-		lowest_dist = 10;
-		player_loc = entity.getLocation(player);
-		iter = iterator(player_list);
-		while(hasNext(iter)) {
-			p_uuid = next(iter);
-			if(p_uuid == player_uuid) {
-				continue;
-			}
-			p = player.get(p_uuid);
-			if(player.isGhost(p) || player.isOnCam(p)) {
-				continue;
-			}
-			if(isImpostor(p)) {
-				continue;
-			}
-			p_loc = entity.getLocation(p);
-			dist = loc.distance(player_loc, p_loc);
-			if(dist < 4 && dist < lowest_dist) {
-				nearest_player = p;
-				lowest_dist = dist;
-			}
-		}
-		if(nearest_player != null) {
-			if(isCrewmate(nearest_player)) {
-				killCrewmate(player, nearest_player);
-				goto("checkwin");
-			}
-			msg.prefix(player, gamename, string.concat("Not a crewmate."));
-			goto("checkgame");
-		}
-		//Human nearby suchen und töten
-		nearest_human = null;
-		lowest_dist = 10;
-		near_list = entity.near(player, 4);
-		iter = iterator(near_list);
-		while(hasNext(iter)) {
-			ent = next(iter);
-			if(entity.getType(ent) != "human") {
-				continue;
-			}
-			p_uuid = map.get(cam_map_4, ent);
-			p = player.get(p_uuid);
-			if(isImpostor(p)) {
-				continue;
-			}
-			ent_loc = entity.getLocation(ent);
-			dist = loc.distance(player_loc, ent_loc);
-			if(dist < lowest_dist) {
-				nearest_human = ent;
-				lowest_dist = dist;
-			}
-			if(nearest_player != null) {
-				if(isCrewmate(nearest_player)) {
-					killCrewmate(player, nearest_player);
-					goto("checkwin");
-				}
-				msg.prefix(player, gamename, string.concat("Not a crewmate."));
-				goto("checkgame");
-			}
-		}
-		msg.prefix(player, gamename, "No player targeted.");
-		goto("checkgame");
-	} else {
-		msg.prefix(player, gamename, string.concat("Remaining kill cooldown: ", string.number(math.roundDown(cooldown / 20)), "s"));
-	}
 	goto("checkgame");
 }
 goto("checkgame");
@@ -3497,15 +3463,19 @@ function createKillBossBar(player) {
 function updateKillBossBar(bar, time) {
 	if(time < 0) {
 		time = 0;
+		boss.setProgress(bar, 1);
+		boss.setTitle(bar, string.concat("Kill Cooldown: 0"));
 		return;
 	}
-	boss.setProgress(bar, time / $kill_cooldown);
-	boss.setTitle($sabotage_cooldown_bar, string.concat("Kill Cooldown: ", string.number(math.roundDown(time))));
+	boss.setProgress(bar, ($kill_cooldown - time) / $kill_cooldown);
+	boss.setTitle(bar, string.concat("Kill Cooldown: ", string.number(math.roundDown(time))));
 }
 
 function updateSabotageCooldownBar(time) {
 	if(time < 0) {
 		time = 0;
+		boss.setProgress($sabotage_cooldown_bar, 1);
+		boss.setTitle($sabotage_cooldown_bar, string.concat("Sabotage Cooldown: 0"));
 		return;
 	}
 	boss.setProgress($sabotage_cooldown_bar, ($default_sabo_cooldown - time) / $default_sabo_cooldown);
@@ -3536,15 +3506,20 @@ function setCrewmate(player) {
 	sb.add(player, 99, "You are §bCrewmate");
 }
 
+function isSpeedrunner(player_or_uuid) {
+	if(isPlayer(player_or_uuid)) {
+		player_or_uuid = player.getUuid(player_or_uuid);
+	}
+	role = map.get($roles, player_or_uuid);
+	return role == "impostor";
+}
+
 function isImpostor(player_or_uuid) {
 	if(isPlayer(player_or_uuid)) {
 		player_or_uuid = player.getUuid(player_or_uuid);
 	}
 	role = map.get($roles, player_or_uuid);
-	if(role == "impostor") {
-		return true;
-	}
-	return false;
+	return role == "impostor";
 }
 
 function isCrewmate(player_or_uuid) {
@@ -3552,10 +3527,7 @@ function isCrewmate(player_or_uuid) {
 		player_or_uuid = player.getUuid(player_or_uuid);
 	}
 	role = map.get($roles, player_or_uuid);
-	if(role == "crewmate") {
-		return true;
-	}
-	return false;
+	return role == "crewmate";
 }
 
 function player.isGhost(player_or_uuid) {
@@ -3568,12 +3540,16 @@ function player.isGhost(player_or_uuid) {
 function tpAllMiddle(reporter) {
 	$vote_count_map = map.new(); //Wieviel Spieler haben einen Spieler gevoted
 	$vote_count_map_2 = map.new(); //Welcher Spieler hat für wen gevoted
-	$meeting = true;
+	amongus.setMeeting(true);
 	$reactor_used = false;
 	removeDeadBodies();
 	amongus.clearAdminTable();
 	boss.setTitle($meeting_bar, "Discussion Time");
 	updateMeetingBar($discuss_time, true);
+	hideSabotageCooldownBar();
+	if($lights_sabotaged) {
+		switchLights(true);
+	}
 	for(i = 0; i < list.getSize($player_list); i++) {
 		p_uuid = list.getIndex($player_list, i);
 		p = player.get(p_uuid);
@@ -3584,14 +3560,8 @@ function tpAllMiddle(reporter) {
 		if(player.isOnCam(p)) {
 			cam.leave(p);
 		}
-		if(!player.isGhost(p)) {
-			living.clearEffects(p);
-			entity.setName(p, text.new(player.getName(p)));
-		}
+		amongus.manageEffects(p);
 		entity.teleport(p, list.getIndex($spawn_locs, i));
-		time = $discuss_time * 20 + $vote_time * 20;
-		living.addEffect(p, "JUMP", time, 128, false);
-		living.addEffect(p, "SLOW", time, 6, false);
 		player.setSpeed(p, 0);
 		inv.close(p);
 		data.setTimer(p, "Discussion Time", $discuss_time * 20);
@@ -3610,7 +3580,7 @@ function fix_oxygen() {
 		amongus.setAlert(false);
 		$oxygen_sabotaged = false;
 		hideSabotageDisplay();
-		setSaboCooldown(default_sabo_cooldown);
+		setSaboCooldown($default_sabo_cooldown);
 		sgoto(40, "scheduled_sabo_close");
 	}
 }
@@ -3624,13 +3594,9 @@ function fix_light() {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
 		hideSabotageDisplay();
-		if(!player.isGhost(p)) {
-			if(!player.isOnCam(p)) {
-				living.clearEffects(p);
-			}
-		}
+		amongus.manageEffects(p);
 	}
-	setSaboCooldown(default_sabo_cooldown);
+	setSaboCooldown($default_sabo_cooldown);
 	switchLights(true);
 	sgoto(40, "scheduled_sabo_close");
 }
@@ -3765,7 +3731,7 @@ function fix_meltdown() {
 	amongus.setAlert(false);
 	removeSaboParticles($fix_reactor_par_loc_1, $fix_reactor_par_loc_2);
 	hideSabotageDisplay();
-	setSaboCooldown(default_sabo_cooldown);
+	setSaboCooldown($default_sabo_cooldown);
 	sgoto(40, "scheduled_sabo_close");
 }
 
@@ -3774,7 +3740,7 @@ function fix_comms() {
 	amongus.setAlert(false);
 	removeSaboParticles($fix_comms_par_loc, null);
 	hideSabotageDisplay();
-	setSaboCooldown(default_sabo_cooldown);
+	setSaboCooldown($default_sabo_cooldown);
 	showTasks();
 	sgoto(40, "scheduled_sabo_close");
 }
@@ -3909,15 +3875,7 @@ function sabotage_light() {
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		if(!player.isOnCam(p)) {
-			if(isCrewmate(p)) {
-				if(!player.isGhost(p)) {
-					living.addEffect(p, "BLINDNESS", 999999, 0, false);
-				}
-			} else {
-				living.addEffect(p, "NIGHT_VISION", 999999, 0, false);
-			}
-		}
+		amongus.manageEffects(p);
 	}
 	displaySabotage("§cELE | Fix Lights", 1, 1, null);
 	inv.setItem($lights_inv, 0, item.create("RED_STAINED_GLASS_PANE", 1, "§fOff", null));
@@ -3981,9 +3939,6 @@ function reportBody(reporter, found_player_uuid) {
 	minigame.titleAll("§cREPORT", string.concat(reporter_name, " found ", found_player_name), 20, 60, 20);
 	minigame.speakAll($gamename, string.concat(amongus.getPlayerColorCode(reporter), reporter_name, " §rfound the body of ", amongus.getPlayerColorCode(found_player_uuid), found_player_name, "."));
 	if(amongus.isAlert()) {
-		if($lights_sabotaged) {
-			switchLights(true);
-		}
 		if($oxygen_sabotaged) {
 			fix_oxygen();
 		}
@@ -4000,21 +3955,16 @@ function continueGame() {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
 		inv.close(p);
+		amongus.manageEffects(p);
 		if(player.isGhost(p)) {
-			living.addEffect(p, "JUMP", 0, 128, false);
 			player.setSpeed(p, $move_speed * 1.5);
 		} else {
 			player.removeItem(p, $open_vote_menu_item);
-			entity.setName(p, text.new(""));
-			living.clearEffects(p);
 			player.setSpeed(p, $move_speed);
 			if(isImpostor(p) && !player.isGhost(p)) {
 				data.setTimer(p, "Kill Cooldown", $kill_cooldown * 20);
 				kill_bar = map.get($imp_kill_bars, p_uuid);
 				updateKillBossBar(kill_bar, $kill_cooldown);
-				giveImpostorItems(p);
-			} else {
-				giveCrewmateItems(p);
 			}
 		}
 		boss.removeAll($meeting_bar);
@@ -4023,7 +3973,11 @@ function continueGame() {
 	}
 	if($lights_sabotaged) {
 		sabotage_light();
+		return;
  	}
+	if(!amongus.isAlert()) {
+		setSaboCooldown($default_sabo_cooldown);
+	}
 }
 
 function killCrewmate(killer, crewmate) {
@@ -4040,7 +3994,7 @@ function killCrewmate(killer, crewmate) {
 	kill_bar = map.get($imp_kill_bars, player.getUuid(killer));
 	updateKillBossBar(kill_bar, $kill_cooldown);
 	//Crewmate zum Geist machen
-	living.clearEffects(crewmate);
+	amongus.manageEffects(crewmate);
 	player.hideOnline(crewmate);
 	crew_uuid = player.getUuid(crewmate);
 	list.add($ghosts, crew_uuid);
@@ -4051,13 +4005,13 @@ function killCrewmate(killer, crewmate) {
 	sabotage.closedInv(crewmate);
 	player.setSpeed(crewmate, $move_speed * 1.5);
 	//Leiche an Mord-Location platzieren
-	ent = entity.spawn("ZOMBIE", loc);
+	ent = entity.spawn(loc, "ZOMBIE");
 	list.add($dead_bodies, ent);
 	map.add($report_map, ent, crew_uuid);
 	living.setAi(ent, false);
-	entity.setName(ent, text.new(""));
 	living.setHand(ent, $air_item);
 	entity.setSilent(ent, true);
+	living.setInvisible(ent, true);
 	color = amongus.getPlayerColor(crewmate);
 	amongus.equip(ent, color);
 }
@@ -4300,12 +4254,14 @@ while(hasNext(iter)) {
 	player.setSaturation(p, 0);
 }
 //Kill Cooldown Bossbar
-iter = iterator(impostors_list_3);
-while(hasNext(iter)) {
-	p_uuid = next(iter);
-	kill_bar = map.get(imp_kill_bars, p_uuid);
-	cooldown = data.getTimer(player.get(p_uuid), "Kill Cooldown");
-	updateKillBossBar(kill_bar, cooldown / 20);
+if(!meeting) {
+	iter = iterator(impostors_list_3);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		kill_bar = map.get(imp_kill_bars, p_uuid);
+		cooldown = data.getTimer(player.get(p_uuid), "Kill Cooldown");
+		updateKillBossBar(kill_bar, cooldown / 20);
+	}
 }
 //Meeting Bossbar
 if(meeting) {
@@ -4320,8 +4276,11 @@ if(meeting) {
 }
 //Sabotage Cooldown Bossbar
 if(!freeplay) {
-	p = player.get(list.getIndex(impostors_list_2, 0));
-	time = data.getTimer(p, "Sabotage Cooldown");
+	if(!meeting) {
+		p = player.get(list.getIndex(impostors_list_2, 0));
+		time = data.getTimer(p, "Sabotage Cooldown");
+		updateSabotageCooldownBar(time / 20);
+	}
 }
 sgoto(20, "loop");
 goto("checkgame");
@@ -4938,8 +4897,7 @@ function cam.enter(player) {
 		return;
 	}
 	player.hideOnline(player);
-	living.clearEffects(player);
-	living.addEffect(player, "NIGHT_VISION", 999999, 0, false);
+	player.manageEffects(player);
 	entity.setGravity(player, false);
 	player_uuid = player.getUuid(player);
 	list.add($cam_list, player_uuid);
@@ -4966,26 +4924,29 @@ function cam.leave(player) {
 		map.remove($cam_map_4, ent);
 		entity.remove(ent);
 	}
-	entity.setGravity(player, true);
-	living.clearEffects(player);
 	entity.teleport(player, map.get($cam_map_2, player_uuid));
+	list.add($gravity_list, player.getUuid(player));
+	sgoto(2, "setGravity");
 	if(list.getSize($cam_list) == 0) {
 		$cam_loop = false;
 	}
 	player.removeItem(player, $prev_cam_item);
 	player.removeItem(player, $next_cam_item);
 	player.removeItem(player, $leave_cam_item);
+	player.manageEffects(player);
 	if(!player.isGhost(player)) {
 		player.showOnline(player);
-		if($lights_sabotaged) {
-			if(isCrewmate(player)) {
-				living.addEffect(player, "BLINDNESS", 999999, 0, false);
-			} else {
-				living.addEffect(player, "NIGHT_VISION", 999999, 0, false);
-			}
-		}
 	}
 }
+
+@setGravity
+p_uuid = list.getIndex(gravity_list, 0);
+list.removeIndex(gravity_list, 0);
+p = player.get(p_uuid);
+if(p != null) {
+	entity.setGravity(p, true);
+}
+goto("checkgame");
 
 function player.isOnCam(player) {
 	return list.contains($cam_list, player.getUuid(player));
@@ -5520,13 +5481,6 @@ function amongus.equip(entity, color) {
 }
 
 function createVoteInv(player, reporter_uuid) {
-	//TODO remove:
-	/*232202322
-	232202322
-	232202322
-	232202322
-	232202322
-	032200000*/
 	//inv = inv.new("022200222 022200222 022200222 022200222 022200222 022200000");
 	inv = inv.new("022200222022200222022200222022200222022200222022200000", text.new("§cVOTE"));
 	index = 1;
@@ -5684,6 +5638,8 @@ for(i = 0; i < list.getSize(removed_perms); i++) {
 	//PERMS perm.registerPlayer(player_uuid, 15);
 }
 script = script.getFromId(script_id);
+removeDeadBodies();
+removeCamBodies();
 minigame.kickAllPlayers(script);
 minigame.term(script, gamesignloc);
 term();
@@ -5706,6 +5662,13 @@ if(script_id != null) {
 		iter = iterator(player_list);
 		while(hasNext(iter)) {
 			p_uuid = next(iter);
+			p = player.get(p_uuid);
+			if(p != null) {
+				living.clearEffects(p);
+				player.showOnline(p);
+				living.setInvisible(p, false);
+				entity.setGravity(p, false);
+			}
 			my_kill_bar = map.get(imp_kill_bars, p_uuid);
 			if(my_kill_bar != null) {
 				boss.removeAll(my_kill_bar);

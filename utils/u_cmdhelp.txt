@@ -71,6 +71,7 @@ function setCommandHelps() {
 	commandhelp.add("settings");
 	commandhelp.add("silentjoin");
 	commandhelp.add("skipnight");
+	commandhelp.add("sponsor");
 	commandhelp.add("startgame");
 	commandhelp.add("top");
 	commandhelp.add("voteshop");
@@ -423,31 +424,26 @@ function setCommandHelps() {
 	addPlotHelp("p");
 	
 	help = command.newHelp("warp", "warp");
-	//warp set [group] <name>
+	//warp set <name>
 	helpArg0 = command.newHelpLiteral("set", "warp.create");
 	command.addHelpChild(helpArg0, command.newHelpString("name", false, "warp.create"));
 	helpArg1 = command.newHelpString("group", false, "warp.create");
 	command.addHelpChild(helpArg1, command.newHelpString("name", false, "warp.create"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
-	//warp delete [group] <name>
+	//warp delete <name>
 	helpArg0 = command.newHelpLiteral("delete", "warp.create");
 	command.addHelpChild(helpArg0, command.newHelpString("name", false, "warp.create"));
 	helpArg1 = command.newHelpString("group", false, "warp.create");
 	command.addHelpChild(helpArg1, command.newHelpString("name", false, "warp.create"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
-	//warp groups
-	command.addHelpChild(help, command.newHelpLiteral("groups", "warp.create"));
-	//warp list [group]
+	//warp list
 	helpArg0 = command.newHelpLiteral("list");
 	command.addHelpChild(helpArg0, command.newHelpString("group", false, "warp.create"));
 	command.addHelpChild(help, helpArg0);
-	//warp [group] <name>
+	//warp <name>
 	helpArg0 = command.newHelpString("name", false);
-	command.addHelpChild(help, helpArg0);
-	helpArg0 = command.newHelpString("group", false, "warp.create");
-	command.addHelpChild(helpArg0, command.newHelpString("name", false));
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
@@ -558,6 +554,10 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("ignore"));
 	//inv see <player>
 	helpArg0 = command.newHelpLiteral("see");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
+	command.addHelpChild(help, helpArg0);
+	//inv backups <player>
+	helpArg0 = command.newHelpLiteral("backups");
 	command.addHelpChild(helpArg0, command.newHelpSpecial("Player", "player"));
 	command.addHelpChild(help, helpArg0);
 	//inv reload <player>

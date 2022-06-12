@@ -289,42 +289,47 @@ function getBlockLocation(location) {
 	return loc.new(world, bx, by, bz);
 }
 
-function getDateString(time) {
+function getDateString(time) { //Deprecated
+	return time.getDateString(time);
+}
+
+function time.getDateString(time) {
 	calendar = time.new(time);
 	return string.concat(string.number(time.getDay(calendar)), ".", string.number(time.getMonth(calendar)), ".", string.number(time.getYear(calendar)));
+}
+
+function time.getCal(year, month, day, hour, minute, second) {
+	second = time.getStringFromNumber(second);
+	minute = time.getStringFromNumber(minute);
+	hour = time.getStringFromNumber(hour);
+	day = time.getStringFromNumber(day);
+	month = time.getStringFromNumber(month);
+	year = string.number(year);
+	return time.parse("yyyyMMddHHmmss", string.concat(year, month, day, hour, minute, second));
+}
+
+function time.getStringFromNumber(number) {
+	if(number > 9) {
+		return string.number(number);
+	}
+	return string.concat("0", string.number(number));
 }
 
 function time.getClockString(time) { //s
 	return string.concat(string.number(math.roundDown(time / 60)), " min ", string.number(math.round(time % 60)), " s");
 }
 
-function getTimeString(millis) {
+function getTimeString(millis) { //Deprecated
+	return time.getString(millis);
+}
+
+function time.getString(millis) {
 	calendar = time.new(millis);
-	day = time.getDay(calendar);
-	month = time.getMonth(calendar);
+	day = time.getStringFromNumber(time.getDay(calendar));
+	month = time.getStringFromNumber(time.getMonth(calendar));
 	year = time.getYear(calendar);
-	hour = time.getHour(calendar);
-	minute = time.getMinute(calendar);
-	if(month < 10) {
-		month = string.concat("0", string.number(month));
-	} else {
-		month = string.number(month);
-	}
-	if(day < 10) {
-		day = string.concat("0", string.number(day));
-	} else {
-		day = string.number(day);
-	}
-	if(hour < 10) {
-		hour = string.concat("0", string.number(hour));
-	} else {
-		hour = string.number(hour);
-	}
-	if(minute < 10) {
-		minute = string.concat("0", string.number(minute));
-	} else {
-		minute = string.number(minute);
-	}
+	hour = time.getStringFromNumber(time.getHour(calendar));
+	minute = time.getStringFromNumber(time.getMinute(calendar));
 	timestring = string.concat(day, ".", month, ".", string.number(year), " ", hour, ":", minute);
 	return timestring;
 }
@@ -623,12 +628,68 @@ function player.changeGamemode(player, to_world_name) {
 		}
 	}
 }
+
+function inv.backup(p_or_id) {
+	player_id = player.getValidId(p_or_id);
+	from_file = file.new(string.concat("scripts/configs/inv_data/survival/", player_id, ".snuvic"));
+	if(!file.exists(from_file)) {
+		return;
+	}
+	
+	dir = file.new(string.concat("scripts/configs/inv_data/backup/", player_id));
+	if(!file.exists(dir)) {
+		file.createFolder(dir);
+	}
+	
+	f_map = map.new();
+	file_list = file.getList(dir);
+	iter = iterator(file_list);
+	while(hasNext(iter)) {
+		f = next(iter);
+		f_name = file.getName(f);
+		split_array = string.split("_", f_name);
+		number = read.number(split_array[1]);
+		a = array.new(2);
+		a[0] = f;
+		a[1] = split_array[2];
+		map.add(f_map, number, a);
+	}
+	
+	number_of_backups = 10;
+	for(i = number_of_backups; i > 0; i--) {
+		a = map.get(f_map, i);
+		if(a == null) {
+			continue;
+		}
+		f = a[0];
+		timestamp = a[1];
+		if(i == number_of_backups) {
+			file.delete(f);
+			continue;
+		}
+		new_f_name = string.concat("backup_", string.number(i + 1), "_", timestamp);
+		file.rename(f, file.new(string.concat("scripts/configs/inv_data/backup/", player_id, "/", new_f_name)));
+	}
+	
+	cal = time.new(time.getMillis());
+	year = string.number(time.getYear(cal));
+	month = string.number(time.getMonth(cal));
+	day = string.number(time.getDay(cal));
+	hour = string.number(time.getHour(cal));
+	min = string.number(time.getMinute(cal));
+	sec = string.number(time.getSecond(cal));
+	new_f = file.new(string.concat(dir, "/backup_", string.number(1), "_", year, "-", month, "-", day, "-", hour, "-", min, "-", sec));
+	f_list = file.read(from_file);
+	file.write(new_f, f_list);
+}
+
 function inv.saveForPlayer(sec_player, for_player_or_id, world) {
 	if(isPlayer(for_player_or_id)) {
 		for_player_or_id = player.getId(for_player_or_id);
 	}
 	world_name = world.getName(world);
 	if(world.isSurvName(world_name)) {
+		inv.backup(for_player_or_id);
 		pfad = "scripts/configs/inv_data/survival";
 	} else {
 		pfad = string.concat("scripts/configs/inv_data/", world_name);

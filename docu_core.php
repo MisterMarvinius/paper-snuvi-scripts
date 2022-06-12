@@ -1317,11 +1317,11 @@
     <table>
         <tr>
             <th class="command">time.parse</th>
-            <th class="desc">returns the seconds of a calendar</th>
+            <th class="desc">returns a calendar</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>time.parse(<a href="https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html" target="_blank">date_format</a>)</td>
+            <td>time.parse(<a href="https://docs.oracle.com/javase/10/docs/api/java/text/SimpleDateFormat.html" target="_blank">date_format</a>, source_string)</td>
         </tr>
     </table>
 </section>

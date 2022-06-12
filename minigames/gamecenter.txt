@@ -90,7 +90,7 @@ minigame.addSign("mengersign1", true, loc.new(gamesworld, -405, 157, -75), "mini
 minigame.addSign("leapfrogsign1", true, loc.new(gamesworld, -399, 157, -65), "minigames/leapfrog/leapfrog", "minigames/leapfrog/leapfrogmap1", true);
 minigame.addSign("snowsign1", true, loc.new(gamesworld, -412, 156, -37), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap1", false);
 minigame.addSign("snowsign2", true, loc.new(gamesworld, -412, 156, -36), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap2", false);
-minigame.addSign("among_us_sign1", false, loc.new(gamesworld, -417, 157, -41), "minigames/among_us/among_us", "minigames/among_us/among_us_map1", false);
+minigame.addSign("among_us_sign1", true, loc.new(gamesworld, -417, 157, -41), "minigames/among_us/among_us", "minigames/among_us/among_us_map1", false);
 minigame.addSign("jr_sign_4D_1", true, loc.new(gamesworld, -396, 156, -51), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map1", true);
 minigame.addSign("jr_sign_4D_3", true, loc.new(gamesworld, -396, 156, -49), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map3", true);
 minigame.addSign("s_sign_4D_1", true, loc.new(gamesworld, -396, 156, -50), "minigames/jumpnrun/4d/3d_shadow/shadow_jump_core", "minigames/jumpnrun/4d/3d_shadow/3d_s_map1", true);
