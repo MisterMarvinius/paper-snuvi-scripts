@@ -5,12 +5,12 @@ game_tab = "§eHalma";
 teams = map.new();
 pointed_block = block.get(loc.new(gamesworld, 0, 0, 0)); //Default-Wert, um Error zu verhindern
 gamename = "§eHalma";
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
 
 air_mat = material.getAir();
 
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @specificLobbyHandling

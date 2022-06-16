@@ -17,7 +17,7 @@ enchantment.add(enchantment.get("knockback"), stick, 2);
 resetblocks = list.new();
 gamename = "§cKnockFight";
 
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @finalstart

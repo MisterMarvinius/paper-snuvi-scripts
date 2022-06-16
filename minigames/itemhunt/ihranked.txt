@@ -6,7 +6,7 @@ farmland_mat = material.get("farmland");
 carved_pumpkin = item.new(material.get("carved_pumpkin"));
 sugar_cane = item.new(sugar_cane_mat);
 
-gosub("setstart");
+minigame.initStart();
 step = 1;
 gamename = "§aItemHunt";
 rankingtable = "sfsingle";

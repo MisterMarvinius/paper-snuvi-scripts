@@ -9,7 +9,7 @@ if(event == "entity_damage") {
 		goto("simplelobby");
 	}
 	cancel = true;
-	if(specific_lobby_handling != null && specific_lobby_handling) {
+	if(minigame.hasSpecificLobbyHandling()) {
 		gosub("specificLobbyHandling");
 	}
 	goto("simplelobby");
@@ -29,7 +29,7 @@ if(event == "custom_command") {
 if(!player.hasMinigameId(player, script_id)) {
 	goto("simplelobby");
 }
-if(specific_lobby_handling != null && specific_lobby_handling) {
+if(minigame.hasSpecificLobbyHandling()) {
 	gosub("specificLobbyHandling");
 }
 if(event == "minigame_join") {
@@ -43,153 +43,266 @@ elseif(event == "player_quit" || event == "player_giveup") {
 }
 elseif(event == "custom_command") {
 	if(command == "startgame") {
-		if(manual_start != null && manual_start) {
-			if(started) {
+		if(minigame.hasManualStart()) {
+			if(minigame.isStarting()) {
 				msg.prefix(player, gamename, "Already started.");
 				goto("simplelobby");
 			}
-			counterindex = 3;
 			goto("startcountdown");
 		}
-		if(perm.has("startgame.jump", player)) {
-			gosub("jumpstart");
-		} else {
+		//jumpstart
+		if(!perm.has("startgame.jump", player)) {
 			perm.no("startgame.jump", player);
+			goto("simplelobby");
 		}
+		if(minigame.isStarting()) {
+			if(noticetime > 5) {
+				noticetime = 5;
+				minigame.speakAll(gamename, "Left time reduced to §b5 §rseconds.");
+				goto("simplelobby");
+			}
+			msg.prefix(player, gamename, "Left time can't be reduced.");
+			goto("simplelobby");
+		}
+		msg.prefix(player, gamename, "Game is not starting.");
 	}
 }
 goto("simplelobby");
 
-@lobbycore
-minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r joined the game."));
-if(no_lobby_tp == null || !no_lobby_tp) {
-	modTimer.entityTeleport(player, lobbyspawnloc);
-}
-if(no_core_reset == null || !no_core_reset) {
-	resetplayer(player);
-}
-title.send(player, text.new(gamename), text.new(mapname));
-if(manual_start != null && manual_start) {
-	return;
-}
-if(!started) {
-	scriptlist = minigame.getPlayers(script_id);
-	size = list.getSize(scriptlist);
-	if(size >= minplayers) {
-		goto("startcountdown");
-	}
-	@waiting
-	started = false;
-	counterindex = 0;
-	if(manual_start != null && manual_start) {
-		minigame.speakAll(gamename, "Start process stopped.");
-		return;
-	}
-	waitfor = minplayers - size;
-	if(waitfor == 1) {
-		minigame.speakAll(gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayer."));
-	} else {
-		minigame.speakAll(gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayers."));
-	}
-}
-return;
-
 @startcountdown
-scriptlist = minigame.getPlayers(script_id);
-size = list.getSize(scriptlist);
-if(size < minplayers) {
-	gosub("waiting");
+if(!minigame.canStart()) {
+	minigame.waiting();
 	goto("simplelobby");
 }
-if(!set.exists(indivstartchecks)) {
-	indivstartchecks = set.new();
-	set.add(indivstartchecks, "§3CTF");
-	set.add(indivstartchecks, "§6SnowGame");
-}
-if(set.contains(indivstartchecks, gamename)) {
-	if(!canStartGame()) {
-		counterindex = 0;
+if(minigame.hasIndivStartCheck()) {
+	if(!minigame.canStartIndiv()) {
+		noticetime = minigame.getLobbyCounter();
 		ignoreGoto("checklobby");
 		goto("simplelobby");
 	}
 }
-started = true;
-noticetime = list.getIndex(starttimes, counterindex);
+minigame.setStarting(true);
 if(noticetime == 5) {
-	for(i = 0; i < size; i++) {
-		p = player.get(list.getIndex(scriptlist, i));
-		title.send(p, text.new(gamename), text.new(mapname));
-	}
+	minigame.titleAll(gamename, mapname, 20, 60, 20);
 }
-if(noticetime == 0) {
-	sign.started(gamesignloc);
-	goto("finalstart");
-}
-noticetime2 = list.getIndex(starttimes, ++counterindex);
 if(noticetime == 1) {
 	minigame.speakAll(gamename, string.concat("The game starts in §b", string.number(noticetime), " §rsecond."));
 } else {
 	minigame.speakAll(gamename, string.concat("The game starts in §b", string.number(noticetime), " §rseconds."));
 }
-stime = (noticetime - noticetime2) * 20;
-sgoto(stime, "startcountdown");
-for(i = 0; i < size; i++) {
-	p = player.get(list.getIndex(scriptlist, i));
+if(noticetime == 0) {
+	sign.started(gamesignloc);
+	goto("finalstart");
+}
+
+if(noticetime > 30) {
+	s_time = 200; //10s
+} elseif(noticetime > 5) {
+	s_time = 100; //5s
+} else {
+	s_time = 20; //1s
+}
+noticetime -= s_time / 20;
+sgoto(s_time, "startcountdown");
+player_list = minigame.getPlayers(script_id);
+p_amount = list.getSize(player_list);
+for(i = 0; i < p_amount; i++) {
+	p = player.get(list.getIndex(player_list, i));
 	sound.spawnForPlayer(p, join_sound, sound_category_ambient);
 }
 ignoreGoto("checklobby");
 goto("simplelobby");
+
+@lobbycore
+minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r joined the game."));
+if(!minigame.hasNoLobbyTeleport()) {
+	modTimer.entityTeleport(player, lobbyspawnloc);
+}
+if(minigame.doPlayerResetInCore()) {
+	resetplayer(player);
+}
+title.send(player, text.new(gamename), text.new(mapname));
+if(minigame.hasManualStart()) {
+	return;
+}
+if(!minigame.isStarting()) {
+	if(minigame.canStart()) {
+		goto("startcountdown");
+	}
+	minigame.waiting();
+}
+return;
 
 @leavelobbycore
 minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r left the game."));
 script = script.getFromId(script_id);
 if(player.isPartyLeader(player)) {
 	leader_uuid = player.getUuid(player);
-	scriptlist = minigame.getPlayers(script_id);
+	player_list = minigame.getPlayers(script_id);
 	list = party.getList(player.getPartyId(player));
 	iter = iterator(list);
 	while(hasNext(iter)) {
 		p_uuid = next(iter);
 		p = player.get(p_uuid);
-		if(list.contains(scriptlist, p_uuid)) {
+		if(list.contains(player_list, p_uuid)) {
 			minigame.kickPlayer(script, p);
 		}
 	}
 } else {
 	minigame.kickPlayer(script, player);
 }
-size = list.getSize(minigame.getPlayers(script_id));
-if(size == 0) {
-	minigame.term(script, $gamesignloc);
+p_amount = minigame.getPlayerAmount(script_id);
+if(p_amount == 0) {
+	minigame.term(script, gamesignloc);
 }
-if(size < minplayers) {
-	gosub("waiting");
+if(!minigame.canStart()) {
+	minigame.waiting();
 	goto("simplelobby");
 }
-return;
-
-@jumpstart
-if(started) {
-	if(counterindex < 5) {
-		counterindex = 5;
-		minigame.speakAll(gamename, "Left time reduced to §b5 §rseconds.");
-	} else {
-		msg.prefix(player, gamename, "Left time can't be reduced.");
-	}
-} else {
-	msg.prefix(player, gamename, "Game is not starting.");
-}
-return;
-
-@setstart
-minigame.loadLobbyEvents();
-minigame.setStarttimesList();
-minigame.setupMultiplayer();
 return;
 
 //--------------------------------------------------
 //Minigame-Utils
 //--------------------------------------------------
+
+function minigame.setLobbyCounter(seconds) {
+	$lobby_counter_init = seconds;
+	$noticetime = seconds;
+}
+
+function minigame.getLobbyCounter() {
+	if($lobby_counter_init == null) {
+		$lobby_counter_init = 20;
+		$noticetime = 20;
+	}
+	return $lobby_counter_init;
+}
+
+function minigame.setNoLobbyTeleport(bool) {
+	$no_lobby_tp = bool;
+}
+
+function minigame.hasNoLobbyTeleport() {
+	bool = $no_lobby_tp;
+	if(bool == null) {
+		bool = false;
+	}
+	return bool;
+}
+
+function minigame.setPlayerResetInCore(bool) {
+	$no_core_reset = !bool;
+}
+
+function minigame.doPlayerResetInCore() {
+	bool = !$no_core_reset;
+	if(bool == null) {
+		bool = true;
+	}
+	return bool;
+}
+
+function minigame.setManualStart(bool) {
+	$manual_start = bool;
+}
+
+function minigame.hasManualStart() {
+	bool = $manual_start;
+	if(bool == null) {
+		bool = false;
+	}
+	return bool;
+}
+
+function minigame.setIndivStartCheck(bool) {
+	$indiv_start_check = bool;
+}
+
+function minigame.hasIndivStartCheck() {
+	bool = $indiv_start_check;
+	if(bool == null) {
+		bool = false;
+	}
+	return bool;
+}
+
+function minigame.setSpecificLobbyHandling(bool) {
+	$specific_lobby_handling = bool;
+}
+
+function minigame.hasSpecificLobbyHandling() {
+	bool = $specific_lobby_handling;
+	if(bool == null) {
+		bool = false;
+	}
+	return bool;
+}
+
+function minigame.setMinPlayers(amount) {
+	$minplayers = amount;
+}
+
+function minigame.getMinPlayers() {
+	return $minplayers;
+}
+
+function minigame.setMaxPlayers(amount) {
+	$maxplayers = amount;
+}
+
+function minigame.getMaxPlayers() {
+	return $maxplayers;
+}
+
+function minigame.isStarting() {
+	return $starting;
+}
+
+function minigame.setStarting(bool) {
+	$starting = bool;
+}
+
+function minigame.setSingleplayer() {
+	$singleplayer = true;
+}
+
+function minigame.setMultiplayer() {
+	$singleplayer = false;
+}
+
+function minigame.isSingleplayer() {
+	return $singleplayer;
+}
+
+function minigame.isMultiplayer() {
+	return !$singleplayer;
+}
+
+function minigame.waiting() {
+	minigame.setStarting(false);
+	$noticetime = minigame.getLobbyCounter();
+	if(minigame.hasManualStart()) {
+		minigame.speakAll($gamename, "Start process stopped.");
+		return;
+	}
+	waitfor = minigame.getMinPlayers() - minigame.getPlayerAmount($script_id);
+	if(waitfor == 1) {
+		minigame.speakAll($gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayer."));
+		return;
+	}
+	minigame.speakAll($gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayers."));
+}
+
+function minigame.canStart() {
+	player_list = minigame.getPlayers($script_id);
+	p_amount = list.getSize(player_list);
+	return p_amount >= minigame.getMinPlayers();
+}
+
+function minigame.initStart() {
+	minigame.loadLobbyEvents();
+	minigame.setupMultiplayer();
+}
 
 function minigame.clearItems(location, radius) {
 	entity.removeAll("org.bukkit.entity.Item", location, radius);
@@ -215,27 +328,14 @@ function minigame.loadLobbyEvents() {
 	event.load("custom_command");
 }
 
-function minigame.setStarttimesList() {
-	$starttimes = list.new();
-	list.add($starttimes, 20);
-	list.add($starttimes, 15);
-	list.add($starttimes, 10);
-	list.add($starttimes, 5);
-	list.add($starttimes, 4);
-	list.add($starttimes, 3);
-	list.add($starttimes, 2);
-	list.add($starttimes, 1);
-	list.add($starttimes, 0);
-}
-
 function minigame.setupMultiplayer() {
-	$counterindex = 0;
-	$started = false;
+	$noticetime = minigame.getLobbyCounter();
+	minigame.setMultiplayer();
+	minigame.setStarting(false);
 	$sound_category_ambient = sound.getCategory("AMBIENT");
 	$sound_category_player = sound.getCategory("PLAYERS");
 	$join_sound = sound.get("BLOCK_NOTE_BLOCK_BASS");
 	$pling_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
-	$gamesworldloc = world.getGamesSpawn();
 }
 
 function minigame.setLastPos(player) {
@@ -340,12 +440,15 @@ function getTeamWithLowestPeople(team_lists, numberofteams) {
 	return lowestteam;
 }
 
-function minigame.kickPlayer(script_or_id, player) {
+function minigame.getScriptId(script_or_id) {
 	if(isDouble(script_or_id)) {
-		script_id = script_or_id;
-	} else {
-		script_id = script.getId(script_or_id);
+		return script_or_id;
 	}
+	return script.getId(script_or_id);
+}
+
+function minigame.kickPlayer(script_or_id, player) {
+	script_id = minigame.getScriptId(script_or_id);
 	resetplayer(player);
 	player.tpGamesLobby(player);
 	list = minigame.getPlayers(script_id);
@@ -355,25 +458,21 @@ function minigame.kickPlayer(script_or_id, player) {
 }
 
 function minigame.kickAllPlayers(script_or_id) {
-	if(isDouble(script_or_id)) {
-		script = script.getFromId(script_or_id);
-	} else {
-		script = script_or_id;
-	}
-	player_list = minigame.getPlayers(script.getId(script));
-	list = list.new();
-	//Create copy
-	iter = iterator(player_list);
-	while(hasNext(iter)) {
-		list.add(list, next(iter));
-	}
+	script_id = minigame.getScriptId(script_or_id);
+	player_list = minigame.getPlayers(script_id);
+	list = list.copy(player_list); //Copy list to preven concurrent modification
 	iter = iterator(list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != null) {
-			minigame.kickPlayer(script, p);
+			minigame.kickPlayer(script_id, p);
 		}
 	}
+}
+
+function minigame.getPlayerAmount(script_id) {
+	list = minigame.getPlayers(script_id);
+	return list.getSize(list);
 }
 
 function minigame.getPlayers(script_id) {

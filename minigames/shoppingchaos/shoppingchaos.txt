@@ -1,8 +1,8 @@
 rankingtable = "shoppingranks";
 game_short = "sc";
 game_tab = "§eSC";
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
 
 air = "minecraft:air";
 air_item = item.getAir();
@@ -209,7 +209,7 @@ addItem("minecraft:golden_leggings", gold_ingot, gold_ingot, gold_ingot, gold_in
 addItem("minecraft:golden_helmet", gold_ingot, air, gold_ingot, gold_ingot, gold_ingot, gold_ingot, air, air, air);
 addItem("minecraft:golden_chestplate", gold_ingot, air, gold_ingot, gold_ingot, gold_ingot, gold_ingot, gold_ingot, gold_ingot, gold_ingot);
 	
-gosub("setstart");
+minigame.initStart();
 
 for(team = 0; team < numberofteams; team++) {
 	map.add(playersinteam, team, 0);

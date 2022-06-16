@@ -25,9 +25,9 @@ hider_skills = list.new();
 //addHiderSkill("Blindness", 25, "km:skill55", 3, 1, true, "blindness");
 //addHiderSkill("Nausea", 25, "km:skill36", 10, 10, true, "nausea");
 
-specific_lobby_handling = true;
-no_core_reset = true;
-gosub("setstart");
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
+minigame.initStart();
 
 spawnprotect = list.new();
 list.add(spawnprotect, middleloc);

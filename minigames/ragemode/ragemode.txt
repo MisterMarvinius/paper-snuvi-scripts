@@ -10,14 +10,14 @@ event.load("projectile_hit");
 
 rankingtable = "rmranks";
 game_short = "rm";
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
 
 axes_list = list.new();
 gamename = "§cRageMode";
 no_emerald = false;
 
-gosub("setstart");
+minigame.initStart();
 
 times = map.new();
 time = time.getMillis();
@@ -114,7 +114,7 @@ ambient_sound_category = sound.getCategory("AMBIENT");
 minigame.displayAll(99, gamename);
 minigame.displayAll(98, "§aGoal: §r25");
 id = 97;
-for(i = 0; i < size; i++) {
+for(i = 0; i < list.getSize(player_list); i++) {
 	for_p = player.get(list.getIndex(player_list, i));
 	for_pname = player.getName(for_p);
 	msg.prefix(for_p, gamename, "The game has started.");

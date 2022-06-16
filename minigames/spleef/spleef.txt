@@ -7,7 +7,7 @@ resetblocks_type = list.new();
 gamename = "§9Spleef";
 air = material.getAir();
 
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @finalstart

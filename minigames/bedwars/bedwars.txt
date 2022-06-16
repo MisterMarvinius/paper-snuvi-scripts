@@ -1,8 +1,8 @@
 rankingtable = "bwranks";
 game_short = "bw";
 game_tab = "§bBW";
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
 
 colorcodes = map.new();
 map.add(colorcodes, 0, "§9");
@@ -74,7 +74,7 @@ for(team = 0; team < numberofteams; team++) {
 	map.add(playersinteam, team, 0);
 	map.add(teamidtolist, team, list.new());
 }
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @specificLobbyHandling

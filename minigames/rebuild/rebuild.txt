@@ -1,9 +1,9 @@
 rankingtable = "rebuildranks";
 game_short = "rebuild";
 gamename = "§5Rebuild";
-specific_lobby_handling = true;
-no_core_reset = true;
-gosub("setstart");
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
+minigame.initStart();
 goto("simplelobby");
 
 @specificLobbyHandling

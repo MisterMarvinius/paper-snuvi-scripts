@@ -5,11 +5,11 @@ spawn_locs = map.new();
 rankingtable = "fastbridgeranks";
 game_short = "fb";
 gamename = "§dFastBridge";
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
 start_sound = sound.get("BLOCK_NOTE_BLOCK_HARP");
 
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @specificLobbyHandling

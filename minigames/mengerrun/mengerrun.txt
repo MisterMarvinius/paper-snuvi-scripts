@@ -7,10 +7,10 @@ tp_times = map.new();
 seekerlist = list.new();
 escaperlist = list.new();
 
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
 gamename = "§9Menger-Run";
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @specificLobbyHandling

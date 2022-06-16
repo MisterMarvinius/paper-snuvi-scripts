@@ -1,8 +1,9 @@
 rankingtable = "snowranks";
 game_short = "snow";
 game_tab = "§6SNOW";
-specific_lobby_handling = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
+minigame.setIndivStartCheck(true);
 gamename = "§6Snowfight";
 snow_stack = item.create("minecraft:snowball", 16, null, null);
 
@@ -46,7 +47,7 @@ deaths_map = map.new();
 cooldown_map = map.new();
 snowball = material.get("snowball");
 
-gosub("setstart");
+minigame.initStart();
 goto("simplelobby");
 
 @specificLobbyHandling
@@ -380,7 +381,7 @@ function equipPlayer(player, team) {
 	}
 }
 
-function canStartGame() {
+function minigame.canStartIndiv() {
 	if(list.getSize($waiters) > 0) {
 		return true;
 	}

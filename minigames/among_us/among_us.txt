@@ -1,8 +1,5 @@
 /*
 
-Bugs:
- * spiel startet bei 2 spielern
-
 --- Version 2 ---
 //PERMS
 Hats
@@ -20,9 +17,10 @@ event.load("snuvi_click");
 event.load("player_drop");
 
 player_colors = map.new();
-specific_lobby_handling = true;
-no_lobby_tp = true;
-no_core_reset = true;
+minigame.setSpecificLobbyHandling(true);
+minigame.setNoLobbyTeleport(true);
+minigame.setPlayerResetInCore(false);
+minigame.setManualStart(true);
 gamename = "§cAmong Us";
 game_short = "among_us";
 rankingtable = "among_us_ranks";
@@ -133,7 +131,8 @@ while(hasNext(iter)) {
 	inv.setItem(color_choose_inv, index++, item);
 }
 
-gosub("setstart");
+minigame.initStart();
+minigame.setLobbyCounter(5);
 goto("simplelobby");
 
 @specificLobbyHandling
@@ -178,11 +177,11 @@ if(event == "block_click") {
 			msg.prefix(player, gamename, "You are not the Lobby-Leader.");
 			return;
 		}
-		if(!started) {
-			counterindex = 3;
-			goto("startcountdown");
+		if(!minigame.canStartIndiv()) {
+			msg.prefix(player, gamename, "You need to be alone for singleplayer. For multiplayer more than 2 players are needed.");
+			return;
 		}
-		return;
+		goto("startcountdown");
 	}
 	item = living.getHand(player);
 	if(item == settings_item) {
@@ -739,8 +738,8 @@ if(player_list_size == 1) {
 	amount_all_tasks = 17;
 	amount_all_tasks_per_player = amount_all_tasks;
 	freeplay = true;
+	minigame.setSingleplayer();
 } else {
-	minplayers = multi_minplayers;
 	amount_crew = player_list_size - amount_impostors;
 	amount_all_tasks_per_player = amount_short + amount_common + amount_long;
 	amount_all_tasks = amount_all_tasks_per_player * amount_crew;
@@ -5538,6 +5537,15 @@ function addVentIcons(vent_loc, icon_1, vent_tp_loc_1, icon_2, vent_tp_loc_2) {
 	a[2] = icon_2;
 	a[3] = vent_tp_loc_2;
 	map.add($vent_map_3, vent_loc, a);
+}
+
+function minigame.canStartIndiv() {
+	if(minigame.isStarting()) {
+		return false;
+	}
+	player_list = minigame.getPlayers($script_id);
+	p_amount = list.getSize(player_list);
+	return p_amount == minigame.getMinPlayers() || p_amount >= $multi_minplayers;
 }
 
 @crewmate_win
