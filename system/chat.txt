@@ -10,6 +10,9 @@ if(config.exists(config)) {
 }
 crash = config.getBool(config, "crash", false);
 
+joinNews.createTable();
+//joinNews.insert("One time join news", time.getMillis());
+
 cookie_time = 0;
 cookie = item.new(material.get("minecraft:cookie"));
 serverspawn = world.getServerSpawn();
@@ -111,13 +114,13 @@ map.add(causetolist, "flyIntoWall", flydeaths);
 map.add(causetolist, "player", list.new());
 
 online_list = players.toList();
-iter = list.iterator(online_list);
+iter = iterator(online_list);
 while(hasNext(iter)) {
 	rank.offerTimeScheduled(next(iter));
 }
 
 sgoto(1200, "minute_loop");
-	
+
 msg.string("dev", "§bChat §rloaded");
 @wait
 wait();
@@ -172,6 +175,11 @@ if(perm.has("isDev", player)) {
 	if(error_size > 0) {
 		msg.prefix(player, "§cError", string.concat("There are ", string.number(error_size), " errors."));
 	}
+}
+last_join_time = player.getLastJoin(player);
+if(last_join_time != null) {
+	news_list = joinNews.getFromTime(last_join_time);
+	joinNews.print(player, news_list);
 }
 goto("wait");
 
@@ -320,7 +328,7 @@ function rank.offerTimeScheduled(player) {
 
 @minute_loop
 now_time = time.getMillis();
-iter = list.iterator($rank_playtime_list);
+iter = iterator($rank_playtime_list);
 while(hasNext(iter)) {
 	a = next(iter);
 	player_uuid = a[0];
@@ -339,3 +347,45 @@ while(hasNext(iter)) {
 }
 sgoto(1200, "minute_loop");
 goto("wait");
+
+function joinNews.createTable() {
+	databank.workerExecute(databank.prepare("
+		CREATE TABLE IF NOT EXISTS join_news (
+			id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+			message VARCHAR(512) NOT NULL,
+			time BIGINT NOT NULL
+		);
+	"));
+}
+
+function joinNews.insert(message, time) {
+	stmt = databank.prepare("INSERT INTO join_news (message, time) VALUES(?,?);");
+	databank.setString(stmt, 1, message);
+	databank.setLong(stmt, 2, time);
+	databank.workerExecute(stmt);
+}
+
+function joinNews.getFromTime(last_join_time) {
+	list = list.new();
+	stmt = databank.prepare("SELECT message, time FROM join_news WHERE time > ? ORDER BY time DESC LIMIT ?;");
+	databank.setLong(stmt, 1, last_join_time);
+	databank.setInt(stmt, 2, 10);
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		a = array.new(2);
+		a[0] = databank.getString(result, 1);
+		a[1] = databank.getLong(result, 2);
+		list.add(list, a);
+	}
+	databank.close(stmt);
+	databank.close(result);
+	return list;
+}
+
+function joinNews.print(player, news_list) {
+	iter = iterator(news_list);
+	while(hasNext(iter)) {
+		a = next(iter);
+		msg.prefix(player, "§4News", string.concat(time.getDateString(a[1]), " §7| §c", a[0]));
+	}
+}

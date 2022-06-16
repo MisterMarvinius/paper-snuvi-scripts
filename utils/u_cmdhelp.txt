@@ -186,8 +186,18 @@ function setCommandHelps() {
 	command.addHelp(help);
 	
 	help = command.newHelp("allsounds", "allsounds");
+	//allsounds start
 	command.addHelpChild(help, command.newHelpLiteral("start"));
+	//allsounds stop
 	command.addHelpChild(help, command.newHelpLiteral("stop"));
+	//allsounds play <sound>
+	helpArg0 = command.newHelpLiteral("play");
+	command.addHelpChild(helpArg0, command.newHelpSpecial("Sound", "sound"));
+	command.addHelpChild(help, helpArg0);
+	//allsounds show [page]
+	helpArg0 = command.newHelpLiteral("show");
+	command.addHelpChild(helpArg0, command.newHelpInt("page", 1, 200));
+	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
 	help = command.newHelp("spawn", "spawn");
@@ -368,6 +378,7 @@ function setCommandHelps() {
 	command.addHelpChild(helpArg1, command.newHelpLiteral("bypass"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("altruist"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("legend"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("creativeWE"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	//perm remove <player> <perm>
@@ -390,6 +401,7 @@ function setCommandHelps() {
 	command.addHelpChild(helpArg1, command.newHelpLiteral("bypass"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("altruist"));
 	command.addHelpChild(helpArg1, command.newHelpLiteral("legend"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("creativeWE"));
 	command.addHelpChild(helpArg0, helpArg1);
 	command.addHelpChild(help, helpArg0);
 	//perm removeall <player>
@@ -716,6 +728,21 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("disband"));
 	//party list
 	command.addHelpChild(help, command.newHelpLiteral("list"));
+	command.addHelp(help);
+	
+	help = command.newHelp("weather", "weather");
+	//weather clear [duration]
+	helpArg0 = command.newHelpLiteral("clear");
+	command.addHelpChild(helpArg0, command.newHelpInt("duration", 0, 1000000));
+	command.addHelpChild(help, helpArg0);
+	//weather rain [duration]
+	helpArg0 = command.newHelpLiteral("rain");
+	command.addHelpChild(helpArg0, command.newHelpInt("duration", 0, 1000000));
+	command.addHelpChild(help, helpArg0);
+	//weather thunder [duration]
+	helpArg0 = command.newHelpLiteral("thunder");
+	command.addHelpChild(helpArg0, command.newHelpInt("duration", 0, 1000000));
+	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
 	help = command.newHelp("var", "var");

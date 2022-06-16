@@ -12,7 +12,7 @@ sb_id = 12;
 
 lore_list = list.new();
 list.add(lore_list, text.new("Collect all items in the given order."));
-list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 1 Amber")));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 4 Amber")));
 list.add(lore_list, text.new(""));
 list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
 list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
@@ -143,7 +143,6 @@ while(hasNext(iter)) {
 	if(challenge.playerHas(p, challenge_short)) {
 		stage = loadDoneItems(p);
 		type = loadNextItem(p);
-		snuvi.debug(getRandomType(p));
 		challenge.display(p, sb_id, challenge_name, type, stage, all_stages);
 	}
 }
@@ -198,7 +197,6 @@ if(item == aitems) {
 		goto("wait");
 	}
 	goto("wait");
-	
 }
 goto("wait");
 
@@ -235,10 +233,13 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	player.giveItem(player, item.getAmber());
+	amber = item.getAmber();
+	item.setAmount(amber, 4);
+	player.giveItem(player, amber);
 	resetAItems(player);
 	challenge.removeDisplay(player, sb_id);
 	player.removeChallenge(player, challenge_short);
+	player.setAIChallengeAmounts(player, player.getAIChallengeAmounts(player) + 1);
 	goto("wait");
 }
 saveDoneItems(player, item_type);
@@ -279,10 +280,13 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	player.giveItem(player, item.getAmber());
+	amber = item.getAmber();
+	item.setAmount(amber, 4);
+	player.giveItem(player, amber);
 	resetAItems(player);
 	challenge.removeDisplay(player, sb_id);
 	player.removeChallenge(player, challenge_short);
+	player.setAIChallengeAmounts(player, player.getAIChallengeAmounts(player) + 1);
 	goto("wait");
 }
 saveDoneItems(player, item_type);
@@ -337,13 +341,15 @@ function saveNextItem(player_or_id, item_type) {
 function loadDoneItems(player_or_id) {
 	config = playerdata.getSurvival(player_or_id);
 	string = config.getString(config, "cha.aitems.done", "");
-	a = string.split("%", string);
 	s = set.new();
 	l = list.copy($mat_list);
-	for(i = 0; i < array.getSize(a); i++) {
-		type = material.get(a[i]);
-		set.add(s, type);
-		list.remove(l, type);
+	if(string != "") {
+		a = string.split("%", string);
+		for(i = 0; i < array.getSize(a); i++) {
+			type = material.get(a[i]);
+			set.add(s, type);
+			list.remove(l, type);
+		}
 	}
 	player_id = player.getValidId(player_or_id);
 	map.add($done_items, player_id, s);

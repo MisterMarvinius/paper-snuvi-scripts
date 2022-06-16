@@ -121,6 +121,9 @@ minigame.addCompass(14, item.create("minecraft:stick", 1, "§fKnockfight", null)
 minigame.addCompass(15, item.create("minecraft:diamond_shovel", 1, "§fSpleef", null), loc.new(gamesworld, -413.5, 156, -36.5, -90, 0));
 minigame.addCompass(16, item.create("minecraft:command_block", 1, "§f4D-Games", null), loc.new(gamesworld, -397.5, 156, -50.5, -90, 20));
 minigame.addCompass(17, item.create("minecraft:grass_block", 1, "§fSammelfieber", null), loc.new(gamesworld, -398.5, 156, -48.5, 0, 0));
+minigame.addCompass(18, item.create("minecraft:green_terracotta", 1, "§fSnake", null), loc.new(gamesworld, -402.5, 156, -70.5, -90, -20));
+minigame.addCompass(19, item.create("minecraft:iron_block", 1, "§fPortal", null), loc.new(gamesworld, -402.5, 156, -72.5, -90, -20));
+minigame.addCompass(20, item.create("minecraft:heavy_weighted_pressure_plate", 1, "§fGravity", null), loc.new(gamesworld, -402.5, 156, -71.5, -90, -20));
 
 modTimer(-500);
 iter = map.iterator(gamemappaths);

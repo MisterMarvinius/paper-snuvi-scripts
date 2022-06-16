@@ -53,6 +53,7 @@ script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general
 //script.startNamed("Lectern", "utils/u_error", "survival/lectern", "utils/u_general");
 script.startNamed("Mobarena", "utils/u_error", "survival/mobarena", "utils/u_general");
 script.startNamed("Challenges", "utils/u_error", "survival/challenges", "utils/u_general");
+script.startNamed("AllDamageTypes", "utils/u_error", "challenges/all_damage_types", "utils/u_general");
 script.startNamed("AllEntities", "utils/u_error", "challenges/all_entities", "utils/u_general");
 script.startNamed("AllItems", "utils/u_error", "challenges/all_items", "utils/u_general");
 script.startNamed("TicTacToe", "utils/u_error", "minigames/tictactoe/tictactoe", "utils/u_general");

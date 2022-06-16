@@ -2364,12 +2364,12 @@
     </table>
 	<table>
         <tr>
-            <th class="command">text.chest</th>
+            <th class="command">text.suggest</th>
             <th class="desc">returns a clickable text for chat/command line insertion</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>text.chest(show_text, chest_text)</td>
+            <td>text.suggest(show_text, suggest_text)</td>
         </tr>
     </table>
 	<table>

@@ -8,7 +8,7 @@ databank.workerExecute(databank.prepare("
 	);
 "));
 
-permgroups = array.new(19, 4);
+permgroups = array.new(20, 4);
 perm.addGroup(0, "user", "3User", false);
 perm.addGroup(1, "owner", "4Owner", true);
 perm.addGroup(2, "admin", "cAdmin", true);
@@ -28,6 +28,7 @@ perm.addGroup(15, "notickets", null, false);
 perm.addGroup(16, "bypass", null, false);
 perm.addGroup(17, "altruist", null, false);
 perm.addGroup(18, "legend", null, false);
+perm.addGroup(19, "creativeWE", null, true);
 perm.setGroups(permgroups);
 
 perm.addToGroup(0, "isUser");
@@ -388,6 +389,9 @@ perm.addToGroup(17, "setmessage");
 
 //legend
 perm.addToGroup(18, "setmessage");
+
+//creativeWE
+perm.addToGroup(19, "creative.we");
 
 perm.loadDatabank();
 perm.initOnlinePlayers();

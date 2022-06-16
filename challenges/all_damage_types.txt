@@ -1,0 +1,232 @@
+event.load("player_join");
+event.load("snuvi_click");
+event.load("entity_damage");
+
+prefix_challenge = "§aChallenge";
+challenge_short = "adtype";
+challenge_name = "All Damage Types";
+reward = 8192;
+sb_id = 13;
+
+lore_list = list.new();
+list.add(lore_list, text.new("Receive all types of damage in the given order."));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(4096), " + 1 Amber")));
+list.add(lore_list, text.new(""));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+challenge_item = item.create("CACTUS", 1, "§cAll Damage Types", lore_list);
+
+next_damage_types = map.new(); //player_id -> material
+done_damage_types = map.new(); //player_id -> set -> material
+todo_damage_types = map.new(); //player_id -> list -> material
+
+sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+category = sound.getCategory("MASTER");
+
+all_damage_types = list.new();
+list.add(all_damage_types, "ANVIL");
+list.add(all_damage_types, "ARROW");
+list.add(all_damage_types, "CACTUS");
+list.add(all_damage_types, "DROWN");
+list.add(all_damage_types, "EXPLOSION.PLAYER"); //TNT, Creeper
+list.add(all_damage_types, "FALL");
+list.add(all_damage_types, "FIREBALL");
+list.add(all_damage_types, "FLYINTOWALL");
+list.add(all_damage_types, "FREEZE");
+list.add(all_damage_types, "HOTFLOOR");
+list.add(all_damage_types, "INDIRECTMAGIC"); //DRAGON_BREATH
+list.add(all_damage_types, "INFIRE");
+list.add(all_damage_types, "INWALL");
+list.add(all_damage_types, "LAVA");
+list.add(all_damage_types, "LIGHTNINGBOLT");
+list.add(all_damage_types, "MAGIC"); //Potion
+list.add(all_damage_types, "MOB");
+list.add(all_damage_types, "PLAYER");
+list.add(all_damage_types, "STARVE");
+list.add(all_damage_types, "THORNS");
+list.add(all_damage_types, "ONFIRE");
+list.add(all_damage_types, "OUTOFWORLD");
+list.add(all_damage_types, "WITHER");
+all_stages = list.getSize(all_damage_types);
+
+online_list = players.toList();
+iter = iterator(online_list);
+while(hasNext(iter)) {
+	p = next(iter);
+	if(challenge.playerHas(p, challenge_short)) {
+		stage = loadDoneDamageTypes(p);
+		type = loadNextDamageType(p);
+		challenge.display(p, sb_id, challenge_name, type, stage, all_stages);
+	}
+}
+
+msg.string("dev", "§bAllDamageTypes §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+stage = loadDoneDamageTypes(player);
+type = loadNextDamageType(player);
+challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
+goto("wait");
+
+@snuvi_click
+item = inv.getItem(inv, inv_slot);
+item.removeFlag(item, "HIDE_DESTROYS");
+title_string = string.text(inv_title);
+if(item == challenge_item) {
+	if(click == "LEFT") {
+		if(challenge.playerHas(player, challenge_short)) {
+			msg.prefix(player, prefix_challenge, "You already started this challenge.");
+			goto("wait");
+		}
+		player_id = player.getId(player);
+		map.add(todo_damage_types, player_id, list.copy(all_damage_types));
+		map.add(done_damage_types, player_id, set.new());
+		player.addChallenge(player, challenge_short);
+		type = getRandomDamageType(player);
+		stage = setNextDamageType(player, type);
+		challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
+		msg.prefix(player, prefix_challenge, "Challenge started.");
+		goto("wait");
+	}
+	if(click == "RIGHT") {
+		if(!challenge.playerHas(player, challenge_short)) {
+			msg.prefix(player, prefix_challenge, "Challenge not active.");
+			goto("wait");
+		}
+		resetDamageTypes(player);
+		challenge.removeDisplay(player, sb_id);
+		player.removeChallenge(player, challenge_short);
+		msg.prefix(player, prefix_challenge, "Challenge canceled.");
+		goto("wait");
+	}
+	goto("wait");
+}
+goto("wait");
+
+@entity_damage
+if(!isPlayer(entity)) {
+	goto("wait");
+}
+player = entity;
+if(!challenge.playerHas(player, challenge_short)) {
+	goto("wait");
+}
+player_loc = entity.getLocation(player);
+world_name = world.getName(loc.getWorld(player_loc));
+if(!world.isSurvName(world_name)) {
+	goto("wait");
+}
+damage_type = string.toUpperCase(damage.getType(damage_source));
+snuvi.debug(damage_type);
+if(!isNextDamageType(player, damage_type)) {
+	goto("wait");
+}
+sound.spawnForPlayer(player, sound, category);
+new_type = getRandomDamageType(player);
+if(new_type == null) {
+	msg.prefix(player, prefix_challenge, "All damage types received. Challenge done!");
+	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
+	money.add(player, reward);
+	player.giveItem(player, item.getAmber());
+	resetDamageTypes(player);
+	challenge.removeDisplay(player, sb_id);
+	player.removeChallenge(player, challenge_short);
+	player.setADTChallengeAmounts(player, player.getADTChallengeAmounts(player) + 1);
+	goto("wait");
+}
+saveDoneEntity(player, entity_type);
+stage = setNextEntity(player, new_type);
+msg.prefix(player, prefix_challenge, string.concat("Entity killed. Next entity: ", new_type));
+challenge.display(player, sb_id, challenge_name, new_type, stage, all_stages);
+goto("wait");
+
+function getRandomDamageType(player) {
+	player_id = player.getId(player);
+	l = map.get($todo_damage_types, player_id);
+	l_size = list.getSize(l);
+	if(l_size == 0) {
+		return null;
+	}
+	r = math.random(0, l_size - 1);
+	return list.getIndex(l, r);
+}
+
+function isNextDamageType(player, damage_type) {
+	player_id = player.getId(player);
+	next_type = map.get($next_damage_types, player_id);
+	return next_type == damage_type;
+}
+
+function setNextDamageType(player_or_id, damage_type) {
+	player_id = player.getValidId(player_or_id);
+	map.add($next_damage_types, player_id, damage_type);
+	saveNextDamageType(player_or_id, damage_type);
+	
+	l = map.get($todo_damage_types, player_id);
+	list.remove(l, damage_type);
+	return $all_stages - list.getSize(l) - 1;
+}
+
+function loadNextDamageType(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	player_id = player.getValidId(player_or_id);
+	type = config.getString(config, "cha.dtype.next", "null");
+	map.add($next_damage_types, player_id, type);
+	l = map.get($todo_damage_types, player_id);
+	list.remove(l, type);
+	return type;
+}
+
+function saveNextDamageType(player_or_id, damage_type) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.dtype.next", damage_type);
+	config.saveAsync(config);
+}
+
+function loadDoneDamageTypes(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "cha.dtype.done", "");
+	s = set.new();
+	l = list.copy($all_damage_types);
+	if(string != "") {
+		a = string.split("%", string);
+		for(i = 0; i < array.getSize(a); i++) {
+			type = a[i];
+			set.add(s, type);
+			list.remove(l, type);
+		}
+	}
+	player_id = player.getValidId(player_or_id);
+	map.add($done_damage_types, player_id, s);
+	map.add($todo_damage_types, player_id, l);
+	return set.getSize(map.get($done_damage_types, player_id));
+}
+
+function saveDoneDamageType(player_or_id, damage_type) {
+	player_id = player.getValidId(player_or_id);
+	s = map.get($done_damage_types, player_id);
+	set.add(s, damage_type);
+	
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "cha.dtype.done", "");
+	if(string == "") {
+		config.set(config, "cha.dtype.done", damage_type);
+	} else {
+		config.set(config, "cha.dtype.done", string.concat(string, "%", damage_type));
+	}
+	config.saveAsync(config);
+}
+
+function resetDamageTypes(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.dtype.done", "");
+	config.set(config, "cha.dtype.next", "");
+	config.saveAsync(config);
+}

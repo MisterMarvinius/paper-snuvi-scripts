@@ -10,7 +10,7 @@ sb_id = 11;
 
 lore_list = list.new();
 list.add(lore_list, text.new("Kill all entities in the given order."));
-list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 1 Amber")));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 2 Amber")));
 list.add(lore_list, text.new(""));
 list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
 list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
@@ -155,7 +155,6 @@ if(item == ae_item) {
 		goto("wait");
 	}
 	goto("wait");
-	
 }
 goto("wait");
 
@@ -182,10 +181,13 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All entities killed. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	player.giveItem(player, item.getAmber());
+	amber = item.getAmber();
+	item.setAmount(amber, 2);
+	player.giveItem(player, amber);
 	resetAE(player);
 	challenge.removeDisplay(player, sb_id);
 	player.removeChallenge(player, challenge_short);
+	player.setAEChallengeAmounts(player, player.getAEChallengeAmounts(player) + 1);
 	goto("wait");
 }
 saveDoneEntity(player, entity_type);
@@ -240,13 +242,15 @@ function saveNextEntity(player_or_id, entity_type) {
 function loadDoneEntities(player_or_id) {
 	config = playerdata.getSurvival(player_or_id);
 	string = config.getString(config, "cha.ae.done", "");
-	a = string.split("%", string);
 	s = set.new();
 	l = list.copy($entity_list);
-	for(i = 0; i < array.getSize(a); i++) {
-		type = a[i];
-		set.add(s, type);
-		list.remove(l, type);
+	if(string != "") {
+		a = string.split("%", string);
+		for(i = 0; i < array.getSize(a); i++) {
+			type = a[i];
+			set.add(s, type);
+			list.remove(l, type);
+		}
 	}
 	player_id = player.getValidId(player_or_id);
 	map.add($done_entities, player_id, s);

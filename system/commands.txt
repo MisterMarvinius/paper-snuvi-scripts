@@ -206,6 +206,11 @@ prefix_party = "§5Party";
 prefix_skill = "§2Skill";
 
 initPlotFlags();
+initAllSounds();
+allsounds_list = getAllSounds();
+allsounds_indizes = map.new();
+allsounds_uuids = list.new();
+allsounds_uuids_cross_check = list.new();
 
 party_ids = getScriptVar("party_ids");
 if(party_ids == null) {
@@ -357,7 +362,7 @@ set.add(not_blocked_cmd, "quest");
 set.add(not_blocked_cmd, "msg");
 set.add(not_blocked_cmd, "help");
 
-rank_array = array.new(25, 2);
+rank_array = array.new(28, 2);
 //Playtime
 rank.add(0, "rank.owner", "4Owner");
 rank.add(1, "rank.admin", "cAdmin");
@@ -384,6 +389,9 @@ rank.add(21, "rank.commander", "eCommander");
 rank.add(22, "rank.volunteer", "eVolunteer");
 rank.add(23, "rank.settler", "eSettler");
 rank.add(24, "rank.user", "3User");
+rank.add(25, "rank.challenger", "5Challenger");
+rank.add(26, "rank.mobhunter", "6Mobhunter");
+rank.add(27, "rank.collector", "2Collector");
 setScriptVar("ranks", rank_array);
 
 month_array = array.new(12, 2);
@@ -566,6 +574,7 @@ event.load("snuvi_click");
 event.load("inv_close");
 event.load("missing_perm");
 event.load("missing_command");
+event.load("command");
 event.load("custom_command");
 event.load("block_click");
 event.load("player_quit");
@@ -574,6 +583,19 @@ event.load("vote");
 msg("dev", text.new("§bCommands §rloaded."));
 @wait
 wait();
+if(event == "command") {
+	if(string.startsWith(permission, "worldedit", 0)) {
+		if(perm.has("creative.we", player)) {
+			world_name = world.getName(loc.getWorld(entity.getLocation(player)));
+			if(!world.isCreativeName(world_name)) {
+				cancel = true;
+				msg.prefix(player, prefix_commands, "You are not in the creative world.");
+				goto("wait");
+			}
+		}
+	}
+	goto("wait");
+}
 if(event == "custom_command") {
 	//Permission-Check
 	command = string.toLowerCase(command);
@@ -3511,48 +3533,117 @@ goto("perm_syntax");
 @allsounds
 if(size == 0) {
 	msg.prefix(player, prefix_commands, "§r/allsounds...");
-	msg.string(player, "§e - start");
-	msg.string(player, "§e - stop");
+	msg.string(player, "§e - start §rStart all sounds loop");
+	msg.string(player, "§e - stop §rStop all sounds loop");
+	msg.string(player, "§e - play <sound> §rPlay a sound");
+	msg.string(player, "§e - show [page] §rClick on a sound");
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "start") {
-	if(!map.exists(sounds_map)) {
-		sounds_map = map.new();
-	}
 	player_uuid = player.getUuid(player);
-	script_id = map.get(sounds_map, player_uuid);
-	if(script_id != null) {
-		script = script.getFromId(script_id);
-		if(script != null) {
-			msg.prefix(player, prefix_commands, "Sounds already started.");
+	if(map.contains(allsounds_indizes, player_uuid)) {
+		msg.prefix(player, prefix_commands, "All sounds already started.");
+		goto("wait");
+	}
+	map.add(allsounds_indizes, player_uuid, 0);
+	list.add(allsounds_uuids, player_uuid);
+	list.add(allsounds_uuids_cross_check, player_uuid);
+	msg.prefix(player, prefix_commands, "All sounds started.");
+	goto("playallsounds");
+}
+if(arg0 == "stop") {
+	player_uuid = player.getUuid(player);
+	if(!list.contains(allsounds_uuids_cross_check, player_uuid)) {
+		msg.prefix(player, prefix_commands, "No sounds playing.");
+		goto("wait");
+	}
+	map.remove(allsounds_indizes, player_uuid);
+	list.remove(allsounds_uuids_cross_check, player_uuid);
+	msg.prefix(player, prefix_commands, "All sounds stopped.");
+	goto("wait");
+}
+if(arg0 == "play") {
+	if(size != 2) {
+		msg.prefix(player, prefix_perms, "/allsounds player <sound>");
+		goto("wait");
+	}
+	sound_name = list.getIndex(args, 1);
+	sound_name = string.replace(sound_name, "minecraft:", "");
+	sound_name = string.replace(sound_name, "[.]", "_");
+	sound_name = string.toUpperCase(sound_name);
+	if(!list.contains(allsounds_list, sound_name)) {
+		msg.prefix(sender, prefix_commands, "Not a known sound.");
+		goto("wait");
+	}
+	sound = sound.get(sound_name);
+	sound.spawnForPlayer(player, sound, sound_category_master);
+	goto("wait");
+}
+if(arg0 == "show") {
+	amount_sounds = list.getSize(allsounds_list);
+	max_side = amount_sounds / 10;
+	if(size == 1) {
+		side = 1;
+		print_side = side - 1;
+	} else {
+		side = list.getIndex(args, 1);
+		if(!isDouble(side)) {
+			msg.prefix(sender, prefix_commands, "/allsounds show [side]");
+			goto("wait");
+		}
+		print_side = side - 1;
+		if(print_side < 0 || print_side > max_side) {
+			msg.prefix(sender, prefix_commands, string.concat("Possible: 1 - ", string.number(math.roundDown(max_side + 1))));
 			goto("wait");
 		}
 	}
-	script = script.start("system/playsounds");
-	script.setVar(script, "player", player);
-	map.add(sounds_map, player.getUuid(player), script.getId(script));
-	msg.prefix(player, prefix_commands, "Sounds started.");
+	msg.string(sender, string.concat("§a --- All Sounds ", string.number(side), " ---"));
+	for(i = print_side * 10; i < print_side * 10 + 10; i++) {
+		if(i < amount_sounds) {
+			sound_name = list.getIndex(allsounds_list, i);
+			msg(sender, string.getClickText(string.concat(" ", sound_name), string.concat("/allsounds play ", sound_name)));
+		}
+	}
+	if(side == 1) {
+		backward = text.new("§c<<Backward<<");
+		forward = string.getClickText("§b>>Forward>>", string.concat("/allsounds show ", side + 1));
+	} elseif(side > max_side) {
+		backward = string.getClickText("§b<<Backward<<", string.concat("/allsounds show ", side - 1));
+		forward = text.new("§c>>Forward>>");
+	} else {
+		backward = string.getClickText("§b<<Backward<<", string.concat("/allsounds show ", side - 1));
+		forward = string.getClickText("§b>>Forward>>", string.concat("/allsounds show ", side + 1));
+	}
+	msg(sender, text.merge(backward, text.new(" "), forward));
 	goto("wait");
 }
-if(arg0 == "stop") {
-	if(!map.exists(sounds_map)) {
-		sounds_map = map.new();
-	}
-	script_id = map.get(sounds_map, player.getUuid(player));
-	if(script_id == null) {
-		msg.prefix(player, prefix_commands, "No sounds playing.");
-		goto("wait");
-	}
-	script = script.getFromId(script_id);
-	if(script == null) {
-		msg.prefix(player, prefix_commands, "No sounds playing.");
-		goto("wait");
-	}
-	script.term(script);
-	msg.prefix(player, prefix_commands, "Sounds stopped.");
+goto("wait");
+
+@playallsounds
+player_uuid = list.getIndex(allsounds_uuids, 0);
+list.removeIndex(allsounds_uuids, 0);
+if(!list.contains(allsounds_uuids_cross_check, player_uuid)) {
 	goto("wait");
 }
+player = player.get(player_uuid);
+if(player == null) {
+	map.remove(allsounds_indizes, player_uuid);
+	goto("wait");
+}
+i = map.get(allsounds_indizes, player_uuid);
+if(i == list.getSize(allsounds_list)) {
+	map.remove(allsounds_indizes, player_uuid);
+	msg.prefix(player, prefix_commands, "All sounds finished.");
+	goto("wait");
+}
+sound_name = list.getIndex(allsounds_list, i);
+sound = sound.get(sound_name);
+sound.spawnForPlayer(player, sound, sound_category_master);
+msg.string(player, sound_name);
+map.add(allsounds_indizes, player_uuid, i + 1);
+list.add(allsounds_uuids, player_uuid);
+sgoto(100, "playallsounds");
 goto("wait");
 
 @weather
@@ -3878,9 +3969,9 @@ if(size == 0) {
 msg.string(sender, string.concat("§a --- Help ", string.number(side), " ---"));
 for(i = print_side * 10; i < print_side * 10 + 10; i++) {
 	if(i < temp_size) {
-		command = list.getIndex(temp_list, i);
-		command = string.getHoverText(command, map.getOrDefault(command_map, command, ""));
-		msg(sender, text.merge(text.new(" /"), command));
+		command_string = list.getIndex(temp_list, i);
+		command = string.getHoverText(command_string, map.getOrDefault(command_map, command_string, ""));
+		msg(sender, text.merge(text.new(" /"), text.suggest(command, string.concat("/", command_string))));
 	}
 }
 if(side == 1) {
@@ -3936,6 +4027,12 @@ elseif(arg0 == "challenges") {
 		script.term(script);
 	}
 	script.startNamed("Challenges", "utils/u_error", "survival/challenges", "utils/u_general");
+	
+	script = script.get("AllDamageTypes");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("AllDamageTypes", "utils/u_error", "challenges/all_damage_types", "utils/u_general");
 	
 	script = script.get("AllEntities");
 	if(script != null) {
@@ -9012,8 +9109,8 @@ function tip.remove(tipp_key) {
 
 function tip.getAll() {
 	list = list.new();
-	smt = databank.prepare("SELECT * FROM tipps;");
-	result = databank.execute(smt);
+	stmt = databank.prepare("SELECT * FROM tipps;");
+	result = databank.execute(stmt);
 	while(databank.next(result)) {
 		a = array.new(3);
 		a[0] = databank.getString(result, 1);
@@ -9021,7 +9118,7 @@ function tip.getAll() {
 		a[2] = databank.getBool(result, 3);
 		list.add(list, a);
 	}
-	databank.close(smt);
+	databank.close(stmt);
 	databank.close(result);
 	return list;
 }

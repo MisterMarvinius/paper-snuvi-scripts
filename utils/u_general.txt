@@ -295,7 +295,10 @@ function getDateString(time) { //Deprecated
 
 function time.getDateString(time) {
 	calendar = time.new(time);
-	return string.concat(string.number(time.getDay(calendar)), ".", string.number(time.getMonth(calendar)), ".", string.number(time.getYear(calendar)));
+	day = time.getStringFromNumber(time.getDay(calendar));
+	month = time.getStringFromNumber(time.getMonth(calendar));
+	year = string.number(time.getYear(calendar));
+	return string.concat(day, ".", month, ".", year);
 }
 
 function time.getCal(year, month, day, hour, minute, second) {
@@ -2152,6 +2155,39 @@ function player.setHeadName(player) {
 	entity.setName(player, text.new(string.concat(live_string, nickname, clan_string)));
 }
 
+function player.setAIChallengeAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.ai.amount", amount);
+	config.saveAsync(config);
+}
+
+function player.getAIhallengeAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "cha.ai.amount", 0);
+}
+
+function player.setAEChallengeAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.ae.amount", amount);
+	config.saveAsync(config);
+}
+
+function player.getAEChallengeAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "cha.ae.amount", 0);
+}
+
+function player.setADTChallengeAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.dtype.amount", amount);
+	config.saveAsync(config);
+}
+
+function player.getADTChallengeAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "cha.dtype.amount", 0);
+}
+
 function player.setAdventureAmounts(player_or_id, amount) {
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "adventures", amount);
@@ -3195,8 +3231,18 @@ function rank.checkCriteria(player, tech_name) {
 	if(tech_name == "rank.legend") {
 		return player.getTotalPlaytime(player) >= 42000; //700 Stunden
 	}
+	//Challenges
+	if(tech_name == "rank.challenger") {
+		return player.getADTChallengeAmounts(player) >= 1;
+	}
+	if(tech_name == "rank.mobhunter") {
+		return player.getAEChallengeAmounts(player) >= 1;
+	}
+	if(tech_name == "rank.collector") {
+		return player.getAIhallengeAmounts(player) >= 1;
+	}
 	//Adventure
-	if(tech_name == "rank.adventurer") {
+	/*if(tech_name == "rank.adventurer") {
 		return player.getAdventureAmounts(player) >= 1;
 	}
 	if(tech_name == "rank.explorer") {
@@ -3204,9 +3250,9 @@ function rank.checkCriteria(player, tech_name) {
 	}
 	if(tech_name == "rank.pioneer") {
 		return player.getAdventureAmounts(player) >= 10;
-	}
+	}*/
 	//Clans
-	if(tech_name == "rank.commander") {
+	/*if(tech_name == "rank.commander") {
 		if(player.isClanLeader(player)) {
 			clan_id = player.getClanId(player);
 			return clan.getMembersAmount(clan_id) >= 5;
@@ -3226,7 +3272,7 @@ function rank.checkCriteria(player, tech_name) {
 			return clan.getMembersAmount(clan_id) >= 15;
 		}
 		return false;
-	}
+	}*/
 	//Quests
 	if(tech_name == "rank.volunteer") {
 		return quest.getCounter(player) >= 15;

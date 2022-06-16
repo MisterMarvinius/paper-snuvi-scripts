@@ -3,8 +3,16 @@ event.load("snuvi_click");
 spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
 
 lore_list = list.new();
+list.add(lore_list, text.new("Receive all types of damage in the given order."));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(4096), " + 1 Amber")));
+list.add(lore_list, text.new(""));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+all_damage_types = item.create("CACTUS", 1, "§cAll Damage Types", lore_list);
+
+lore_list = list.new();
 list.add(lore_list, text.new("Kill all entities in the given order."));
-list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(8192), " + 1 Amber")));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(8192), " + 2 Amber")));
 list.add(lore_list, text.new(""));
 list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
 list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
@@ -13,16 +21,19 @@ item.addFlag(all_entities, "HIDE_ATTRIBUTES");
 
 lore_list = list.new();
 list.add(lore_list, text.new("Collect all items in the given order."));
-list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(32768), " + 1 Amber")));
+list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(32768), " + 4 Amber")));
 list.add(lore_list, text.new(""));
 list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
 list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
 all_items = item.create("CHEST_MINECART", 1, "§cAll Items", lore_list);
 
-butcher_inv = inv.new("222222222", text.new("Challenges: Butcher"));
+lumberjack_inv = inv.new("200000000", text.new("Challenges: Lumberjack"));
+inv.setItem(lumberjack_inv, 0, all_damage_types);
+
+butcher_inv = inv.new("200000000", text.new("Challenges: Butcher"));
 inv.setItem(butcher_inv, 0, all_entities);
 
-librarian_inv = inv.new("222222222", text.new("Challenges: Librarian"));
+librarian_inv = inv.new("200000000", text.new("Challenges: Librarian"));
 inv.setItem(librarian_inv, 0, all_items);
 
 msg("dev", text.new("§bChallenges §rloaded."));
@@ -36,6 +47,10 @@ item = inv.getItem(inv, inv_slot);
 item.removeFlag(item, "HIDE_DESTROYS");
 title_string = string.text(inv_title);
 if(item == spyglass) {
+	if(title_string == "Lumberjack") {
+		inv.open(lumberjack_inv, player);
+		goto("wait");
+	}
 	if(title_string == "Butcher") {
 		inv.open(butcher_inv, player);
 		goto("wait");
