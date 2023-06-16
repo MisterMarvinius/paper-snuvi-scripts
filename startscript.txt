@@ -60,9 +60,10 @@ script.startNamed("TicTacToe", "utils/u_error", "minigames/tictactoe/tictactoe",
 script.startNamed("TipLoop", "utils/u_error", "system/tiploop", "utils/u_general");
 script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
 
-whitelist.disable();
+//whitelist.disable();
 //setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cMentorMentos §7- §bCommunity Server");
-setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cNew: §a§lCHALLENGES");
+//setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cNew: §a§lCHALLENGES");
+setMOTD("§eMundus Crassus §f- [§d1.18.2§f]\n§cPrivate");
 
 error.setConsolePrint(false);
 term();

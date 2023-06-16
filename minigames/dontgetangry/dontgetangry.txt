@@ -1,0 +1,843 @@
+rankingtable = "dgaranks";
+gamename = "§cDontGetAngry";
+game_short = "dga";
+game_tab = "§cDGA";
+minigame.setSpecificLobbyHandling(true);
+minigame.setIndivStartCheck(true);
+
+air_mat = material.getAir();
+
+player_team = map.new(); //player_uuid -> team
+team_player = map.new(); //team -> player_uuid
+active_teams = list.new(); //to see which team is next in row
+token_no_possible_move = set.new(); //to count the amount of tokens with no possible move. if the sum is 4, it's the next players turn
+rule_jump_over_tokens_in_target = false;
+amount_ai_players = 0;
+
+resetRuleSigns();
+
+minigame.initStart();
+goto("simplelobby");
+
+@specificLobbyHandling
+if(event == "block_click") {
+	if(block.getLocation(block) == rule_1_loc) {
+		rule_jump_over_tokens_in_target = !rule_jump_over_tokens_in_target;
+		if(rule_jump_over_tokens_in_target) {
+			s = "§aTrue";
+		} else {
+			s = "§cFalse";
+		}
+		sign.setString(block, 3, s);
+		return;
+	}
+	if(block.getLocation(block) == rule_2_loc) {
+		amount_ai_players++;
+		if(amount_ai_players >= minigame.getMaxPlayers()) {
+			amount_ai_players = 0;
+		}
+		sign.setString(block, 3, string.number(amount_ai_players));
+		if(!minigame.isStarting()) {
+			goto("startcountdown");
+		}
+	}
+}
+return;
+
+function minigame.canStartIndiv() {
+	player_list = minigame.getPlayers($script_id);
+	p_amount = list.getSize(player_list) + $amount_ai_players;
+	return p_amount >= minigame.getMinPlayers();
+}
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+minigame.speakAll(gamename, "The game has started.");
+
+resetGameField();
+
+dice_item = read.item("{Count:1b,id:'minecraft:player_head',tag:{SkullOwner:{Id:[I;-635467755,-1356247480,-1843761069,-673139483],Properties:{textures:[{Signature:'ZVj07KMc/Ia0e34lkmfkiih1dUvgS+tfO3ciWhHv6rVOnVfeKkasYKSMi3He6kgF/q+wn7ksdvelHfjictleX8XSrAtFHPuVhZPEbJtku2w+RKHWnhkP1wnMLZZugKu44cct8nPl5StQ+UHl1IxQ9cFndC6qOhyLsW5zrySgDtyw6qacB4uNqoXCHyMxXlXntkgFCPv98CjB1GAHWvg7f+qIDbTYfZzinpePJvA1cxqX9bsO1tVkmecg9MW4HdNhptbL9UyrnON3o5hIBxNTyZ2bAqfGuuneTzMCgHbfBNS6EYXidMpBAem22nf8j16P6j1NBJV/UtekAL30BF9sdcJqEcosQZRIZ9z5S9RGQqBVr7YcWbPgJHAZDUroPeXIsJo0hyWg/5X6R1oeSgazaav/KxE/rduABhdXWp9bvJpcvUY4ivJ1m4tNggSGWX9SzYTIFhovnPFvBIGIjP3naPGUrcZc6sJuJYXT3ZLvpn+WnEQs19LMQOpmBTkeN9H5/SzZTm3PgfkZIhvWuX++Hj7wDn0FEya1dZBJgbcKQTCA6WUw0ymYdMwz86Ceau8Qo+2uxY00DFXlu9q5juybgAVU9K590Rzn3GRGF2x19jSt/uMxbrbuDUvKjATBgaAoS27iVCgEuQOcn7I9SuulL8xmhMLxDJrJZGvflF70zig=',Value:'eyJ0aW1lc3RhbXAiOjE1MTE0Njc0NDEzOTEsInByb2ZpbGVJZCI6ImRhMWY4ODE1YWYyOTRlNDg5MjFhNzA1M2Q3ZTBiNGU1IiwicHJvZmlsZU5hbWUiOiJBekJhbmRpdDIwMDAiLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzFmYTk2MDUwYTQ4M2JiODhhMWVkYmVhZDRkOWMxZGIzMWY3NTY3YjA3NjVkZTQ3ODk3YzU3MjI5MmZkZDcxYjEifX19'}]}}}}");
+amount_players = list.getSize(player_list);
+for(i = 0; i < amount_players; i++) {
+	//prepare players
+	p = player.get(list.getIndex(player_list, i));
+	entity.teleport(p, map.get($tploc, i));
+	player.setFly(p, true);
+	player.giveItem(p, dice_item);
+	//assign team
+	p_uuid = player.getUuid(p);
+	map.add(player_team, p_uuid, i);
+	map.add(team_player, i, p_uuid);
+	list.add(active_teams, i);
+	color = map.get(colorcode, i);
+	minigame.setTabName(p, game_tab, color);
+}
+
+if(amount_players + amount_ai_players > minigame.getMaxPlayers()) {
+	amount_ai_players  = minigame.getMaxPlayers() - amount_players;
+}
+for(h = 0; h < amount_ai_players; h++) {
+	//assign team
+	team = h + i;
+	map.add(team_player, team, "AI");
+	list.add(active_teams, team);
+}
+
+/* There are two phases.
+Phase 0: player needs to roll the dice
+Phase 1: player needs to move a token
+*/
+
+setNextTeam(false);
+
+@wait
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("wait");
+	}
+	player = entity;
+}
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@block_click
+if(slot.isOffHand(hand)) {
+	goto("wait");
+}
+team = getTeamFromPlayer(player);
+if(action == "RIGHT_CLICK_BLOCK") {
+	if(!isNextTeam(player)) {
+		msgTeam(team, "It's not your turn.");
+		goto("wait");
+	}
+	block_loc = block.getLocation(block);
+	//Phase 0
+	item = living.getHand(player);
+	own_mat = getTokenMat(team);
+	if((block_loc == dice_loc || item.isType(item, "PLAYER_HEAD")) && block.getType(block) != own_mat) {
+		if(phase != 0) {
+			msgTeam(team, "Already diced. Move a token.");
+			goto("wait");
+		}
+		rollDice(team);
+		goto("wait");
+	}
+	//Phase 1
+	if(phase != 1) {
+		msgTeam(team, "Roll the dice first. Then choose a token to move.");
+		goto("wait");
+	}
+	if(!isOwnToken(team, block)) {
+		msgTeam(team, "Choose one of your tokens to move.");
+		goto("wait");
+	}
+	tokens_in_stable = getTokensInOwnStable(team);
+	if(isOwnStartBlockedByOwnToken(team) && tokens_in_stable > 0) {
+		start_block = getOwnStartBlock(team);
+		if(block_loc != block.getLocation(start_block)) {
+			msgTeam(team, "You need to move with your token at the start block.");
+			goto("wait");
+		}
+	}
+	if(isTokenInOwnStable(block_loc, team)) {
+		if(diced_dots != 6) {
+			msgTeam(team, "You need a 6 to move a token out of the stable.");
+			goto("wait");
+		}
+		to_block = getOwnStartBlock(team);
+		doMove(team, block, to_block);
+		goto("wait");
+	}
+	if(isTokenInOwnTarget(block_loc, team)) {
+		to_block = getTargetBlockStartingInTarget(team, block);
+		goto("checkmove");
+	}
+	//token on route is clicked
+	if(diced_dots == 6) {
+		if(tokens_in_stable > 0 && !isOwnStartBlockedByOwnToken(team)) {
+			msgTeam(team, "You diced 6. Choose a token from the stable.");
+			goto("wait");
+		}
+	}
+	to_block = getTargetBlockStartingOnRoute(team, block);
+	goto("checkmove");
+}
+if(action == "RIGHT_CLICK_AIR") {
+	item = living.getHand(player);
+	if(item.isType(item, "PLAYER_HEAD")) {
+		if(!isNextTeam(player)) {
+			msgTeam(team, "It's not your turn.");
+			goto("wait");
+		}
+		if(phase != 0) {
+			msgTeam(team, "Already diced. Move a token.");
+			goto("wait");
+		}
+		rollDice(team);
+	}
+	goto("wait");
+}
+goto("wait");
+
+@checkmove
+if(to_block != null) {
+	doMove(team, block, to_block);
+	goto("wait");
+}
+set.add(token_no_possible_move, block_loc);
+if(getTotalBlockedTokens() != 4) {
+	msgTeam(team, "Move not possible. Choose another token.");
+	goto("wait");
+}
+nomovepossible(team);
+goto("wait");
+
+//all 4 tokens cannot do a possible move
+function nomovepossible(team) {
+	team_name = getTeamName(team);
+	$phase = 0;
+	if($diced_dots == 6) {
+		$dice_count--;
+		minigame.speakAll($gamename, string.concat("No move possible but diced a 6. Dice again ", team_name, "§r."));
+		if(isTeamAi(team)) {
+			rollDice(team);
+		}
+		return;
+	}
+	if($totalblocked == 4) {
+		minigame.speakAll($gamename, string.concat("No move possible. Dice again ", team_name, "§r."));
+		if(isTeamAi(team)) {
+			rollDice(team);
+		}
+		return;
+	}
+	minigame.speakAll($gamename, string.concat("No move possible. Next player."));
+	setNextTeam(false);
+}
+
+@block_break
+@block_place
+@entity_damage
+cancel = true;
+goto("wait");
+
+function isTeamAi(team) {
+	return getPlayerFromTeam(team) == "AI";
+}
+
+function msgTeam(team, message) {
+	if(isTeamAi(team)) {
+		return;
+	}
+	player = getPlayerFromTeam(team);
+	msg.prefix(player, $gamename, message);
+}
+
+function getTargetBlockStartingOnRoute(team, from_block) {
+	from_loc = block.getLocation(from_block);
+	route_index = array.getIndexOf($route, from_loc);
+	new_route_index = route_index + $diced_dots;
+	
+	//if target index is passed, follow target route (but don't overjump in target)
+	if(isTargetIndexPassed(team, route_index, new_route_index)) {
+		target_index = getOwnTargetIndex(team);
+		rest_count = $diced_dots - (target_index - route_index);
+		to_index = rest_count - 1;
+		if(to_index > 3) {
+			return null;
+		}
+		if(isWayToTargetOverjumped(team, 0, to_index)) {
+			return null;
+		}
+		target_locs = getTargetLocs(team);
+		target_loc = target_locs[to_index];
+	} else {
+		route_size = array.getSize($route);
+		if(new_route_index >= route_size) {
+			new_route_index -= route_size;
+		}
+		target_loc = $route[new_route_index];
+	}
+	target_block = block.get(target_loc);
+	
+	//check if target is free
+	if(isBlockOccupiedByOwnToken(target_block, team)) {
+		return null;
+	}
+	return target_block;
+}
+
+function getTargetBlockStartingInTarget(team, from_block) {
+	target_locs = getTargetLocs(team);
+	from_loc = block.getLocation(from_block);
+	from_index = array.getIndexOf(target_locs, from_loc);
+	to_index = from_index + $diced_dots;
+	if(to_index > 3) {
+		return null;
+	}
+	if(isWayToTargetOverjumped(team, from_index + 1, to_index)) {
+		return null;
+	}
+	target_block = block.get(target_locs[to_index]);
+	if(isBlockOccupiedByOwnToken(target_block, team)) {
+		return null;
+	}
+	return target_block;
+}
+
+function isWayToTargetOverjumped(team, from_index, to_index) {
+	if(!$rule_jump_over_tokens_in_target) {
+		return false;
+	}
+	target_locs = getTargetLocs(team);
+	for(i = from_index; i < to_index; i++) {
+		b = block.get(target_locs[i]);
+		if(!block.isAir(b)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function doMove(team, from_block, to_block) {
+	//if block is occupied, throw token out of game. the condition to check if target is occupied by own token is checked earlier
+	if(!block.isAir(to_block)) {
+		token_mat = block.getType(to_block);
+		opp_team = getTeamFromToken(token_mat);
+		free_block = getFreeBlockInStable(opp_team);
+		block.setMaterial(free_block, token_mat);
+		minigame.speakAll($gamename, string.concat("A token from ", getTeamName(opp_team), " §rteam was thrown."));
+	}
+	
+	//do move
+	block.setMaterial(from_block, $air_mat);
+	own_mat = getTokenMat(team);
+	block.setMaterial(to_block, own_mat);
+	
+	if(isTargetFull(team)) {
+		list.remove($active_teams, team);
+		finished(team);
+		setNextTeam(true);
+		return;
+	}
+	
+	if($diced_dots == 6) {
+		$phase = 0;
+		$dice_count = 0;
+		minigame.speakAll($gamename, string.concat(getTeamName(team), " §rdiced a 6 and can dice again."));
+		if(isTeamAi(team)) {
+			rollDice(team);
+		}
+		return;
+	}
+	
+	setNextTeam(false);
+}
+
+function finished(team) {
+	if($first_finish == null) {
+		$first_finish = team;
+		minigame.speakAll($gamename, string.concat(getTeamName(team), " §rhas won."));
+	}
+	
+	size = list.getSize($active_teams);
+	if(size == 1) {
+		script = script.getFromId($script_id);
+		for(i = 0; i < list.getSize($player_list); i++) {
+			p = player.get(list.getIndex($player_list, i));
+			t = getTeamFromPlayer(p);
+			if(t == $first_finish) {
+				showstats(p, true);
+			} else {
+				showstats(p, false);
+			}
+			player.setFly(p, false);
+		}
+		minigame.kickAllPlayers(script);
+		minigame.term(script, $gamesignloc);
+		term();
+	}
+}
+
+@player_quit
+@player_giveup
+team = getTeamFromPlayer(player);
+if(first_finish != null && team == first_finish) {
+	showstats(p, true);
+	goto("wait");
+}
+team = getTeamFromPlayer(player);
+minigame.speakAll(gamename, string.concat(getTeamName(team), " §ehas left the game."));
+player.setFly(player, false);
+showstats(player, false);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+
+//comment this block out to test the game with AI. start the game, set 2 or more AI players and then leave to run the game quickly through with AI
+if(list.getSize(player_list) == 0) {
+	minigame.term(script, $gamesignloc);
+	term();
+}
+//-------
+
+removeTeam(team);
+goto("wait");
+
+function removeSpecificToken(team) {
+	token_mat = getTokenMat(team);
+	for(i = 0; i < array.getSize($route); i++) {
+		b = block.get($route[i]);
+		if(block.getType(b) == token_mat) {
+			block.setMaterial(b, $air_mat);
+		}
+	}
+}
+
+function showstats(player, won) { //Player player, Boolean won
+	player_id = player.getId(player);
+	last_record = ranking.getPoints($rankingtable, player_id);
+	team = getTeamFromPlayer(player);
+	finished_tokens = getTokensInOwnTarget(team);
+	new_record = last_record + finished_tokens;
+	ranking.setPoints($rankingtable, player_id, new_record);
+	
+	won_games = minigame.getWon(player_id, $game_short);
+	if(won) {
+		won_games++;
+		minigame.setWon(player_id, $game_short, won_games);
+	}
+	played_games = minigame.getPlayed(player_id, $game_short) + 1;
+	minigame.setPlayed(player_id, $game_short, played_games);
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Finished tokens", string.number(new_record));
+	minigame.statsLine(player, "§e", "Won games", string.number(won_games));
+	minigame.statsLine(player, "§e", "Played games", string.number(played_games));
+	if(played_games != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((won_games / played_games) * 100, 2)), "%"));
+	}
+}
+
+function getFreeBlockInStable(team) {
+	stable_locs = getStableLocs(team);
+	for(i = 0; i < array.getSize(stable_locs); i++) {
+		b = block.get(stable_locs[i]);
+		if(block.isAir(b)) {
+			return b;
+		}
+	}
+	return null;
+}
+
+function isTargetIndexPassed(team, from_route_index, to_route_index) {
+	target_index = getOwnTargetIndex(team);
+	if(from_route_index > target_index) {
+		return false;
+	}
+	return to_route_index > target_index;
+}
+
+function getOwnStartBlock(team) {
+	index = map.get($startindexes, team);
+	return block.get($route[index]);
+}
+
+function getOwnStartIndex(team) {
+	return map.get($startindexes, team);
+}
+
+function getOwnTargetIndex(team) {
+	return map.get($targetindexes, team);
+}
+
+function isOwnToken(team, block) {
+	own_mat = getTokenMat(team);
+	block_mat = block.getType(block);
+	return own_mat == block_mat;
+}
+
+function getStableLocs(team) {
+	return map.get($stables, team);
+}
+
+function getTargetLocs(team) {
+	return map.get($target_routes, team);
+}
+
+function isTargetFull(team) {
+	target_locs = getTargetLocs(team);
+	for(i = 0; i < array.getSize(target_locs); i++) {
+		b = block.get(target_locs[i]);
+		if(block.isAir(b)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isTokenInOwnStable(token_loc, team) {
+	stable_locs = getStableLocs(team);
+	return array.contains(stable_locs, token_loc);
+}
+
+function isTokenInOwnTarget(token_loc, team) {
+	target_locs = getTargetLocs(team);
+	return array.contains(target_locs, token_loc);
+}
+
+function getTeamFromToken(token_mat) {
+	return map.get($tokens_team, token_mat);
+}
+
+function getTeamFromPlayer(player) {
+	return map.get($player_team, player.getUuid(player));
+}
+
+function getPlayerFromTeam(team) {
+	p_uuid = map.get($team_player, team);
+	if(p_uuid == "AI") {
+		return p_uuid;
+	}
+	return player.get(p_uuid);
+}
+
+/* Conzept of active team list
+next_team_index: team x
+0: team 0
+1: team 1
+2: team 3
+*/
+
+function setNextTeam(bool_actual_team_removed) {
+	$phase = 0;
+	$dice_count = 0;
+	amount_active_teams = list.getSize($active_teams);
+	if($next_team == null) {
+		//init at start
+		$next_team_index = math.random(0, amount_active_teams - 1);
+		$next_team = list.getIndex($active_teams, $next_team_index);
+	} else {
+		//set next during game
+		if(!bool_actual_team_removed) {
+			$next_team_index++;
+		}
+		if($next_team_index >= amount_active_teams) {
+			$next_team_index = 0;
+		}
+		$next_team = list.getIndex($active_teams, $next_team_index);
+	}
+	
+	//announce
+	next_team_name = getTeamName($next_team);
+	if(string.endsWith(next_team_name, "s")) {
+		minigame.speakAll($gamename, string.concat("It's ", next_team_name, "' §rturn."));
+	} else {
+		minigame.speakAll($gamename, string.concat("It's ", next_team_name, "'s §rturn."));
+	}
+	if(isTeamAi($next_team)) {
+		rollDice($next_team);
+		return;
+	}
+	next_player = getPlayerFromTeam($next_team);
+	sound.spawnForPlayer(next_player, $pling_sound, $sound_category_ambient);
+}
+
+function removeTeam(team) {
+	list.remove($active_teams, team);
+	size = list.getSize($active_teams);
+	if(size == 1) {
+		last_team = list.getIndex($active_teams, 0);
+		finished(last_team);
+	}
+	removeSpecificToken(team);
+	if(team == $next_team) {
+		setNextTeam(true);
+	}
+}
+
+function isNextTeam(player) {
+	return getTeamFromPlayer(player) == $next_team;
+}
+
+function getColorCode(team) {
+	return map.get($colorcode, team);
+}
+
+function resetRuleSigns() {
+	sign.setString(block.get($rule_1_loc), 3, "§cFalse");
+	sign.setString(block.get($rule_2_loc), 3, "0");
+}
+
+function resetGameField() {
+	//reset route
+	for(i = 0; i < array.getSize($route); i++) {
+		b = block.get($route[i]);
+		block.setMaterial(b, $air_mat);
+	}
+	
+	for(team = 0; team < minigame.getMaxPlayers(); team++) {
+		//reset target routes
+		target_locs = getTargetLocs(team);
+		for(i = 0; i < array.getSize(target_locs); i++) {
+			b = block.get(target_locs[i]);
+			block.setMaterial(b, $air_mat);
+		}
+		
+		//reset stables
+		stable_locs = getStableLocs(team);
+		for(i = 0; i < array.getSize(stable_locs); i++) {
+			b = block.get(stable_locs[i]);
+			token = getTokenMat(team);
+			block.setMaterial(b, token);
+		}
+	}
+}
+
+function getTeamName(team) {
+	color = getColorCode(team);
+	if(isTeamAi(team)) {
+		return string.concat(color, "AI");
+	}
+	p_name = player.getName(getPlayerFromTeam(team));
+	return string.concat(color, p_name);
+}
+
+function rollDice(team) {
+	tokens_in_stable = getTokensInOwnStable(team);
+	
+	//if a token is at start block and other tokens are in the stable (there is the need to move with this token), the dice will throw only possible moves
+	if(isOwnStartBlockedByOwnToken(team) && tokens_in_stable > 0) {
+		poss_dots = getPossibleDots(team); //e.g. 2,3,5
+		r = math.random(0, list.getSize(poss_dots) - 1); //e.g. 1
+		$diced_dots = list.getIndex(poss_dots, r); //e.g. 3
+	} else {
+		$diced_dots = math.random(1, 6);
+	}
+	$dice_count++;
+	
+	//announce
+	team_name = getTeamName(team);
+	minigame.speakAll($gamename, string.concat(team_name, " §rdiced §c", string.number($diced_dots), "§r."));
+	if(!isTeamAi(team)) {
+		player = getPlayerFromTeam(team);
+		title.send(player, text.new(string.concat("§c", string.number($diced_dots))));
+	}
+	
+	//check if with this dice a move is possible
+	if($diced_dots != 6) {
+		not_movable_tokens = tokens_in_stable + getFinishedTokensInOwnTarget(team);
+		if(not_movable_tokens == 4) {
+			if($dice_count == 3) {
+				minigame.speakAll($gamename, string.concat("No move possible for 3 times. Next player."));
+				setNextTeam(false);
+				return;
+			}
+			minigame.speakAll($gamename, string.concat("No move possible. Dice again ", team_name, "§r."));
+			if(isTeamAi(team)) {
+				rollDice(team);
+			}
+			return;
+		}
+	}
+	
+	$phase = 1;
+	$totalblocked = recountTotalBlockedTokens(team);
+	msgTeam(team, "Choose a token to move.");
+	if(isTeamAi(team)) {
+		a = calculateAiMove(team);
+		if(a == null) {
+			return;
+		}
+		doMove(team, a[0], a[1]);
+	}
+}
+
+function calculateAiMove(team) {
+	a = array.new(2);
+	
+	//zugzwang from start block
+	tokens_in_stable = getTokensInOwnStable(team);
+	if(isOwnStartBlockedByOwnToken(team) && tokens_in_stable > 0) {
+		a[0] = getOwnStartBlock(team);
+		a[1] = getTargetBlockStartingOnRoute(team, a[0]);
+		return a;
+	}
+	
+	//zugzwang from stable
+	if($diced_dots == 6 && tokens_in_stable > 0) {
+		stable_locs = getStableLocs(team);
+		for(i = 0; i < array.getSize(stable_locs); i++) {
+			loc = stable_locs[i];
+			from_block = block.get(loc);
+			if(!block.isAir(from_block)) {
+				a[0] = from_block;
+				a[1] = getOwnStartBlock(team);
+				return a;
+			}
+		}
+	}
+	
+	//throw other tokens if possible
+	token_locs = getOwnTokenLocsOnRoute(team);
+	for(i = 0; i < list.getSize(token_locs); i++) {
+		from_block = block.get(list.getIndex(token_locs, i));
+		target_block = getTargetBlockStartingOnRoute(team, from_block);
+		if(target_block != null) {
+			if(!block.isAir(target_block) && !isOwnToken(team, target_block)) {
+				a[0] = from_block;
+				a[1] = target_block;
+				return a;
+			}
+		}
+	}
+	
+	//do progress in target if possible
+	target_locs = getTargetLocs(team);
+	for(i = array.getSize(target_locs) - 1; i > -1; i--) {
+		from_block = block.get(target_locs[i]);
+		if(!block.isAir(from_block)) {
+			target_block = getTargetBlockStartingInTarget(team, from_block);
+			if(target_block != null) {
+				a[0] = from_block;
+				a[1] = target_block;
+				return a;
+			}
+		}
+	}
+	
+	//choose token with most progress on route
+	for(i = list.getSize(token_locs) - 1; i > -1; i--) {
+		from_block = block.get(list.getIndex(token_locs, i));
+		target_block = getTargetBlockStartingOnRoute(team, from_block);
+		if(target_block != null) {
+			a[0] = from_block;
+			a[1] = target_block;
+			return a;
+		}
+	}
+	
+	nomovepossible(team);
+	return null;
+}
+
+//sorted by progress ascending
+function getOwnTokenLocsOnRoute(team) {
+	token_locs = list.new();
+	start_index = getOwnStartIndex(team);
+	target_index = getOwnTargetIndex(team);
+	own_mat = getTokenMat(team);
+	route_size = array.getSize($route);
+	for(i = 0; i < route_size; i++) {
+		route_index = start_index + i;
+		if(route_index >= route_size) {
+			route_index -= route_size;
+		}
+		loc = $route[route_index];
+		b = block.get(loc);
+		if(block.getType(b) == own_mat) {
+			list.add(token_locs, loc);
+		}
+	}
+	return token_locs;
+}
+
+function getPossibleDots(team) {
+	poss_dots = list.new();
+	own_mat = getTokenMat(team);
+	s_index = getOwnStartIndex(team);
+	for(i = 1; i < 7; i++) {
+		b = block.get($route[s_index + i]);
+		if(block.getType(b) != own_mat) {
+			list.add(poss_dots, i);
+		}
+	}
+	return poss_dots;
+}
+
+function recountTotalBlockedTokens(team) {
+	//clear
+	set.clear($token_no_possible_move);
+	//stable
+	if($diced_dots != 6) {
+		stable_locs = getStableLocs(team);
+		for(i = 0; i < array.getSize(stable_locs); i++) {
+			loc = stable_locs[i];
+			b = block.get(loc);
+			if(!block.isAir(b)) {
+				set.add($token_no_possible_move, loc);
+			}
+		}
+	}
+	//target
+	target_locs = getTargetLocs(team);
+	for(i = array.getSize(target_locs) - 1; i > -1; i--) {
+		loc = target_locs[i];
+		b = block.get(loc);
+		if(!block.isAir(b)) {
+			set.add($token_no_possible_move, loc);
+		}
+	}
+	return set.getSize($token_no_possible_move);
+}
+
+function getTotalBlockedTokens() {
+	return set.getSize($token_no_possible_move);
+}
+
+function getTokenMat(team) {
+	return map.get($tokens, team);
+}
+
+function isBlockOccupiedByOwnToken(block, team) {
+	own_mat = getTokenMat(team);
+	mat = block.getType(block);
+	return mat == own_mat;
+}
+
+function isOwnStartBlockedByOwnToken(team) {
+	return isBlockOccupiedByOwnToken(getOwnStartBlock(team), team);
+}
+
+function getTokensInOwnTarget(team) {
+	counter = 0;
+	target_locs = getTargetLocs(team);
+	for(i = 0; i < array.getSize(target_locs); i++) {
+		loc = target_locs[i];
+		b = block.get(loc);
+		if(!block.isAir(b)) {
+			counter++;
+		}
+	}
+	return counter;
+}
+
+function getTokensInOwnStable(team) {
+	counter = 0;
+	stable_locs = getStableLocs(team);
+	for(i = 0; i < array.getSize(stable_locs); i++) {
+		loc = stable_locs[i];
+		b = block.get(loc);
+		if(!block.isAir(b)) {
+			counter++;
+		}
+	}
+	return counter;
+}
+
+//a finished token is a token which reached its final position in the stable
+function getFinishedTokensInOwnTarget(team) {
+	counter = 0;
+	target_locs = getTargetLocs(team);
+	for(i = array.getSize(target_locs) - 1; i > -1; i--) {
+		loc = target_locs[i];
+		b = block.get(loc);
+		if(block.isAir(b)) {
+			break;
+		}
+		counter++;
+	}
+	return counter;
+}

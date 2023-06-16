@@ -40,48 +40,21 @@ function outofrange(loc){
 	return false;
 }
 
-function complex(a,b){
-	c = array.new(2);
-	c[0] = a;
-	c[1] = b;
-	return c;
-}
-
-function complex_mult(a,b){
-	c = array.new(2);
-	c[0] = a[0]*b[0] - a[1]*b[1];
-	c[1] = a[0]*b[1] + a[1]*b[0];
-	return c;
-}
-
-function complex_add(a,b){
-	a[0] += b[0];
-	a[1] += b[1];
-	return a;
-}
-
-function complex_abs(a){
-	return math.abs(a[0]) + math.abs(a[1]);
-}
-
 function Mandelbrot(){
 	Mandelbrot_array = array.new($size, $size);
 	for(i = 0; i < $size; i++){
 		c1 = 4*i/$size-2;
+		waitfor(2);
 		for(j = 0; j < $size; j++){
-			
-			if(j%50 == 0){
-				waitfor(2);
-			}
-			
 			c2 = 4*j/$size-2;
-			c = complex(c1,c2);
-			z = complex(0,0);
-			count = 0;
+			z1 = 0;
+			z2 = 0;
+			count = $iterations;
 			for(k = 0; k < $iterations; k++){
-				z = complex_add(complex_mult(z,z),c);
-				count++;
-				if(complex_abs(z) > 4){
+				z1 = math.pow(z1,2) - math.pow(z2,2) + c1;
+				z2 = 2*z1*z2 + c2;
+				if(math.pow(z1,2)+math.pow(z2,2) > 4){
+					count = k;
 					break;
 				}
 			}
@@ -104,18 +77,13 @@ function JuliaSet(block){
 		z1 = 4*i/$size-2;
 		for(j = 0; j < $size; j++){
 			
-			if(j%50 == 0){
-				waitfor(2);
-			}
-			
 			z2 = 4*j/$size-2;
-			z = complex(z1,z2);
-			c = complex(p1,p2);
-			count = 0;
+			count = $iterations;
 			for(k = 0; k < $iterations; k++){
-				z = complex_add(complex_mult(z,z),c);
-				count++;
-				if(complex_abs(z) > 4){
+				z1 = math.pow(z1,2) - math.pow(z2,2) + p1;
+				z2 = 2*z1*z2 + p2;
+				if(math.pow(z1,2)+math.pow(z2,2) > 4){
+					count = k;
 					break;
 				}
 			}

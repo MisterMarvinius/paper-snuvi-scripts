@@ -1,4 +1,5 @@
 @simplelobby
+ignoreGoto("checklobby");
 wait();
 if(event == "entity_damage") {
 	if(!isPlayer(entity)) {
@@ -74,13 +75,6 @@ if(!minigame.canStart()) {
 	minigame.waiting();
 	goto("simplelobby");
 }
-if(minigame.hasIndivStartCheck()) {
-	if(!minigame.canStartIndiv()) {
-		noticetime = minigame.getLobbyCounter();
-		ignoreGoto("checklobby");
-		goto("simplelobby");
-	}
-}
 minigame.setStarting(true);
 if(noticetime == 5) {
 	minigame.titleAll(gamename, mapname, 20, 60, 20);
@@ -110,7 +104,6 @@ for(i = 0; i < p_amount; i++) {
 	p = player.get(list.getIndex(player_list, i));
 	sound.spawnForPlayer(p, join_sound, sound_category_ambient);
 }
-ignoreGoto("checklobby");
 goto("simplelobby");
 
 @lobbycore
@@ -195,11 +188,10 @@ function minigame.setPlayerResetInCore(bool) {
 }
 
 function minigame.doPlayerResetInCore() {
-	bool = !$no_core_reset;
-	if(bool == null) {
-		bool = true;
+	if($no_core_reset == null) {
+		$no_core_reset = false;
 	}
-	return bool;
+	return !$no_core_reset;
 }
 
 function minigame.setManualStart(bool) {
@@ -294,6 +286,9 @@ function minigame.waiting() {
 }
 
 function minigame.canStart() {
+	if(minigame.hasIndivStartCheck()) {
+		return minigame.canStartIndiv();
+	}
 	player_list = minigame.getPlayers($script_id);
 	p_amount = list.getSize(player_list);
 	return p_amount >= minigame.getMinPlayers();

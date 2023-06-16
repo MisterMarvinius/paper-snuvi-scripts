@@ -15,8 +15,9 @@ inv.setItem(dieter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fGaumen
 mageguard_inv = inv.new("333333333", text.new("Quests: Mage Guard"));
 inv.setItem(mageguard_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage", null));
 
-farmer_inv = inv.new("200000000", text.new("Quests: Farmer"));
+farmer_inv = inv.new("220000000", text.new("Quests: Farmer"));
 inv.setItem(farmer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFirst Date", null));
+inv.setItem(farmer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fHarvest Season", null));
 //inv.setItem(farmer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fNeue Hose", null));
 
 anna_inv = inv.new("200000000", text.new("Quests: Anna"));
@@ -39,11 +40,10 @@ kunibert_inv = inv.new("333333333", text.new("Quests: Kunibert"));
 inv.setItem(kunibert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fKräutermeister", null));
 
 bauer_inv = inv.new("333333333", text.new("Quests: Bauer"));
-inv.setItem(bauer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fErntezeit", null));
-inv.setItem(bauer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fSpezialwunsch", null));
+inv.setItem(bauer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fSpezialwunsch", null));
 
-ulf_inv = inv.new("333333333", text.new("Quests: Ulf"));
-inv.setItem(ulf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIn Eile", null));
+baker_inv = inv.new("200000000", text.new("Quests: Baker"));
+inv.setItem(baker_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIn Haste", null));
 
 isabell_inv = inv.new("333333333", text.new("Quests: Isabell"));
 inv.setItem(isabell_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFür die Wissenschaft!", null));
@@ -105,8 +105,8 @@ if(item == quest_book) {
 		inv.open(kunibert_inv, player);
 	} elseif(entity_name == "Bauer") {
 		inv.open(bauer_inv, player);
-	} elseif(entity_name == "Ulf") {
-		inv.open(ulf_inv, player);
+	} elseif(title_string == "Baker") {
+		inv.open(baker_inv, player);
 	} elseif(entity_name == "Isabell") {
 		inv.open(isabell_inv, player);
 	} elseif(entity_name == "Olaf") {
@@ -153,6 +153,10 @@ if(title_string == "Quests: Mage Guard") {
 if(title_string == "Quests: Farmer") {
 	if(inv_slot == 0) {
 		quest.start(player, "story/admont/first_date");
+		goto("main");
+	}
+	if(inv_slot == 1) {
+		quest.start(player, "story/admont/harvest_season");
 		goto("main");
 	}
 	if(inv_slot == 1) {
@@ -222,9 +226,9 @@ if(title_string == "Quests: Bauer") {
 	}
 	goto("main");
 }
-if(title_string == "Quests: Ulf") {
+if(title_string == "Quests: Baker") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/in_eile");
+		quest.start(player, "story/admont/in_haste");
 		goto("main");
 	}
 	goto("main");

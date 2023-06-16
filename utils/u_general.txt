@@ -84,6 +84,24 @@ function array.sort(my_array, ascending) {
 	return my_array;
 }
 
+function array.contains(array, element) {
+	for(i = 0; i < array.getSize(array); i++) {
+		if(array[i] == element) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function array.getIndexOf(array, element) {
+	for(i = 0; i < array.getSize(array); i++) {
+		if(array[i] == element) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 function map.sort(map, ascending) {
 	size = map.getSize(map);
 	my_array = array.new(size, 2);
@@ -4150,6 +4168,16 @@ function scheduler.giveSingleItem(ticks, player, item) {
 	a[1] = ticks;
 	a[2] = player;
 	a[3] = item;
+	scheduler.add(a);
+}
+
+function scheduler.setBlockData(ticks, block, blockdata, block_update) {
+	a = array.new(5);
+	a[0] = 10;
+	a[1] = ticks;
+	a[2] = block;
+	a[3] = blockdata;
+	a[4] = block_update;
 	scheduler.add(a);
 }
 

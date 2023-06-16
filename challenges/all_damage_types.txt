@@ -124,7 +124,6 @@ if(!world.isSurvName(world_name)) {
 	goto("wait");
 }
 damage_type = string.toUpperCase(damage.getType(damage_source));
-snuvi.debug(damage_type);
 if(!isNextDamageType(player, damage_type)) {
 	goto("wait");
 }
@@ -141,7 +140,7 @@ if(new_type == null) {
 	player.setADTChallengeAmounts(player, player.getADTChallengeAmounts(player) + 1);
 	goto("wait");
 }
-saveDoneEntity(player, entity_type);
+saveDoneDamageType(player, entity_type);
 stage = setNextEntity(player, new_type);
 msg.prefix(player, prefix_challenge, string.concat("Entity killed. Next entity: ", new_type));
 challenge.display(player, sb_id, challenge_name, new_type, stage, all_stages);

@@ -38,7 +38,7 @@ if(event == "living_death") {
 	if(entity_type == "spider") {
 		mob_killed = true;
 		msg.prefix(player, "§dAnna", "Thank you! Now I can fall asleep again calmly.");
-		msg(player, text.new("§dQuest finished. Reward: 1 snuvis!"));
+		msg.string(player, "§dQuest finished. Reward: 1 snuvis!");
 		money.addBoost(player, 1);
 		quest.finish(script, player);
 	}

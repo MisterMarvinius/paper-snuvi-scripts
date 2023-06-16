@@ -1,0 +1,91 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_break");
+event.load("entity_click");
+event.load("block_click");
+event.load("block_drop");
+
+stage = 0;
+all_stages = 2;
+quest_name = "In Eile";
+
+bread_needed = 21;
+wheat_needed = 63;
+wheat_harvestet = 0;
+wheat_mat = material.get("WHEAT");
+bread_mat = material.get("BREAD");
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dBaker", string.concat("Hey ", player.getName(player), "! I'm expecting quite a lot of customers and I'm not even close to finishing the preparation."));
+	scheduler.msgPrefix(30, player, "§dBaker", "They ordered 50 breads... That's impossible! I have only made 29 breads.");
+	scheduler.msgPrefix(60, player, string.concat("§5", player.getName(player)), "I can take the last 21 breads!");
+	scheduler.msgPrefix(90, player, "§dBaker", "Great! Then go to the wheat field, get the resources you need and process them into bread.");
+	goto("wait");
+}
+if(event == "block_drop") {
+	block_type = block.getType(block);
+	if(block_type == wheat_mat) {
+		item_entity = list.getIndex(drops, 0);
+		item.entity.set(item_entity, item.new(wheat_mat));
+		list.clear(drops);
+		list.add(drops, item_entity);
+	}
+	goto("wait");
+}
+if(event == "block_click") {
+	if(block == null) {
+		goto("wait");
+	}
+	block_type = block.getType(block);
+	if(block_type == wheat_mat) {
+		cancel = false;
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	block_type = block.getType(block);
+	if(block_type == wheat_mat) {
+		cancel = false;
+		scheduler.setBlockData(60, block, read.blockData("minecraft:wheat[age=7]"), false);
+	}
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_break") {
+	block_type = block.getType(block);
+	if(block_type == wheat_mat) {
+		wheat_harvestet++;
+		if(wheat_harvestet == wheat_needed) {
+			stage.increase(player);
+		}
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
+	entity_name = human.getName(entity);
+	if(entity_name == "Baker") {
+		rest_amount = human.giveItem(entity_name, player, bread_mat, bread_needed);
+		if(rest_amount == 0) {
+			msg.prefix(player, "§dBaker", "You're just in time, the customers have just arrived! Here is a reward.");
+			msg.string(player, "§dQuest finished. Reward: 4 snuvis!");
+			money.addBoost(player, 4);
+			quest.finish(script, player);
+		}
+		bread_needed = rest_amount;
+	}
+}
+goto("wait");

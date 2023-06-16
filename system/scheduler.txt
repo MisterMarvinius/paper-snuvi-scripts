@@ -71,6 +71,13 @@ while(hasNext(iter)) {
 			item = a[3];
 			player.giveSingleItem(player, item);
 		}
+		//SetBlockData
+		if(action == 10) {
+			block = a[2];
+			blockdata = a[3];
+			block_update = a[4];
+			block.setData(block, blockdata, block_update);
+		}
 		remove(iter);
 	}
 }

@@ -3,6 +3,8 @@ config.load(stock);
 mainHand = read.slot("HAND");
 openMarkets = set.new();
 
+resetTime = 6 * 60 * 60 * 20;
+
 // Miner
 miner = inv.new("222222222222222222", text.new("Miner"));
 inv.setItem(miner, 0, newItem(material.get("DIAMOND")));
@@ -276,12 +278,63 @@ function newItem(material) {
 function updateItem(inv, slot, material) {
     calculatePrices(material);
     inv.setItem(inv, slot, newItem(material));
-}   
+}
+
+sgoto(40, "consume");   
 
 msg.string("dev", "§bMarket §rloaded.");
 @loop
 wait();
 ignoreGoto(event);
+goto("loop");
+
+function reduceInventory(inv) {
+    size = inv.getSize(inv);
+    for(i = 0; i < size; i++) {
+        item = inv.getItem(inv, i);
+        if(item == null) {
+            continue;
+        }
+        lore = item.getLore(item);
+        if(lore == null || list.getSize(lore) == 0) {
+            continue;
+        } elseif(list.getSize(lore) == 1) {
+            continue;
+        }
+        m = item.getType(item);
+        amount = config.getDouble($stock, m, 0);
+        if(amount > 128) {
+            config.set($stock, m, math.round(amount * 0.99));
+        } elseif(amount < 0) {
+            config.set($stock, m, 0);
+        }
+        updateItem(inv, i, m);
+    }
+}
+
+@consume
+time = config.getDouble($stock, "time", 0);
+if(time + resetTime - 1000 >= time.getMillis()) {
+    msg("dev", text.new("§6Skipping market reduce"));
+} else {
+    config.set($stock, "time", time.getMillis());
+
+    reduceInventory(miner);
+    reduceInventory(farmer);
+    reduceInventory(fisher);
+    reduceInventory(baker);
+    reduceInventory(tavern);
+    reduceInventory(priest);
+    reduceInventory(mason);
+    reduceInventory(mage);
+    reduceInventory(lumberjack);
+    reduceInventory(butcher);
+    reduceInventory(librarian);
+    reduceInventory(nether);
+    reduceInventory(diver);
+    save();
+}
+sgoto(resetTime, "consume"); 
 goto("loop");
 
 @save

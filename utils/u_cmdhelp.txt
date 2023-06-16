@@ -264,6 +264,8 @@ function setCommandHelps() {
 	addStatsGameHelp(help, "Halma");
 	addStatsGameHelp(help, "ShoppingChaos");
 	addStatsGameHelp(help, "MengerRun");
+	addStatsGameHelp(help, "Snake");
+	addStatsGameHelp(help, "DontGetAngry");
 	command.addHelp(help);
 	
 	help = command.newHelp("setspawn", "setspawn");

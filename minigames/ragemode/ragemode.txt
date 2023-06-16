@@ -47,9 +47,17 @@ list.add(lore_list, text.new("§7Kill your enimies with the help of Thor."));
 list.add(lore_list, text.new("§rPrice: §a30 Emeralds"));
 item.setLore(lightning, lore_list);
 
-shopmenu = inv.new("220000000", text.new("§8Shop"));
+glowing = item.new(material.get("glow_berries"));
+item.setName(glowing, text.new("§eGlowing"));
+lore_list = list.new();
+list.add(lore_list, text.new("§7Give your opponents a glowing effect for 10 seconds."));
+list.add(lore_list, text.new("§rPrice: §a4 Emeralds"));
+item.setLore(glowing, lore_list);
+
+shopmenu = inv.new("222000000", text.new("§8Shop"));
 inv.setItem(shopmenu, 0, speed);
 inv.setItem(shopmenu, 1, lightning);
+inv.setItem(shopmenu, 2, glowing);
 
 goto("simplelobby");
 
@@ -111,10 +119,20 @@ wither_sound = sound.get("ENTITY_WITHER_SPAWN");
 sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
 ambient_sound_category = sound.getCategory("AMBIENT");
 
+p_amount = list.getSize(player_list);
+goal_points = p_amount * 5;
+if(goal_points > 25) {
+	goal_points = 25;
+}
+if(p_amount == 2) {
+	max_play_time = 10; //minutes
+} else {
+	max_play_time = 15;
+}
 minigame.displayAll(99, gamename);
-minigame.displayAll(98, "§aGoal: §r25");
+minigame.displayAll(98, string.concat("§aGoal: §r", string.number(goal_points)));
 id = 97;
-for(i = 0; i < list.getSize(player_list); i++) {
+for(i = 0; i < p_amount; i++) {
 	for_p = player.get(list.getIndex(player_list, i));
 	for_pname = player.getName(for_p);
 	msg.prefix(for_p, gamename, "The game has started.");
@@ -156,8 +174,10 @@ for(i = 0; i < list.getSize(player_list); i++) {
 	map.add(emeralds, for_pname, 0);
 }
 minigame.displayAll(id, "Emeralds: §a0");
-sgoto(16800, "lastminute");
-sgoto(18000, "endgame");
+ticks_to_end = max_play_time * 1200;
+ticks_to_last_min = ticks_to_end - 1200;
+sgoto(ticks_to_last_min, "lastminute");
+sgoto(ticks_to_end, "endgame");
 
 minigame.clearItems(middleloc, radius);
 
@@ -282,7 +302,9 @@ if(item != null) {
 			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Speed."));
 			inv.close(player);
 		}
-	} elseif(inv_slot == 1) {
+		goto("wait");
+	}
+	if(inv_slot == 1) {
 		if(map.get(emeralds, player_name) >= 30) {
 			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Thors Hand."));
 			inv.close(player);
@@ -302,6 +324,24 @@ if(item != null) {
 			}
 			no_emerald = false;
 		}
+		goto("wait");
+	}
+	if(inv_slot == 2) {
+		if(map.get(emeralds, player_name) >= 4) {
+			for(i = 0; i < list.getSize(player_list); i++) {
+				puuid = list.getIndex(player_list, i);
+				if(puuid == player.getUuid(player)) {
+					continue;
+				}
+				p = player.get(puuid);
+				living.addEffect(p, "GLOWING", 200, 0);
+			}
+			map.add(emeralds, player_name, map.get(emeralds, player_name) - 4);
+			sb.add(player, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, player_name)));
+			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Glowing."));
+			inv.close(player);
+		}
+		goto("wait");
 	}
 }
 goto("wait");
@@ -381,7 +421,7 @@ if(action == "axeHit") {
 action = null;
 map.add(times, position, time.getMillis());
 
-if(getTheoreticKills(attacker_name) >= 25) {
+if(getTheoreticKills(attacker_name) >= goal_points) {
 	winner_name = attacker_name;
 	goto("wincore");
 }

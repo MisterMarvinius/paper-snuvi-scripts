@@ -1,0 +1,136 @@
+minplayers = 2;
+maxplayers = 4;
+gamesignloc = minigame.getSignLoc("dontgetangrysign1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, -1000, 95, 1000);
+dice_loc = loc.new(gamesworld, -1000, 101, 1000);
+mapname = "Default 4x1";
+
+rule_1_loc = loc.new(gamesworld, -999, 96, 1005); //jump over tokens in target
+rule_2_loc = loc.new(gamesworld, -1000, 96, 1005); //amount ai players
+
+route = array.new(40);
+route[0] = loc.new(gamesworld, -1001, 101, 1005);
+route[1] = loc.new(gamesworld, -1001, 101, 1004);
+route[2] = loc.new(gamesworld, -1001, 101, 1003);
+route[3] = loc.new(gamesworld, -1001, 101, 1002);
+route[4] = loc.new(gamesworld, -1001, 101, 1001);
+route[5] = loc.new(gamesworld, -1002, 101, 1001);
+route[6] = loc.new(gamesworld, -1003, 101, 1001);
+route[7] = loc.new(gamesworld, -1004, 101, 1001);
+route[8] = loc.new(gamesworld, -1005, 101, 1001);
+route[9] = loc.new(gamesworld, -1005, 101, 1000);
+route[10] = loc.new(gamesworld, -1005, 101, 999);
+route[11] = loc.new(gamesworld, -1004, 101, 999);
+route[12] = loc.new(gamesworld, -1003, 101, 999);
+route[13] = loc.new(gamesworld, -1002, 101, 999);
+route[14] = loc.new(gamesworld, -1001, 101, 999);
+route[15] = loc.new(gamesworld, -1001, 101, 998);
+route[16] = loc.new(gamesworld, -1001, 101, 997);
+route[17] = loc.new(gamesworld, -1001, 101, 996);
+route[18] = loc.new(gamesworld, -1001, 101, 995);
+route[19] = loc.new(gamesworld, -1000, 101, 995);
+route[20] = loc.new(gamesworld, -999, 101, 995);
+route[21] = loc.new(gamesworld, -999, 101, 996);
+route[22] = loc.new(gamesworld, -999, 101, 997);
+route[23] = loc.new(gamesworld, -999, 101, 998);
+route[24] = loc.new(gamesworld, -999, 101, 999);
+route[25] = loc.new(gamesworld, -998, 101, 999);
+route[26] = loc.new(gamesworld, -997, 101, 999);
+route[27] = loc.new(gamesworld, -996, 101, 999);
+route[28] = loc.new(gamesworld, -995, 101, 999);
+route[29] = loc.new(gamesworld, -995, 101, 1000);
+route[30] = loc.new(gamesworld, -995, 101, 1001);
+route[31] = loc.new(gamesworld, -996, 101, 1001);
+route[32] = loc.new(gamesworld, -997, 101, 1001);
+route[33] = loc.new(gamesworld, -998, 101, 1001);
+route[34] = loc.new(gamesworld, -999, 101, 1001);
+route[35] = loc.new(gamesworld, -999, 101, 1002);
+route[36] = loc.new(gamesworld, -999, 101, 1003);
+route[37] = loc.new(gamesworld, -999, 101, 1004);
+route[38] = loc.new(gamesworld, -999, 101, 1005);
+route[39] = loc.new(gamesworld, -1000, 101, 1005);
+
+colorcode = map.new();
+map.add(colorcode, 0, "§9");
+map.add(colorcode, 1, "§e");
+map.add(colorcode, 2, "§2");
+map.add(colorcode, 3, "§c");
+
+startindexes = map.new();
+map.add(startindexes, 0, 0);
+map.add(startindexes, 1, 20);
+map.add(startindexes, 2, 10);
+map.add(startindexes, 3, 30);
+
+targetindexes = map.new();
+map.add(targetindexes, 0, 39);
+map.add(targetindexes, 1, 19);
+map.add(targetindexes, 2, 9);
+map.add(targetindexes, 3, 29);
+
+tploc = map.new();
+map.add(tploc, 0, loc.new(gamesworld, -1001.5, 101, 1005.5,-180,0));
+map.add(tploc, 1, loc.new(gamesworld, -997.5, 101, 995.5,0.0001,0));
+map.add(tploc, 2, loc.new(gamesworld, -1004.5, 101, 998.5,-90,0));
+map.add(tploc, 3, loc.new(gamesworld, -994.5, 101, 1002.5,90,0));
+
+tokens = map.new();
+map.add(tokens, 0, material.get("BLUE_BANNER"));
+map.add(tokens, 1, material.get("YELLOW_BANNER"));
+map.add(tokens, 2, material.get("GREEN_BANNER"));
+map.add(tokens, 3, material.get("RED_BANNER"));
+
+tokens_team = map.new();
+map.add(tokens_team, material.get("BLUE_BANNER"), 0);
+map.add(tokens_team, material.get("YELLOW_BANNER"), 1);
+map.add(tokens_team, material.get("GREEN_BANNER"), 2);
+map.add(tokens_team, material.get("RED_BANNER"), 3);
+
+stables = map.new();
+target_routes = map.new();
+for(i = 0; i < maxplayers; i++) {
+	stable = array.new(4);
+	target = array.new(4);
+
+	if(i == 0) {
+		stable[0] = loc.new(gamesworld, -1004, 101, 1005);
+		stable[1] = loc.new(gamesworld, -1004, 101, 1004);
+		stable[2] = loc.new(gamesworld, -1005, 101, 1005);
+		stable[3] = loc.new(gamesworld, -1005, 101, 1004);
+		target[0] = loc.new(gamesworld, -1000, 101, 1004);
+		target[1] = loc.new(gamesworld, -1000, 101, 1003);
+		target[2] = loc.new(gamesworld, -1000, 101, 1002);
+		target[3] = loc.new(gamesworld, -1000, 101, 1001);
+	} elseif(i == 1) {
+		stable[0] = loc.new(gamesworld, -996, 101, 995);
+		stable[1] = loc.new(gamesworld, -996, 101, 996);
+		stable[2] = loc.new(gamesworld, -995, 101, 995);
+		stable[3] = loc.new(gamesworld, -995, 101, 996);
+		target[0] = loc.new(gamesworld, -1000, 101, 996);
+		target[1] = loc.new(gamesworld, -1000, 101, 997);
+		target[2] = loc.new(gamesworld, -1000, 101, 998);
+		target[3] = loc.new(gamesworld, -1000, 101, 999);
+	} elseif(i == 2) {
+		stable[0] = loc.new(gamesworld, -1005, 101, 996);
+		stable[1] = loc.new(gamesworld, -1004, 101, 996);
+		stable[2] = loc.new(gamesworld, -1005, 101, 995);
+		stable[3] = loc.new(gamesworld, -1004, 101, 995);
+		target[0] = loc.new(gamesworld, -1004, 101, 1000);
+		target[1] = loc.new(gamesworld, -1003, 101, 1000);
+		target[2] = loc.new(gamesworld, -1002, 101, 1000);
+		target[3] = loc.new(gamesworld, -1001, 101, 1000);
+	} elseif(i == 3) {
+		stable[0] = loc.new(gamesworld, -995, 101, 1004);
+		stable[1] = loc.new(gamesworld, -996, 101, 1004);
+		stable[2] = loc.new(gamesworld, -995, 101, 1005);
+		stable[3] = loc.new(gamesworld, -996, 101, 1005);
+		target[0] = loc.new(gamesworld, -996, 101, 1000);
+		target[1] = loc.new(gamesworld, -997, 101, 1000);
+		target[2] = loc.new(gamesworld, -998, 101, 1000);
+		target[3] = loc.new(gamesworld, -999, 101, 1000);
+	}
+	
+	map.add(stables, i, stable);
+	map.add(target_routes, i, target);
+}
