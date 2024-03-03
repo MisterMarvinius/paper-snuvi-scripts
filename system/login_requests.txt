@@ -1,0 +1,25 @@
+event.load("player_login");
+
+databank.workerExecute(databank.prepare("
+	CREATE TABLE IF NOT EXISTS login_requests (
+		id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+		player_id INT NOT NULL, 
+		time BIGINT NOT NULL, 
+		result VARCHAR(64) NOT NULL
+	);
+"));
+
+msg.string("dev", "§bLoginRequests §rloaded.");
+@wait
+wait();
+player_id = player.getId(player);
+ignoreGoto(event);
+goto("wait");
+
+@player_login
+stmt = databank.prepare("INSERT INTO login_requests (player_id, time, result) VALUES (?, ?, ?);", false);
+databank.setInt(stmt, 1, player_id);
+databank.setLong(stmt, 2, time.getMillis());
+databank.setString(stmt, 3, result);
+databank.workerExecute(stmt);
+goto("wait");

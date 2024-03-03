@@ -427,7 +427,7 @@ function game_stop(message){
 	if(message != null){
 			msg.prefix($player, $gamename, message);
 			
-			minigame.statsHeader($player, gamename, "§e");
+			minigame.statsHeader($player, $gamename, "§e");
 			minigame.statsLine($player, "§e", "Size", string.number($this_record));
 			minigame.statsLine($player, "§e", "Your record", string.number(last_record));
 		if(diff != null){

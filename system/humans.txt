@@ -34,39 +34,40 @@ goto("main");
 if(slot.isOffHand(hand)) {
 	goto("main");
 }
-if(!entity.isHuman(entity)) {
+if(!isCitizen(entity)) {
 	goto("main");
 }
-entity_name = human.getName(entity);
-if(entity_name == "Farmer") {
+entity_name = entity.getName(entity);
+string_name = string.text(entity_name);
+if(string_name == "Farmer") {
 	inv.open(farmer_inv, player);
-} elseif(entity_name == "Anna") {
+} elseif(string_name == "Anna") {
 	inv.open(anna_inv, player);
-} elseif(entity_name == "Miner") {
+} elseif(string_name == "Miner") {
 	inv.open(miner_inv, player);
-} elseif(entity_name == "Fisher") {
+} elseif(string_name == "Fisher") {
 	inv.open(fisher_inv, player);
-} elseif(entity_name == "Baker") {
+} elseif(string_name == "Baker") {
 	inv.open(baker_inv, player);
-} elseif(entity_name == "Alena") {
+} elseif(string_name == "Alena") {
 	inv.open(alena_inv, player);
-} elseif(entity_name == "Mason") {
+} elseif(string_name == "Mason") {
 	inv.open(mason_inv, player);
-} elseif(entity_name == "Priest") {
+} elseif(string_name == "Priest") {
 	inv.open(priest_inv, player);
-} elseif(entity_name == "Mage") {
+} elseif(string_name == "Mage") {
 	inv.open(mage_inv, player);
-} elseif(entity_name == "Lumberjack") {
+} elseif(string_name == "Lumberjack") {
 	inv.open(lumberjack_inv, player);
-} elseif(entity_name == "Butcher") {
+} elseif(string_name == "Butcher") {
 	inv.open(butcher_inv, player);
-} elseif(entity_name == "Librarian") {
+} elseif(string_name == "Librarian") {
 	inv.open(librarian_inv, player);
-} elseif(entity_name == "Nether Merchant") {
+} elseif(string_name == "Nether Merchant") {
 	inv.open(nether_inv, player);
-} elseif(entity_name == "Diver") {
+} elseif(string_name == "Diver") {
 	inv.open(diver_inv, player);
-} elseif(entity_name == "Mage Guard") {
+} elseif(string_name == "Mage Guard") {
 	inv.open(mage_guard_inv, player);
 }
 goto("main");

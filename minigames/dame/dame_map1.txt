@@ -1,0 +1,18 @@
+gamesignsmap = getScriptVar("gamesigns");
+gamesignloc = map.get(gamesignsmap, "damesign1");
+gamesworld = world.get("games");
+mapname = "Dame";
+maxplayers = 2;
+minplayers = 2;
+
+black_left_front_corner_loc = loc.new(gamesworld, 3993, 102, -15);
+
+lobbyspawnloc = loc.new(gamesworld, 3990, 102, -11);
+
+spawn_locs = map.new();
+map.add(spawn_locs, 0, loc.new(gamesworld, 3990, 102, -15.5, 0.0001, 0.0001));
+map.add(spawn_locs, 1, loc.new(gamesworld, 3990, 102, -6.5, 180, 0.0001));
+
+colors_map = map.new();
+map.add(colors_map, 0, "§c");
+map.add(colors_map, 1, "§t");

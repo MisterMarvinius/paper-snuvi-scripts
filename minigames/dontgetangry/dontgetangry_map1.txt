@@ -53,20 +53,20 @@ route[39] = loc.new(gamesworld, -1000, 101, 1005);
 
 colorcode = map.new();
 map.add(colorcode, 0, "§9");
-map.add(colorcode, 1, "§e");
-map.add(colorcode, 2, "§2");
+map.add(colorcode, 1, "§2");
+map.add(colorcode, 2, "§e");
 map.add(colorcode, 3, "§c");
 
 startindexes = map.new();
 map.add(startindexes, 0, 0);
-map.add(startindexes, 1, 20);
-map.add(startindexes, 2, 10);
+map.add(startindexes, 1, 10);
+map.add(startindexes, 2, 20);
 map.add(startindexes, 3, 30);
 
 targetindexes = map.new();
 map.add(targetindexes, 0, 39);
-map.add(targetindexes, 1, 19);
-map.add(targetindexes, 2, 9);
+map.add(targetindexes, 1, 9);
+map.add(targetindexes, 2, 19);
 map.add(targetindexes, 3, 29);
 
 tploc = map.new();
@@ -77,14 +77,14 @@ map.add(tploc, 3, loc.new(gamesworld, -994.5, 101, 1002.5,90,0));
 
 tokens = map.new();
 map.add(tokens, 0, material.get("BLUE_BANNER"));
-map.add(tokens, 1, material.get("YELLOW_BANNER"));
-map.add(tokens, 2, material.get("GREEN_BANNER"));
+map.add(tokens, 1, material.get("GREEN_BANNER"));
+map.add(tokens, 2, material.get("YELLOW_BANNER"));
 map.add(tokens, 3, material.get("RED_BANNER"));
 
 tokens_team = map.new();
 map.add(tokens_team, material.get("BLUE_BANNER"), 0);
-map.add(tokens_team, material.get("YELLOW_BANNER"), 1);
-map.add(tokens_team, material.get("GREEN_BANNER"), 2);
+map.add(tokens_team, material.get("GREEN_BANNER"), 1);
+map.add(tokens_team, material.get("YELLOW_BANNER"), 2);
 map.add(tokens_team, material.get("RED_BANNER"), 3);
 
 stables = map.new();
@@ -103,15 +103,6 @@ for(i = 0; i < maxplayers; i++) {
 		target[2] = loc.new(gamesworld, -1000, 101, 1002);
 		target[3] = loc.new(gamesworld, -1000, 101, 1001);
 	} elseif(i == 1) {
-		stable[0] = loc.new(gamesworld, -996, 101, 995);
-		stable[1] = loc.new(gamesworld, -996, 101, 996);
-		stable[2] = loc.new(gamesworld, -995, 101, 995);
-		stable[3] = loc.new(gamesworld, -995, 101, 996);
-		target[0] = loc.new(gamesworld, -1000, 101, 996);
-		target[1] = loc.new(gamesworld, -1000, 101, 997);
-		target[2] = loc.new(gamesworld, -1000, 101, 998);
-		target[3] = loc.new(gamesworld, -1000, 101, 999);
-	} elseif(i == 2) {
 		stable[0] = loc.new(gamesworld, -1005, 101, 996);
 		stable[1] = loc.new(gamesworld, -1004, 101, 996);
 		stable[2] = loc.new(gamesworld, -1005, 101, 995);
@@ -120,6 +111,15 @@ for(i = 0; i < maxplayers; i++) {
 		target[1] = loc.new(gamesworld, -1003, 101, 1000);
 		target[2] = loc.new(gamesworld, -1002, 101, 1000);
 		target[3] = loc.new(gamesworld, -1001, 101, 1000);
+	} elseif(i == 2) {
+		stable[0] = loc.new(gamesworld, -996, 101, 995);
+		stable[1] = loc.new(gamesworld, -996, 101, 996);
+		stable[2] = loc.new(gamesworld, -995, 101, 995);
+		stable[3] = loc.new(gamesworld, -995, 101, 996);
+		target[0] = loc.new(gamesworld, -1000, 101, 996);
+		target[1] = loc.new(gamesworld, -1000, 101, 997);
+		target[2] = loc.new(gamesworld, -1000, 101, 998);
+		target[3] = loc.new(gamesworld, -1000, 101, 999);
 	} elseif(i == 3) {
 		stable[0] = loc.new(gamesworld, -995, 101, 1004);
 		stable[1] = loc.new(gamesworld, -996, 101, 1004);

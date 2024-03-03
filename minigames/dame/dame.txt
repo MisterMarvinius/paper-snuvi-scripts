@@ -1,0 +1,304 @@
+//Schwarz muss IMMER nach Süden schauen!!!
+//Weiß muss IMMER nach Norden schauen!!!
+
+rankingtable = "dameranks";
+
+teams = map.new();
+block_click_catcher = set.new();
+pointed_loc = loc.new(gamesworld, 0, 0, 0); //Default-Wert, um Error zu verhindern
+gamename = "§eDame";
+
+gosub("setstart");
+goto("simplelobby");
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+minigame.speakAll(gamename, "The game has started.");
+
+black_token = concat("minecraft:wither_skeleton_skull[rotation=8]");
+white_token = concat("minecraft:wither_skeleton_skull[rotation=0]");
+black_token_plus = concat("minecraft:black_banner[rotation=0]");
+white_token_plus = concat("minecraft:white_banner[rotation=8]");
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	player_uuid = list.getIndex(player_list, i);
+	player = player.get(player_uuid);
+	entity.teleport(player, map.get(spawn_locs, i));
+	player.setGamemode(player, "survival");
+	player.setFly(player, true);
+	map.add(teams, player_uuid, i); //Team-Zuweisung
+	
+}
+
+next_player_uuid = list.getIndex(player_list, math.random(0, list.getSize(player_list) - 1));
+setNextPlayer(next_player_uuid);
+jump_moves = false;
+
+@wait
+wait();
+if(player.hasMinigameId(player, script_id)) {
+	ignoreGoto(event);
+}
+goto("wait");
+
+@block_click
+if(hand == "OFF_HAND") {
+	goto("wait");
+}
+if(action == "left" && set.contains(block_click_catcher, player)) {
+	set.remove(block_click_catcher, player);
+	goto("wait");
+} else {
+	set.add(block_click_catcher, player);
+}
+//Korrekter Spieler?
+if(player.getUUid(player) != next_player_uuid) {
+	speakPrefix(player, gamename, "It´s not your turn.");
+	goto("wait");
+}
+//Spielfigur ausgewählt?
+if(map.contains(tokens_map2, block_type)) {
+	//Spielfigur der eigenen Farbe ausgewählt?
+	if(map.get(tokens_map2, block_type) == map.get(teams, player.getUuid(player))) {
+		//Zuletzt ausgewählte Spielfigur der eigenen Farbe speichern, wenn nicht bereits gezogen (gesprungen) wurde
+		if(jump_moves) {
+			speakPrefix(player, gamename, "Already moved with another game piece.");
+			goto("wait");
+		}
+		token_loc = block_loc;
+		block.set(pointed_loc, basic_block);
+		pointed_loc = loc.mod(block_loc, 0, -1, 0);
+		block.set(pointed_loc, point_block);
+	} else {
+		speakPrefix(player, gamename, "Not your game piece.");
+	}
+	goto("wait");
+}
+//Wurde am Spielbrett ein gültiges Feld angeklickt?
+if(block_type == basic_block) {
+	//Wurde bereits eine Spielfigur der eigenen Farbe ausgewählt?
+	if(token_loc != null) {
+		//Ist der Zug gültig? Ziehen / Springen
+		diff_x = loc.getX(block_loc) - loc.getX(token_loc);
+		diff_z = loc.getZ(block_loc) - loc.getZ(token_loc);
+		possible_move = false;
+		for(i = 0; i < list.getSize(possible_move_differences); i++) {
+			a = list.getIndex(possible_move_differences, i);
+			x = a[0];
+			z = a[1];
+			//Passt der Vektor des Zuges?
+			if(math.abs(diff_x) == x && math.abs(diff_z) == z) {
+				possible_move = true;
+				move_type = "drag";
+				if(i >= jumping_index) {
+					//Sprung. Checken, ob sich eine Spielfigur auf halber Strecke befindet
+					middle_loc = loc.mod(token_loc, diff_x / 2, 0, diff_z / 2);
+					if(!map.contains(tokens_map2, block.getType(middle_loc))) {
+						speakPrefix(player, gamename, "Invalid move.");
+						goto("wait");
+					}
+					move_type = "jump";
+				}
+				//Ist der Zielblock belegt?
+				aim_block = loc.mod(block_loc, 0, 1, 0);
+				if(block.getType(aim_block) != "minecraft:air") {
+					goto("wait");
+				}
+				//Die Spielfigur kann nicht gezogen werden, wenn bereits gesprungen wurde
+				if(move_type == "drag" && jump_moves) {
+					speakPrefix(player, gamename, "Move not possible. Already overjumped a game piece.");
+					goto("wait");
+				}
+				//Zug der Spielfigur
+				team = map.get(teams, player.getUuid(player));
+				banner_type = map.get(tokens_map, team);
+				rotation = map.get(rotations_map, team);
+				block.set(token_loc, "minecraft:air");
+				block.set(aim_block, concat(banner_type, "[rotation=", rotation, "]"));
+				token_loc = aim_block;
+				block.set(pointed_loc, basic_block);
+				if(move_type == "drag") {
+					goto("nextplayer");
+				} else {
+					jump_moves = true;
+					pointed_loc = block_loc;
+					block.set(pointed_loc, point_block);
+				}
+			}
+		}
+		if(!possible_move) {
+			speakPrefix(player, gamename, "Invalid move.");
+			goto("wait");
+		}
+	}
+}
+goto("wait");
+
+@nextplayer
+//Gewonnen?
+team = map.get(teams, player.getUuid(player));
+token = map.get(tokens_map, team);
+list = map.get(aim_locs, team);
+iter = list.iterator(list);
+won = true;
+while(hasNext(iter)) {
+	entry = next(iter);
+	if(block.getType(entry) != token) {
+		won = false;
+	}
+}
+if(won) {
+	winner = player;
+	goto("win");
+}
+token_loc = null;
+jump_moves = false;
+//Nächsten Spieler setzen
+index = list.getIndexOf(player_list, next_player_uuid) + 1;
+if(index >= list.getSize(player_list)) {
+	index = 0;
+}
+next_player_uuid = list.getIndex(player_list, index);
+setNextPlayer(next_player_uuid);
+block.set(pointed_loc, basic_block);
+goto("wait");
+
+@custom_command
+if(command == "nextplayer") {
+	if(player.getUuid(player) == next_player_uuid) {
+		goto("nextplayer");
+	}
+}
+goto("wait");
+
+@block_break
+@block_place
+@living_pre_hurt
+cancel = true;
+goto("wait");
+
+@win
+resetField();
+script = script.getFromId(script_id);
+minigame.speakAll(gamename, concat("§6", player.getName(winner), " §rhas won."));
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	if(p == winner) {
+		showstats(p, true);
+	} else {
+		showstats(p, false);
+	}
+	player.setFly(p, false);
+}
+minigame.kickAllPlayers(script);
+minigame.term(script, gamesignloc);
+term();
+
+@player_logout
+@player_giveup
+minigame.speakAll(gamename, concat("§8", player.getName(player), " §ehas left the game."));
+player.setFly(player, false);
+showstats(player, false);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+size = list.getSize(player_list);
+if(size < minplayers) {
+	block.set(pointed_loc, basic_block);
+	winner = player.get(list.getIndex(player_list, 0));
+	goto("win");
+} else {
+	team = map.get(teams, player.getUuid(player));
+	token = map.get(tokens_map, team);
+	removeSpecificToken(token);
+}
+goto("wait");
+
+function setNextPlayer(next_player_uuid) {
+	team = map.get($teams, next_player_uuid);
+	color = map.get($colors_map, team);
+	next_player_name = player.getName(next_player_uuid);
+	if(text.endsWith(next_player_name, "s")) {
+		minigame.speakAll($gamename, concat("It´s ", color, next_player_name, "' §rturn."));
+	} else {
+		minigame.speakAll($gamename, concat("It´s ", color, next_player_name, "'s §rturn."));
+	}
+	next_player = player.get(next_player_uuid);
+	sound.spawnForPlayer(next_player, $pling_sound, $sound_category_ambient);
+	msg(next_player, text.click("§r[§eEnd turn§r]", "/nextplayer"));
+}
+
+function removeSpecificToken(token) {
+	//Sechseck nach festgelegter Spielfigur leeren
+	iter = list.iterator($center_locs);
+	while(hasNext(iter)) {
+		entry = next(iter);
+		if(block.getType(entry) == token) {
+			block.set(entry, "minecraft:air");
+		}
+	}
+	//Ziel-Felder nach festgelegter Spielfigur leeren
+	map_iter = map.iterator($aim_locs);
+	while(hasNext(map_iter)) {
+		list = map.getValue(next(map_iter));
+		iter = list.iterator(list);
+		while(hasNext(iter)) {
+			entry = next(iter);
+			if(block.getType(entry) == token) {
+				block.set(entry, "minecraft:air");
+			}
+		}
+	}
+	//Start-Felder nach festgelegter Spielfigur leeren
+	map_iter = map.iterator($start_locs);
+	while(hasNext(map_iter)) {
+		list = map.getValue(next(map_iter));
+		iter = list.iterator(list);
+		while(hasNext(iter)) {
+			entry = next(iter);
+			if(block.getType(entry) == token) {
+				block.set(entry, "minecraft:air");
+			}
+		}
+	}
+}
+
+function showstats(player, won) { //Player player, Boolean won
+	player_id = player.getId(player);
+	last_record = getPoints($rankingtable, player_id);
+	if(won) {
+		last_record++;
+	}
+	playedgames = getPlayedGames($rankingtable, player_id) + 1;
+	setRanking($rankingtable, player_id, last_record, playedgames);
+	
+	minigame.statsHeader(player, $gamename, "§e");
+	minigame.statsLine(player, "§e", "Won games", text.hover(text.number(last_record), "Relevant for ranking"));
+	minigame.statsLine(player, "§e", "Played games", text.number(playedgames));
+	if(playedgames != 0) {
+		minigame.statsLine(player, "§e", "Win ratio", concat(text.number(math.roundComma((last_record / playedgames) * 100, 2)), "%"));
+	}
+}
+
+function resetField() {
+	loc = $black_left_front_corner_loc;
+	resetFieldRow(loc, $black_token);
+	loc.add(loc, -1, 0, 1);
+	resetFieldRow(loc, $black_token);
+	loc.add(loc, 1, 0, 1);
+	resetFieldRow(loc, $black_token);
+	loc.add(loc, -1, 0, 3);
+	resetFieldRow(loc, $white_token);
+	loc.add(loc, 1, 0, 1);
+	resetFieldRow(loc, $white_token);
+	loc.add(loc, -1, 0, 1);
+	resetFieldRow(loc, $white_token);
+}
+
+function resetFieldRow(loc, token) {
+	x = 0;
+	for(i = 0; i < 4; i++) {
+		block.set(loc, token);
+		loc.add(loc, -2, 0, 0);
+	}
+	loc.add(loc, 8, 0, 0);
+}

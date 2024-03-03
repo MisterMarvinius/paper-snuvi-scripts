@@ -34,9 +34,10 @@ label = concat("stage", text.number(stage));
 goto(label);
 
 @stage0
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Herbert") {
+	string_name = string.text(entity_name);
+	if(string_name == "Herbert") {
 		stage.increase(player);
 		msg.prefix(player, "§dHerbert", "Naa, was führt dich hierher?");
 		scheduler.msgPrefix(30, player, concat("§5", player.getName(player)), "Ich soll Grüße von der Schmiede ausrichten, es werden 5 Goldstücke für deine Uhr benötigt.");
@@ -48,12 +49,13 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Schmied") {
+	string_name = string.text(entity_name);
+	if(string_name == "Schmied") {
 		item = living.getEquip(player, "hand");
 		item_type = item.getType(item);
-		rest_amount = human.giveItem(entity_name, player, "minecraft:gold_ingot", gold_ingot_needed);
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:gold_ingot", gold_ingot_needed);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dSchmied", "Perfekt, jetzt fehlt nur noch hellblauer Farbstoff für das Detail.");
 			scheduler.msgPrefix(30, player, "§dSchmied", "Pflücke eine blaue Orchidee und verarbeite sie zu Farbstoff.");
@@ -80,10 +82,11 @@ if(event == "block_break") {
 goto("wait");
 
 @stage3
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Schmied") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:light_blue_dye", 1);
+	string_name = string.text(entity_name);
+	if(string_name == "Schmied") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:light_blue_dye", 1);
 		if(rest_amount == 0) {
 			stage.increase(player);
 			msg.prefix(player, "§dSchmied", "Jetzt kann ich loslegen!");
@@ -96,10 +99,11 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage4
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Herbert") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:clock", 1);
+	string_name = string.text(entity_name);
+	if(string_name == "Herbert") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:clock", 1);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dHerbert", "Das ging aber flott!");
 			msg(player, "§dQuest abgeschlossen. Belohnung: 22 Snuvis!");

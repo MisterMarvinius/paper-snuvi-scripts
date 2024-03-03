@@ -1,7 +1,7 @@
 mapname = "GoldDigger";
 numberofteams = 2;
-teamsize = 1;
-minplayers = teamsize + 1;
+teamsize = 2;
+minplayers = 2;
 maxplayers = teamsize * numberofteams;
 gamesignloc = minigame.getSignLoc("bwmapsign1");
 gamesworld = world.getGames();

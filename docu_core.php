@@ -1450,7 +1450,7 @@
     <table>
         <tr>
             <th class="command">string.replace</th>
-            <th class="desc">replaces all occurrences of a given string in another with a given string</th>
+            <th class="desc">returns string where all occurrences in a given string of a given string are replaced with another given string</th>
         </tr>
         <tr>
             <td class="bold">Format</td>

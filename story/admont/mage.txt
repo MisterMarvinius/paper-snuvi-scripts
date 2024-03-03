@@ -126,10 +126,11 @@ ignoreGoto(label);
 goto("wait");
 
 @stage0
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Mage Guard") {
-		rest_amount = human.giveItem(entity_name, player, bread_mat, 1);
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Mage Guard") {
+		rest_amount = citizen.giveItem(string_name, player, bread_mat, 1);
 		if(rest_amount == 0) {
 			player.giveItem(player, key);
 			msg.prefix(player, "§dMage Guard", "Rightclick doors with the key to open them.");
@@ -202,9 +203,10 @@ if(event == "living_death") {
 goto("wait");
 
 @stage13
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Mage Assistant") {
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Mage Assistant") {
 		item = living.getHand(player);
 		if(item != key) {
 			msg.prefix(player, "§dMage Assistant", "Please give me the key.");
@@ -277,10 +279,11 @@ if(event == "block_break") {
 goto("wait");
 
 @stage18
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Mage Assistant") {
-		rest_amount = human.giveItem(entity_name, player, nether_wart_mat, warts_harvested);
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Mage Assistant") {
+		rest_amount = citizen.giveItem(string_name, player, nether_wart_mat, warts_harvested);
 		if(rest_amount == 0) {
 			player.unlockMage(player);
 			msg.prefix(player, "§dMage Assistant", "Thank you. You now can go to the Mage and buy skills.");

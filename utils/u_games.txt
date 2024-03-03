@@ -282,6 +282,10 @@ function minigame.waiting() {
 		minigame.speakAll($gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayer."));
 		return;
 	}
+	if(waitfor == 0) {
+		minigame.speakAll($gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayers, but start conditions are not met."));
+		return;
+	}
 	minigame.speakAll($gamename, string.concat("Waiting for §b", string.number(waitfor), " §rplayers."));
 }
 
@@ -516,7 +520,7 @@ function minigame.addPlayed(player_or_id, game_short, amount) {
 function player.tpGamesLobby(player) {
 	modTimer.entityTeleport(player, minigame.getLastPos(player));
 	inv = player.getInv(player);
-	inv.setItem(inv, 0, read.item("minecraft:compass"));
+	inv.setItem(inv, 0, item.create("COMPASS", 1, null, null));
 }
 
 function player.hasMinigameId(player, script_id) {
@@ -539,7 +543,7 @@ function resetplayer(player) {
 	player.setSpeed(player, 1);
 	entity.setGravity(player, true);
 	inv.close(player);
-	displayMoney(player, getMoney(player));
+	money.display(player, money.get(player));
 	player.setTabName(player);
 	sb.clearGame(player);
 }

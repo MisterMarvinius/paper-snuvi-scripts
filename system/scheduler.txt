@@ -20,14 +20,14 @@ while(hasNext(iter)) {
 		if(action == 1) {
 			player = a[2];
 			prefix = a[3];
-			message = a[4];
-			msg.prefix(player, prefix, message);
+			text_or_string = a[4];
+			msg.prefix(player, prefix, text_or_string);
 		}
 		//Msg
 		if(action == 2) {
 			player = a[2];
-			message = a[3];
-			msg(player, message);
+			text_or_string = a[3];
+			msg(player, getMessage(text_or_string));
 		}
 		//SetBlockMaterial
 		if(action == 3) {

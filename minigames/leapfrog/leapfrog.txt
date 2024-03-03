@@ -22,8 +22,8 @@ goto("wait");
 @minigame_join
 player_record = ranking.getPoints(rankingtable, player);
 sb.add(player, 99, gamename);
-sb.add(player, 98, "Points: §e", string.number(points));
-sb.add(player, 97, "Your Record: §e", string.number(player_record));
+sb.add(player, 98, string.concat("Points: §e", string.number(points)));
+sb.add(player, 97, string.concat("Your Record: §e", string.number(player_record)));
 sb.add(player, 96, sb.getSpacer());
 living.setHealth(player, 20);
 player.setHunger(player, 20);
@@ -31,7 +31,7 @@ player.setSaturation(player, 5);
 entity.teleport(player, loc.mod(middleloc, 0.5, 0, 0.5));
 initPlayField();
 resetPlayField();
-msg.prefix(player, gamename, "Click on a torch and jump over another torch to let it disappear. Try to get as many points (jumps) as possible. If the last torch ends up in the middle, you get an extra point.");
+msg.prefix(player, gamename, "Click on a torch and jump over another torch to let it disappear and get 1 point. Try to get as many points as possible. If the last torch ends up in the middle, you get an extra point.");
 goto("wait");
 
 @block_break
@@ -162,7 +162,7 @@ function doMove(player, pos1, pos2, middlepos) {
 		}
 		showStats(player, $points);
 	}
-	sb.add(player, 98, "Points: §e", string.number($points));
+	sb.add(player, 98, string.concat("Points: §e", string.number($points)));
 	player.setHunger(player, 20);
 	player.setSaturation(player, 5);
 }
@@ -241,7 +241,7 @@ function showStats(player, points) {
 		ranking.setPoints($rankingtable, player, points);
 		minigame.statsLine(player, "§e", "Beat own record by", string.number(points - $player_record));
 		$player_record = points;
-		sb.add(player, 97, "Your Record: §e", string.number($player_record));
+		sb.add(player, 97, string.concat("Your Record: §e", string.number($player_record)));
 	}
 	minigame.statsLine(player, "§e", "Record", string.number($player_record));
 }

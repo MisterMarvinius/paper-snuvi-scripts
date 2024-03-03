@@ -1,7 +1,0 @@
-text = text.new("hi");
-text.color(text, 200, 0, 50);
-msg("dev", text);
-text = text.color(text, 200, 0, 50);
-msg("dev", text);
-
-msg("dev", text.merge(text.new("Test"), text.color(text.new("hmm"), 144, 92, 32), text.new("hi")));

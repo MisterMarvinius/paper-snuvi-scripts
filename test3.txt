@@ -1,4 +1,0 @@
-p = read.player("kajetanjohannes");
-i = item.new(material.get("IRON_SWORD"));
-item.addDefaultTags(i);
-player.giveItem(p, i);

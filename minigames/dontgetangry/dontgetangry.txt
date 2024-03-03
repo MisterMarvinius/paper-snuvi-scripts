@@ -50,6 +50,14 @@ function minigame.canStartIndiv() {
 	return p_amount >= minigame.getMinPlayers();
 }
 
+function getNextFreeTeamIndex() {
+	for(i = 0; i < minigame.getMaxPlayers(); i++) {
+		if(!list.contains($active_teams, i)) {
+			return i;
+		}
+	}
+}
+
 @finalstart
 player_list = minigame.getPlayers(script_id);
 minigame.speakAll(gamename, "The game has started.");
@@ -65,6 +73,9 @@ for(i = 0; i < amount_players; i++) {
 	player.setFly(p, true);
 	player.giveItem(p, dice_item);
 	//assign team
+	if(i == 1 && amount_players == 2) {
+		i = math.round(minigame.getMaxPlayers() / 2);
+	}
 	p_uuid = player.getUuid(p);
 	map.add(player_team, p_uuid, i);
 	map.add(team_player, i, p_uuid);
@@ -78,10 +89,15 @@ if(amount_players + amount_ai_players > minigame.getMaxPlayers()) {
 }
 for(h = 0; h < amount_ai_players; h++) {
 	//assign team
-	team = h + i;
+	if(amount_players == 1 && amount_ai_players == 1) {
+		team = math.round(minigame.getMaxPlayers() / 2);
+	} else {
+		team = getNextFreeTeamIndex();
+	}
 	map.add(team_player, team, "AI");
 	list.add(active_teams, team);
 }
+list.sort(active_teams);
 
 /* There are two phases.
 Phase 0: player needs to roll the dice
@@ -366,13 +382,12 @@ function finished(team) {
 @player_giveup
 team = getTeamFromPlayer(player);
 if(first_finish != null && team == first_finish) {
-	showstats(p, true);
-	goto("wait");
+	showstats(player, true);
+} else {
+	showstats(player, false);
 }
-team = getTeamFromPlayer(player);
 minigame.speakAll(gamename, string.concat(getTeamName(team), " §ehas left the game."));
 player.setFly(player, false);
-showstats(player, false);
 script = script.getFromId(script_id);
 minigame.kickPlayer(script, player);
 

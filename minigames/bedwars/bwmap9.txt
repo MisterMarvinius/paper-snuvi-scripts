@@ -1,7 +1,7 @@
 mapname = "Cave";
 numberofteams = 2;
 teamsize = 4;
-minplayers = teamsize + 1;
+minplayers = 2;
 maxplayers = teamsize * numberofteams;
 gamesignloc = minigame.getSignLoc("bwmapsign9");
 gamesworld = world.getGames();

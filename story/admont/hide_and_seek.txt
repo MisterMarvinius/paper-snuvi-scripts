@@ -30,9 +30,10 @@ label = concat("stage", text.number(stage));
 goto(label);
 
 @stage0
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Robert") {
+	string_name = string.text(entity_name);
+	if(string_name == "Robert") {
 		stage.increase(player);
 		msg.prefix(player, "§dRobert", "Pssst! Ich versteck mich hier...");
 		scheduler.msgPrefix(30, player, "§dRobert", "Sag Bernd bitte nicht, dass ich hier bin.");
@@ -42,9 +43,10 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Bernd") {
+	string_name = string.text(entity_name);
+	if(string_name == "Bernd") {
 		stage.increase(player);
 		msg.prefix(player, "§dBernd", "Und wo ist Robert?");
 		scheduler.msg(30, player, "§dAntwortmöglichkeiten:");

@@ -438,7 +438,7 @@
     </table>
     <table>
         <tr>
-            <th class="command">human_damage</th>
+            <th class="command">human_damage (Deprecated)</th>
             <th class="desc">a human gets damage</th>
         </tr>
         <tr>
@@ -448,7 +448,7 @@
     </table>
     <table>
         <tr>
-            <th class="command">human_goal_reach</th>
+            <th class="command">human_goal_reach (Deprecated)</th>
             <th class="desc">a human reaches its move goal</th>
         </tr>
         <tr>
@@ -458,7 +458,7 @@
     </table>
     <table>
         <tr>
-            <th class="command">human_goal_timeout</th>
+            <th class="command">human_goal_timeout (Deprecated)</th>
             <th class="desc">a human could not reach its move goal within 30 seconds</th>
         </tr>
         <tr>
@@ -1023,16 +1023,6 @@
     </table>
 	<table>
         <tr>
-            <th class="command">block.isWater</th>
-            <th class="desc">returns true if a block is water</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>block.isWater(block)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
             <th class="command">block.isWaterLogged</th>
             <th class="desc">returns true if a block is waterlogged</th>
         </tr>
@@ -1293,6 +1283,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>isLiving(anything)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">isCitizen</th>
+            <th class="desc">returns true if the argument is a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>isCitizen(anything)</td>
         </tr>
     </table>
     <table>
@@ -3657,6 +3657,20 @@
     </table>
 	<table>
         <tr>
+            <th class="command">player.getTargetCitizen</th>
+            <th class="desc">returns the targeted citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.getTargetCitizen(player, radius)</td>
+        </tr>
+        <tr>
+            <td class="bold">Arguments</td>
+            <td>radius will be cast to int<br></td>
+        </tr>
+    </table>
+	<table>
+        <tr>
             <th class="command">player.getLevel</th>
             <th class="desc">returns the level of a player</th>
         </tr>
@@ -4819,10 +4833,23 @@
     </table>
 </section>
 
+<section id="Citizen">
+	<table>
+        <tr>
+            <th class="command">citizen.setSkin</th>
+            <th class="desc">sets the skin of a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.setSkin(citizen, <a href="https://mineskin.org/gallery" target="_blank">texture_value</a>, <a href="https://mineskin.org/gallery" target="_blank">texture_signature</a>)</td>
+        </tr>
+    </table>
+</section>
+
 <section id="Human">
 	<table>
         <tr>
-            <th class="command">human.spawn</th>
+            <th class="command">human.spawn (Deprecated)</th>
             <th class="desc">returns the spawned human</th>
         </tr>
         <tr>
@@ -4832,7 +4859,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.setSkin</th>
+            <th class="command">human.setSkin (Deprecated)</th>
             <th class="desc">sets the skin of a human</th>
         </tr>
         <tr>
@@ -4842,7 +4869,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.setSkinUuid</th>
+            <th class="command">human.setSkinUuid (Deprecated)</th>
             <th class="desc">sets the skin of a human</th>
         </tr>
         <tr>
@@ -4852,7 +4879,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.setName</th>
+            <th class="command">human.setName (Deprecated)</th>
             <th class="desc">sets the name of a human</th>
         </tr>
         <tr>
@@ -4862,7 +4889,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.getName</th>
+            <th class="command">human.getName (Deprecated)</th>
             <th class="desc">returns the name as string</th>
         </tr>
         <tr>
@@ -4872,7 +4899,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.canMove</th>
+            <th class="command">human.canMove (Deprecated)</th>
             <th class="desc">sets that a human can move</th>
         </tr>
         <tr>
@@ -4882,7 +4909,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.setAi</th>
+            <th class="command">human.setAi (Deprecated)</th>
             <th class="desc">sets the ai of a human</th>
         </tr>
         <tr>
@@ -4901,7 +4928,7 @@
     </table>
     <table>
 		<tr>
-            <th class="command">human.moveTo</th>
+            <th class="command">human.moveTo (Deprecated)</th>
             <th class="desc">lets a human walk to coordinates and returns an id</th>
         </tr>
         <tr>
@@ -4915,7 +4942,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.getAi</th>
+            <th class="command">human.getAi (Deprecated)</th>
             <th class="desc">returns the ai of a human</th>
         </tr>
         <tr>
@@ -4925,7 +4952,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.setPrefix</th>
+            <th class="command">human.setPrefix (Deprecated)</th>
             <th class="desc">sets the prefix for all humans in the tab list</th>
         </tr>
         <tr>
@@ -4935,7 +4962,7 @@
     </table>
 	<table>
         <tr>
-            <th class="command">human.setSuffix</th>
+            <th class="command">human.setSuffix (Deprecated)</th>
             <th class="desc">sets the suffix for all humans in the tab list</th>
         </tr>
         <tr>

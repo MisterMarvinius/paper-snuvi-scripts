@@ -63,10 +63,11 @@ if(event == "block_break") {
 goto("wait");
 
 @stage2
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Dieter") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:coal", coal_counter);
+	string_name = string.text(entity_name);
+	if(string_name == "Dieter") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:coal", coal_counter);
 		if(rest_amount == 0) {
 			stage.increase(player);
 			msg.prefix(player, "§dDieter", "Vielen Dank! Jetzt fehlt uns nur noch ein ordentlicher Braten.");
@@ -79,9 +80,10 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage3
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Metzger") {
+	string_name = string.text(entity_name);
+	if(string_name == "Metzger") {
 		stage.increase(player);
 		msg.prefix(player, "§dMetzger", "Hey, du gehörst hier eigentlich nicht hin! Ich will deinen jungen Augen diesen grausamen Anblick ersparen.");
 		msg(player, "§dAntwortmöglichkeiten:");
@@ -121,10 +123,11 @@ if(event == "living_death") {
 goto("wait");
 
 @stage6
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Dieter") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:beef", 1);
+	string_name = string.text(entity_name);
+	if(string_name == "Dieter") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:beef", 1);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dDieter", "Super! Das wird ein einzigartiger Gaumenschmaus.");
 			player.safeGiveItem(player, read.item("minecraft:cooked_beef"));

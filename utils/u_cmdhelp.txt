@@ -50,7 +50,6 @@ function setCommandHelps() {
 	commandhelp.add("comeback");
 	commandhelp.add("customitems");
 	commandhelp.add("giveup");
-	commandhelp.add("hack");
 	commandhelp.add("hat");
 	commandhelp.add("head");
 	commandhelp.add("hub");
@@ -109,6 +108,7 @@ function setCommandHelps() {
 	command.addHelpChild(help, command.newHelpLiteral("herobrine"));
 	command.addHelpChild(help, command.newHelpLiteral("humans"));
 	command.addHelpChild(help, command.newHelpLiteral("lectern"));
+	command.addHelpChild(help, command.newHelpLiteral("loginrequests"));
 	command.addHelpChild(help, command.newHelpLiteral("loom"));
 	command.addHelpChild(help, command.newHelpLiteral("games"));
 	command.addHelpChild(help, command.newHelpLiteral("mails"));
@@ -266,6 +266,8 @@ function setCommandHelps() {
 	addStatsGameHelp(help, "MengerRun");
 	addStatsGameHelp(help, "Snake");
 	addStatsGameHelp(help, "DontGetAngry");
+	addStatsGameHelp(help, "CaptureTheFlag");
+	addStatsGameHelp(help, "Cores");
 	command.addHelp(help);
 	
 	help = command.newHelp("setspawn", "setspawn");
@@ -298,7 +300,7 @@ function setCommandHelps() {
 	helpArg1 = command.newHelpInt("days", 0, 365);
 	helpArg2 = command.newHelpInt("hours", 0, 100);
 	helpArg3 = command.newHelpInt("minutes", 0, 100);
-	command.addHelpChild(helpArg3, command.newHelpString("reason", true));
+	command.addHelpChild(helpArg3, command.newHelpString("result", true));
 	command.addHelpChild(helpArg2, helpArg3);
 	command.addHelpChild(helpArg1, helpArg2);
 	command.addHelpChild(helpArg0, helpArg1);
@@ -467,6 +469,22 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
+	//loginrequests <player/all> <amount> [reason]
+	help = command.newHelp("loginrequests", "loginrequests");
+	helpArg0_A = command.newHelpLiteral("all");
+	helpArg0_B = command.newHelpSpecial("Player", "player");
+	helpArg1 = command.newHelpInt("amount", 1, 100);
+	command.addHelpChild(helpArg1, command.newHelpLiteral("ALLOWED"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("KICK_FULL"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("KICK_BANNED"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("KICK_WHITELIST"));
+	command.addHelpChild(helpArg1, command.newHelpLiteral("KICK_OTHER"));
+	command.addHelpChild(helpArg0_A, helpArg1);
+	command.addHelpChild(helpArg0_B, helpArg1);
+	command.addHelpChild(help, helpArg0_A);
+	command.addHelpChild(help, helpArg0_B);
+	command.addHelp(help);
+	
 	help = command.newHelp("lastseen", "lastseen");
 	command.addHelpChild(help, command.newHelpInt("amount", 1, 100));
 	command.addHelp(help);
@@ -482,7 +500,28 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	//human skin <name>
 	helpArg0 = command.newHelpLiteral("skin");
-	command.addHelpChild(helpArg0, command.newHelpString("skinname", false));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("alena"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("anna"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("baker"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("banker"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("butcher"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("casino"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("dark_mage"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("diver"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("farmer"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("fisher"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("girl"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("librarian"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("lumberjack"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("mage"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("mage_assistant"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("mage_guard"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("mason"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("miner"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("notch"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("priest"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("santa_marv"));
+	command.addHelpChild(helpArg0, command.newHelpLiteral("smith"));
 	command.addHelpChild(help, helpArg0);
 	//human name
 	helpArg0 = command.newHelpLiteral("name");
@@ -753,10 +792,15 @@ function setCommandHelps() {
 	command.addHelpChild(help, helpArg0);
 	command.addHelp(help);
 	
+	//A: msg <player> <message>
+	//B: msg team <message>
 	help = command.newHelp("msg", "msg");
-	helpArg0 = command.newHelpSpecial("Player", "player");
-	command.addHelpChild(helpArg0, command.newHelpString("message", true));
-	command.addHelpChild(help, helpArg0);
+	helpArg0_A = command.newHelpSpecial("Player", "player");
+	helpArg0_B = command.newHelpLiteral("team");
+	command.addHelpChild(helpArg0_A, command.newHelpString("message", true));
+	command.addHelpChild(helpArg0_B, command.newHelpString("message", true));
+	command.addHelpChild(help, helpArg0_A);
+	command.addHelpChild(help, helpArg0_B);
 	command.addHelp(help);
 	
 	help = command.newHelp("setservermessage", "setservermessage");
@@ -963,12 +1007,6 @@ function setCommandHelps() {
 	help = command.newHelp("support", "support");
 	command.addHelpChild(help, command.newHelpString("message", true));
 	command.addHelp(help);
-	
-	help = command.newHelp("teammsg", "isTeam");
-	helpArg0 = command.newHelpString("message", true);
-	command.addHelpChild(help, helpArg0);
-	command.addHelp(help);
-	commandhelp.addAlias("t", "teammsg", helpArg0);
 
 	help = command.newHelp("mute", "mute");
 	helpArg0 = command.newHelpSpecial("Player", "player");

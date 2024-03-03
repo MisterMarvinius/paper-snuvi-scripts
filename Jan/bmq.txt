@@ -40,11 +40,12 @@ player_back_pos = map.new();
 @wait
 wait();
 if(event == "entity_click"){
-	if(entity.getType(entity) != "human") {
+	if(!isCitizen(entity)) {
 		goto("wait");
 	}
-	human_name = human.getName(entity);
-	if(human_name == "§9Jan") {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(entity_name == "§9Jan") {
 		if(player.isSneaking(player)){
 			inv.open(Jan_inv, player);
 			goto("wait");

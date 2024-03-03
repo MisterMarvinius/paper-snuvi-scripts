@@ -8,7 +8,6 @@ minplayers = 1;
 maxplayers = 10;
 
 picture_length = 8;
-
 solve_to_win = 10;
 
 spawns = list.new();
@@ -76,18 +75,4 @@ for(i = 0; i < etagen; i++) {
 	list.add(bottom_templates, loc.new(gamesworld, -2092, y, -2011));
 	list.add(bottom_templates, loc.new(gamesworld, -2103, y, -2011));
 	y -= y_diff;
-}
-
-to_build_edges = list.new();
-bottom_check_edges = list.new();
-for(i = 0; i < solve_to_win; i++) {
-	//Random Vorlage auswählen
-	size = list.getSize(templates);
-	picture_index = math.random(0, size - 1);
-	//Random Vorlage zur Liste hinzufügen
-	list.add(to_build_edges, block.get(list.getIndex(templates, picture_index)));
-	list.add(bottom_check_edges, block.get(list.getIndex(bottom_templates, picture_index)));
-	//Random Vorlage aus All-Liste entfernen
-	list.removeIndex(templates, picture_index);
-	list.removeIndex(bottom_templates, picture_index);
 }

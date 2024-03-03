@@ -1,7 +1,7 @@
 mapname = "Mining";
 numberofteams = 2;
-teamsize = 1;
-minplayers = teamsize + 1;
+teamsize = 3;
+minplayers = 2;
 maxplayers = teamsize * numberofteams;
 gamesignloc = minigame.getSignLoc("bwmapsign3");
 gamesworld = world.getGames();

@@ -189,7 +189,7 @@ if(lectern_action == 0) {
 			msg.prefix(player, prefix_money, concat("Not enough snuvis in inventory. This action costs ", text.number(betrag), " snuvis."));
 			goto("wait");
 		}
-		subMoney(player, betrag);
+		money.sub(player, betrag);
 	}
 	
 	enchantment.writeToItem(map1, item1);
@@ -217,7 +217,7 @@ if(lectern_action == 0) {
 			msg.prefix(player, prefix_money, concat("Not enough snuvis on your account. This action costs ", text.number(betrag), " snuvis."));
 			goto("wait");
 		}
-		subMoney(player, betrag);
+		money.sub(player, betrag);
 	}
 	
 	item1 = read.item("minecraft:enchanted_book");
@@ -252,7 +252,7 @@ if(lectern_action == 0) {
 			msg.prefix(player, prefix_money, concat("Not enough snuvis in your ccount. This action costs ", text.number(betrag), " snuvis."));
 			goto("wait");
 		}
-		subMoney(player, betrag);
+		money.sub(player, betrag);
 	}
 	
 	enchantment.writeToItem(map1, item1);
@@ -306,7 +306,7 @@ if(lectern_action == 0) {
 			msg.prefix(player, prefix_money, concat("Not enough snuvis on your account. This action costs ", text.number(betrag), " snuvis."));
 			goto("wait");
 		}
-		subMoney(player, betrag);
+		money.sub(player, betrag);
 	}
 	
 	enchantment.writeToItem(map2, item2);

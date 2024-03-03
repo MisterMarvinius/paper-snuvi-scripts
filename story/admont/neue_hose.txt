@@ -44,9 +44,10 @@ label = concat("stage", text.number(stage));
 goto(label);
 
 @stage0
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Rolf") {
+	string_name = string.text(entity_name);
+	if(string_name == "Rolf") {
 		msg.prefix(player, "§dRolf", "Was gibt’s?");
 		scheduler.msgPrefix(30, player, concat("§d", player.getName(player)), "Ich bräuchte 7 Tücher.");
 		scheduler.msgPrefix(60, player, "§dRolf", "Du weißt, was zu tun ist. Sammle 14 Wolle. Gib die Häfte auf den Webstuhl und erhalte raue Tücher. Diese gibst du gemeinsam mit der restlichen Wolle wieder auf den Webstuhl, um Tücher zu erhalten.");
@@ -82,9 +83,10 @@ if(event == "player_loom_finish") {
 goto("wait");
 
 @stage3
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Peter") {
+	string_name = string.text(entity_name);
+	if(string_name == "Peter") {
 		msg.prefix(player, "§dPeter", "Danke dir! Das ist zwar noch keine Hose, aber ich kenne da jemanden. Seppel ist Meister im Nähen! Wenn du ihm das hier von mir übergibst, wird er sicher eine Hose für mich beschaffen.");
 		player.safeGiveItem(player, read.item("minecraft:spruce_planks", spruce_amount));
 		stage.increase(player);
@@ -93,10 +95,11 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage4
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Seppel") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:spruce_planks", spruce_amount);
+	string_name = string.text(entity_name);
+	if(string_name == "Seppel") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:spruce_planks", spruce_amount);
 		if(rest_amount == 0) {
 			stage.increase(player);
 			msg.prefix(player, "§dSeppel", "Ach, dich schickt der Peter! Das Holz kommt genau zum richtigen Zeitpunkt. Was möchte er denn?");
@@ -110,10 +113,11 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage5
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Seppel") {
-		rest_amount = human.giveItem(entity_name, player, "km:cloth", cloth_amount);
+	string_name = string.text(entity_name);
+	if(string_name == "Seppel") {
+		rest_amount = citizen.giveItem(string_name, player, "km:cloth", cloth_amount);
 		if(rest_amount == 0) {
 			waitfor(60);
 			msg.prefix(player, "§dSeppel", "Danke fürs Warten.");
@@ -136,10 +140,11 @@ if(event == "item_air_click") {
 	}
 	goto("wait");
 }
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Peter") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:leather_leggings", 1);
+	string_name = string.text(entity_name);
+	if(string_name == "Peter") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:leather_leggings", 1);
 		if(rest_amount == 0) {
 			inv.update(player);
 			msg.prefix(player, "§dPeter", "Vielen Dank!");

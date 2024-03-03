@@ -528,20 +528,22 @@ if(title_string == "Recipes") {
 	if(item_type == black_glass_pane_mat) {
 		goto("checkgame");
 	}
-	if(item_type == paper_mat) {
-		name = string.text(item.getName(item));
-		if(string.contains(name, "<<") || string.contains(name, ">>")) {
-			page = string.removeFormat(name);
-			page = string.replace(page, "<<", "");
-			page = string.replace(page, ">>", "");
-			page = read.number(page);
-			if(inv_slot == 52) {
-				setRecipePage(player, inv, page);
+	if(inv_slot == 52 || inv_slot == 53) {
+		if(item_type == paper_mat) {
+			name = string.text(item.getName(item));
+			if(string.contains(name, "<<") || string.contains(name, ">>")) {
+				page = string.removeFormat(name);
+				page = string.replace(page, "<<", "");
+				page = string.replace(page, ">>", "");
+				page = read.number(page);
+				if(inv_slot == 52) {
+					setRecipePage(player, inv, page);
+				}
+				if(inv_slot == 53) {
+					setRecipePage(player, inv, page);
+				}
+				goto("checkgame");
 			}
-			if(inv_slot == 53) {
-				setRecipePage(player, inv, page);
-			}
-			goto("checkgame");
 		}
 	}
 	index = getIndexFromItemType(item_type);
@@ -590,6 +592,8 @@ player_uuid = player.getUuid(player);
 if(list.contains(removed_perms, player_uuid)) {
 	list.remove(removed_perms, player_uuid);
 	perm.loadGroupToPlayer(16, player);
+	perm.update(player);
+	snuvi.debug(perm.has("plot.bypass", player));
 }
 if(singleteam) {
 	script = script.getFromId(script_id);
@@ -640,8 +644,8 @@ for(i = 0; i < list.getSize(player_list); i++) {
 for(i = 0; i < list.getSize(removed_perms); i++) {
 	player_uuid = list.getIndex(removed_perms, i);
 	p = player.get(player_uuid);
-	perm.add("plot.bypass", p);
 	perm.loadGroupToPlayer(16, p);
+	perm.update(p);
 }
 script = script.getFromId(script_id);
 minigame.kickAllPlayers(script);
@@ -671,7 +675,7 @@ function showstats(player, won) { //Player player, Boolean won
 	}
 	
 	minigame.statsHeader(player, $gamename, "§e");
-	minigame.statsLine(player, "§e", "Max Items", string.number(last_record));
+	minigame.statsLine(player, "§e", "Max Items", string.number(record));
 	minigame.statsLine(player, "§e", "Played games", string.number(playedgames));
 	minigame.statsLine(player, "§e", "Won games", string.number(wongames));
 	if(playedgames != 0) {

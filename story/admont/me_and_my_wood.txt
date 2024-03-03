@@ -44,10 +44,11 @@ if(event == "block_break") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Lumberjack") {
-		rest_amount = human.giveItem(entity_name, player, spruce_log_mat, spruce_log);
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Lumberjack") {
+		rest_amount = citizen.giveItem(string_name, player, spruce_log_mat, spruce_log);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dLumberjack", "Thank you, I will hand it over for processing.");
 			msg(player, text.new("§dQuest finished. Reward: 4 snuvis!"));

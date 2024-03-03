@@ -51,11 +51,12 @@ if(event == "entity_click") {
 	if(slot.isOffHand(hand)) {
 		goto("wait");
 	}
-	if(!entity.isHuman(entity)) {
+	if(!isCitizen(entity)) {
 		goto("wait");
 	}
-	human_name = human.getName(entity);
-	if(human_name != "Ludwig") {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name != "Ludwig") {
 		goto("wait");
 	}
 	inv = inv.new("011020100022000000022000000022000000", text.new("Gemstone-Anvil"));

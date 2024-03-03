@@ -307,10 +307,6 @@ function getBlockLocation(location) {
 	return loc.new(world, bx, by, bz);
 }
 
-function getDateString(time) { //Deprecated
-	return time.getDateString(time);
-}
-
 function time.getDateString(time) {
 	calendar = time.new(time);
 	day = time.getStringFromNumber(time.getDay(calendar));
@@ -338,10 +334,6 @@ function time.getStringFromNumber(number) {
 
 function time.getClockString(time) { //s
 	return string.concat(string.number(math.roundDown(time / 60)), " min ", string.number(math.round(time % 60)), " s");
-}
-
-function getTimeString(millis) { //Deprecated
-	return time.getString(millis);
 }
 
 function time.getString(millis) {
@@ -1435,40 +1427,42 @@ function player.getValid(player_or_id) {
 //Msg-Utils
 //--------------------------------------------------
 
-function msg.action(receiver, string) {
-	player.action(receiver, text.new(string));
+function getMessage(text_or_string) {
+	if(isString(text_or_string)) {
+		message = getMessageFromString(text_or_string);
+	} else {
+		message = text_or_string;
+	}
+	return message;
 }
 
-function msg.team(from, string) {
-	if(isString(from)) {
-		from_name = from;
-	} else {
-		from_name = player.getName(from);
-	}
-	online_list = players.toList();
-	iter = iterator(online_list);
-	while(hasNext(iter)) {
-		p = next(iter);
-		if(perm.has("isTeam", p)) {
-			if(player.isLive(p)) {
-				msg(p, text.merge(text.new(string.concat(string.getPrefix("§4Team"), " ", from_name, ": ")), string.getHoverText("§7§oHidden", string)));
-			} else {
-				msg.prefix(p, "§4Team", string.getTextWithLink(string.concat("§c", from_name, "§r: ", string)));
-			}
-		}
-	}
-	msg.prefix("SERVER", "§4Team", string.concat("§c", from_name, "§r: ", string));
+function getMessageFromString(string) {
+	string = string.replace(string, "&", "§");
+	message = string.getTextWithLink(string);
+	return message;
+}
+
+function msg.action(receiver, text_or_string) {
+	player.action(receiver, getMessage(text_or_string));
 }
 
 function msg.string(receiver, string) {
 	msg(receiver, text.new(string));
 }
 
-function msg.quest(player, speaker, line_now, line_max, message) {
-	msg.string(player, string.concat("[§b", string.number(line_now), "§r/§b", string.number(line_max), "§r] §a", speaker, " §r| ", string.concat("§e", message)));
+function msg.prefix(receiver, prefix, text_or_string) {
+	msg(receiver, text.merge(text.new(string.concat(string.getPrefix(prefix), " ")), getMessage(text_or_string)));
 }
 
-function msg.chat(player, message) {
+function msg.online(prefix, text_or_string) {
+	msg.prefix("online", prefix, text_or_string);
+}
+
+function msg.quest(player, speaker, line_now, line_max, string) {
+	msg.string(player, string.concat("[§b", string.number(line_now), "§r/§b", string.number(line_max), "§r] §a", speaker, " §r| ", string.concat("§e", string)));
+}
+
+function msg.chat(player, text_or_string) {
 	nickname = player.getNickName(player);
 	rank = getRank(player);
 	colorcode = string.subString(rank, 0, 2);
@@ -1484,67 +1478,75 @@ function msg.chat(player, message) {
 		if(player.hasMinigame(p) && player.isMuted(p)) {
 			continue;
 		}
-		msg(p, text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), message));
+		msg(p, text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), getMessage(text_or_string)));
 	}
 }
 
-function msg.send(from_player, to_name, prefix, message, send_mail) {
+function msg.send(from_player, to_name, prefix, string_message, send_mail) {
 	p = read.player(to_name);
 	if(p == null) {
 		if(send_mail) {
-			mail.send(player.getName(from_player), to_name, message);
+			mail.send(player.getName(from_player), to_name, string_message);
 		}
 	} else {
-		msg.prefix(p, prefix, message);
+		msg.prefix(p, prefix, string_message);
 	}
 }
 
-function msg.prefix(receiver, prefix, message) {
-	if(isString(message)) {
-		msg.string(receiver, string.concat(string.getPrefix(prefix), " ", message));
+function msg.team(from, text_or_string) {
+	if(isString(from)) {
+		from_name = from;
 	} else {
-		msg(receiver, text.merge(text.new(string.concat(string.getPrefix(prefix), " ")), message));
+		from_name = player.getName(from);
 	}
+	pre_text = text.new(string.concat("§c", from_name, "§r: "));
+	message = getMessage(text_or_string);
+	online_list = players.toList();
+	iter = iterator(online_list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		if(perm.has("isTeam", p)) {
+			if(player.isLive(p)) {
+				msg.prefix(p, "§4Team", text.merge(pre_text, text.hover(text.new("§7§oHidden"), message)));
+			} else {
+				msg.prefix(p, "§4Team", text.merge(pre_text, message));
+			}
+		}
+	}
+	msg.prefix("SERVER", "§4Team", text.merge(pre_text, message));
 }
 
-function msg.online(prefix, message) {
-	msg.string("online", string.concat(string.getPrefix(prefix), " ", message));
-}
-
-function msg.radius(prefix, message, location, radius) {
+function msg.radius(prefix, text_or_string, location, radius) {
 	list = players.near(location, radius);
 	iter = iterator(list);
 	while(hasNext(iter)) {
-		msg.prefix(next(iter), prefix, message);
+		msg.prefix(next(iter), prefix, text_or_string);
 	}
 }
 
-function msg.world(world, message) {
+function msg.world(world, text_or_string) {
 	if(world == null) {
 		return;
-	}
-	if(isString(message)) {
-		message = text.new(message);
 	}
 	world_list = world.getPlayers(world);
 	iter = iterator(world_list);
 	while(hasNext(iter)) {
-		msg(next(iter), message);
+		msg(next(iter), getMessage(text_or_string));
 	}
 }
 
-function msg.survival(message) {
-	msg.world(world.getOverWorld(), message);
-	msg.world(world.getTheEnd(), message);
-	msg.world(world.getTheNether(), message);
+function msg.survival(text_or_string) {
+	msg.world(world.getOverWorld(), text_or_string);
+	msg.world(world.getTheEnd(), text_or_string);
+	msg.world(world.getTheNether(), text_or_string);
 }
 
-function msg.creative(message) {
-	msg.world(world.getCreative(), message);
+function msg.creative(text_or_string) {
+	msg.world(world.getCreative(), text_or_string);
 }
 
-function msg.games(message) {
-	msg.world(world.getGames(), message);
+function msg.games(text_or_string) {
+	msg.world(world.getGames(), text_or_string);
 }
 
 //--------------------------------------------------
@@ -1684,11 +1686,23 @@ function item.isDigit(item) {
 	return set.contains(set, c);
 }
 
+function drops.containsMaterial(drops_list, material) {
+	for(i = 0; i < list.getSize(drops_list); i++) {
+		item_entity = list.getIndex(drops_list, i);
+		item = item.entity.get(item_entity);
+		item_type = item.getType(item);
+		if(item_type == material) {
+			return true;
+		}
+	}
+	return false;
+}
+
 //--------------------------------------------------
 //Entity-Utils
 //--------------------------------------------------
 
-function entity.isHuman(entity) {
+function entity.isHuman(entity) { //Deprecated
 	if(entity == null) {
 		return false;
 	}
@@ -2541,15 +2555,15 @@ function block.gotWater(block) {
 //--------------------------------------------------
 
 function hasEnoughMoney(player_or_id, price) {
-	return getMoney(player_or_id) >= price;
+	return money.get(player_or_id) >= price;
 }
 
-function getMoney(player_or_id) {
+function money.get(player_or_id) {
 	config = playerdata.getSurvival(player_or_id);
 	return config.getDouble(config, "money", 0);
 }
 
-function setMoney(player_or_id, money) {
+function money.set(player_or_id, money) {
 	config = playerdata.getSurvival(player_or_id);
 	config.set(config, "money", money);
 	config.saveAsync(config);
@@ -2557,7 +2571,7 @@ function setMoney(player_or_id, money) {
 	if(player == null) {
 		return;
 	}
-	displayMoney(player, money);
+	money.display(player, money);
 }
 
 function money.getBoostFactor() {
@@ -2593,7 +2607,7 @@ function money.add(player_or_id, money) {
 	if(player == null) {
 		return;
 	}
-	displayMoney(player, new_money);
+	money.display(player, new_money);
 	money.popUp(player, money, false);
 }
 
@@ -2609,7 +2623,7 @@ function money.sub(player_or_id, money) {
 	if(player == null) {
 		return;
 	}
-	displayMoney(player, new_money);
+	money.display(player, new_money);
 	money.popUp(player, money * -1, false);
 }
 
@@ -2625,15 +2639,7 @@ function money.subWithoutPopUp(player_or_id, money) {
 	if(player == null) {
 		return;
 	}
-	displayMoney(player, new_money);
-}
-
-function addMoney(player_or_id, money) { //Deprecated
-	money.add(player_or_id, money);
-}
-
-function subMoney(player_or_id, money) { //Deprecated
-	money.sub(player_or_id, money);
+	money.display(player, new_money);
 }
 
 function money.popUp(player, money, boosted) {
@@ -2670,10 +2676,6 @@ function money.display(player, money)  {
 	silver = string.number(a[1]);
 	copper = string.number(a[2]);
 	sb.add(player, 1, string.concat(icon.getGoldCoin(), gold, " ", icon.getSilverCoin(), silver, " ", icon.getCopperCoin(), copper));
-}
-
-function displayMoney(player, money) { //Deprecated
-	money.display(player, money);
 }
 
 function money.getString(money) {
@@ -3073,6 +3075,13 @@ function loc.getStringSpace(loc) {
 	return string.concat(world_name, " ", x, " ", y, " ", z);
 }
 
+function loc.getStringRounded(loc, separator) {
+	x = string.number(math.round(loc.getX(loc)));
+	y = string.number(math.round(loc.getY(loc)));
+	z = string.number(math.round(loc.getZ(loc)));
+	return string.concat(separator, x, separator, y, separator, z);
+}
+
 function loc.isSameWorld(loc1, loc2) {
 	return world.getName(loc.getWorld(loc1)) == world.getName(loc.getWorld(loc2));
 }
@@ -3423,6 +3432,7 @@ function perm.simUser(player) {
 	perm.clear(player);
 	perm.loadGroupToPlayer(0, player);
 	perm.loadGroupToPlayer(14, player);
+	perm.update(player);
 }
 
 function player.removeAllPerms(player_id) {
@@ -3602,7 +3612,7 @@ function player.isNicked(player) {
 //Mail-Utils
 //--------------------------------------------------
 
-function mail.send(from_name, to_name, message) {
+function mail.send(from_name, to_name, string_message) {
 	server_config = getServerConfig();
 	mail_id = config.getDouble(server_config, "mail_id", 0) + 1;
 	config.set(server_config, "mail_id", mail_id);
@@ -3617,7 +3627,7 @@ function mail.send(from_name, to_name, message) {
 	databank.setInt(stmt, 3, to_id);
 	databank.setBool(stmt, 4, false);
 	databank.setLong(stmt, 5, time.getMillis());
-	databank.setString(stmt, 6, message);
+	databank.setString(stmt, 6, string_message);
 	databank.workerExecute(stmt);
 	
 	//Wenn Spieler online, dann Pushmeldung veranlassen
@@ -3989,23 +3999,23 @@ function clan.updateHeadNames(clan_id) {
 	}
 }
 
-function clan.msg.string(clan_id, message) {
+function clan.msg(clan_id, text_or_string) {
 	list = clan.getMembersList(clan_id);
 	iter = iterator(list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != null) {
-			msg.prefix(p, "§2Clan", message);
+			msg.prefix(p, "§2Clan", text_or_string);
 		}
 	}
 }
 
-function clan.mail(clan_id, from_name, message) {
+function clan.mail(clan_id, from_name, string_message) {
 	list = clan.getMembersList(clan_id);
 	iter = iterator(list);
 	while(hasNext(iter)) {
 		to_name = player.getName(next(iter));
-		mail.send(from_name, to_name, message);
+		mail.send(from_name, to_name, string_message);
 	}
 }
 
@@ -4089,22 +4099,22 @@ function scheduler.addFly(ticks, player, bool) {
 	scheduler.add(a);
 }
 
-function scheduler.msgPrefix(ticks, player, prefix, message) {
+function scheduler.msgPrefix(ticks, player, prefix, text_or_string) {
 	a = array.new(5);
 	a[0] = 1;
 	a[1] = ticks;
 	a[2] = player;
 	a[3] = prefix;
-	a[4] = message;
+	a[4] = text_or_string;
 	scheduler.add(a);
 }
 
-function scheduler.msg(ticks, player, message) {
+function scheduler.msg(ticks, player, text_or_string) {
 	a = array.new(4);
 	a[0] = 2;
 	a[1] = ticks;
 	a[2] = player;
-	a[3] = message;
+	a[3] = text_or_string;
 	scheduler.add(a);
 }
 
@@ -4237,8 +4247,8 @@ function icon.getEmptyHeart() {
 //Challenge-Utils
 //--------------------------------------------------
 
-function challenge.display(player, id, challenge, message, stage, all_stages) {
-	sb.add(player, id, string.concat("§a", challenge, ": ", message, " [", string.number(stage), "/", string.number(all_stages), "]"));
+function challenge.display(player, id, challenge, string_message, stage, all_stages) {
+	sb.add(player, id, string.concat("§a", challenge, ": ", string_message, " [", string.number(stage), "/", string.number(all_stages), "]"));
 }
 
 function challenge.removeDisplay(player, id) {

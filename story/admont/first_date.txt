@@ -94,9 +94,10 @@ if(option == "A") {
 	}
 	goto("wait");
 }
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Farmer") {
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Farmer") {
 		item = living.getHand(player);
 		item_type = item.getType(item);
 		if(item_type == writable_book_mat) {
@@ -121,10 +122,11 @@ if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
 goto("wait");
 
 @stage2
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Farmer") {
-		rest_amount = human.giveItem(entity_name, player, pink_tulip_mat, tulips_needed);
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Farmer") {
+		rest_amount = citizen.giveItem(string_name, player, pink_tulip_mat, tulips_needed);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dFarmer", "Thank you!");
 			msg(player, text.new("§dQuest finished. Reward: 2 snuvis!"));

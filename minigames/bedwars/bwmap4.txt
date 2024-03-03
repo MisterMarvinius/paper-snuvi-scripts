@@ -1,7 +1,7 @@
 mapname = "Masters";
 numberofteams = 4;
-teamsize = 2;
-minplayers = teamsize + 1;
+teamsize = 4;
+minplayers = 2;
 maxplayers = teamsize * numberofteams;
 gamesignloc = minigame.getSignLoc("bwmapsign4");
 gamesworld = world.getGames();

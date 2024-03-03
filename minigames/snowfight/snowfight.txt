@@ -104,6 +104,9 @@ if(event == "block_click") {
 		list.add(newteamlist, player_name);
 		map.add(players, player_name, newteam);
 		msg.prefix(player, gamename, string.concat("§eYou joined the ", map.get(teamcolortext, newteam), " §eteam."));;
+		if(!minigame.isStarting()) {
+			goto("startcountdown");
+		}
 	}
 }
 return;
@@ -335,10 +338,10 @@ function showstats(player, show_time, won) { //Player player, Boolean show_time,
 	record = last_record + kills;
 	ranking.setPoints($rankingtable, player_id, record);
 	deaths = map.get($deaths_map, player_name);
-	wongames = minigame.getWon(player, "snow");
+	wongames = minigame.getWon(player, $game_short);
 	if(won) {
 		wongames++;
-		minigame.setWon(player, "snow", wongames);
+		minigame.setWon(player, $game_short, wongames);
 	}
 	
 	minigame.statsHeader(player, $gamename, "§e");
@@ -382,15 +385,18 @@ function equipPlayer(player, team) {
 }
 
 function minigame.canStartIndiv() {
-	if(list.getSize($waiters) > 0) {
+	player_list = minigame.getPlayers($script_id);
+	p_amount = list.getSize(player_list);
+	if(p_amount < minigame.getMinPlayers()) {
+		return false;
+	}
+	if(p_amount > 0 && list.getSize($waiters) > 0) {
 		return true;
 	}
-	player_list = minigame.getPlayers(script_id);
-	all_size = list.getSize(player_list);
 	for(i = 0; i < $numberofteams; i++) {
 		teamlist = map.get($team_lists, i);
 		team_size = list.getSize(teamlist);
-		if(team_size == all_size) {
+		if(team_size == p_amount) {
 			return false;
 		}
 	}

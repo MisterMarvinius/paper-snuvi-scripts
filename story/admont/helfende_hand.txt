@@ -79,14 +79,15 @@ if(stage == 3) {
 goto("wait");
 
 @stage3
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
 	if(entity_name == "Gustav") {
 		item = living.getEquip(player, "hand");
 		item_type = item.getType(item);
 		if(item_type == "minecraft:coal") {
 			if(coal_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, "minecraft:coal", coal_needed);
+				rest_amount = citizen.giveItem(string_name, player, "minecraft:coal", coal_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dGustav", "Danke für die Kohle.");
 				}
@@ -95,7 +96,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:iron_ore") {
 			if(iron_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, "minecraft:iron_ore", iron_needed);
+				rest_amount = citizen.giveItem(string_name, player, "minecraft:iron_ore", iron_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dGustav", "Danke für das Eisenerz.");
 				}
@@ -104,7 +105,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item.hasTag(wool_tag, item)) {
 			if(wool_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, wool_tag, wool_needed);
+				rest_amount = citizen.giveItem(string_name, player, wool_tag, wool_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dGustav", "Danke für die Wolle.");
 				}

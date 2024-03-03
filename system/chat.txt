@@ -168,7 +168,7 @@ player.setTabName(player);
 player.greet(player);
 sb.setTitle(player, text.new(string.concat(icon.getHeart(), "§6Mundus §cCrassus§f", icon.getHeart())));
 rank.offerTimeScheduled(player);
-money.display(player, getMoney(player));
+money.display(player, money.get(player));
 if(perm.has("isDev", player)) {
 	error_size = error.getSize();
 	if(error_size > 0) {
@@ -192,7 +192,7 @@ function giveCookie(player) {
 	now_time = time.getMillis();
 	if(now_time - $cookie_time > 300000) {
 		$cookie_time = now_time;
-		msg.string(player, "§dHere is a cookie for you :D");
+		msg.string(player, "§dNobody was online. But now you are here. You make me smile. So here is a cookie for you :D");
 		player.safeGiveItem(player, $cookie);
 	}
 }
@@ -242,7 +242,7 @@ if(player.isGameMuted(player)) {
 if(perm.has("color", player)) {
 	string_message = string.replace(string_message, "&", "§");
 }
-msg.chat(player, string.getTextWithLink(string_message));
+msg.chat(player, string_message);
 goto("wait");
 
 @living_death

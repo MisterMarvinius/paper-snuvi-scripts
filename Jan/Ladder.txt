@@ -1,0 +1,152 @@
+event.load("block_click");
+
+air_mat = material.get("AIR");
+water_mat = material.get("WATER");
+
+rail_mat = material.get("RAIL");
+chain_mat = material.get("CHAIN");
+vines_mat = material.get("VINE");
+ladder_mat = material.get("LADDER");
+//twisting vines, weeping_vines (+plant)
+
+
+@wait
+wait();
+
+if (event == "block_click"){
+	if (!player.isSneaking(player)){
+		goto("wait");
+	}
+	if (action != "RIGHT_CLICK_BLOCK"){
+		goto("wait");
+	}
+	mat = block.getType(block);
+	item_mat = item.getType(living.getEquip(player, hand));
+	
+	if (mat != air_mat){
+		if(item_mat != mat){
+			goto("wait");
+		}
+	}
+	
+	look = entity.getLook(player);
+	
+	if(mat == ladder_mat){
+		xyz = better_ladder.vertical_split(look);
+	}
+	elseif(mat == chain_mat){
+		if (!string.contains(string.blockData(block.getData(block)), "axis=y")){
+			goto("wait");
+		}
+		//xyz = vertical_split(look);
+		xyz = array.new(3);
+		xyz[0] = 0;
+		xyz[1] = -1;
+		xyz[2] = 0;
+	}
+	elseif(mat == rail_mat){
+		xyz = better_ladder.horizontal_split(player);
+	}
+	elseif(mat == vines_mat){
+		xyz = array.new(3);
+		xyz[0] = 0;
+		xyz[1] = -1;
+		xyz[2] = 0;
+	}
+	else{
+		goto("wait");
+	}
+	
+	better_ladder.continue_block(player, block, mat, xyz);
+	cancel = true;
+}
+
+
+function better_ladder.vertical_split(look){
+	xyz = array.new(3);
+	for (i = 0; i<3; i++){
+		xyz[i] = 0;
+	}
+	if (look[1] > 0){
+		xyz[1] = 1;
+	}
+	else{
+		xyz[1] = -1;
+	}
+	return xyz;
+}
+
+function better_ladder.horizontal_split(player){
+	xyz = array.new(3);
+	
+	for (i = 0; i<3; i++){
+		xyz[i] = 0;
+	}
+	
+	loc = entity.getLocation(player);
+	yaw = loc.getYaw(loc);
+	
+	if (yaw < -135){
+		xyz[2] = -1;
+	}
+	elseif (yaw < -45){
+		xyz[0] = 1;
+	}
+	elseif (yaw < 45){
+		xyz[2] = 1;
+	}
+	elseif (yaw < 135){
+		xyz[0] = -1;
+	}
+	else{
+		xyz[2] = -1;
+	}
+	return xyz;
+}
+
+function better_ladder.continue_block(player, block, of_mat, xyz){
+	itemstack = item.new(of_mat, 1);
+	b_loc = block.getLocation(block);
+	set_water_logged = false;
+	i = 0;
+	while(true){
+		loc.add(b_loc, xyz[0], xyz[1], xyz[2]);
+		new_block = block.get(b_loc);
+		if (!plot.check(b_loc, player, 23, true) || i >= 5){
+			return;
+		}
+		mat = block.getType(new_block);
+		if(mat == $air_mat){
+			break;
+		}
+		elseif(mat == $water_mat){
+			snuvi.debug(block.getData(new_block));
+			if (string.contains(string.blockData(block.getData(new_block)), "falling=true")){
+				break;
+			}
+			elseif(!string.contains(string.blockData(block.getData(new_block)), "level=0")){
+				break;
+			}
+			elseif (block.canHaveWater(block)){
+				set_water_logged = true;
+				break;
+			}
+			else{
+				return;
+			}
+		}
+		elseif (mat != of_mat){
+			return;
+		}
+		i += 1;
+	}
+	block.clone(block, b_loc, true);
+	if (block.canHaveWater(block)){
+		block.setWaterLogged(new_block, set_water_logged);
+	}
+	if (player.isSurvival(player)){
+		player.removeItem(player, itemstack);
+	}
+}
+
+goto("wait");

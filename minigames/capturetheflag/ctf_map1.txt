@@ -1,0 +1,44 @@
+gamesignloc = minigame.getSignLoc("ctfsign1");
+gamesworld = world.getGames();
+
+lobbyspawnloc = loc.new(gamesworld, 987, 84, 995);
+middleloc = loc.new(gamesworld, -5500, 64, -5500);
+radius = 200;
+
+numberofteams = 2;
+teamsize = 10;
+minplayers = 2;
+maxplayers = teamsize * numberofteams;
+mapname = "Battlefield";
+
+joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
+list.add(joinblocks, loc.new(gamesworld, 991, 84, 995));
+list.add(joinblocks, loc.new(gamesworld, 983, 84, 995));
+
+list1 = list.new();
+list.add(list1, loc.new(gamesworld, -5437, 85, -5499)); //team1
+list.add(list1, loc.new(gamesworld, -5437, 85, -5501)); //team2
+
+list2 = list.new();
+list.add(list2, loc.new(gamesworld, -5569, 85, -5499)); //team1
+list.add(list2, loc.new(gamesworld, -5569, 85, -5501)); //team2
+
+flaglocs = map.new();
+map.add(flaglocs, 0, list1);
+map.add(flaglocs, 1, list2);
+
+//Rotation der Banner
+flagrotation = map.new();
+map.add(flagrotation, 0, 12); //Osten
+map.add(flagrotation, 1, 4); //Westen
+
+//Spawn-Locations der Spieler
+spawnlocs = map.new();
+map.add(spawnlocs, 0, loc.new(gamesworld, -5451, 64, -5500, 90, 0));
+map.add(spawnlocs, 1, loc.new(gamesworld, -5555, 64, -5500, -90, 0));
+
+sword = item.create("STONE_SWORD", 1, null, null);
+bow = item.create("BOW", 1, null, null);
+arrows = item.create("ARROW", 32, null, null);
+food = item.create("COOKED_PORKCHOP", 32, null, null);
+gapple = item.create("GOLDEN_APPLE", 1, null, null);

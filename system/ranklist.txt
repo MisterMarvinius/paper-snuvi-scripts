@@ -35,6 +35,8 @@ ranking.add("§e", "MengerRun", "mr", "mrranks", "Wins", "DESC", null);
 ranking.add("§c", "AmongUs", "among_us", "among_us_ranks", "Time", "ASC", null);
 ranking.add("§2", "Snake", "snake", "snakeranks", "Size Record", "DESC", null);
 ranking.add("§c", "DontGetAngry", "dga", "dgaranks", "Finished tokens", "DESC", null);
+ranking.add("§3", "CaptureTheFlag", "ctf", "ctfranks", "Wins", "DESC", null);
+ranking.add("§b", "Cores", "cores", "coresranks", "Broken cores", "DESC", null);
 
 ranking.register("invertranks5x5");
 ranking.register("invertranks7x7");
@@ -162,7 +164,7 @@ if(event == "custom_command") {
 		table = string.concat(table, sub_game);
 		message = game.getMessage(gamename);
 		color = game.getColor(gamename);
-		msg.prefix(player, string.concat(color, gamename), string.concat("§eWertung nach: §r", message));
+		msg.prefix(player, string.concat(color, gamename), string.concat("§eRanked by: §r", message));
 		showPlayerStats(player, gamename, table, p_name);
 		goto("wait");
 	}
@@ -224,7 +226,7 @@ function playerStatsCore(player, gamename, p_name) {
 	}
 	table = game.getRankingTable(gamename);
 	message = game.getMessage(gamename);
-	msg.prefix(player, string.concat(color, gamename), string.concat("§eWertung nach: §r", message));
+	msg.prefix(player, string.concat(color, gamename), string.concat("§eRanked by: §r", message));
 	showPlayerStats(player, gamename, table, p_name);
 }
 
@@ -266,7 +268,7 @@ function showTopStats(player, gamename, table) {
 		return;
 	}
 	msg.string(player, "");
-	msg.prefix(player, string.concat(color, gamename), string.concat("§eWertung nach: §r", message));
+	msg.prefix(player, string.concat(color, gamename), string.concat("§eRanked by: §r", message));
 	for(i = 0; i < 10; i++) {
 		if(i == list.getSize(list)) {
 			break;

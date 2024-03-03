@@ -81,10 +81,11 @@ if(event == "custom_command" && command == "questanswer") {
 goto("wait");
 
 @stage2
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Olaf") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:nautilus_shell", 1);
+	string_name = string.text(entity_name);
+	if(string_name == "Olaf") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:nautilus_shell", 1);
 		if(rest_amount == 0) {
 			msg(player, "§dQuest abgeschlossen. Belohnung: 12 Snuvis!");
 			money.addBoost(player, 12);

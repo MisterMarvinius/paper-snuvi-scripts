@@ -1,0 +1,40 @@
+event.load("player_move");
+
+overworld = world.get("world");
+
+Aufschwung = event.addMoveData(loc.new(overworld, 180, 60, -90), loc.new(overworld, 220,120,-50), 5, -1);
+Mid = loc.new(overworld, 195, 80, -70);
+
+@wait
+wait();
+
+if(event == "player_move"){
+	//naja, eigentlich elytra
+	if(!player.isFlying(player)){
+		auf.schwung(player);
+	}
+}
+
+goto("wait");
+
+function auf.schwung(player){
+	motion = entity.getMotion(player);
+	look = entity.getLook(player);
+	
+	x = motion[0];
+	y = motion[1];
+	z = motion[2];
+	
+	if (y > -0.05){
+		msg(player, text.new(y));
+		y_d = (1-y);
+		Dist = math.pow(195-x,2) + math.pow(80-y,2) + math.pow(-69-z,2)+0.4;
+		y = y+y_d*(1/Dist+0.05)+0.25*(1-math.pow(look[1],2));
+		
+		if (y>1){
+			y = 1;
+		}
+		msg(player, text.new(y));
+		entity.setMotion(player, x, y, z);
+	}
+}

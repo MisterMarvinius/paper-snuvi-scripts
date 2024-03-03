@@ -120,7 +120,7 @@ function mail.showNew(player) {
 		time = databank.getLong(result, 3);
 		message = databank.getString(result, 4);
 		
-		msg(player, text.merge(text.new(" - "), string.getHoverText(string.concat("§e", from), getTimeString(time)), text.new(string.concat(" §r§l", message))));
+		msg(player, text.merge(text.new(" - "), string.getHoverText(string.concat("§e", from), time.getString(time)), text.new(string.concat(" §r§l", message))));
 		
 		nextrow = databank.next(result);
 	}
@@ -163,9 +163,9 @@ function mail.showBox(player, box) {
 		time = databank.getLong(result, 5);
 		message = databank.getString(result, 6);
 		if(box == "inbox") {
-			msg(player, text.merge(text.new(" - "), string.getHoverText(string.concat("§e", from), getTimeString(time)), text.new(string.concat(" §r", colorcode, message))));
+			msg(player, text.merge(text.new(" - "), string.getHoverText(string.concat("§e", from), time.getString(time)), text.new(string.concat(" §r", colorcode, message))));
 		} else {
-			msg(player, text.merge(text.new(" - "), string.getHoverText(string.concat("§e", to), getTimeString(time)), text.new(string.concat(" §r", colorcode, message))));
+			msg(player, text.merge(text.new(" - "), string.getHoverText(string.concat("§e", to), time.getString(time)), text.new(string.concat(" §r", colorcode, message))));
 		}
 		nextrow = databank.next(result);
 	}

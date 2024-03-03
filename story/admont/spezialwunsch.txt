@@ -91,10 +91,11 @@ if(event == "block_break") {
 goto("wait");
 
 @stage2
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Bauer") {
-		rest_amount = human.giveItem(entity_name, player, "km:hay_bundle", hay_needed);
+	string_name = string.text(entity_name);
+	if(string_name == "Bauer") {
+		rest_amount = citizen.giveItem(string_name, player, "km:hay_bundle", hay_needed);
 		if(rest_amount == 0) {
 			msg(player, "§dQuest abgeschlossen. Belohnung: 12 Snuvis!");
 			money.addBoost(player, 12);

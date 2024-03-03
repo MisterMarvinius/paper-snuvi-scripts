@@ -197,14 +197,15 @@ if(stage == 8) {
 goto("wait");
 
 @stage8
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Kunibert") {
+	string_name = string.text(entity_name);
+	if(string_name == "Kunibert") {
 		item = living.getEquip(player, "hand");
 		item_type = item.getType(item);
 		if(item_type == "minecraft:brown_mushroom") {
 			if(brown_mushroom_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, brown_mushroom_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, brown_mushroom_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für die braunen Pilze.");
 				}
@@ -213,7 +214,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:red_mushroom") {
 			if(red_mushroom_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, red_mushroom_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, red_mushroom_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für die roten Pilze.");
 				}
@@ -222,7 +223,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:nether_wart") {
 			if(nether_wart_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, nether_wart_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, nether_wart_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für die Netherwarzen.");
 				}
@@ -231,7 +232,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:crimson_roots") {
 			if(crimson_roots_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, crimson_roots_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, crimson_roots_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für die Karmesinwurzeln.");
 				}
@@ -240,7 +241,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:crimson_fungus") {
 			if(crimson_fungus_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, crimson_fungus_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, crimson_fungus_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für den Karmesinpilz.");
 				}
@@ -249,7 +250,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		if(item_type == "minecraft:warped_roots") {
 			if(warped_roots_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, warped_roots_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, warped_roots_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für die Wirrwurzeln.");
 				}
@@ -258,7 +259,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:warped_fungus") {
 			if(warped_fungus_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, warped_fungus_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, warped_fungus_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für den Wirrpilz.");
 				}
@@ -267,7 +268,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "minecraft:twisting_vines") {
 			if(twisting_vines_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, twisting_vines_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, twisting_vines_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dKunibert", "Danke für die Zwirbelranken.");
 				}

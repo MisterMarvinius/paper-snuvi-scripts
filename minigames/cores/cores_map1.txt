@@ -1,0 +1,36 @@
+gamesignloc = minigame.getSignLoc("coresmaploc1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 970.5, 91, 902.5, 90, 0);
+middleloc = loc.new(gamesworld, 1000, 100, -4000);
+radius = 150;
+mapname = "Mushroom";
+
+numberofteams = 2;
+teamsize = 5;
+minplayers = 2;
+maxplayers = teamsize * numberofteams;
+
+spawn_protection_radius = 5;
+
+joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
+list.add(joinblocks, loc.new(gamesworld, 970, 91, 899)); //team 1
+list.add(joinblocks, loc.new(gamesworld, 970, 91, 905)); //team 2
+
+spawnlocs = list.new();
+list.add(spawnlocs, loc.new(gamesworld, 1032.5, 101, -3999.5, 90, 0)); //team 1
+list.add(spawnlocs, loc.new(gamesworld, 966.5, 102, -3999.5, -90, 0)); //team 2
+
+team1_cores = list.new();
+list.add(team1_cores, loc.new(gamesworld, 1018, 98, -3990)); //left
+list.add(team1_cores, loc.new(gamesworld, 1018, 98, -4010)); //right
+
+team2_cores = list.new();
+list.add(team2_cores, loc.new(gamesworld, 982, 98, -4010)); //left
+list.add(team2_cores, loc.new(gamesworld, 982, 98, -3990)); //right
+
+cores = list.new();
+list.add(cores, team1_cores); //team 1
+list.add(cores, team2_cores); //team 2
+
+voidedge1 = loc.new(gamesworld, 926, -30, -4051);
+voidedge2 = loc.new(gamesworld, 1075, -1, -3947);

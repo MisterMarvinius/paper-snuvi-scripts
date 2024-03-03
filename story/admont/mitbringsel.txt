@@ -76,14 +76,15 @@ if(event == "custom_command" && command == "questanswer") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Kunibert") {
+	string_name = string.text(entity_name);
+	if(string_name == "Kunibert") {
 		item = living.getEquip(player, "hand");
 		item_type = item.getType(item);
 		if(item_type == "km:herb_strong") {
 			if(herb_strong_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_strong_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_strong_needed);
 				if(rest_amount != 0) {
 					herb_strong_needed = rest_amount;
 				}
@@ -91,7 +92,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "km:herb_shadow") {
 			if(herb_shadow_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_shadow_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_shadow_needed);
 				if(rest_amount != 0) {
 					herb_shadow_needed = rest_amount;
 				}
@@ -99,7 +100,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "km:herb_xp") {
 			if(herb_xp_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_xp_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_xp_needed);
 				if(rest_amount != 0) {
 					herb_xp_needed = rest_amount;
 				}
@@ -107,7 +108,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "km:herb_sea") {
 			if(herb_sea_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_sea_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_sea_needed);
 				if(rest_amount != 0) {
 					herb_sea_needed = rest_amount;
 				}
@@ -115,7 +116,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "km:herb_gold") {
 			if(herb_gold_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_gold_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_gold_needed);
 				if(rest_amount != 0) {
 					herb_gold_needed = rest_amount;
 				}
@@ -123,7 +124,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "km:herb_breathing") {
 			if(herb_breathing_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_breathing_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_breathing_needed);
 				if(rest_amount != 0) {
 					herb_breathing_needed = rest_amount;
 				}
@@ -131,7 +132,7 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 		}
 		elseif(item_type == "km:herb_fire") {
 			if(herb_fire_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, herb_fire_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, herb_fire_needed);
 				if(rest_amount != 0) {
 					herb_fire_needed = rest_amount;
 				}
@@ -148,9 +149,10 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage2
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Olaf") {
+	string_name = string.text(entity_name);
+	if(string_name == "Olaf") {
 		item = living.getEquip(player, "hand");
 		item_type = item.getType(item);
 		if(item_type == "minecraft:air") {

@@ -33,8 +33,9 @@ if(event == "quest_start") {
 	goto("wait");
 }
 if(event == "block_drop") {
-	block_type = block.getType(block);
-	if(block_type == wheat_mat) {
+	//block_type = block.getType(block);
+	//if(block_type == wheat_mat) {
+	if(drops.containsMaterial(drops, wheat_mat)) {
 		item_entity = list.getIndex(drops, 0);
 		item.entity.set(item_entity, item.new(wheat_mat));
 		list.clear(drops);
@@ -75,10 +76,11 @@ if(event == "block_break") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Baker") {
-		rest_amount = human.giveItem(entity_name, player, bread_mat, bread_needed);
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Baker") {
+		rest_amount = citizen.giveItem(string_name, player, bread_mat, bread_needed);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dBaker", "You're just in time, the customers have just arrived! Here is a reward.");
 			msg.string(player, "§dQuest finished. Reward: 4 snuvis!");

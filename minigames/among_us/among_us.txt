@@ -1250,7 +1250,7 @@ if(set.contains(cams_locs, block_loc)) {
 		map.add(cam_map_4, ent, player_uuid);
 		human.setSkinUuid(ent, player_uuid);
 		color = amongus.getPlayerColor(player);
-		amongus.equip(ent, color);
+		amongus.equipHuman(ent, color, player);
 		living.setInvisible(ent, true);
 	}
 	cam.enter(player);
@@ -2479,7 +2479,7 @@ if(title_string == "§cClean O2 Filter") {
 			}
 			if(slot > 36) {
 				a = inv.getItem(inv, slot - 9);
-				temp_type = item.getType(inv.getItem(inv, slot - 9));
+				b = inv.getItem(inv, slot - 1);
 				if(item.custom.isType(a, arrow_up_mat) || item.custom.isType(b, arrow_left_mat)) {
 					continue;
 				}
@@ -3801,17 +3801,25 @@ function showTasks() {
 					color = "§e";
 				}
 				
-				if(step == 0) {
-					if(task_id == 2) {		
-						r = map.get($download_map_3, player_uuid);
-						room = map.get($download_map_4, list.getIndex($download_list_3, r));
-					} elseif(task_id == 12) {
+				if(task_id == 12) {
+					if(step == 0) {
 						r = map.get($empty_garb_map_3, player_uuid);
 						if(r == 0) {
 							room = "CAF";
 						} else {
 							room = "O2";
 						}
+					} else {
+						room = "STO";
+					}
+				}
+				if(task_id == 2) {
+					if(step == 0) {
+						r = map.get($download_map_3, player_uuid);
+						room = map.get($download_map_4, list.getIndex($download_list_3, r));
+					} else {
+						room = "ADM";
+						description = "Upload Data";
 					}
 				}
 				if(task_id == 10) {
@@ -4089,7 +4097,7 @@ function giveTask(player, task_id, room, description, number_1, number_2, time) 
 	if(step == 0) {
 		if(task_id == 1) {
 			addTaskParticle(player, $get_fuel_par_loc);
-		} elseif(task_id == 2) {		
+		} elseif(task_id == 2) {
 			r = map.getOrDefault($download_map_3, player_uuid, math.random(0, 4));
 			map.add($download_map_3, player_uuid, r);
 			addTaskParticle(player, list.getIndex($download_list_4, r));
@@ -4110,16 +4118,6 @@ function giveTask(player, task_id, room, description, number_1, number_2, time) 
 			addTaskParticle(player, $calibrate_dist_par_loc);
 		} elseif(task_id == 11) {
 			addTaskParticle(player, $swipe_card_par_loc);
-		} elseif(task_id == 12) {
-			r = map.getOrDefault($empty_garb_map_3, player_uuid, math.random(0, 1));
-			map.add($empty_garb_map_3, player_uuid, r);
-			if(r == 0) {
-				addTaskParticle(player, $cafe_garb_par_loc);
-				room = "CAF";
-			} else {
-				addTaskParticle(player, $o2_garb_par_loc);
-				room = "O2";
-			}
 		} elseif(task_id == 13) {
 			addTaskParticle(player, $clear_ast_par_loc);
 		} elseif(task_id == 15) {
@@ -4129,6 +4127,21 @@ function giveTask(player, task_id, room, description, number_1, number_2, time) 
 		} elseif(task_id == 17) {
 			addTaskParticle(player, $ue_align_par_loc);
 			addTaskParticle(player, $le_align_par_loc);
+		}
+	}
+	if(task_id == 12) {
+		if(step == 0) {
+			r = map.getOrDefault($empty_garb_map_3, player_uuid, math.random(0, 1));
+			map.add($empty_garb_map_3, player_uuid, r);
+			if(r == 0) {
+				addTaskParticle(player, $cafe_garb_par_loc);
+				room = "CAF";
+			} else {
+				addTaskParticle(player, $o2_garb_par_loc);
+				room = "O2";
+			}
+		} else {
+			room = "STO";
 		}
 	}
 	if(task_id == 10) {
@@ -4896,7 +4909,7 @@ function cam.enter(player) {
 		return;
 	}
 	player.hideOnline(player);
-	player.manageEffects(player);
+	amongus.manageEffects(player);
 	entity.setGravity(player, false);
 	player_uuid = player.getUuid(player);
 	list.add($cam_list, player_uuid);
@@ -4932,7 +4945,7 @@ function cam.leave(player) {
 	player.removeItem(player, $prev_cam_item);
 	player.removeItem(player, $next_cam_item);
 	player.removeItem(player, $leave_cam_item);
-	player.manageEffects(player);
+	amongus.manageEffects(player);
 	if(!player.isGhost(player)) {
 		player.showOnline(player);
 	}
@@ -5460,6 +5473,12 @@ function amongus.removeEquip(player) {
 	living.setEquip(player, slot.getChest(), $air_item);
 	living.setEquip(player, slot.getLegs(), $air_item);
 	living.setEquip(player, slot.getFeet(), $air_item);
+}
+
+function amongus.equipHuman(human, color, player) {
+	item = player.getHead(player.getUuid(player), player.getName(player));
+	living.setEquip(human, slot.getHead(), item);
+	amongus.equip(human, color);
 }
 
 function amongus.equip(entity, color) {

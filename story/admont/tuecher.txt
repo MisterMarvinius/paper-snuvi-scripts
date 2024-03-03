@@ -64,9 +64,10 @@ if(event == "entity_click") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Rolf") {
+	string_name = string.text(entity_name);
+	if(string_name == "Rolf") {
 		msg.prefix(player, "§dRolf", "Ich brauch doch keine Wolle, ich will Tücher!");
 		scheduler.msgPrefix(30, player, concat("§5", player.getName(player)), "Und wie geht das?");
 		scheduler.msgPrefix(60, player, "§dRolf", "Siehst du den Webstuhl da? Schmeiß 4 Stück Wolle darauf.");
@@ -105,10 +106,11 @@ if(event == "player_loom_finish") {
 goto("wait");
 
 @stage4
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Rolf") {
-		rest_amount = human.giveItem(entity_name, player, "km:cloth", needed_amount);
+	string_name = string.text(entity_name);
+	if(string_name == "Rolf") {
+		rest_amount = citizen.giveItem(string_name, player, "km:cloth", needed_amount);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dRolf", "Vielen Dank!");
 			money.addBoost(player, 24);

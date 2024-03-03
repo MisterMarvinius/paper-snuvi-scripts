@@ -50,9 +50,10 @@ if(event == "block_click") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Herbert") {
+	string_name = string.text(entity_name);
+	if(string_name == "Herbert") {
 		item = living.getEquip(player, "hand");
 		item_type = item.getType(item);
 		if(item_type == "minecraft:gold_ingot" || item_type == "minecraft:diamond") {

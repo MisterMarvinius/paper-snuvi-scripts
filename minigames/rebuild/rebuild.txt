@@ -3,6 +3,13 @@ game_short = "rebuild";
 gamename = "§5Rebuild";
 minigame.setSpecificLobbyHandling(true);
 minigame.setPlayerResetInCore(false);
+
+pickaxe = read.item("{Count:1b,id:'minecraft:iron_pickaxe',tag:{Damage:0,Enchantments:[{id:'minecraft:silk_touch',lvl:1s}]}}");
+axe = read.item("{Count:1b,id:'minecraft:iron_axe',tag:{Damage:0,Enchantments:[{id:'minecraft:silk_touch',lvl:1s}]}}");
+shovel = read.item("{Count:1b,id:'minecraft:iron_shovel',tag:{Damage:0,Enchantments:[{id:'minecraft:silk_touch',lvl:1s}]}}");
+hoe = read.item("{Count:1b,id:'minecraft:iron_hoe',tag:{Damage:0,Enchantments:[{id:'minecraft:silk_touch',lvl:1s}]}}");
+shears = read.item("{Count:1b,id:'minecraft:shears',tag:{Damage:0,Enchantments:[{id:'minecraft:silk_touch',lvl:1s}]}}");
+
 minigame.initStart();
 goto("simplelobby");
 
@@ -13,17 +20,21 @@ if(event == "minigame_join") {
 	player.setHunger(player, 20);
 	player.setSaturation(player, 5);
 	player.clearInventory(player);
-	sb.add(player, 99, gamename);
-	sb.add(player, 98, string.concat("§7Map: ", mapname));
 }
 return;
 
 @finalstart
 player_list = minigame.getPlayers(script_id);
-buildingarea = map.new();
-solved = map.new();
+buildingarea = map.new(); //team_id -> list with locations
+solved = map.new(); //team_id -> solved
+players = map.new(); //p_uuid -> team_id
+active_teams = list.new();
 check_list = list.new();
-air = material.getAir();
+air_mat = material.getAir();
+
+a = getTemplatesToBuild();
+template_edges = a[0];
+bottom_edges = a[1];
 
 if(list.getSize(player_list) == 1) {
 	singleteam = true;
@@ -35,42 +46,31 @@ if(list.getSize(player_list) == 1) {
 	singleteam = false;
 }
 
-for(i = 0; i < list.getSize(player_list); i++) {
-	p_uuid = list.getIndex(player_list, i);
-	p = player.get(p_uuid);
-	map.add(solved, p_uuid, 0);
-	msg.prefix(p, gamename, "The game has started.");
-	list = list.new();
-	map.add(buildingarea, p_uuid, list);
-	edge = list.getIndex(bottom_edge, i);
-	for(z = 0; z < picture_length; z++) {
-		for(x = 0; x < picture_length; x++) {
-			list.add(list, loc.mod(edge, x * -1, 0, z));
-		}
-	}
+for(i = 0; i < minigame.getMaxPlayers(); i++) {
+	setBuildingArea(i);
 }
 
-barrier = material.get("BARRIER");
-tobuild = list.getIndex(to_build_edges, 0);
+resetGameField();
+
 for(i = 0; i < list.getSize(player_list); i++) {
 	p_uuid = list.getIndex(player_list, i);
 	p = player.get(p_uuid);
-	pname = player.getName(p);
-	minigame.displayAll(97 - i, string.concat("§6", 0, " §c", pname));
+	map.add(players, p_uuid, i);
+	list.add(active_teams, i);
 	entity.teleport(p, list.getIndex(spawns, i));
 	sound.spawnForPlayer(p, pling_sound, sound_category_ambient);
-	player.setGamemode(p, "CREATIVE");
+	player.setGamemode(p, "SURVIVAL");
+	equipPlayer(p);
 	
 	//Vorlagen und Barriers setzen
-	edge = list.getIndex(picture_edge, i); //Die erste Vorlage bekommt jeder
-	for(y = 0; y < picture_length; y++) {
-		for(x = 0; x > picture_length * -1; x--) {
-			block.clone(block.mod(tobuild, x, y, 0), loc.mod(edge, x, y, 0));
-			block.setMaterial(block.get(loc.mod(edge, x, y, -1)), barrier);
-		}
-	}
+	team = getTeamFromPlayer(p);
+	setBarriers(team, true);
+	setTemplate(team, 0);
+	giveItems(p, 0);
 }
-minigame.displayAll(97 - i, sb.getSpacer());
+updateDisplay();
+
+minigame.speakAll(gamename, "The game starts soon...");
 
 countdown = 5;
 @title
@@ -96,21 +96,12 @@ if(event == "block_click") {
 }
 if(event == "player_giveup" || event == "player_quit") {
 	minigame.speakAll(gamename, string.concat("§6", player.getName(player), " §rhas left the game."));
-	player.setGamemode(player, "SURVIVAL");
-	list = map.get(buildingarea, player.getUuid(player));
-	for(i = 0; i < list.getSize(list); i++) {
-		block.setMaterial(block.get(list.getIndex(list, i)), air);
-	}
+	team = getTeamFromPlayer(player);
+	list.remove(active_teams, team);
 	script = script.getFromId(script_id);
 	minigame.kickplayer(script, player);
-	if(list.getSize(player_list) < 2) {
-		if(singleteam) {
-			p = player;
-		} else {
-			p_uuid = list.getIndex(player_list, 0);
-			p = player.get(p_uuid);
-		}
-		wincore(p);
+	if(list.getSize(player_list) == 0) {
+		endgame();
 	}
 }
 goto("checkstart");
@@ -118,12 +109,9 @@ goto("checkstart");
 @setstarttime
 starttime = time.getMillis();
 for(i = 0; i < list.getSize(player_list); i++) {
-	edge = list.getIndex(picture_edge, i);
-	for(y = 0; y < picture_length; y++) {
-		for(x = 0; x > picture_length * -1; x--) {
-			block.setMaterial(block.get(loc.mod(edge, x, y, -1)), air);
-		}
-	}
+	p = player.get(list.getIndex(player_list, i));
+	team = getTeamFromPlayer(p);
+	setBarriers(team, false);
 }
 
 event.unload("block_click");
@@ -138,33 +126,41 @@ goto("checkgame");
 @player_quit
 @player_giveup
 minigame.speakAll(gamename, string.concat("§6", player.getName(player), " §rhas left the game."));
-player.setGamemode(player, "SURVIVAL");
-list = map.get(buildingarea, player.getUuid(player));
-for(i = 0; i < list.getSize(list); i++) {
-	block.setMaterial(block.get(list.getIndex(list, i)), air);
+team = getTeamFromPlayer(player);
+list.remove(active_teams, team);
+resetBuildingArea(team);
+if(first_finish != null && team == first_finish) {
+	showstats(player, true);
+} else {
+	showstats(player, false);
 }
 script = script.getFromId(script_id);
 minigame.kickplayer(script, player);
-if(list.getSize(player_list) < 2) {
-	if(singleteam) {
-		p = player;
-	} else {
-		p_uuid = list.getIndex(player_list, 0);
-		p = player.get(p_uuid);
-	}
-	wincore(p);
+all_size = list.getSize(player_list);
+if(all_size == 0) {
+	endgame();
+} elseif(all_size == 1 && $first_finish == null) {
+	p = player.get(list.getIndex(player_list, 0));
+	$first_finish = getTeamFromPlayer(p);
+	minigame.speakAll($gamename, string.concat("§6", player.getName(p), "§r has won!"));
 }
 goto("checkgame");
 
-@block_place
 @block_break
-player_uuid = player.getUuid(player);
-list = map.get(buildingarea, player_uuid);
+if(enchantment.getLevel(enchantment.get("silk_touch"), living.getHand(player)) == 0) {
+	msg.prefix(player, gamename, "Break blocks with a silktouch tool.");
+	cancel = true;
+	goto("checkgame");
+}
+@block_place
+team = getTeamFromPlayer(player);
+list = getBuildingArea(team);
 if(!list.contains(list, block.getLocation(block))) {
 	cancel = true;
 	goto("checkgame");
 }
 cancel = false;
+player_uuid = player.getUuid(player);
 list.add(check_list, player_uuid);
 sgoto(2, "checkpicture");
 goto("checkgame");
@@ -173,108 +169,243 @@ goto("checkgame");
 p_uuid = list.getIndex(check_list, 0);
 list.removeIndex(check_list, 0);
 p = player.get(p_uuid);
-temp_solved = map.get(solved, p_uuid);
-tempblock = list.getIndex(bottom_check_edges, temp_solved);
-list = map.get(buildingarea, p_uuid);
-picture = list.getIndex(list, 0);
+team = getTeamFromPlayer(p);
 
-for(z = 0; z < picture_length; z++) {
-	for(x = 0; x > picture_length * -1; x--) {
-		block1 = block.mod(tempblock, x, 0, z);
-		block2 = block.get(loc.mod(picture, x, 0, z));
-		if(block.getType(block1) != block.getType(block2)) {
-			goto("checkgame");
-		}
+if(!isPictureSolved(team)) {
+	goto("checkgame");
+}
+
+s = increaseSolved(team);
+updateDisplayTeam(team, p_uuid);
+if(s >= solve_to_win) {
+	p_name = player.getName(p);
+	minigame.speakAll($gamename, string.concat("§6", p_name, "§r finished."));
+	list.remove(active_teams, team);
+	if($first_finish == null) {
+		$first_finish = team;
+		minigame.speakAll($gamename, string.concat("§6", p_name, "§r has won!"));
 	}
-}
-
-temp_solved++;
-map.add(solved, p_uuid, temp_solved);
-player.clearInventory(p);
-for(i = 0; i < list.getSize(player_list); i++) {
-	uuid = list.getIndex(player_list, i);
-	minigame.displayAll(97 - i, string.concat("§6", string.number(map.get(solved, uuid)), "§c ", player.getName(uuid)));
-}
-
-if(temp_solved >= solve_to_win) {
-	wincore(p);
-}
-
-list = map.get(buildingarea, p_uuid);
-for(i = 0; i < list.getSize(list); i++) {
-	block.setMaterial(block.get(list.getIndex(list, i)), air);
-}
-
-tobuild = list.getIndex(to_build_edges, temp_solved);
-edge = list.getIndex(picture_edge, list.getIndexOf(player_list, p_uuid));
-for(y = 0; y < picture_length; y++) {
-	for(x = 0; x > picture_length * -1; x--) {
-		block.clone(block.mod(tobuild, x, y, 0), loc.mod(edge, x, y, 0));
+	if(list.getSize(active_teams) == 0) {
+		endgame();
 	}
+} else {
+	setTemplate(team, s);
+	giveItems(p, s);
 }
+
+resetBuildingArea(team);
 goto("checkgame");
 
-function wincore(winner) {
-	winner_name = player.getName(winner);
-	if(!$singleteam) {
-		minigame.speakAll($gamename, string.concat("§b", winner_name, "§r has won!"));
-	}
-	
-	for(h = 0; h < list.getSize($player_list); h++) {
-		p_uuid = list.getIndex($player_list, h);
-		list = map.get($buildingarea, p_uuid);
-		for(i = 0; i < list.getSize(list); i++) {
-			block.setMaterial(block.get(list.getIndex(list, i)), $air);
-		}
-	}
-
-	for(i = 0; i < 5; i++) {
-		edge = list.getIndex($picture_edge, i);
-		for(y = 0; y < $picture_length; y++) {
-			for(x = 0; x > $picture_length * -1; x--) {
-				block.setMaterial(block.get(loc.mod(edge, x, y, 0)), $air);
-			}
-		}
-	}
+function endgame() {
 	minigame.clearItems($middleloc, $radius);
 
 	for(i = 0; i < list.getSize($player_list); i++) {
-		p_uuid = list.getIndex($player_list, i);
-		p = player.get(p_uuid);
-		p_id = player.getId(p);
-		player.setGamemode(p, "SURVIVAL");
-		
-		if(!$singleteam) {
-			last_record = ranking.getPoints($rankingtable, p_id);
-			playedgames = minigame.getPlayed(p_id, $game_short) + 1;
-			minigame.setPlayed(p_id, $game_short, playedgames);
-			record = last_record + map.get($solved, p_uuid);
-			ranking.setPoints($rankingtable, p_id, record);
-
-			rebuildwon = minigame.getWon(p, "rebuild");
-			if(p == winner) {
-				rebuildwon++;
-				minigame.setWon(p, "rebuild", rebuildwon);
-			}
-			msg.string(p, "");
-		}
-		minigame.statsHeader(p, $gamename, "§e");
-		if($starttime != null) {
-			endtime = time.getMillis();
-			time = (endtime - $starttime) / 1000;
-			minigame.statsLine(p, "§e", "Time", string.concat(string.number(math.round(time / 60)), " min ", string.number(math.round(time % 60)), " s"));
-		}
-		if(!$singleteam) {
-			minigame.statsLine(p, "§e", "Solved Fields", string.number(record));
-			minigame.statsLine(p, "§e", "Won games", string.number(rebuildwon));
-			minigame.statsLine(p, "§e", "Played games", string.number(playedgames));
-			if(playedgames != 0) {
-				minigame.statsLine(p, "§e", "Win ratio", string.concat(string.number(math.roundComma((rebuildwon / playedgames) * 100, 2)), "%"));
-			}
+		p = player.get(list.getIndex($player_list, i));
+		team = getTeamFromPlayer(p);
+		if(team == $first_finish) {
+			showstats(p, true);
+		} else {
+			showstats(p, false);
 		}
 	}
 	script = script.getFromId($script_id);
 	minigame.kickAllPlayers(script);
 	minigame.term(script, $gamesignloc);
 	term();
+}
+
+function showstats(player, won) { //Player player, Boolean won
+	if(!$singleteam) {
+		player_id = player.getId(player);
+		last_record = ranking.getPoints($rankingtable, player_id);
+		team = getTeamFromPlayer(player);
+		s = getSolved(team);
+		new_record = last_record + s;
+		ranking.setPoints($rankingtable, player_id, new_record);
+		
+		won_games = minigame.getWon(player_id, $game_short);
+		if(won) {
+			won_games++;
+			minigame.setWon(player_id, $game_short, won_games);
+		}
+		played_games = minigame.getPlayed(player_id, $game_short) + 1;
+		minigame.setPlayed(player_id, $game_short, played_games);
+	}
+
+	minigame.statsHeader(player, $gamename, "§e");
+	if($starttime != null) {
+		endtime = time.getMillis();
+		time = (endtime - $starttime) / 1000;
+		minigame.statsLine(player, "§e", "Time", string.concat(string.number(math.round(time / 60)), " min ", string.number(math.round(time % 60)), " s"));
+	}
+	
+	if(!$singleteam) {
+		minigame.statsLine(player, "§e", "Solved Fields", string.number(new_record));
+		minigame.statsLine(player, "§e", "Won games", string.number(won_games));
+		minigame.statsLine(player, "§e", "Played games", string.number(played_games));
+		if(played_games != 0) {
+			minigame.statsLine(player, "§e", "Win ratio", string.concat(string.number(math.roundComma((won_games / played_games) * 100, 2)), "%"));
+		}
+	}
+}
+
+function getTeamFromPlayer(player) {
+	uuid = player.getUuid(player);
+	return map.get($players, uuid);
+}
+
+function resetTemplate(team) {
+	edge = getPictureEdge(team);
+	for(y = 0; y < $picture_length; y++) {
+		for(x = 0; x > $picture_length * -1; x--) {
+			block.setMaterial(block.get(loc.mod(edge, x, y, 0)), $air_mat);
+		}
+	}
+}
+
+function resetBuildingArea(team) {
+	list = getBuildingArea(team);
+	for(i = 0; i < list.getSize(list); i++) {
+		block.setMaterial(block.get(list.getIndex(list, i)), $air_mat);
+	}
+}
+
+function giveItems(player, template_index) {
+	inv = getTemplateInv(template_index);
+	for(i = 0; i < inv.getSize(inv); i++) {
+		item = inv.getItem(inv, i);
+		if(item != null) {
+			player.giveItem(player, item);
+		}
+	}
+}
+
+function setTemplate(team, template_index) {
+	tobuild = list.getIndex($template_edges, template_index);
+	edge = getPictureEdge(team);
+	for(y = 0; y < $picture_length; y++) {
+		for(x = 0; x > $picture_length * -1; x--) {
+			block.clone(block.mod(tobuild, x, y, 0), loc.mod(edge, x, y, 0));
+		}
+	}
+}
+
+function setBarriers(team, bool) {
+	barrier = material.get("BARRIER");
+	edge = getPictureEdge(team);
+	for(y = 0; y < $picture_length; y++) {
+		for(x = 0; x > $picture_length * -1; x--) {
+			if(bool) {
+				block.setMaterial(block.get(loc.mod(edge, x, y, -1)), barrier);
+			} else {
+				block.setMaterial(block.get(loc.mod(edge, x, y, -1)), $air_mat);
+			}
+		}
+	}
+}
+
+function getPictureEdge(team) {
+	return list.getIndex($picture_edge, team);
+}
+
+function getBottomEdge(team) {
+	return list.getIndex($bottom_edge, team);
+}
+
+function getTemplatesToBuild() {
+	a = array.new(2);
+	wall_template = list.new();
+	bottom_template = list.new();
+	for(i = 0; i < $solve_to_win; i++) {
+		//get random template
+		size = list.getSize($templates);
+		picture_index = math.random(0, size - 1);
+		//add random template to list
+		list.add(wall_template, block.get(list.getIndex($templates, picture_index)));
+		list.add(bottom_template, block.get(list.getIndex($bottom_templates, picture_index)));
+		//remove random template from all templates list
+		list.removeIndex($templates, picture_index);
+		list.removeIndex($bottom_templates, picture_index);
+	}
+	a[0] = wall_template;
+	a[1] = bottom_template;
+	return a;
+}
+
+function updateDisplay() {
+	minigame.displayAll(99, $gamename);
+	minigame.displayAll(98, string.concat("§7Map: ", $mapname));
+	for(i = 0; i < list.getSize($player_list); i++) {
+		p = player.get(list.getIndex($player_list, i));
+		minigame.displayAll(97 - i, string.concat("§6", 0, " §c", player.getName(p)));
+	}
+	minigame.displayAll(97 - i, sb.getSpacer());
+}
+
+function updateDisplayTeam(team, player_uuid) {
+	minigame.displayAll(97 - team, string.concat("§6", string.number(getSolved(team)), "§c ", player.getName(player_uuid)));
+}
+
+function getSolved(team) {
+	return map.getOrDefault($solved, team, 0);
+}
+
+function increaseSolved(team) {
+	c = getSolved(team) + 1;
+	map.add($solved, team, c);
+	return c;
+}
+
+function getBuildingArea(team) {
+	return map.get($buildingarea, team);
+}
+
+function setBuildingArea(team) {
+	list = list.new();
+	map.add($buildingarea, team, list);
+	edge = list.getIndex($bottom_edge, team);
+	for(z = 0; z < $picture_length; z++) {
+		for(x = 0; x < $picture_length; x++) {
+			list.add(list, loc.mod(edge, x * -1, 0, z));
+		}
+	}
+}
+
+function resetGameField() {
+	for(i = 0; i < minigame.getMaxPlayers(); i++) {
+		resetBuildingArea(i);
+		resetTemplate(i);
+	}
+}
+
+function isPictureSolved(team) {
+	list = getBuildingArea(team);
+	picture_loc = list.getIndex(list, 0);
+	solved_pics = getSolved(team);
+	template_block = list.getIndex($bottom_edges, solved_pics);
+	
+	for(z = 0; z < $picture_length; z++) {
+		for(x = 0; x > $picture_length * -1; x--) {
+			block1 = block.mod(template_block, x, 0, z);
+			block2 = block.get(loc.mod(picture_loc, x, 0, z));
+			if(block.getType(block1) != block.getType(block2)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+function getTemplateInv(template_index) {
+	wall_template_edge = list.getIndex($template_edges, template_index);
+	block = block.mod(wall_template_edge, 1, 0, -1);
+	return block.getInventory(block);
+}
+
+function equipPlayer(player) {
+	player.giveItem(player, $pickaxe);
+	player.giveItem(player, $axe);
+	player.giveItem(player, $shovel);
+	player.giveItem(player, $hoe);
+	player.giveItem(player, $shears);
 }

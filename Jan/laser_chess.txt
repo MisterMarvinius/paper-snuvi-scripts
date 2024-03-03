@@ -1,0 +1,429 @@
+//games = world.getGames();
+event.load("block_click");
+
+air_material = material.get("AIR");
+
+laser_mat = material.get("DISPENSER");
+glass_mat = material.get("GLASS");
+water_mat = material.get("WATER");
+glass_pane_mat = material.get("GLASS_PANE");
+
+blue_king_mat = material.get("BLUE_STAINED_GLASS");
+red_king_mat = material.get("RED_STAINED_GLASS");
+
+blue_double_mirror_mat = material.get("BLUE_BANNER");
+red_double_mirror_mat = material.get("RED_BANNER");
+
+blue_mirror_mat = material.get("LIGHT_BLUE_BANNER");
+red_mirror_mat = material.get("PINK_BANNER");
+
+blue_block_mat = material.get("CYAN_BANNER");
+red_block_mat = material.get("ORANGE_BANNER");
+
+blue_specific = material.get("BLUE_CONCRETE");
+red_specific = material.get("RED_CONCRETE");
+
+laser_particle = particle.get("REVERSE_PORTAL");
+can_move = particle.get("VILLAGER_HAPPY");
+smokeparticle = particle.get("SMOKE_LARGE");
+fire_particle = particle.get("FLAME");
+
+double_mirror_rotations_blue = array.new(2);
+double_mirror_rotations_blue[0] = 6;
+double_mirror_rotations_blue[1] = 10;
+double_mirror_rotations_red = array.new(2);
+double_mirror_rotations_red[0] = 2;
+double_mirror_rotations_red[1] = 14;
+
+mirror_rotations = array.new(4);
+mirror_rotations[0] = 2;
+mirror_rotations[1] = 6;
+mirror_rotations[2] = 10;
+mirror_rotations[3] = 14;
+block_rotations = array.new(4);
+block_rotations[0] = 0;
+block_rotations[1] = 4;
+block_rotations[2] = 8;
+block_rotations[3] = 12;
+
+selected = false;
+selected_block = null;
+
+@wait
+wait();
+if (event == "block_click"){
+	if (action != "RIGHT_CLICK_BLOCK" && action != "LEFT_CLICK_BLOCK"){
+		goto("wait");
+	}
+	
+	mat = block.getType(block);
+	if (mat == laser_mat){
+		if (action == "RIGHT_CLICK_BLOCK"){
+			laser_fire(block);
+		}
+		elseif (action == "LEFT_CLICK_BLOCK"){
+			rotate_laser(block);
+		}
+		goto("wait");
+	}
+	colour = get_color(mat);
+	if (colour == 0 && !selected){
+		goto("wait");
+	}
+	if (action == "RIGHT_CLICK_BLOCK"){
+		if (colour != 0){
+			sgoto(5, "possible_moves");
+			selected = true;
+			selected_block = block;
+			goto("wait");
+		}
+		else{
+			b_loc = block.getLocation(block);
+			col = get_color(mat);
+			if (col == 1){
+				if (mat == red_specific){
+					goto("wait");
+				}
+			}
+			elseif (col == 2){
+				if (mat == blue_specific){
+					goto("wait");
+				}
+			}
+			loc.addY(b_loc, 1);
+			move_figure(selected_block, b_loc);
+		}
+	}
+	elseif (action == "LEFT_CLICK_BLOCK"){
+		if (colour == 0){
+			goto("wait");
+		}
+		if (mat == blue_king_mat || mat == red_king_mat){
+			goto("wait");
+		}
+		rotate_figure(block);
+	}
+	
+}
+goto("wait");
+
+@possible_moves
+
+if (selected){
+	show_possible_moves(selected_block);
+	sgoto(20, "possible_moves");
+}
+goto("wait");
+
+function show_possible_moves(figure){
+	fig_loc = block.getLocation(figure);
+	fig_mat = block.getType(figure);
+	for (i = -1; i<2; i++){
+		for (j = -1; j<2; j++){
+			if (i == 0 && j == 0){
+				continue;
+			}
+			to_loc = loc.mod(fig_loc, i+0.5, 0, j+0.5);
+			to_block = block.get(to_loc);
+			to_mat = block.getType(to_block);
+			if (to_mat == $air_material){
+				particle_moves(to_loc);
+				continue;
+			}
+			col = get_color(figure);
+			mat = block.getType(block.get(loc.mod(to_loc, 0, -1, 0)));
+			if (col == 1){
+				if (mat == $red_specific){
+					continue;
+				}
+			}
+			elseif (col == 2){
+				if (mat == $blue_specific){
+					continue;
+				}
+			}
+			if (fig_mat == $blue_double_mirror_mat || fig_mat == $red_double_mirror_mat){
+				if (to_mat == $blue_mirror_mat || to_mat == $red_mirror_mat || to_mat == $blue_block_mat || to_mat == $red_block_mat){
+					particle_moves(to_loc);
+				}
+			}
+		}
+	}
+}
+
+function particle_moves(mid_loc){
+	detail = 10;
+	for (i = -1; i<detail; i++){
+		j = 2*math.pi()*i/detail;
+		temp_loc = loc.mod(mid_loc, 0.33*math.sin(j), 0, 0.33*math.cos(j));
+		particle.spawn(temp_loc, $can_move, 1, 0, 0,0,0);
+	}
+}
+
+
+function get_color(figure_mat){
+	if (figure_mat == $blue_double_mirror_mat || figure_mat == $blue_mirror_mat || figure_mat == $blue_block_mat || figure_mat == $blue_king_mat){
+		return 1;
+	}
+	elseif(figure_mat == $red_double_mirror_mat || figure_mat == $red_mirror_mat || figure_mat == $red_block_mat || figure_mat == $red_king_mat){
+		return 2;
+	}
+	return 0;
+}
+
+function move_figure(figure, to_loc){
+	figure_loc = block.getLocation(figure);
+	dist = loc.distance(figure_loc, to_loc);
+	if (dist > 1.5 || dist == 0){
+		return;
+	}
+	to_block = block.get(to_loc);
+	to_mat = block.getType(to_block);
+	if (to_mat == $air_material){
+		fig_mat = block.getType(figure);
+		if (fig_mat == $blue_king_mat || fig_mat == $red_king_mat){
+			block.clone(figure, to_loc, false);
+			temp_loc = loc.mod(to_loc, 0, 1, 0);
+			block.clone(figure, temp_loc, false);
+			block.setMaterial(figure, $air_material);
+			block.setMaterial(block.get(temp_loc), $air_material);
+		}
+		else{
+			block.clone(figure, to_loc, false);
+			block.setMaterial(figure, $air_material);
+		}
+	}
+	elseif (to_mat == $blue_mirror_mat || to_mat == $red_mirror_mat || to_mat == $blue_block_mat || to_mat == $red_block_mat){
+		fig_mat = block.getType(figure);
+		if (fig_mat != $blue_double_mirror_mat && fig_mat != $red_double_mirror_mat){
+			return;
+		}
+		to_data = block.getData(to_block);
+		block.clone(figure, to_loc, false);
+		block.setMaterial(figure, to_mat);
+		block.setData(figure, to_data);
+	}
+	else{
+		return;
+	}
+	$selected = false;
+}
+
+function rotate_figure(figure){
+	figure_mat = block.getType(figure);
+	blockdata_string = string.blockData(block.getData(figure));
+	rotation = get_rotation(figure);
+	rot_str = string.number(rotation);
+	if (figure_mat == $blue_double_mirror_mat || figure_mat == $red_double_mirror_mat){
+		new_rotation = 16-rotation;
+	}else{
+		new_rotation = (rotation+4)%16;
+	}
+	blockdata_string = string.replace(blockdata_string, rot_str, string.number(new_rotation));
+	block_data = read.blockData(blockdata_string);
+	block.setData(figure, block_data, false);
+}
+
+function rotate_laser(laser){
+	direction = block.getFacingVector(block.getDirectionalFace(laser), false);
+}
+
+function get_rotation(figure){
+	blockdata_string = string.blockData(block.getData(figure));
+	split_array1 = string.split("rotation=", blockdata_string);
+	split_array2 = string.split("]", split_array1[1]);
+	rot_str = split_array2[0];
+	return read.number(rot_str);
+}
+
+function laser_fire(start){
+	laser_density = 4;
+	direction = block.getFacingVector(block.getDirectionalFace(start), false);
+	temp_loc = block.getLocation(start);
+	loc.add(temp_loc, 0.5, 0.5, 0.5);
+	for (i = 0; i<25; i++){
+		for (j = 0; j<laser_density; j++){
+			loc.add(temp_loc, direction[0]/laser_density, direction[1]/laser_density, direction[2]/laser_density);
+			particle.spawn(temp_loc, $laser_particle, 1, 0, 0,0,0);
+		}
+		
+		temp_block = block.get(loc.mod(temp_loc, 0, -1, 0));
+		mat = block.getType(temp_block);
+		if (mat == $air_material){
+			temp_block = block.get(temp_loc);
+			mat = block.getType(temp_block);
+			if (mat == $glass_mat || mat == $glass_pane_mat || mat == $water_mat || mat == $air_material){
+				continue;
+			}
+			else{
+				break;
+			}
+		}
+		elseif (mat == $blue_king_mat){
+			burn_figure(temp_block);
+			break;
+		}
+		elseif (mat == $red_king_mat){
+			burn_figure(temp_block);
+			break;
+		}
+		if (mat == $blue_double_mirror_mat || mat == $red_double_mirror_mat){
+			direction = mirror(get_rotation(temp_block), direction);
+		}
+		elseif (mat == $blue_mirror_mat || mat == $red_mirror_mat){
+			rotation = get_rotation(temp_block);
+			if (mirror_hit(rotation, direction)){
+				burn_figure(temp_block);
+				break;
+			}
+			direction = mirror(rotation, direction);
+		}
+		elseif (mat == $blue_block_mat || mat == $red_block_mat){
+			blocked = block(get_rotation(temp_block), direction);
+			if (!blocked){
+				burn_figure(temp_block);
+			}
+			break;
+		}
+		temp_block = block.get(temp_loc);
+		mat = block.getType(temp_block);
+		if (mat == $glass_mat || mat == $glass_pane_mat || mat == $water_mat || mat == $air_material){
+			continue;
+		}
+		else{
+			break;
+		}
+	}
+}
+
+function block.getFacingVector(direction, inverted){
+	Vector = array.new(3);
+	
+	if(direction == "DOWN"){
+		Vector[0] = 0;
+		Vector[1] = -1;
+		Vector[2] = 0;
+	}elseif(direction == "UP"){
+		Vector[0] = 0;
+		Vector[1] = 1;
+		Vector[2] = 0;
+	}elseif(direction == "NORTH"){
+		Vector[0] = 0;
+		Vector[1] = 0;
+		Vector[2] = -1;
+	}elseif(direction == "SOUTH"){
+		Vector[0] = 0;
+		Vector[1] = 0;
+		Vector[2] = 1;
+	}elseif(direction == "WEST"){
+		Vector[0] = -1;
+		Vector[1] = 0;
+		Vector[2] = 0;
+	}elseif(direction == "EAST"){
+		Vector[0] = 1;
+		Vector[1] = 0;
+		Vector[2] = 0;
+	}
+	if(inverted){
+		Vector[0] = -1 * Vector[0];
+		Vector[1] = -1 * Vector[1];
+		Vector[2] = -1 * Vector[2];
+	}
+	
+	return Vector;
+}
+
+function burn_figure(figure){
+	block.setMaterial(figure, $air_material);
+	loc1 = block.getLocation(figure);
+	loc2 = loc.mod(loc1,0,1,0);
+	block.setMaterial(block.get(loc2), $air_material);
+	particle.spawn(loc1, $fire_particle, 5, 0.1, 0.1, 0.1, 0.1);
+	particle.spawn(loc2, $smokeparticle, 5, 0.1, 0.1, 0.1, 0.1);
+}
+
+function mirror_hit(rotation, direction){
+	if (rotation == 2){
+		if (direction[2] > 0){
+			return true;
+		}
+		elseif (direction[0] < 0){
+			return true;
+		}
+	}
+	elseif (rotation == 6){
+		if (direction[2] < 0){
+			return true;
+		}
+		elseif (direction[0] < 0){
+			return true;
+		}
+	}
+	elseif (rotation == 10){
+		if (direction[2] < 0){
+			return true;
+		}
+		elseif (direction[0] > 0){
+			return true;
+		}
+	}
+	elseif (rotation == 14){
+		if (direction[2] > 0){
+			return true;
+		}
+		elseif (direction[0] > 0){
+			return true;
+		}
+	}
+	return false;
+}
+
+function mirror(rotation, direction){
+	if (rotation%8 == 2){
+		temp = direction[0];
+		direction[0] = direction[2];
+		direction[2] = temp;
+	}
+	elseif(rotation%8 == 6){
+		temp = direction[0];
+		direction[0] = -direction[2];
+		direction[2] = -temp;
+	}
+	return direction;
+}
+
+function block(rotation, direction){
+	if (direction[0] > 0.1){
+		if (rotation == 4){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	elseif (direction[0] < -0.1){
+		if (rotation == 12){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	elseif (direction[2] > 0.1){
+		if (rotation == 8){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	elseif (direction[2] < -0.1){
+		if (rotation == 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+}
+

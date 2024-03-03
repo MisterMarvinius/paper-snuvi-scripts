@@ -43,9 +43,10 @@ if(event == "block_click") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Gastwirt") {
+	string_name = string.text(entity_name);
+	if(string_name == "Gastwirt") {
 		stage.increase(player);
 		msg.prefix(player, "§dGastwirt", "Guten Tag, wie kann ich dir behilflich sein?");
 		msg(player, "§dAntwortmöglichkeiten:");
@@ -76,9 +77,10 @@ if(event == "custom_command" && command == "questanswer") {
 goto("wait");
 
 @stage3
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Gastwirtin") {
+	string_name = string.text(entity_name);
+	if(string_name == "Gastwirtin") {
 		stage.increase(player);
 		msg.prefix(player, "§dGastwirtin", concat("Hallo, ", player.getName(player), " du scheinst neu zu sein. Mein Mann hat mir schon von dir erzählt."));
 		scheduler.msgPrefix(30, player, "§dGastwirtin", "Schau dich doch erstmal in Admont um und wenn du fertig bist, bring mir doch bitte etwas Wasser mit.");
@@ -89,9 +91,10 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage4
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Gastwirtin") {
+	string_name = string.text(entity_name);
+	if(string_name == "Gastwirtin") {
 		item = living.getEquip(player, "hand");
 		if(text.item(item) == "{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:water\"}}") {
 			msg.prefix(player, "§dGastwirt", "Danke! Hier eine kleine Belohnung.");

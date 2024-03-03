@@ -472,10 +472,28 @@ elseif(jumpstage == 28 || jumpstage == 29) {
 	block.setMaterial(block.get(loc.new(gamesworld, 3946, 122, -5905)), material.get("redstone_wire"));
 }
 elseif(jumpstage == 30) {
-	block.addItem(loc.new(gamesworld, 3929, 92, -5935), item.create("minecraft:arrow", 576, null, null));
+	inv = block.getInventory(block.get(loc.new(gamesworld, 3929, 92, -5935)));
+	inv.setItem(inv, 0, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 1, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 2, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 3, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 4, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 5, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 6, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 7, item.create("minecraft:arrow", 64, null, null));
+	inv.setItem(inv, 8, item.create("minecraft:arrow", 64, null, null));
 }
 elseif(jumpstage == 43) {
-	block.addItem(loc.new(gamesworld, 3932, 106, -5947), item.create("minecraft:hay_block", 576, null, null));
+	inv = block.getInventory(block.get(loc.new(gamesworld, 3932, 106, -5947)));
+	inv.setItem(inv, 0, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 1, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 2, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 3, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 4, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 5, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 6, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 7, item.create("minecraft:hay_block", 64, null, null));
+	inv.setItem(inv, 8, item.create("minecraft:hay_block", 64, null, null));
 }
 elseif(jumpstage == 47) {
 	block.setData(block.get(loc.new(gamesworld, 3968, 77, -5962)), read.blockData("minecraft:lever[powered=true,facing=north,face=wall]"));

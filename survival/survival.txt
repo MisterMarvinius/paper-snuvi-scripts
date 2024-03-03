@@ -208,18 +208,19 @@ goto("wait");
 if(slot.isOffHand(hand)) {
 	goto("wait");
 }
-if(!entity.isHuman(entity)) {
+if(!isCitizen(entity)) {
 	goto("wait");
 }
-human_name = human.getName(entity);
-if(human_name == "Casino") {
+entity_name = entity.getName(entity);
+string_name = string.text(entity_name);
+if(string_name == "Casino") {
 	inv.open(casino_inv, player);
 }
-if(human_name == "Banker") {
+if(string_name == "Banker") {
 	inv.open(bankmenu, player);
 	goto("wait");
 }
-if(human_name == "§cMarvin") {
+if(string_name == "Marvin") {
 	item = living.getHand(player);
 	item_name = item.getName(item);
 	if(item_name != null && string.text(item_name) == "§fBeer") {
@@ -230,7 +231,7 @@ if(human_name == "§cMarvin") {
 	}
 	goto("wait");
 }
-if(human_name == "§4Kajetan") {
+if(string_name == "Kajetan") {
 	item = living.getHand(player);
 	item_type = item.getType(item);
 	sound.spawnForPlayer(player, $sound_slime_place, $sound_category_master, 1, 1);
@@ -258,29 +259,7 @@ if(human_name == "§4Kajetan") {
 	}
 	goto("wait");
 }
-if(human_name == "§bNico") {
-	rand_number = math.random(0, 25);
-	if(rand_number > 13){
-		sound.spawnForPlayer(player, $sound_cat, $sound_category_master, 1, 1);
-		msg.prefix(player, "§bImKillerKatze", "Miau");
-		goto("wait");
-	}
-	if(rand_number < 12){
-		sound.spawnForPlayer(player, $sound_stray_cat, $sound_category_master, 1, 1);
-		msg.prefix(player, "§bImKillerKatze", "Miau!");
-		goto("wait");
-	} else {
-		sound.spawnForPlayer(player, $sound_purreow, $sound_category_master, 1, 1);
-		msg.prefix(player, "§bImKillerKatze", "Schnurrr!");
-		goto("wait");
-	}
-	goto("wait");
-}
-if(human_name == "§cFabio") {
-	msg.prefix(player, "§cwertibaldi", "Kann grad nicht, bin im Einsatz für den Katastrophenschutz.");
-	goto("wait");
-}
-if(human_name == "§cLucas") {
+if(string_name == "Lucas") {
 	item = living.getHand(player);
 	item_name = item.getName(item);
 	if(item_name != null && string.text(item_name) == "§fBeer") {
@@ -291,7 +270,7 @@ if(human_name == "§cLucas") {
 	}
 	goto("wait");
 }
-if(human_name == "§9Jan") {
+if(string_name == "Jan") {
 	if(player.isSneaking(player)){
 		msg.prefix(player, "§9SirTerence7", "Very secretive yes yes.");
 		goto("wait");
@@ -347,7 +326,7 @@ if(human_name == "§9Jan") {
 	}
 	goto("wait");
 }
-if(human_name == "§9Mareen") {
+if(string_name == "Mareen") {
 	rand_number = math.random(0, 5);
 	if(rand_number > 1){
 		msg.prefix(player, "§9Mareeeen", "Wo ist die Schokolade versteckt!?");
@@ -463,7 +442,7 @@ if(inv_id == bankinvid) { //Bankmenü
 			withdrawSnuvis(player, 0, 0, amount_items);
 		}
 		elseif(inv_slot == 3) {
-			a = money.split(getMoney(player));
+			a = money.split(money.get(player));
 			withdrawSnuvis(player, a[2], a[1], a[0]);
 		}
 	}
@@ -647,32 +626,6 @@ if(set.contains(survival_respawn, player_uuid)) {
 	entity.teleport(player, world.getServerSpawn());
 }
 goto("wait");
-
-function lottery.set(location, amount) {
-	location = loc.mod(location, 0.5, 0, 0.5);
-	list = living.near(location, 0.1);
-	text_entity = list.getIndex(list, 0);
-	name = entity.getName(text_entity);
-	if(!text.startsWith(name, "Snuvis to win: ", 0)) {
-		snuvi.debug("Lottery error");
-		return;
-	}
-	entity.setName(text_entity, string.concat("Snuvis to win: ", string.number(amount)), true);
-}
-
-function lottery.add(location, amount) {
-	location = loc.mod(location, 0.5, 0, 0.5);
-	list = living.near(location, 0.1);
-	text_entity = list.getIndex(list, 0);
-	name = entity.getName(text_entity);
-	if(!text.startsWith(name, "Snuvis to win:", 0)) {
-		snuvi.debug("Lottery error");
-		return null;
-	}
-	amount = text.convert(text.subString(name, 15, text.length(name))) + 1;
-	entity.setName(text_entity, string.concat("Snuvis to win: ", string.number(amount)), true);
-	return amount;
-}
 
 function lottery.addValue(value) {
 	config = getServerConfig();

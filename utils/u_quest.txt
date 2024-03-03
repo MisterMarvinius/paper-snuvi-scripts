@@ -56,7 +56,7 @@ function player.setShipProgress(player_or_id, progress) {
 	}
 }
 
-function human.giveItem(human_name, player, needed_type_or_tag, needed_amount) {
+function citizen.giveItem(citizen_name, player, needed_type_or_tag, needed_amount) {
 	if(needed_amount == 0) {
 		return -1;
 	}
@@ -65,7 +65,7 @@ function human.giveItem(human_name, player, needed_type_or_tag, needed_amount) {
 		return needed_amount;
 	}
 	item_type = item.getType(item);
-	human_name = string.concat("§d", human_name);
+	citizen_name = string.concat("§d", citizen_name);
 	needed = false;
 	tag_check = false;
 	if(isMaterial(needed_type_or_tag)) {
@@ -94,15 +94,15 @@ function human.giveItem(human_name, player, needed_type_or_tag, needed_amount) {
 				rest_item = player.removeItemTag(player, needed_type_or_tag, rest_item_amount);
 				rest_item_amount = item.getAmount(rest_item);
 				if(rest_item_amount > 0) {
-					msg.prefix(player, human_name, string.concat("I need ", string.number(rest_item_amount), " more of these please."));
+					msg.prefix(player, citizen_name, string.concat("I need ", string.number(rest_item_amount), " more of these please."));
 				}
 			} else {
-				msg.prefix(player, human_name, string.concat("I need ", string.number(rest_item_amount), " more of these please."));
+				msg.prefix(player, citizen_name, string.concat("I need ", string.number(rest_item_amount), " more of these please."));
 			}
 		}
 		return rest_item_amount;
 	}
-	msg.prefix(player, human_name, "I do not need this.");
+	msg.prefix(player, citizen_name, "I do not need this.");
 	return needed_amount;
 }
 

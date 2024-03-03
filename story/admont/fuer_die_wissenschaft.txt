@@ -54,9 +54,10 @@ if(event == "custom_command" && command == "questanswer") {
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Kunibert") {
+	string_name = string.text(entity_name);
+	if(string_name == "Kunibert") {
 		stage.increase(player);
 		msg.prefix(player, "§dKunibert", "Hallo, was kann ich für dich tun?");
 		scheduler.msgPrefix(40, player, concat("§5", player.getName(player)), "Ich brauche Zuckerrohr.");
@@ -69,9 +70,10 @@ if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "
 goto("wait");
 
 @stage2
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Rolf") {
+	string_name = string.text(entity_name);
+	if(string_name == "Rolf") {
 		stage.increase(player);
 		msg.prefix(player, "§dRolf", "Ey, was störst du mich?");
 		scheduler.msgPrefix(40, player, concat("§5", player.getName(player)), "Entschuldigung, ich suche nach 2 Zuckerrohren.");
@@ -90,10 +92,11 @@ if(event == "craft") {
 goto("wait");
 
 @stage4
-if(event == "entity_click" && hand == "MAIN_HAND" && entity.getType(entity) == "human") {
+if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
-	if(entity_name == "Isabell") {
-		rest_amount = human.giveItem(entity_name, player, "minecraft:paper", paper_neded);
+	string_name = string.text(entity_name);
+	if(string_name == "Isabell") {
+		rest_amount = citizen.giveItem(string_name, player, "minecraft:paper", paper_neded);
 		if(rest_amount == 0) {
 			msg.prefix(player, "§dIsabell", "DANKE! Du rettest mich und die Wissenschaft!");
 			msg(player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");

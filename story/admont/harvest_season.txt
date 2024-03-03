@@ -14,8 +14,8 @@ carrots_needed = 8;
 wheat_harvestet = 0;
 carrots_harvestet = 0;
 wheat_mat = material.get("WHEAT");
-carrot_mat_block = material.get("CARROTS");
-carrot_mat_item = material.get("CARROT");
+carrot_block_mat = material.get("CARROTS");
+carrot_item_mat = material.get("CARROT");
 
 @wait
 wait();
@@ -39,19 +39,21 @@ goto(label);
 @stage1
 @stage2
 if(event == "block_drop") {
-	block_type = block.getType(block);
-	if(block_type == wheat_mat) {
-		item_entity = list.getIndex(drops, 0);
-		item.entity.set(item_entity, item.new(wheat_mat));
+	//block_type = block.getType(block);
+	//if(block_type == wheat_mat) {
+	if(drops.containsMaterial(drops, wheat_mat)) {
+		ie = list.getIndex(drops, 0);
 		list.clear(drops);
-		list.add(drops, item_entity);
+		item.entity.set(ie, item.new(wheat_mat));
+		list.add(drops, ie);
 		goto("wait");
 	}
-	if(block_type == carrot_mat_block) {
-		item_entity = list.getIndex(drops, 0);
-		item.entity.set(item_entity, item.new(carrot_mat_item));
+	//if(block_type == carrot_block_mat) {
+	if(drops.containsMaterial(drops, carrot_item_mat)) {
+		ie = list.getIndex(drops, 0);
 		list.clear(drops);
-		list.add(drops, item_entity);
+		item.entity.set(ie, item.new(carrot_item_mat));
+		list.add(drops, ie);
 	}
 	goto("wait");
 }
@@ -60,7 +62,7 @@ if(event == "block_click") {
 		goto("wait");
 	}
 	block_type = block.getType(block);
-	if(block_type == wheat_mat || block_type == carrot_mat_block) {
+	if(block_type == wheat_mat || block_type == carrot_block_mat) {
 		cancel = false;
 	}
 	goto("wait");
@@ -75,7 +77,7 @@ if(event == "block_break") {
 			stage.increase(player);
 		}
 	}
-	if(block_type == carrot_mat_block) {
+	if(block_type == carrot_block_mat) {
 		cancel = false;
 		scheduler.setBlockData(60, block, read.blockData("minecraft:carrots[age=7]"), false);
 		carrots_harvestet++;
@@ -85,23 +87,24 @@ if(event == "block_break") {
 	}
 	goto("wait");
 }
-if(event == "entity_click" && slot.isHand(hand) && entity.isHuman(entity)) {
-	entity_name = human.getName(entity);
-	if(entity_name == "Farmer") {
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Farmer") {
 		item = living.getHand(player);
 		item_type = item.getType(item);
 		if(item_type == wheat_mat) {
 			if(wheat_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, wheat_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, wheat_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dFarmer", "Thanks for the wheat.");
 				}
 				wheat_needed = rest_amount;
 			}
 		}
-		if(item_type == carrot_mat_item) {
+		if(item_type == carrot_item_mat) {
 			if(carrots_needed > 0) {
-				rest_amount = human.giveItem(entity_name, player, item_type, carrots_needed);
+				rest_amount = citizen.giveItem(string_name, player, item_type, carrots_needed);
 				if(rest_amount == 0) {
 					msg.prefix(player, "§dFarmer", "Thanks for the carrots.");
 				}

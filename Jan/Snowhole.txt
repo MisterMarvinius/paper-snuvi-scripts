@@ -1,0 +1,442 @@
+event.load("entity_spawn");
+event.load("entity_remove");
+event.load("arm_swing");
+event.load("block_click");
+event.load("player_move");
+//event.load("entity_click");
+
+gravitors = list.new();
+black_holes = list.new();
+white_holes = list.new();
+toggled_black_holes = list.new();
+toggled_white_holes = list.new();
+spawn_locs = list.new();
+relit_candles = list.new();
+grav_locs = list.new();
+
+world = world.get("creative");
+
+mid_loc = loc.new(world, 2267.5, 66.5, 2684.5);
+
+edge_1 = loc.new(world, 2282.5, 55.45, 2669.5);
+edge_2 = loc.new(world, 2252.5, 52, 2699.5);
+
+fall_1 = loc.new(world, 2290.5, 52, 2661.5);
+fall_2 = loc.new(world, 2245.5, 30, 2707.5);
+
+edge = event.addMoveData(edge_1, edge_2, 5, -1);
+fall = event.addMoveData(fall_1, fall_2, 5, -1);
+
+list.add(black_holes, mid_loc);
+//list.add(white_holes, loc.new(world, 2267.5, 48, 2684.5));
+
+list.add(spawn_locs, loc.new(world, 2259.5, 57, 2692.5));
+list.add(spawn_locs, loc.new(world, 2259.5, 57, 2676.5));
+list.add(spawn_locs, loc.new(world, 2275.5, 57, 2676.5));
+list.add(spawn_locs, loc.new(world, 2275.5, 57, 2692.5));
+
+Air = material.get("AIR");
+Snowball_Mat = material.get("SNOWBALL");
+B_Candle = material.get("BLACK_CANDLE");
+B_Concrete = material.get("BLACK_CONCRETE");
+W_Concrete = material.get("WHITE_CONCRETE");
+
+pling_sound = sound.get("BLOCK_AMETHYST_BLOCK_CHIME");
+Nom_sound = sound.get("ENTITY_GENERIC_EAT");
+sound_Category = sound.getCategory("MASTER");
+
+snow_particle = particle.get("SNOWFLAKE");
+smokeparticle = particle.get("SMOKE_LARGE");
+fire_particle = particle.get("FLAME");
+
+bool = true;
+remove_snowballs(mid_loc);
+
+@wait
+wait();
+
+if(event == "entity_spawn"){
+	//if there is a new snowball in game, add it to gravitation
+	if (entity.getType(entity) != "snowball"){
+		goto("wait");
+	}
+	if (get_distance(entity) > 100){
+		goto("wait");
+	}
+	if (list.getSize(gravitors) == 0){
+		sgoto(1, "gravitation");
+	}
+	entity.setGravity(entity, false);
+	list.add(gravitors, entity);
+	Snow.gravitate(entity);
+}
+elseif (event == "entity_remove"){
+	//if snowball hits smth, remove it
+	//if it hits a black hole or candles doshit
+	if (Snow.check(entity)){
+		goto("wait");
+	}
+	list.remove(gravitors, entity);
+	ent_loc = entity.getLocation(entity);
+	motion = entity.getMotion(entity);
+	for (i = 0; i<5; i++){
+		hit_block = block.get(ent_loc);
+		Material = block.getType(hit_block);
+		if (Material != Air){
+			break;
+		}
+		loc.add(ent_loc, motion[0]/5, motion[1]/5, motion[2]/5);
+	}
+	if (Material == B_Candle){
+		sound.spawn(ent_loc, pling_sound, sound_Category, 1, 1);
+		if (list.contains(relit_candles, hit_block)){
+			goto("wait");
+		}
+		loc = block.getLocation(hit_block);
+		loc.add(loc,0.5, 0.8, 0.5);
+		particle.spawn(loc, smokeparticle, 5, 0.1);
+		list.add(relit_candles, hit_block);
+		Candle.change_lit(hit_block);
+		sgoto(100, "candle");
+	}
+	elseif (Material == B_Concrete){
+		if (!(list.contains(black_holes, ent_loc) || list.contains(white_holes, ent_loc))){
+			goto("wait");
+		}
+		sound.spawn(ent_loc, Nom_sound, sound_Category, 1, 1);
+	}
+}
+elseif (event == "arm_swing"){
+	if (get_distance(player) > 100){
+		goto("wait");
+	}
+	if (!player.isSneaking(player)){
+		goto("wait");
+	}
+	if (item.getType(living.getEquip(player, hand)) != Snowball_Mat){
+		goto("wait");
+	}
+	Snow.aimassist(player);
+}
+elseif (event == "block_click"){
+	//change polarity of holes if they are clicked
+	if (get_distance(player) > 100){
+		goto("wait");
+	}
+	if (action != "RIGHT_CLICK_BLOCK"){
+		goto("wait");
+	}
+	bool = !bool;
+	if (bool){
+		goto("wait");
+	}
+	Material = block.getType(block);
+	loc = block.getLocation(block);
+	loc.add(loc,0.5,0.5,0.5);
+	if (Material == B_Concrete){
+		if (list.contains(black_holes, loc)){
+			list.remove(black_holes, loc);
+			list.add(white_holes, loc);
+			block.setMaterial(block, W_Concrete);
+		}
+	}
+	elseif (Material == W_Concrete){
+		if (list.contains(white_holes, loc)){
+			list.remove(white_holes, loc);
+			list.add(black_holes, loc);
+			block.setMaterial(block, B_Concrete);
+		}
+		
+	}
+}
+//entity_click doesn't work on snowballs so this is currently useless, but would work in theory
+/*elseif (event == "entity_click"){
+	if (Snow.check(entity)){
+		goto("wait");
+	}
+	motion_ball = entity.getMotion(entity);
+	motion_player = entity.getMotion(player);
+	speed = math.sqrt(math.pow(motion_ball[0]-motion_player[0],2), math.pow(motion_ball[1]-motion_player[1],2), math.pow(motion_ball[2]-motion_player[2],2));
+	if (speed > 5.5){
+		goto("wait");
+	}
+	itemstack = item.new(Snowball_Mat, 1);
+	entity.remove(entity);
+	player.giveItem(player, itemstack);
+}*/
+elseif(event == "player_move"){
+	//player off map
+	if (id == edge){
+		//Snow.launchback(player);
+		if (list.getSize(gravitors) == 0){
+			sgoto(1, "gravitation");
+		}
+		entity.setGravity(player, false);
+		entity.setMotion(player, 0, 0.2, 0);
+		list.add(gravitors, player);
+		Snow.gravitate(player);
+	}
+	elseif (id == fall){
+		if (!list.contains(gravitors, player)){
+			goto("wait");
+		}
+		list.remove(gravitors, player);
+		entity.setGravity(player, true);
+		Snow.setback(player);
+	}
+}
+
+goto("wait");
+
+@gravitation
+//adds gravitational pull to entitys in the gravitors list
+//grav_locs = gravitors_loc();
+list_iterator = iterator(gravitors);
+while(hasnext(list_iterator)){
+	entity = next(list_iterator);
+	Snow.gravitate(entity);
+	//particle.spawn(entity.getLocation(entity), snow_particle);
+	if (isPlayer(entity)){
+		if (get_distance(entity) < 10){
+			motion = entity.getMotion(entity);
+			entity.setMotion(entity, motion[0]/5, motion[1]/5, motion[2]/5);
+			entity.setGravity(entity, true);
+			remove(list_iterator);
+		}
+	}
+	elseif (get_distance(entity) > 100){
+		remove(list_iterator);
+		entity.remove(entity);
+	}
+}
+if(list.getSize(gravitors)>0){
+	sgoto(5, "gravitation");
+}
+goto("wait");
+
+@candle
+//relights the candles
+b_candle_block = list.getIndex(relit_candles, 0);
+loc = block.getLocation(b_candle_block);
+loc.add(loc,0.5, 0.5, 0.5);
+particle.spawn(loc, fire_particle, 5, 0.1);
+Candle.change_lit(b_candle_block);
+list.removeIndex(relit_candles, 0);
+goto("wait");
+
+function Snow.end(){
+	//if script is supposed to end, remove snowballs and light candles
+	list_iterator = iterator($relit_candles);
+	while(hasnext(list_iterator)){
+		b_candle_block = next(list_iterator);
+		Candle.change_lit(b_candle_block);
+		remove(list_iterator);
+	}
+	list_iterator = iterator($gravitors);
+	while(hasnext(list_iterator)){
+		entity = next(list_iterator);
+		entity.setGravity(entity, true);
+		if (!isPlayer(entity)){
+			remove(list_iterator);
+			entity.remove(entity);
+		}
+	}		
+}
+
+function Snow.toggle_grav(){
+	//toggles which holes are on, if none are stored in toggled_lists, then it turns gravity on
+	temp = $toggled_black_holes;
+	$toggled_black_holes = $black_holes;
+	$black_holes = temp;
+	
+	temp = $toggled_white_holes;
+	$toggled_white_holes = $white_holes;
+	$white_holes = temp;
+	
+	if (list.getSize($black_holes) + list.getSize($white_holes) == 0){
+		list_iterator = iterator($gravitors);
+		while(hasnext(list_iterator)){
+			entity = next(list_iterator);
+			entity.setGravity(entity, true);
+		}
+	}
+	elseif(list.getSize($toggled_black_holes) + list.getSize($toggled_white_holes) == 0){
+		list_iterator = iterator($gravitors);
+		while(hasnext(list_iterator)){
+			entity = next(list_iterator);
+			entity.setGravity(entity, false);
+		}
+	}
+}
+
+function Snow.check(entity){
+	if (entity.getType(entity) != "snowball"){
+		return true;
+	}
+	if (get_distance(entity) > 100){
+		return true;
+	}
+	if (!list.contains($gravitors, entity)){
+		return true;
+	}
+	return false;
+}
+
+function Candle.change_lit(hit_block){
+	//negates the boolean of the blocktag "lit"
+	block_data = block.getData(hit_block);
+	blockdata_string = string.blockData(block_data);
+	blockdata_string = string.replace(blockdata_string, "lit=true", "lit=temp");
+	blockdata_string = string.replace(blockdata_string, "lit=false", "lit=true");
+	blockdata_string = string.replace(blockdata_string, "lit=temp", "lit=false");
+	block_data = read.blockData(blockdata_string);
+	block.setData(hit_block, block_data, false);
+}
+
+function Snow.launchback(player){
+	//throws the player towards the black Hole (currently not in use)
+	loc = entity.getLocation(player);
+	motion = entity.getMotion(player);
+	acc = Snow.get_acc(loc);
+	x = -motion[0] + 2*acc[0];
+	y = 2 + 4*acc[0];
+	z = -motion[2] + 2*acc[0];
+	entity.setMotion(player, x, y, z);
+}
+
+function Snow.setback(player){
+	//resets the player to a spawn Location
+	size = list.getSize($spawn_locs)-1;
+	random = math.random(0,size);
+	spawn_loc = list.getIndex($spawn_locs, random);
+	entity.teleport(player, spawn_loc);
+	entity.setMotion(player, 0, 0.5, 0);
+}
+
+function remove_snowballs(loc){
+	//removes (currently just gives gravity etc) snowballs in a radius of the middle Location
+	entity_list = entity.near(loc, 50);
+	list_iterator = iterator(entity_list);
+	while(hasnext(list_iterator)){
+		ent = next(list_iterator);
+		if (entity.getType(ent) == "snowball"){
+			entity.setGravity(ent, true);
+			list.add($gravitors, ent);
+			//entity.remove(ent);
+		}
+	}
+}
+
+function get_distance(entity_){
+	//returns the distance of an entity to the middle Location
+	ent_loc = entity.getLocation(entity_);
+	
+	x_dist = loc.getX($mid_loc) - loc.getX(ent_loc);
+	y_dist = loc.getY($mid_loc) - loc.getY(ent_loc);
+	z_dist = loc.getZ($mid_loc) - loc.getZ(ent_loc);
+	distance = math.sqrt(math.pow(x_dist, 2) + math.pow(y_dist, 2) + math.pow(z_dist, 2));
+	
+	return distance;
+}
+
+function Snow.aimassist(player){
+	//creates particle effect of where a snowball would fly
+	motion = entity.getLook(player);
+	location = entity.getLocation(player);
+	loc.addY(location, 1.5);
+	for (i = 0; i < 50; i++){
+		add_motion = Snow.get_acc(location);
+		for (j = 0; j < 3; j++){
+			motion[j] += add_motion[j];
+		}
+		//current_block = block.get(location);
+		//Material = block.getType(current_block);
+		//if (Material != $Air){
+			//snuvi.debug(Material);
+		//	break;
+		//}
+		loc.add(location, 4*motion[0], 4*motion[1], 4*motion[2]);
+		particle.spawnPlayer(location, $snow_particle, player);
+	}
+}
+
+function gravitors_loc(){
+	//returns the locations of the gravitor list
+	grav_locs = list.new();
+	list_iterator = iterator($gravitors);
+	while(hasnext(list_iterator)){
+		gravitor = next(list_iterator);
+		gravitor_loc = entity.getLocation(gravitor);
+		list.add(grav_locs, gravitor_loc);
+	}
+	return grav_locs;
+}
+
+function Snow.get_acc(location){
+	//returns the accelleration of an object given the black/white holes in a map
+	accvector1 = Snow.acc(location, $black_holes);
+	accvector2 = Snow.acc(location, $white_holes);
+	//accvector3 = Snow.acc(location, $grav_locs);
+	
+	accvector = array.new(3);
+	for (i = 0; i<3; i++){
+		accvector[i] = accvector1[i]-accvector2[i];// + 0.01*accvector3[i];
+	}
+	return accvector;
+}
+
+function Snow.acc(location, list){
+	//returns the accelleration of an object given by the objects in the list 
+	G = 5;
+	accvector = array.new(3);
+	accvector[0] = 0;
+	accvector[1] = 0;
+	accvector[2] = 0;
+	
+	loc_X = loc.getX(location);
+	loc_Y = loc.getY(location);
+	loc_Z = loc.getZ(location);
+	
+	list_iterator = iterator(list);
+	while(hasnext(list_iterator)){
+		hole_loc = next(list_iterator);
+		
+		x_dist = loc.getX(hole_loc) - loc_X;
+		y_dist = loc.getY(hole_loc) - loc_Y;
+		z_dist = loc.getZ(hole_loc) - loc_Z;
+		distance = math.sqrt(math.pow(x_dist, 2) + math.pow(y_dist, 2) + math.pow(z_dist, 2));
+		
+		if (distance > 50 || distance < 0.1){
+			continue;
+		}
+		dist_sqrt = math.pow(distance,2);
+		accvector[0] += x_dist/dist_sqrt;
+		accvector[1] += y_dist/dist_sqrt;
+		accvector[2] += z_dist/dist_sqrt;
+	}
+	for (i = 0; i<3; i++){
+		accvector[i] *= G;
+	}
+	return accvector;
+}
+
+function Snow.change_polarity(){
+	//changes black to white holes and the other way round
+	temp_list = list.new();
+	temp_list = $black_holes;
+	$black_holes = $white_holes;
+	$white_holes = $black_holes;
+}
+
+function Snow.gravitate(entity_){
+	//sets the Motion of an entity to gravitate towards black holes and away from white holes
+	ent_loc = entity.getLocation(entity_);
+	accvector = Snow.get_acc(ent_loc);
+	
+	motion = entity.getMotion(entity_);
+	x = motion[0];
+	y = motion[1];
+	z = motion[2];
+	
+	entity.setMotion(entity_, x + accvector[0], y + accvector[1], z + accvector[2]);
+}

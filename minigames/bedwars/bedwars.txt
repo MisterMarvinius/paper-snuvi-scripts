@@ -3,6 +3,7 @@ game_short = "bw";
 game_tab = "§bBW";
 minigame.setSpecificLobbyHandling(true);
 minigame.setPlayerResetInCore(false);
+minigame.setIndivStartCheck(true);
 
 colorcodes = map.new();
 map.add(colorcodes, 0, "§9");
@@ -122,6 +123,9 @@ if(event == "block_click") {
 		map.add(players, player_name, newteam);
 		msg.prefix(player, gamename, string.concat("§eYou joined the ", map.get(teamcolortext, newteam), " §eteam."));;
 		entity.setName(player, text.new(string.concat(map.get(colorcodes, newteam), player.getName(player))));
+		if(!minigame.isStarting()) {
+			goto("startcountdown");
+		}
 	}
 }
 return;
@@ -1043,4 +1047,23 @@ function bedwars.getTeamColor(player) {
 	team = map.get($players, player.getName(player));
 	color = map.get($colorcodes, team);
 	return color;
+}
+
+function minigame.canStartIndiv() {
+	player_list = minigame.getPlayers($script_id);
+	p_amount = list.getSize(player_list);
+	if(p_amount < minigame.getMinPlayers()) {
+		return false;
+	}
+	if(p_amount > 0 && list.getSize($waiters) > 0) {
+		return true;
+	}
+	for(i = 0; i < $numberofteams; i++) {
+		teamlist = map.get($teamidtolist, i);
+		team_size = list.getSize(teamlist);
+		if(team_size == p_amount) {
+			return false;
+		}
+	}
+	return true;
 }

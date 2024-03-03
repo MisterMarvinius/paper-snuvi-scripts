@@ -20,7 +20,6 @@ if(event == "entity_spawn") {
 	goto("main");
 }
 if(event == "human_damage") {
-	entity_name = entity.getName(human);
 	if(set.contains(herobrines, human)) {
 		if(entity == null) {
 			goto("main");

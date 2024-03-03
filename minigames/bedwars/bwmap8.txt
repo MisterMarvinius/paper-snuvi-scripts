@@ -1,7 +1,7 @@
 mapname = "Rudolf";
 numberofteams = 4;
-teamsize = 2;
-minplayers = teamsize + 1;
+teamsize = 3;
+minplayers = 2;
 maxplayers = teamsize * numberofteams;
 gamesignloc = minigame.getSignLoc("bwmapsign8");
 gamesworld = world.getGames();
