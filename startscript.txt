@@ -29,7 +29,7 @@ script.startNamed("Creative", "utils/u_error", "system/creative", "utils/u_gener
 script.startNamed("Copyisland", "system/copyisland", "utils/u_general");
 script.startNamed("Damage", "utils/u_error", "system/damage", "utils/u_general");
 script.startNamed("Doors", "utils/u_error", "system/doors", "utils/u_general");
-script.startNamed("Herobrine", "utils/u_error", "survival/herobrine", "utils/u_general");
+//script.startNamed("Herobrine", "utils/u_error", "survival/herobrine", "utils/u_general");
 script.startNamed("Playtime", "system/playtime", "utils/u_general");
 script.startNamed("LoginRequests", "system/login_requests", "utils/u_general");
 script.startNamed("Gemstones", "utils/u_error", "survival/gemstones", "utils/u_general");
@@ -47,8 +47,6 @@ script.startNamed("Ranklist", "utils/u_error", "system/ranklist", "utils/u_gener
 //script.startNamed("Story", "utils/u_error", "story/story", "utils/u_general");
 script.startNamed("QuestsAdmont", "utils/u_error", "story/admont/core", "utils/u_general", "utils/u_quest");
 //script.startNamed("QuestsSchiffbruch", "utils/u_error", "story/schiffbruch/core", "utils/u_general", "utils/u_quest");
-//script.startNamed("Workberries", "system/workberries");
-//script.startNamed("Recipes", "survival/recipes");
 script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general", "utils/u_skills");
 //script.startNamed("Loom", "utils/u_error", "survival/loom", "utils/u_general");
 //script.startNamed("Lectern", "utils/u_error", "survival/lectern", "utils/u_general");

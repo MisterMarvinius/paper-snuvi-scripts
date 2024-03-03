@@ -1702,13 +1702,6 @@ function drops.containsMaterial(drops_list, material) {
 //Entity-Utils
 //--------------------------------------------------
 
-function entity.isHuman(entity) { //Deprecated
-	if(entity == null) {
-		return false;
-	}
-	return entity.getType(entity) == "human";
-}
-
 function entity.isArmorstand(entity) {
 	if(entity == null) {
 		return false;

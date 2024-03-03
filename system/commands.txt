@@ -4961,47 +4961,14 @@ goto("datatoolshelp");
 if(size == 0) {
 	@humanhelp
 	msg.prefix(player, prefix_human, "/human ...");
-	msg.string(player, string.concat("§6 - spawn <name> §rSpawns a human"));
-	msg.string(player, string.concat("§6 - set <uuid> §rSets the skin of a human"));
-	msg.string(player, string.concat("§6 - skin <name> §rSets the skin of a human"));
-	msg.string(player, string.concat("§6 - name §rSets the name of a human"));
-	msg.string(player, string.concat("§6 - move <true/false> §rSets if can move"));
-	msg.string(player, string.concat("§6 - ai <value> §rSets the ai of a human"));
-	msg.string(player, string.concat("§6 - remove §rRemoves a human"));
+	msg.string(player, string.concat("§6 - skin <name> §rSets the skin of a citizen"));
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
-if(arg0 == "spawn") {
-	if(size < 2) {
-		msg.prefix(player, prefix_human, "/human spawn <name>.");
-		goto("wait");
-	}
-	name = list.getIndex(args, 1);
-	for(i = 2; i < list.getSize(args); i++) {
-	    name = string.concat(name, " ", list.getIndex(args, i));
-	}
-	human.spawn(entity.getLocation(player), name);
-	msg.action(player, "Human spawned.");
-	goto("wait");
-}
-human = player.getTargetEntity(player, 5);
 citizen = player.getTargetCitizen(player, 5);
-if(!entity.isHuman(human) && !isCitizen(citizen)) {
-	msg.prefix(player, prefix_human, "No human or citizen.");
+if(!isCitizen(citizen)) {
+	msg.prefix(player, prefix_human, "No citizen.");
 	goto("wait");	
-}
-if(arg0 == "set") {
-	if(size == 2) {
-		name = list.getIndex(args, 1);
-		uuid = read.uuid(name);
-		if(uuid == null) {
-		    msg.action(player, "Invalid UUID.");
-	        goto("wait");	
-		}
-		human.setSkinUUID(human, uuid);
-		msg.action(player, "Skin set.");
-		goto("wait");
-	}
 }
 elseif(arg0 == "skin") {
 	if(size == 2) {
@@ -5055,53 +5022,6 @@ elseif(arg0 == "skin") {
 		}
 		goto("wait");
 	}
-}
-elseif(arg0 == "name") {
-	if(size < 2) {
-		msg.prefix(player, prefix_human, "/human name <name>.");
-		goto("wait");
-	}
-	name = list.getIndex(args, 1);
-	for(i = 2; i < list.getSize(args); i++) {
-	    name = string.concat(name, " ", list.getIndex(args, i));
-	}
-	name = string.replace(name, "&", "§");
-	human.setName(human, name);
-	msg.action(player, string.concat("Human named to ", name, "§r."));
-	goto("wait");
-}
-if(arg0 == "move") {
-	if(size < 2) {
-		msg.prefix(player, prefix_human, "/human move <true/false>");
-		goto("wait");
-	}
-	bool = list.getIndex(args, 1);
-	if(bool != true && bool != false) {
-		msg.action(player, "True/False expected.");
-		goto("wait");
-	}
-	human.canMove(human, bool);
-	msg.action(player, "Move set.");
-	goto("wait");
-}
-if(arg0 == "ai") {
-	if(size < 2) {
-		msg.prefix(player, prefix_human, "/human ai <value>");
-		goto("wait");
-	}
-	value = list.getIndex(args, 1);
-	if(!isDouble(value) || value < 0 || value > 2) {
-		msg.action(player, "Number between 0 and 2 expected.");
-		goto("wait");
-	}
-	human.setAi(human, value);
-	msg.action(player, "Ai set.");
-	goto("wait");
-}
-elseif(arg0 == "remove") {
-	entity.remove(human);
-	msg.action(player, "Human removed.");
-	goto("wait");
 }
 goto("humanhelp");
 

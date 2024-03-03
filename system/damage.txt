@@ -74,7 +74,7 @@ function updateEntityName(entity) {
 	}
 	living_entity = entity;
 	entity_type = entity.getType(living_entity);
-	if(entity_type == "armor_stand" || entity_type == "human") {
+	if(entity_type == "armor_stand" || isCitizen(entity)) {
 		return;
 	}
 

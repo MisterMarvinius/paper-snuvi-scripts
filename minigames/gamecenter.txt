@@ -4,7 +4,6 @@ event.load("player_pre_respawn");
 event.load("player_post_respawn");
 event.load("block_click");
 event.load("block_break");
-event.load("entity_click");
 event.load("custom_command");
 event.load("term_script");
 event.load("player_move");
@@ -30,15 +29,15 @@ dice_loc_rm5 = loc.new(gamesworld, -3064, 156, 1061);
 dice_time = time.getMillis();
 move_id_to_spawn = event.addMoveData(loc.new(gamesworld, -415, 148, -62), loc.new(gamesworld, -411, 153, -58), 5, -1);
 
-minigame.addSign("bwmapsign1", true, loc.new(gamesworld, -423, 158, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap1", false);
-minigame.addSign("bwmapsign2", true, loc.new(gamesworld, -423, 158, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap2", false);
-minigame.addSign("bwmapsign3", true, loc.new(gamesworld, -423, 158, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap3", false);
-minigame.addSign("bwmapsign4", true, loc.new(gamesworld, -423, 157, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap4", false);
-minigame.addSign("bwmapsign5", true, loc.new(gamesworld, -423, 157, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap5", false);
-minigame.addSign("bwmapsign6", true, loc.new(gamesworld, -423, 157, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap6", false);
-minigame.addSign("bwmapsign7", true, loc.new(gamesworld, -423, 156, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap7", false);
-minigame.addSign("bwmapsign8", true, loc.new(gamesworld, -423, 156, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap8", false);
-minigame.addSign("bwmapsign9", true, loc.new(gamesworld, -423, 156, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap9", false);
+minigame.addSign("bwmapsign1", false, loc.new(gamesworld, -423, 158, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap1", false);
+minigame.addSign("bwmapsign2", false, loc.new(gamesworld, -423, 158, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap2", false);
+minigame.addSign("bwmapsign3", false, loc.new(gamesworld, -423, 158, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap3", false);
+minigame.addSign("bwmapsign4", false, loc.new(gamesworld, -423, 157, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap4", false);
+minigame.addSign("bwmapsign5", false, loc.new(gamesworld, -423, 157, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap5", false);
+minigame.addSign("bwmapsign6", false, loc.new(gamesworld, -423, 157, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap6", false);
+minigame.addSign("bwmapsign7", false, loc.new(gamesworld, -423, 156, -42), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap7", false);
+minigame.addSign("bwmapsign8", false, loc.new(gamesworld, -423, 156, -43), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap8", false);
+minigame.addSign("bwmapsign9", false, loc.new(gamesworld, -423, 156, -44), "minigames/bedwars/bedwars", "minigames/bedwars/bwmap9", false);
 minigame.addSign("letterssign1", true, loc.new(gamesworld, -396, 158, -63), "minigames/letters/letters", "minigames/letters/lettersmap1", true);
 minigame.addSign("letterssign2", true, loc.new(gamesworld, -396, 158, -62), "minigames/letters/letters", "minigames/letters/lettersmap2", true);
 minigame.addSign("letterssign3", true, loc.new(gamesworld, -396, 158, -61), "minigames/letters/letters", "minigames/letters/lettersmap3", true);
@@ -85,12 +84,12 @@ minigame.addSign("rebuildsign1", true, loc.new(gamesworld, -414, 157, -33), "min
 minigame.addSign("rebuildsign2", true, loc.new(gamesworld, -415, 157, -33), "minigames/rebuild/rebuild", "minigames/rebuild/rebuildmap2", false);
 minigame.addSign("hideandseeksign1", true, loc.new(gamesworld, -418, 158, -33), "minigames/hideandseek/hideandseek", "minigames/hideandseek/hideandseekmap1", false);
 minigame.addSign("hideandseeksign2", true, loc.new(gamesworld, -419, 158, -33), "minigames/hideandseek/hideandseek", "minigames/hideandseek/hideandseekmap2", false);
-minigame.addSign("shoppingsign1", true, loc.new(gamesworld, -414, 156, -33), "minigames/shoppingchaos/shoppingchaos", "minigames/shoppingchaos/shopping_map1", false);
+minigame.addSign("shoppingsign1", false, loc.new(gamesworld, -414, 156, -33), "minigames/shoppingchaos/shoppingchaos", "minigames/shoppingchaos/shopping_map1", false);
 minigame.addSign("mengersign1", true, loc.new(gamesworld, -405, 157, -75), "minigames/mengerrun/mengerrun", "minigames/mengerrun/menger_map1", false);
 minigame.addSign("leapfrogsign1", true, loc.new(gamesworld, -399, 157, -65), "minigames/leapfrog/leapfrog", "minigames/leapfrog/leapfrogmap1", true);
 minigame.addSign("snowsign1", true, loc.new(gamesworld, -412, 156, -37), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap1", false);
 minigame.addSign("snowsign2", true, loc.new(gamesworld, -412, 156, -36), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap2", false);
-minigame.addSign("among_us_sign1", true, loc.new(gamesworld, -417, 157, -41), "minigames/among_us/among_us", "minigames/among_us/among_us_map1", false);
+minigame.addSign("among_us_sign1", false, loc.new(gamesworld, -417, 157, -41), "minigames/among_us/among_us", "minigames/among_us/among_us_map1", false);
 minigame.addSign("jr_sign_4D_1", true, loc.new(gamesworld, -396, 156, -51), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map1", true);
 minigame.addSign("jr_sign_4D_3", true, loc.new(gamesworld, -396, 156, -49), "minigames/jumpnrun/4d/4d_j_r_core", "minigames/jumpnrun/4d/4d_j_r_map3", true);
 minigame.addSign("s_sign_4D_1", true, loc.new(gamesworld, -396, 156, -50), "minigames/jumpnrun/4d/3d_shadow/shadow_jump_core", "minigames/jumpnrun/4d/3d_shadow/3d_s_map1", true);
@@ -219,24 +218,6 @@ if(command == "game") {
 			msg.string(player, "§6/game §r<open/close>");
 		}
 	}
-}
-goto("wait");
-
-@entity_click
-if(slot.isOffHand(hand)) {
-	goto("wait");
-}
-player_loc = entity.getLocation(player);
-if(!loc.isInGamesWorld(player_loc)) {
-	goto("wait");
-}
-if(!isCitizen(entity)) {
-	goto("wait");
-}
-entity_name = entity.getName(entity);
-string_name = string.text(entity_name);
-if(string_name == "marvinius") {
-	msg.prefix(player, "§cGamerMarv", "Help! I'm being held here against my will!");
 }
 goto("wait");
 

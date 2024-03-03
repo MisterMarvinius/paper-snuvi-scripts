@@ -73,7 +73,4 @@ table.setsize(string.fromCode(63500), 9);
 table.setEmpty1(string.concat(string.fromCode(63502), " "));
 table.setEmpty2(string.concat(string.fromCode(63501), " "));
 
-human.setPrefix("§d§oNPC §e| §7§o");
-human.setSuffix("");
-
 term();

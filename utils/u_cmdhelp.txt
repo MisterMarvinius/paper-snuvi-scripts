@@ -490,14 +490,6 @@ function setCommandHelps() {
 	command.addHelp(help);
 	
 	help = command.newHelp("human", "human");
-	//human spawn
-	helpArg0 = command.newHelpLiteral("spawn");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	command.addHelpChild(help, helpArg0);
-	//human set <name>
-	helpArg0 = command.newHelpLiteral("set");
-	command.addHelpChild(helpArg0, command.newHelpString("uuid", false));
-	command.addHelpChild(help, helpArg0);
 	//human skin <name>
 	helpArg0 = command.newHelpLiteral("skin");
 	command.addHelpChild(helpArg0, command.newHelpLiteral("alena"));
@@ -523,20 +515,6 @@ function setCommandHelps() {
 	command.addHelpChild(helpArg0, command.newHelpLiteral("santa_marv"));
 	command.addHelpChild(helpArg0, command.newHelpLiteral("smith"));
 	command.addHelpChild(help, helpArg0);
-	//human name
-	helpArg0 = command.newHelpLiteral("name");
-	command.addHelpChild(helpArg0, command.newHelpString("name", true));
-	command.addHelpChild(help, helpArg0);
-	//human move <true/fals>
-	helpArg0 = command.newHelpLiteral("move");
-	command.addHelpChild(helpArg0, command.newHelpBool("boolean"));
-	command.addHelpChild(help, helpArg0);
-	//human ai <value>
-	helpArg0 = command.newHelpLiteral("ai");
-	command.addHelpChild(helpArg0, command.newHelpInt("value", 0, 20));
-	command.addHelpChild(help, helpArg0);
-	//human kill
-	command.addHelpChild(help, command.newHelpLiteral("remove"));
 	command.addHelp(help);
 	
 	help = command.newHelp("mail", "mail");
