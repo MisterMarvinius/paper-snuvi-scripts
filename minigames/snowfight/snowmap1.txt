@@ -9,6 +9,9 @@ lobbyspawnloc = loc.new(gamesworld, -1224, 43, -995, 90, 0);
 middleloc = loc.new(gamesworld, -1205, 41, -979);
 radius = 200;
 
+black_holes = list.new();
+white_holes = list.new();
+
 joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
 list.add(joinblocks, loc.new(gamesworld, -1229, 42, -992));
 list.add(joinblocks, loc.new(gamesworld, -1229, 42, -999));

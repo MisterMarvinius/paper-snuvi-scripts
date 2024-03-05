@@ -185,6 +185,7 @@ composter_par = particle.get("COMPOSTER");
 wall_signs_tag = block.getTag("minecraft:wall_signs");
 beds_tag = block.getTag("minecraft:beds");
 chest_tag = block.getTag("km:container");
+all_signs_tag = block.getTag("minecraft:all_signs");
 sign_tag = block.getTag("minecraft:signs");
 //dirt_tag = block.getTag("minecraft:dirt");
 prefix_shop = "§6Shop";
@@ -733,16 +734,16 @@ if(event == "block_click") {
 		goto("wait");
 	}
 	if(action == "RIGHT_CLICK_BLOCK" && block.hasTag(block, sign_tag)) {
-		line0 = sign.getString(block, 0);
+		line0 = sign.getString(block, "FRONT", 0);
 		if(line0 != "§3[§bFree Plot§3]") {
 			goto("wait");
 		}
-		price = read.number(string.removeFormat(sign.getString(block, 1)));
+		price = read.number(string.removeFormat(sign.getString(block, "FRONT", 1)));
 		if(price == null || !isDouble(price) || price < 0) {
 			msg.prefix(player, prefix_plot, "Positive number expected.");
 			goto("wait");
 		}
-		p_id = read.number(sign.getString(block, 3));
+		p_id = read.number(sign.getString(block, "FRONT", 3));
 		if(p_id == null || !isDouble(p_id)) {
 			msg.prefix(player, prefix_plot, "Invalid city owner.");
 			goto("wait");
@@ -1399,13 +1400,14 @@ if(arg0 == "create") {
 		msg.prefix(player, prefix_shop, "No chest under sign.");
 		goto("wait");
 	}
-	if(sign.getString(sign_block, 0) != "") {
+	if(sign.getString(sign_block, "FRONT", 0) != "") {
 		msg.prefix(player, prefix_shop, "Sign is not empty.");
 		goto("wait");
 	}
 	sign_loc = block.getLocation(sign_block);
-	sign.setString(sign_block, 0, "[Shop]");
-	sign.setString(sign_block, 3, string.number(player.getId(player)));
+	sign.setString(sign_block, "FRONT", 0, "[Shop]");
+	sign.setString(sign_block, "FRONT", 3, string.number(player.getId(player)));
+	block.signSetWaxed(sign_block, true);
 	msg.prefix(player, prefix_shop, "Created Shop.");
 	goto("wait");
 }
@@ -1448,9 +1450,9 @@ if(arg0 == "buy" || arg0 == "sell") {
 		goto("wait");
 	}
 	if(arg0 == "buy") {
-		sign.setString(sign_block, 1, string.concat("Buy ", string.number(amount), " for ", string.number(price)));
+		sign.setString(sign_block, "FRONT", 1, string.concat("Buy ", string.number(amount), " for ", string.number(price)));
 	} else {
-		sign.setString(sign_block, 2, string.concat("Sell ", string.number(amount), " for ", string.number(price)));
+		sign.setString(sign_block, "FRONT", 2, string.concat("Sell ", string.number(amount), " for ", string.number(price)));
 	}
 	msg.prefix(player, prefix_shop, "Price set.");
 	goto("wait");
@@ -1476,9 +1478,9 @@ if(arg0 == "remove") {
 	}
 	arg1 = string.toLowerCase(list.getIndex(args, 1));
 	if(arg1 == "buy") {
-		sign.setString(sign_block, 1, "");
+		sign.setString(sign_block, "FRONT", 1, "");
 	} elseif(arg1 == "sell") {
-		sign.setString(sign_block, 2, "");
+		sign.setString(sign_block, "FRONT", 2, "");
 	} else {
 		msg.prefix(player, prefix_shop, "§6/shop remove <buy/sell>");
 		goto("wait");
@@ -1506,7 +1508,7 @@ if(arg0 == "owner") {
 		msg.prefix(player, prefix_shop, "Look at a wall sign.");
 		goto("wait");
 	}
-	sign.setString(sign_block, 3, string.number(player.getId(p_uuid)));
+	sign.setString(sign_block, "FRONT", 3, string.number(player.getId(p_uuid)));
 	goto("wait");
 }
 goto("shop_help");
@@ -5125,10 +5127,11 @@ goto("wait");
 @sign
 if(size == 0) {
 	msg.prefix(player, prefix_commands, "/sign ...");
-	msg.string(player, "§6 - <row:1-4> [text] §rSet a sign line");
+	msg.string(player, "§6 - <FRONT/BACK> <row:1-4> [text] §rSet a sign line");
 	if(perm.has("sign.copy", player)) {
 		msg.string(player, "§6 - copy §rCopy a sign content");
 		msg.string(player, "§6 - paste §rPaste a sign content");
+		msg.string(player, "§6 - wax <true/false> §rWax a sign");
 	}
 	goto("wait");
 }
@@ -5137,17 +5140,21 @@ if(block == null) {
 	msg.prefix(player, prefix_commands, "Look at a sign.");
 	goto("wait");
 }
-if(!block.hasTag(block, sign_tag)) {
+if(!block.hasTag(block, all_signs_tag)) {
 	msg.prefix(player, prefix_commands, "Look at a sign.");
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
 if(arg0 == "copy") {
-	a = array.new(4);
-	a[0] = sign.getString(block, 0);
-	a[1] = sign.getString(block, 1);
-	a[2] = sign.getString(block, 2);
-	a[3] = sign.getString(block, 3);
+	a = array.new(8);
+	a[0] = sign.getString(block, "FRONT", 0);
+	a[1] = sign.getString(block, "FRONT", 1);
+	a[2] = sign.getString(block, "FRONT", 2);
+	a[3] = sign.getString(block, "FRONT", 3);
+	a[4] = sign.getString(block, "BACK", 0);
+	a[5] = sign.getString(block, "BACK", 1);
+	a[6] = sign.getString(block, "BACK", 2);
+	a[7] = sign.getString(block, "BACK", 3);
 	map.add(sign_copy_map, player.getId(player), a);
 	msg.prefix(player, prefix_commands, "Sign copied.");
 	goto("wait");
@@ -5158,14 +5165,41 @@ if(arg0 == "paste") {
 		msg.prefix(player, prefix_commands, "Use '/sign copy' first.");
 		goto("wait");
 	}
-	sign.setString(block, 0, a[0]);
-	sign.setString(block, 1, a[1]);
-	sign.setString(block, 2, a[2]);
-	sign.setString(block, 3, a[3]);;
+	sign.setString(block, "FRONT", 0, a[0]);
+	sign.setString(block, "FRONT", 1, a[1]);
+	sign.setString(block, "FRONT", 2, a[2]);
+	sign.setString(block, "FRONT", 3, a[3]);
+	sign.setString(block, "BACK", 0, a[4]);
+	sign.setString(block, "BACK", 1, a[5]);
+	sign.setString(block, "BACK", 2, a[6]);
+	sign.setString(block, "BACK", 3, a[7]);
 	msg.prefix(player, prefix_commands, "Sign pasted.");
 	goto("wait");
 }
-line = list.getIndex(args, 0);
+if(arg0 == "wax") {
+	if(size < 2) {
+		msg.prefix(player, prefix_datatools, "/sign wax <true/false>");
+		goto("wait");
+	}
+	bool = list.getIndex(args, 1);
+	if(bool != true && bool != false) {
+		msg.action(player, "True/False expected.");
+		goto("wait");
+	}
+	block.signSetWaxed(block, bool);
+	msg.prefix(player, prefix_commands, "Set sign wax.");
+	goto("wait");
+}
+if(size < 2) {
+	msg.prefix(player, prefix_datatools, "/sign <FRONT/BACK> <row:1-4> [text]");
+	goto("wait");
+}
+side = list.getIndex(args, 0);
+if(side != "FRONT" && side != "BACK") {
+	msg.action(player, "FRONT/BACK expected.");
+	goto("wait");
+}
+line = list.getIndex(args, 1);
 if(!isDouble(line)) {
 	msg.prefix(player, prefix_commands, "Number expected.");
 	goto("wait");
@@ -5181,10 +5215,10 @@ if(!player.hasBypass(player)) {
 	}
 }
 string = "";
-if(size > 1) {
-	for(i = 1; i < size; i++) {
+if(size > 2) {
+	for(i = 2; i < size; i++) {
 		arg = list.getIndex(string_args, i);
-		if(i == 1) {
+		if(i == 2) {
 			string = arg;
 		} else {
 			string = string.concat(string, " ", arg);
@@ -5192,7 +5226,8 @@ if(size > 1) {
 	}
 }
 string = string.replace(string, "&", "§");
-block.setSign(block, line - 1, text.new(string));
+block.setSign(block, side, line - 1, text.new(string));
+block.signSetWaxed(block, true);
 goto("wait");
 
 @head
@@ -5446,7 +5481,7 @@ if(arg0 == "sell") {
 		msg.prefix(player, prefix_plot, "You need to look at an empty sign.");
 		goto("wait");
 	}
-	if(sign.getString(block, 0) != "" || sign.getString(block, 1) != "" || sign.getString(block, 2) != "" || sign.getString(block, 3) != "") {
+	if(sign.getString(block, "FRONT", 0) != "" || sign.getString(block, 1) != "" || sign.getString(block, 2) != "" || sign.getString(block, 3) != "") {
 		msg.prefix(player, prefix_plot, "You need to look at an empty sign.");
 		goto("wait");
 	}

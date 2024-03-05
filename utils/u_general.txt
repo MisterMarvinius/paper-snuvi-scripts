@@ -20,7 +20,7 @@ function getServerConfig() {
 	return getScriptVar("server_config");
 }
 
-function snuvi.debug(string) {
+function msg.dev(string) {
 	msg.string("dev", string.concat("[§eDebug§r] ", string));
 }
 
@@ -2478,7 +2478,7 @@ function player.showOnline(player) {
 //--------------------------------------------------
 
 function shop.getOwner(sign_block) {
-	owner_id = read.number(sign.getString(sign_block, 3));
+	owner_id = read.number(sign.getString(sign_block, "FRONT", 3));
 	if(owner_id == null) {
 		return null;
 	}
@@ -2515,12 +2515,12 @@ function block.isWallSign(block) {
 	return block.hasTag(block, block.getTag("minecraft:wall_signs"));
 }
 
-function sign.getString(block, row) {
-	return string.text(block.getSign(block, row));
+function sign.getString(block, side, row) {
+	return string.text(block.getSign(block, side, row));
 }
 
-function sign.setString(block, row, string) {
-	block.setSign(block, row, text.new(string));
+function sign.setString(block, side, row, string) {
+	block.setSign(block, side, row, text.new(string));
 }
 
 function block.isType(block, type_string) {

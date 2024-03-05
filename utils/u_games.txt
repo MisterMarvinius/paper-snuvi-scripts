@@ -346,7 +346,7 @@ function minigame.getLastPos(player) {
 }
 
 function minigame.isStarted(sign_block) {
-	return sign.getString(sign_block, 3) == "§bStarted";
+	return sign.getString(sign_block, "FRONT", 3) == "§bStarted";
 }
 
 function minigame.getSignLoc(sign_name) {
@@ -688,28 +688,28 @@ function sign.players(sign_block, amount, max) {
 	if(!isBlock(sign_block)) {
 		sign_block = block.get(sign_block);
 	}
-	sign.setString(sign_block, 2, string.concat(string.number(amount), "/", string.number(max)));
+	sign.setString(sign_block, "FRONT", 2, string.concat(string.number(amount), "/", string.number(max)));
 }
 
 function sign.ready(sign_block) {
 	if(!isBlock(sign_block)) {
 		sign_block = block.get(sign_block);
 	}
-	sign.setString(sign_block, 3, "§2Ready");
+	sign.setString(sign_block, "FRONT", 3, "§2Ready");
 }
 
 function sign.started(sign_block) {
 	if(!isBlock(sign_block)) {
 		sign_block = block.get(sign_block);
 	}
-	sign.setString(sign_block, 3, "§bStarted");
+	sign.setString(sign_block, "FRONT", 3, "§bStarted");
 }
 
 function sign.closed(sign_block) {
 	if(!isBlock(sign_block)) {
 		sign_block = block.get(sign_block);
 	}
-	sign.setString(sign_block, 3, "§cClosed");
+	sign.setString(sign_block, "FRONT", 3, "§cClosed");
 }
 
 //--------------------------------------------------

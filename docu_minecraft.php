@@ -34,7 +34,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>damage_source<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html" target="_blank">cause</a> as string<br>**damager_block<br>**damager_entity<br>damage<br>raw_damage<br>*cancel</td>
+            <td>entity<br>damage_source<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html" target="_blank">cause</a> as string<br>**damager_block<br>**damager_entity<br>damage<br>raw_damage<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -44,7 +44,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>*heal<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/entity/EntityRegainHealthEvent.RegainReason.html" target="_blank">cause</a> as string<br>*cancel</td>
+            <td>entity<br>*heal<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/entity/EntityRegainHealthEvent.RegainReason.html" target="_blank">cause</a> as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -74,7 +74,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>entity<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>entity<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
 	</table>
@@ -85,7 +85,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>living_entity<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html" target="_blank">cause</a> as string<br>location<br>*cancel</td>
+            <td>living_entity<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html" target="_blank">cause</a> as string<br>location<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -261,7 +261,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>block<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>block<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -271,7 +271,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>**block<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/block/Action.html" target="_blank">action</a> as string<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>**block<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/block/Action.html" target="_blank">action</a> as string<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -281,7 +281,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>block<br>bucket as material<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>block<br>bucket as material<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -291,7 +291,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>inv<br>**inv_clicked<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string<br>*cancel</td>
+            <td>player<br>inv<br>**inv_clicked<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -301,7 +301,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>inv<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string</td>
+            <td>player<br>inv<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string</td>
         </tr>
 		<tr>
             <td class="bold">Info</td>
@@ -369,7 +369,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>from as location<br>to as location<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html" target="_blank">cause</a> as string<br>*cancel</td>
+            <td>player<br>from as location<br>to as location<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html" target="_blank">cause</a> as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -433,37 +433,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">human_damage (Deprecated)</th>
-            <th class="desc">a human gets damage</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>human<br>damage_source<br>damage<br>*cancel | true</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">human_goal_reach (Deprecated)</th>
-            <th class="desc">a human reaches its move goal</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>human<br>goal<br>id</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">human_goal_timeout (Deprecated)</th>
-            <th class="desc">a human could not reach its move goal within 30 seconds</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>human<br>goal<br>id</td>
+            <td>player<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
 	<table>
@@ -702,7 +672,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>block.setMaterial(block, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Material.html" target="_blank">material</a>, [boolean | false])</td>
+            <td>block.setMaterial(block, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Material.html" target="_blank">material</a>, [boolean | false])</td>
         </tr>
 		<tr>
             <td class="bold">Arguments</td>
@@ -730,11 +700,11 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>block.setSign(block, row, text)</td>
+            <td>block.setSign(block, side, row, text)</td>
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td>row from 0 to 3</td>
+            <td>row from 0 to 3<br>side: "FRONT"/"BACK"</td>
         </tr>
     </table>
     <table>
@@ -744,11 +714,21 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>block.getSign(block, row)</td>
+            <td>block.getSign(block, side, row)</td>
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td>row from 0 to 3</td>
+            <td>row from 0 to 3<br>side: "FRONT"/"BACK"</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">block.setSignWaxed</th>
+            <th class="desc">wax/unwax a sign</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>block.setSignWaxed(block, boolean)</td>
         </tr>
     </table>
     <table>
@@ -784,7 +764,7 @@
     <table>
         <tr>
             <th class="command">block.getType</th>
-            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Material.html" target="_blank">material</a> of a block</th>
+            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Material.html" target="_blank">material</a> of a block</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -1197,6 +1177,49 @@
     </table>
 </section>
 
+<section id="Citizen">
+	<table>
+        <tr>
+            <th class="command">citizen.spawn</th>
+            <th class="desc">returns the spawned citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.spawn(location, name)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">citizen.setSkin</th>
+            <th class="desc">sets the skin of a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.setSkin(citizen, <a href="https://mineskin.org/gallery" target="_blank">texture_value</a>, <a href="https://mineskin.org/gallery" target="_blank">texture_signature</a>)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">citizen.setName</th>
+            <th class="desc">sets the name of a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.setName(citizen, name)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">citizen.getName</th>
+            <th class="desc">returns the name as string</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.getName(citizen)</td>
+        </tr>
+    </table>
+</section>
+
 <section id="Config">
     <table>
         <tr>
@@ -1206,6 +1229,134 @@
         <tr>
             <td class="bold">Format</td>
             <td>config.saveAsync(config)</td>
+        </tr>
+    </table>
+</section>
+
+
+<section id="Damage">
+	<table>
+        <tr>
+            <th class="command">damage.get</th>
+            <th class="desc">returns a damage_source</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>damage.get(damage_name)</td>
+        </tr>
+        <tr>
+            <td class="bold">Arguments</td>
+			 <td>
+				damage_name:
+				inFire,	lightningBolt, onFire, lava, hotFloor, inWall, cramming, drown, starve, cactus, fall, flyIntoWall, outOfWorld, generic, magic, wither, anvil, fallingBlock, dragonBreath, dryout, sweetBerryBush, freeze, fallingStalactite, stalagmite
+            </td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">damage.getType</th>
+            <th class="desc">returns the type of a damage_source as string</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>damage.getType(damage_source)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">damage.getImmediateSource</th>
+            <th class="desc">returns the direct damager entity of a damage_source</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>damage.getImmediateSource(damage_source)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">damage.getTrueSource</th>
+            <th class="desc">returns the indirect damager entity of a damage_source</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>damage.getTrueSource(damage_source)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">damage.isDifficultyscaled</th>
+            <th class="desc">returns true if the damage_source will have its damageamount scaled based on the current difficulty</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>damage.isDifficultyscaled(damage_source)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">damage.isIndirect</th>
+            <th class="desc">returns true if the damage_source is indirect</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>damage.isIndirect(damage_source)</td>
+        </tr>
+    </table>
+</section>
+
+<section id="Data">
+	<table>
+        <tr>
+            <th class="command">data.set</th>
+            <th class="desc">sets data for a player (script-across)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>data.set(player, key, value)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">data.get</th>
+            <th class="desc">returns data from a player (script-across)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>data.get(player, key)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">data.setTimer</th>
+            <th class="desc">sets timed data for a player (script-across)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>data.setTimer(player, key, ticks)</td>
+        </tr>
+        <tr>
+            <td class="bold">Arguments</td>
+            <td>set ticks to -1 to delete the timer<br>when the timer expires the event player_data_tick is thrown</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">data.getTimer</th>
+            <th class="desc">returns the remaining ticks of timed data (script-across)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>data.getTimer(player, key)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">data.clear</th>
+            <th class="desc">deletes all data from a player (script-across)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>data.clear(player)</td>
         </tr>
     </table>
 </section>
@@ -1305,6 +1456,16 @@
             <td>setMOTD(string)</td>
         </tr>
     </table>
+    <table>
+        <tr>
+            <th class="command">getMOTD</th>
+            <th class="desc">returns the message of the day as text</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>getMOTD()</td>
+        </tr>
+    </table>
 	<table>
         <tr>
             <th class="command">stop</th>
@@ -1325,7 +1486,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>material.get(<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Material.html" target="_blank">material_name</a>)</td>
+            <td>material.get(<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Material.html" target="_blank">material_name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -1414,7 +1575,7 @@
     <table>
         <tr>
             <th class="command">item.getType</th>
-            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Material.html" target="_blank">material</a> of an itemstack</th>
+            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Material.html" target="_blank">material</a> of an itemstack</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -1512,7 +1673,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.addAttribute(itemstack, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/attribute/Attribute.html" target="_blank">attribute</a>, slot, double, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/attribute/AttributeModifier.Operation.html" target="_blank">operation</a>)</td>
+            <td>item.addAttribute(itemstack, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/attribute/Attribute.html" target="_blank">attribute</a>, slot, double, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/attribute/AttributeModifier.Operation.html" target="_blank">operation</a>)</td>
         </tr>
     </table>
 	<table>
@@ -1552,7 +1713,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.addFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
+            <td>item.addFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
         </tr>
     </table>
 	<table>
@@ -1562,7 +1723,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.removeFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
+            <td>item.removeFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
         </tr>
     </table>
     <table>
@@ -1572,7 +1733,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.addPotion(itemstack, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/potion/PotionEffectType.html" target="_blank">potion_name</a>, duration, power)</td>
+            <td>item.addPotion(itemstack, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/potion/PotionEffectType.html" target="_blank">potion_name</a>, duration, power)</td>
         </tr>
     </table>
     <table>
@@ -2213,7 +2374,7 @@
 		</tr>
 		<tr>
 			<td class="bold">Format</td>
-			<td>read.slot(<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot_name</a>)</td>
+			<td>read.slot(<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot_name</a>)</td>
 		</tr>
 	</table>
 	<table>
@@ -3224,20 +3385,6 @@
             <td>players.getAmount()</td>
         </tr>
     </table>
-	<table>
-        <tr>
-            <th class="command">player.damageArmor</th>
-            <th class="desc">damages the armor of a player, portioned on all armor parts</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>player.damageArmor(player, damage, damage_source)</td>
-        </tr>
-        <tr>
-            <td class="bold">Arguments</td>
-            <td>damage is cast to float</td>
-        </tr>
-    </table>
     <table>
         <tr>
             <th class="command">player.getHead</th>
@@ -3969,7 +4116,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>world.setDifficulty(world, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Difficulty.html" target="_blank">difficulty</a>)</td>
+            <td>world.setDifficulty(world, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Difficulty.html" target="_blank">difficulty</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4376,7 +4523,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>entity.spawn(location, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/entity/EntityType.html" target="_blank">type</a>)</td>
+            <td>entity.spawn(location, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/entity/EntityType.html" target="_blank">type</a>)</td>
         </tr>
     </table>
     <table>
@@ -4470,7 +4617,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>entity.frame.spawn(location, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/block/BlockFace.html" target="_blank">block_face</a>, itemstack)</td>
+            <td>entity.frame.spawn(location, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/block/BlockFace.html" target="_blank">block_face</a>, itemstack)</td>
         </tr>
     </table>
     <table>
@@ -4640,7 +4787,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.setEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>, itemstack)</td>
+            <td>living.setEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>, itemstack)</td>
         </tr>
     </table>
     <table>
@@ -4650,7 +4797,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.getEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>)</td>
+            <td>living.getEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>)</td>
         </tr>
     </table>
     <table>
@@ -4688,7 +4835,7 @@
         </tr>
         <tr>
             <td class="bold">Properties</td>
-            <td><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/attribute/Attribute.html" target="_blank">attributes</a> without "GENERIC" and "_"</td>
+            <td><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/attribute/Attribute.html" target="_blank">attributes</a> without "GENERIC" and "_"</td>
         </tr>
     </table>
     <table>
@@ -4718,7 +4865,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.addEffect(living_entity, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>, ticks, amplifier, [particle | true])</td>
+            <td>living.addEffect(living_entity, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>, ticks, amplifier, [particle | true])</td>
         </tr>
         <tr>
             <td class="bold">Arguments</td>
@@ -4742,7 +4889,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.getEffectAmplifier(entity, <a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>)</td>
+            <td>living.getEffectAmplifier(entity, <a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>)</td>
         </tr>
     </table>
 </section>
@@ -4755,7 +4902,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>particle.get(<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Particle.html" target="_blank">name</a>)</td>
+            <td>particle.get(<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Particle.html" target="_blank">name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4798,7 +4945,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>sound.get(<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/Sound.html" target="_blank">name</a>)</td>
+            <td>sound.get(<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/Sound.html" target="_blank">name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4808,7 +4955,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>sound.getCategory(<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/SoundCategory.html" target="_blank">name</a>)</td>
+            <td>sound.getCategory(<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/SoundCategory.html" target="_blank">name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4829,502 +4976,6 @@
         <tr>
             <td class="bold">Format</td>
             <td>sound.spawnForPlayer(player, sound, sound_category, [volume | 1.0], [pitch | random from 0.9 to 1.0])</td>
-        </tr>
-    </table>
-</section>
-
-<section id="Citizen">
-	<table>
-        <tr>
-            <th class="command">citizen.setSkin</th>
-            <th class="desc">sets the skin of a citizen</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>citizen.setSkin(citizen, <a href="https://mineskin.org/gallery" target="_blank">texture_value</a>, <a href="https://mineskin.org/gallery" target="_blank">texture_signature</a>)</td>
-        </tr>
-    </table>
-</section>
-
-<section id="Human">
-	<table>
-        <tr>
-            <th class="command">human.spawn (Deprecated)</th>
-            <th class="desc">returns the spawned human</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.spawn(location, name)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.setSkin (Deprecated)</th>
-            <th class="desc">sets the skin of a human</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.setSkin(human, <a href="https://mineskin.org/gallery" target="_blank">texture_value</a>, <a href="https://mineskin.org/gallery" target="_blank">texture_signature</a>)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.setSkinUuid (Deprecated)</th>
-            <th class="desc">sets the skin of a human</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.setSkinUuid(human, uuid)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.setName (Deprecated)</th>
-            <th class="desc">sets the name of a human</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.setName(human, name)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.getName (Deprecated)</th>
-            <th class="desc">returns the name as string</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.getName(human)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.canMove (Deprecated)</th>
-            <th class="desc">sets that a human can move</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.canMove(human, boolean)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.setAi (Deprecated)</th>
-            <th class="desc">sets the ai of a human</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.setAi(human, value)</td>
-        </tr>
-        <tr>
-            <td class="bold">Arguments</td>
-            <td>
-				values:<br>
-				0: default, no movement<br>
-				1: zombie<br>
-				2: golem
-			</td>
-        </tr>
-    </table>
-    <table>
-		<tr>
-            <th class="command">human.moveTo (Deprecated)</th>
-            <th class="desc">lets a human walk to coordinates and returns an id</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.moveTo(human, x, y, z)</td>
-        </tr>
-        <tr>
-            <td class="bold">Info</td>
-            <td>can be called multiple times (is queued)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.getAi (Deprecated)</th>
-            <th class="desc">returns the ai of a human</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.getAi(human)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.setPrefix (Deprecated)</th>
-            <th class="desc">sets the prefix for all humans in the tab list</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.setPrefix(string)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">human.setSuffix (Deprecated)</th>
-            <th class="desc">sets the suffix for all humans in the tab list</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>human.setSuffix(string)</td>
-        </tr>
-    </table>
-</section>
-
-<section id="Damage">
-	<table>
-        <tr>
-            <th class="command">damage.get</th>
-            <th class="desc">returns a damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.get(damage_name)</td>
-        </tr>
-        <tr>
-            <td class="bold">Arguments</td>
-			 <td>
-				damage_name:
-				inFire,	lightningBolt, onFire, lava, hotFloor, inWall, cramming, drown, starve, cactus, fall, flyIntoWall, outOfWorld, generic, magic, wither, anvil, fallingBlock, dragonBreath, dryout, sweetBerryBush, freeze, fallingStalactite, stalagmite
-            </td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.getType</th>
-            <th class="desc">returns the type of a damage_source as string</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.getType(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.getImmediateSource</th>
-            <th class="desc">returns the direct damager entity of a damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.getImmediateSource(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.getTrueSource</th>
-            <th class="desc">returns the indirect damager entity of a damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.getTrueSource(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isCreativePlayer</th>
-            <th class="desc">returns true if the damage_source can damage an creative player</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isCreativePlayer(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isAbsolute</th>
-            <th class="desc">returns true if the damage ignores modifications by potion effects or enchantments</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isAbsolute(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isDifficultyscaled</th>
-            <th class="desc">returns true if the damage_source will have its damageamount scaled based on the current difficulty</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isDifficultyscaled(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isExplosion</th>
-            <th class="desc">returns true if the damage is explosion based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isExplosion(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isFire</th>
-            <th class="desc">returns true if the damage is fire based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isFire(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isMagic</th>
-            <th class="desc">returns true if the damage is magic based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isMagic(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isProjectile</th>
-            <th class="desc">returns true if the damage is projectile based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isProjectile(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isUnblockable</th>
-            <th class="desc">returns true if the damage cannot be blocked by armor</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isUnblockable(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isFall</th>
-            <th class="desc">returns true if the damage is fall based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isFall(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isDamagingHelmet</th>
-            <th class="desc">returns true if the damage is damaging helmet based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isDamagingHelmet(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.isSweep</th>
-            <th class="desc">returns true if the damage is sweep based</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.isSweep(damage_source)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.sting</th>
-            <th class="desc">returns a sting damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.sting(living_entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.mobAttack</th>
-            <th class="desc">returns a mob attack damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.mobAttack(living_entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.indirect</th>
-            <th class="desc">returns a indirect damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.indirect(entity, living_entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.playerAttack</th>
-            <th class="desc">returns a player attack damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.playerAttack(player)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.arrow</th>
-            <th class="desc">returns a arrow damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.arrow(arrow, entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.trident</th>
-            <th class="desc">returns a trident damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.trident(entity1, entity2)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.firework</th>
-            <th class="desc">returns a firework damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.firework(firework, entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.fireball</th>
-            <th class="desc">returns a fireball damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.fireball(large_fireball, entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.witherSkull</th>
-            <th class="desc">returns a wither skull damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.witherSkull(wither_skull, entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.projectile</th>
-            <th class="desc">returns a projectile damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.projectile(entity1, entity2)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.indirectMagic</th>
-            <th class="desc">returns a indirect magic damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.indirectMagic(entity1, entity2)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.thorns</th>
-            <th class="desc">returns a thorns damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.thorns(entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.explosion</th>
-            <th class="desc">returns a explosion damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.explosion(living_entity)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">damage.explosionBed</th>
-            <th class="desc">returns a explosion bed damage_source</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>damage.explosionBed()</td>
-        </tr>
-    </table>
-</section>
-
-<section id="Data">
-	<table>
-        <tr>
-            <th class="command">data.set</th>
-            <th class="desc">sets data for a player (script-across)</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>data.set(player, key, value)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">data.get</th>
-            <th class="desc">returns data from a player (script-across)</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>data.get(player, key)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">data.setTimer</th>
-            <th class="desc">sets timed data for a player (script-across)</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>data.setTimer(player, key, ticks)</td>
-        </tr>
-        <tr>
-            <td class="bold">Arguments</td>
-            <td>set ticks to -1 to delete the timer<br>when the timer expires the event player_data_tick is thrown</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">data.getTimer</th>
-            <th class="desc">returns the remaining ticks of timed data (script-across)</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>data.getTimer(player, key)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">data.clear</th>
-            <th class="desc">deletes all data from a player (script-across)</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>data.clear(player)</td>
         </tr>
     </table>
 </section>
@@ -5386,8 +5037,8 @@
             <td class="bold">Arguments</td>
             <td>
 				title as string<br>
-				<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/boss/BarColor.html" target="_blank">color</a> as string<br>
-				<a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/boss/BarStyle.html" target="_blank">barstyle</a> as string
+				<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/boss/BarColor.html" target="_blank">color</a> as string<br>
+				<a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/boss/BarStyle.html" target="_blank">barstyle</a> as string
 			</td>
         </tr>
     </table>
@@ -5432,7 +5083,7 @@
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
+            <td><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
         </tr>
     </table>
 	<table>
@@ -5446,7 +5097,7 @@
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td><a href="https://papermc.io/javadocs/paper/1.18/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
+            <td><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
         </tr>
     </table>
 	<table>

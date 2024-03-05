@@ -1,0 +1,38 @@
+mapname = "Icy Tower";
+numberofteams = 4;
+teamsize = 2;
+minplayers = 2;
+maxplayers = 8;
+gamesignloc = minigame.getSignLoc("snowsign3");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, -1224, 43, -995, 90, 0);
+
+middleloc = loc.new(gamesworld, 2008, 109, 4008);
+radius = 50;
+
+black_holes = list.new();
+white_holes = list.new();
+
+joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
+list.add(joinblocks, loc.new(gamesworld, -1229, 42, -992));
+list.add(joinblocks, loc.new(gamesworld, -1229, 42, -999));
+list.add(joinblocks, loc.new(gamesworld, -1229, 42, -992));
+list.add(joinblocks, loc.new(gamesworld, -1229, 42, -999));
+
+spawnlocs = map.new(); //Liste der Spawnlocs der einzelnen Teams
+map.add(spawnlocs, 0, loc.new(gamesworld, 2000, 100, 4000));
+map.add(spawnlocs, 1, loc.new(gamesworld, 2016, 100, 4016));
+map.add(spawnlocs, 2, loc.new(gamesworld, 2016, 100, 4000));
+map.add(spawnlocs, 3, loc.new(gamesworld, 2000, 100, 4016));
+
+list.add(black_holes, loc.new(gamesworld, 2008, 109, 4008));
+
+
+edge_1 = loc.new(gamesworld, 2023.5, 98.45, 3993.5);
+edge_2 = loc.new(gamesworld, 1993.5, 95, 4023.5);
+
+fall_1 = loc.new(gamesworld, 2031.5, 95, 3975.5);
+fall_2 = loc.new(gamesworld, 1975.5, 70, 4031.5);
+
+edge = event.addMoveData(edge_1, edge_2, 5, -1);
+fall = event.addMoveData(fall_1, fall_2, 5, -1);

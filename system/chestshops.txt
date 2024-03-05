@@ -71,7 +71,7 @@ if(inv_slot == 3) { //Buy
 	}
 	player.splitGiveItem(player, itemstack_2, true);
 	inv.removeItem(block_inv, itemstack_2);
-	owner_player_id = read.number(sign.getString(sign_block, 3));
+	owner_player_id = read.number(sign.getString(sign_block, "FRONT", 3));
 	if(!isDouble(owner_player_id)) {
 		msg.prefix(player, prefix_shop, "Invalid shop owner.");
 		goto("main");
@@ -93,7 +93,7 @@ if(inv_slot == 3) { //Buy
 	if(click == "SHIFT_LEFT") {
 		item.setAmount(itemstack_2, item.getAmount(itemstack_2) * factor);
 	}
-	owner_player_id = read.number(sign.getString(sign_block, 3));
+	owner_player_id = read.number(sign.getString(sign_block, "FRONT", 3));
 	if(!isDouble(owner_player_id)) {
 		msg.prefix(player, prefix_shop, "Invalid shop owner.");
 		goto("main");
@@ -171,7 +171,7 @@ if(block.isWallSign(block)) {
 goto("main");
 
 function shop.setBuyElement(sign_block, inv, item_stack) {
-	buy_line = sign.getString(sign_block, 1);
+	buy_line = sign.getString(sign_block, "FRONT", 1);
 	split_array = string.split(" ", buy_line);
 	if(array.getSize(split_array) < 4) {
 		return;
@@ -204,7 +204,7 @@ function shop.setBuyElement(sign_block, inv, item_stack) {
 }
 
 function shop.setSellElement(sign_block, inv, item_stack) {
-	sell_line = sign.getString(sign_block, 2);
+	sell_line = sign.getString(sign_block, "FRONT", 2);
 	split_array = string.split(" ", sell_line);
 	if(array.getSize(split_array) < 4) {
 		return;
@@ -258,7 +258,7 @@ function block.getShopChest(sign_block) {
 }
 
 function block.isShopSign(sign_block) {
-	line0 = sign.getString(sign_block, 0);
+	line0 = sign.getString(sign_block, "FRONT", 0);
 	if(line0 == "[Shop]") {
 		return true;
 	}
