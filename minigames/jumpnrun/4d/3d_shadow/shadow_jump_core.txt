@@ -135,7 +135,7 @@ if(event == "minigame_join"){
 	}
 	Active_Blocks = place_blocks(Dimension_Blocks);
 	msg.prefix(player, $gamename, "Game has loaded.");
-	//snuvi.debug(list.getSize(Dimension_Blocks));
+	//msg.dev(list.getSize(Dimension_Blocks));
 	goto("wait");
 }
 

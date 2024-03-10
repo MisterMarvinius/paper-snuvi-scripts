@@ -5672,7 +5672,7 @@ minigame.term(script, gamesignloc);
 term();
 
 @on_error
-snuvi.debug("Error Handler activated");
+msg.dev("Error Handler activated");
 if(progress_bar != null) {
 	boss.removeAll(progress_bar);
 }
@@ -5704,5 +5704,5 @@ if(script_id != null) {
 	}
 	minigame.kickAllPlayers(script_id);
 }
-snuvi.debug("Script terminated (Minigame).");
+msg.dev("Script terminated (Minigame).");
 term();

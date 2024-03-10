@@ -1,4 +1,21 @@
 function setCommandHelps() {
+	cmd = command2.newHelp("fly", "fly");
+	command2.addHelpArgument(cmd, command2.newHelpSpecial("Player", "player"));
+	command2.addHelpArgument(cmd, command2.newHelpLiteral("wusi"));
+	command2.registerHelp(cmd);
+
+	cmd = command2.newHelp("icon", "icon");
+	command2.addHelpArgument(cmd, command2.newhelpstring("gusi", false));
+	command2.registerHelp(cmd);
+
+	cmd = command2.newHelp("tp", "tp");
+	command2.addHelpArgument(cmd, command2.newHelpLiteral("wusi"));
+	command2.registerHelp(cmd);
+
+	cmd = command2.newHelp("allsounds", "allsounds");
+	command2.addHelpArgument(cmd, command2.newHelpInt("wusi", 0, 100));
+	command2.registerHelp(cmd);
+	return;
 	command.clearHelp();
 	command.clearIgnored();
 	command.clearNoPerm();

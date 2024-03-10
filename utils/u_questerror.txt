@@ -1,9 +1,9 @@
 @on_error
-snuvi.debug("Error Handler activated");
+msg.dev("Error Handler activated");
 if(player != null) {
 	msg.string(player, "§cThere was an error in the quest.");
 	quest.removePlayer(player);
 	quest.removeDisplay(player);
 }
-snuvi.debug("Script terminated (Quest).");
+msg.dev("Script terminated (Quest).");
 term();

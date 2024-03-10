@@ -32,6 +32,7 @@ perm.addGroup(19, "creativeWE", null, true);
 perm.setGroups(permgroups);
 
 perm.addToGroup(0, "isUser");
+perm.addToGroup(0, "missing.icanhasbukkit");
 perm.addToGroup(0, "afk");
 perm.addToGroup(0, "answer");
 perm.addToGroup(0, "back");

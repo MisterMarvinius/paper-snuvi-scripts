@@ -1218,6 +1218,16 @@
             <td>citizen.getName(citizen)</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">citizen.lookclose</th>
+            <th class="desc">makes a citizen look at nearby players</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.lookclose(citizen)</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Config">
@@ -1248,7 +1258,7 @@
             <td class="bold">Arguments</td>
 			 <td>
 				damage_name:
-				inFire,	lightningBolt, onFire, lava, hotFloor, inWall, cramming, drown, starve, cactus, fall, flyIntoWall, outOfWorld, generic, magic, wither, anvil, fallingBlock, dragonBreath, dryout, sweetBerryBush, freeze, fallingStalactite, stalagmite
+				inFire,	lightningBolt, onFire, lava, hotFloor, inWall, cramming, drown, starve, cactus, fall, flyIntoWall, outOfWorld, generic, magic, wither, anvil, fallingBlock, dragonBreath, dryout, sweetBerryBush, freeze, fallingStalactite, stalagmite, outsideBorder, genericKill
             </td>
         </tr>
     </table>
@@ -3115,7 +3125,7 @@
     <table>
         <tr>
             <th class="command">command.addHelpChild</th>
-            <th class="desc">help-sub-object2 is added tp help-(sub-)object1 as a new argument</th>
+            <th class="desc">help-sub-object2 is added to help-(sub-)object1 as a new argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>

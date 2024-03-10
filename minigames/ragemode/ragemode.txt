@@ -215,13 +215,13 @@ if(entity_hit != null) {
 	attacker_name = player.getName(attacker);
 	attacker_uuid = player.getUuid(attacker);
 	if(!list.contains(player_list, attacker_uuid)) {
-		snuvi.debug("Ragemode: Illegaler Spieler");
+		msg.dev("Ragemode: Illegaler Spieler");
 		goto("wait");
 	}
 	defender = entity_hit;
 	defender_uuid = player.getUuid(defender);
 	if(!list.contains(player_list, defender_uuid)) {
-		snuvi.debug("Ragemode: Kein PlayerEntity oder illegaler Spieler");
+		msg.dev("Ragemode: Kein PlayerEntity oder illegaler Spieler");
 		goto("wait");
 	}
 	defender_name = player.getName(defender);

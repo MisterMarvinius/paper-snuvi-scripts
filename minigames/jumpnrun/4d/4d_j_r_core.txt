@@ -109,7 +109,7 @@ if(event == "minigame_join"){
 	}
 	place_blocks($current_layer, Dimension_Blocks);
 	msg.prefix(player, $gamename, "Game has loaded.");
-	//snuvi.debug(list.getSize(Dimension_Blocks));
+	//msg.dev(list.getSize(Dimension_Blocks));
 	goto("wait");
 }
 if(event == "block_break"){

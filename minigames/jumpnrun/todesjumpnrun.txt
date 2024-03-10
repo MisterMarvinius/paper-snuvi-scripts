@@ -650,7 +650,7 @@ function tjr.setMode(player, mode) {
 		type = "Modus: §eModul";
 		clearHotbar(player_inv);
 		inv.setItem(player_inv, 0, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
-		inv.setItem(player_inv, 0, item.create("PAPER", 1, "§fChoose a modul", null));
+		inv.setItem(player_inv, 1, item.create("PAPER", 1, "§fChoose a modul", null));
 		$jumpstage = 0;
 		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getModulTime(player, $jumpstage) / 1000)));
 		tjr.setStarttime();

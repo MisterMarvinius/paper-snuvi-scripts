@@ -1357,7 +1357,7 @@ function player.teleport(player, location, setBackPos) {
 function playerdata.getSurvival(player_or_id) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.getSurvival"));
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.getSurvival"));
 		return;
 	}
 	map = getScriptVar("survival_data");
@@ -1372,7 +1372,7 @@ function playerdata.getSurvival(player_or_id) {
 function playerdata.getGames(player_or_id) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.getGames"));
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.getGames"));
 		return;
 	}
 	map = getScriptVar("games_data");
@@ -1387,7 +1387,7 @@ function playerdata.getGames(player_or_id) {
 function playerdata.load(player_or_id, map, name) {
 	player_id = player.getValidId(player_or_id);
 	if(player_id == null) {
-		snuvi.debug(string.concat("invalid player_id ", player_id, " on playerdata.load"));
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.load"));
 		return;
 	}
 	config = map.get(map, player_id);
@@ -2716,7 +2716,7 @@ function money.split(money) {
 function money.splitCap(money) {
 	//cap liegt bei 266304 (64 gold + 64 silver + 64 bronze)
 	if(money > 266304) {
-		snuvi.debug("error on money.splitCap");
+		msg.dev("error on money.splitCap");
 		return null;
 	}
 	gold = math.roundDown(money / 4096);
@@ -3754,7 +3754,7 @@ function clan.loadData() {
 
 function clan.getData(clan_id) {
 	if(clan_id == null) {
-		snuvi.debug("script termed. clan_id was null");
+		msg.dev("script termed. clan_id was null");
 		term();
 	}
 	map = getScriptVar("clan_data");

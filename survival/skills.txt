@@ -435,7 +435,7 @@ function better_ladder.continue_block(player, block, of_mat, xyz){
 			break;
 		}
 		elseif(mat == $water_mat){
-			snuvi.debug(block.getData(new_block));
+			msg.dev(block.getData(new_block));
 			if (string.contains(string.blockData(block.getData(new_block)), "falling=true")){
 				break;
 			}

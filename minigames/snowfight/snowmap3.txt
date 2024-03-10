@@ -1,11 +1,11 @@
-mapname = "Icy Tower";
+mapname = "Black Hole";
 numberofteams = 4;
 teamsize = 2;
 minplayers = 2;
 maxplayers = 8;
 gamesignloc = minigame.getSignLoc("snowsign3");
 gamesworld = world.getGames();
-lobbyspawnloc = loc.new(gamesworld, -1224, 43, -995, 90, 0);
+lobbyspawnloc = loc.new(gamesworld, 969.5, 83, 975.5, 90, 0);
 
 middleloc = loc.new(gamesworld, 2008, 109, 4008);
 radius = 50;
@@ -14,10 +14,11 @@ black_holes = list.new();
 white_holes = list.new();
 
 joinblocks = list.new(); //Liste der Blöcke, um einem Team zu joinen
-list.add(joinblocks, loc.new(gamesworld, -1229, 42, -992));
-list.add(joinblocks, loc.new(gamesworld, -1229, 42, -999));
-list.add(joinblocks, loc.new(gamesworld, -1229, 42, -992));
-list.add(joinblocks, loc.new(gamesworld, -1229, 42, -999));
+//blau rot gelb grün
+list.add(joinblocks, loc.new(gamesworld, 973, 83, 975));
+list.add(joinblocks, loc.new(gamesworld, 969, 83, 979));
+list.add(joinblocks, loc.new(gamesworld, 969, 83, 971));
+list.add(joinblocks, loc.new(gamesworld, 965, 83, 975));
 
 spawnlocs = map.new(); //Liste der Spawnlocs der einzelnen Teams
 map.add(spawnlocs, 0, loc.new(gamesworld, 2000, 100, 4000));

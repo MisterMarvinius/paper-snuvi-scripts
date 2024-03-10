@@ -10,7 +10,7 @@ function quest.start(player, path) {
 	modTimer(-45);
 	script = script.start(path, "utils/u_quest", "utils/u_general", "utils/u_questerror");
 	if(script == null) {
-		snuvi.debug("quest not started");
+		msg.dev("quest not started");
 		return;
 	}
 	quest.addPlayer(script, player);

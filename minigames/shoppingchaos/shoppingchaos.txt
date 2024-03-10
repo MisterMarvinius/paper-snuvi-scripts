@@ -15,6 +15,8 @@ start_sound = sound.get("BLOCK_NOTE_BLOCK_HARP");
 wall_signs_tag = block.getTag("minecraft:wall_signs");
 black_glass_pane = item.create("BLACK_STAINED_GLASS_PANE", 1, "", null);
 black_glass_pane_mat = material.get("BLACK_STAINED_GLASS_PANE");
+item_frame_class = "org.bukkit.entity.ItemFrame";
+armor_stand_class = "org.bukkit.entity.ArmorStand";
 
 players = map.new(); //Alle player_uuids mit Verweis auf die Team-Nr
 playersinteam = map.new(); //Anzahl der Spieler im Team
@@ -292,7 +294,6 @@ while(list.getSize(waiters) != 0) {
 event.load("player_post_respawn");
 event.load("entity_click");
 event.load("snuvi_click");
-event.load("human_damage");
 event.load("player_teleport");
 
 for(i = 0; i < list.getSize(player_list); i++) {
@@ -336,7 +337,7 @@ for(i = 0; i < list.getSize(allteams); i++) {
 	direction = map.get(sell_frame_directions, team);
 	frame_loc = list.getIndex(sell_frame_locs, index);
 	entity = list.getIndex(humans_list, index);
-	entity.removeAll("org.bukkit.entity.ItemFrame", frame_loc, 1);
+	entity.removeAll(item_frame_class, frame_loc, 1);
 	item = getItem(getRandomIndex());
 	entity.frame.spawn(frame_loc, direction, item);
 	map.add(sales_map, entity, item);
@@ -416,7 +417,7 @@ while(hasNext(iter)) {
 	} else {
 		index = list.getIndexOf(humans_list, key);
 		location = list.getIndex(sell_frame_locs, index);
-		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1);
+		entity.removeAll(item_frame_class, location, 1);
 		step = list.getSize(sell_frame_locs) / numberofteams;
 		team = math.roundDown(index / step);
 		direction = map.get(sell_frame_directions, team);
@@ -432,15 +433,11 @@ sgoto(20, "loop");
 @checkgame
 wait();
 if(event == "entity_damage") {
+	//TODO: entity, damager_entity
 	if(!isPlayer(entity)) {
 		goto("checkgame");
 	}
 	player = entity;
-} elseif(event == "human_damage") {
-	player = player.getFromDamageSource(damage_source);
-	if(player == null) {
-		goto("checkgame");
-	}
 }
 if(player.hasMinigameId(player, script_id)) {
 	ignoreGoto(event);
@@ -486,7 +483,7 @@ goto("checkgame");
 cancel = true;
 goto("checkgame");
 
-@human_damage
+@shopitem
 if(map.contains(sales_map, human)) {
 	hand_item = living.getHand(player);
 	aim_item = map.get(sales_map, human);
@@ -496,7 +493,7 @@ if(map.contains(sales_map, human)) {
 		direction = map.get(sell_frame_directions, team);
 		item = getItem(getRandomIndex());
 		location = list.getIndex(sell_frame_locs, list.getIndexOf(humans_list, human));
-		entity.removeAll("org.bukkit.entity.ItemFrame", location, 1);
+		entity.removeAll(item_frame_class, location, 1);
 		entity.frame.spawn(location, direction, item);
 		map.add(sales_map, human, item);
 		time = math.random(30, 60);
@@ -566,7 +563,7 @@ if(entity.isHuman(entity)) {
 		inv.open(menu, player);
 	}
 	human = entity;
-	goto("human_damage");
+	goto("shopitem");
 }
 goto("checkgame");
 
@@ -593,7 +590,7 @@ if(list.contains(removed_perms, player_uuid)) {
 	list.remove(removed_perms, player_uuid);
 	perm.loadGroupToPlayer(16, player);
 	perm.update(player);
-	snuvi.debug(perm.has("plot.bypass", player));
+	msg.dev(perm.has("plot.bypass", player));
 }
 if(singleteam) {
 	script = script.getFromId(script_id);
@@ -737,7 +734,7 @@ function getItem(index) {
 
 function setItemFrames(team, index) {
 	loc = list.getIndex($frame_locs, team);
-	entity.removeAll("org.bukkit.entity.ItemFrame", loc, 3.5);
+	entity.removeAll(item_frame_class, loc, 3.5);
 	direction = map.get($frame_directions, team);
 	array = list.getIndex($items_list, index);
 	entity.frame.spawn(loc, direction, array[0]);
@@ -792,7 +789,7 @@ function resetSigns() {
 	for(i = 0; i < list.getSize($sell_frame_locs); i++) {
 		if(counter != 0) { //Erste Locs werden übersprungen. Kein Schild platzieren = Freigeschalteter Shop
 			loc = list.getIndex($sell_frame_locs, i);
-			entity.removeAll("org.bukkit.entity.ItemFrame", loc, 1);
+			entity.removeAll(item_frame_class, loc, 1);
 			direction = map.get($sell_frame_directions, team);
 			block = block.get(loc);
 			block.setMaterial(block, oak_wall_sign);
@@ -812,7 +809,7 @@ function resetSigns() {
 function resetFrames() {
 	for(i = 0; i < list.getSize($frame_locs); i++) {
 		loc = list.getIndex($frame_locs, i);
-		entity.removeAll("org.bukkit.entity.ItemFrame", loc, 3.5);
+		entity.removeAll(item_frame_class, loc, 3.5);
 		direction = map.get($frame_directions, i);
 		entity.frame.spawn(loc, direction, $air_item);
 		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, $air_item);
@@ -894,7 +891,7 @@ function getAllEntites() {
 		list.add(humans_list, human);
 		//as
 		location = loc.mod(location, 0, 2.05, 0);
-		as = entity.get(location, 1, "org.bukkit.entity.ArmorStand");
+		as = entity.get(location, 1, armor_stand_class);
 		map.add($as_map, human, as);
 	}
 	return humans_list;

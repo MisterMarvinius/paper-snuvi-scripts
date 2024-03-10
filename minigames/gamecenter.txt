@@ -310,7 +310,7 @@ if(script_id == null) {
 		script = script.start(pfad, "utils/u_games", "utils/u_gameserror", "utils/u_general");
 	}
 	if(script == null) {
-		snuvi.debug("Minigame throws error on gamestart");
+		msg.dev("Minigame throws error on gamestart");
 		goto("wait");
 	}
 	map.add(script_ids, block_loc, script.getId(script));
@@ -345,7 +345,7 @@ minigame.singleJoin(script, player);
 goto("wait");
 
 @error_on_gamejoin
-snuvi.debug(string.concat("Started gamesign existing without game behind ", script_id, " ", block_loc));
+msg.dev(string.concat("Started gamesign existing without game behind ", script_id, " ", block_loc));
 map.remove(script_ids, block_loc);
 goto("startnewgame");
 
