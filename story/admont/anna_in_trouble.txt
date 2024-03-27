@@ -35,8 +35,8 @@ goto(label);
 @stage0
 if(event == "living_death") {
 	entity_type = entity.getType(living_entity);
+	//msg.dev(entity_type);
 	if(entity_type == "spider") {
-		mob_killed = true;
 		msg.prefix(player, "§dAnna", "Thank you! Now I can fall asleep again calmly.");
 		msg.string(player, "§dQuest finished. Reward: 1 snuvis!");
 		money.addBoost(player, 1);

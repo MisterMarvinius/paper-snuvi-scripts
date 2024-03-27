@@ -25,7 +25,6 @@ if(error_counter > 1) {
 
 waitfor(5); //Verhindert Endlos-Schleife durch "/start commands"
 
-setCommandHelps();
 command.clear();
 
 //--- Register commands not shown on /help here ---
@@ -38,6 +37,18 @@ command.add("sfstats");
 command.add("topsfstats");
 command.add("removesfstats");
 command.add("questanswer");
+command.add("infopoint1");
+command.add("infopoint2");
+command.add("infopoint3");
+command.add("infopoint4");
+command.add("infopoint5");
+command.add("infopoint6");
+command.add("infopoint7");
+command.add("infopoint8");
+command.add("infopoint9");
+command.add("infopoint10");
+command.add("infopoint11");
+command.add("infopoint12");
 //Overwrite vanilla
 command.add("butcher");
 
@@ -135,6 +146,7 @@ command.register("stats", "Statistics-Commands");
 //command.register("stopadventure", "Stops an adventure");
 command.register("suicide", "Kill yourself");
 command.register("support", "Creates a ticket for support");
+command.register("stop", "Stops the server organized");
 command.register("tempban", "Bans a player temporarly");
 command.register("tempfly", "Let a player temporarly fly");
 command.register("ticket", "Ticket-Commands");
@@ -1683,7 +1695,7 @@ goto("wait");
 
 @infopoint1
 msg.string(player, string.getSpacer());
-msg.prefix(player, "§eSurvival", "§aEnjoy our modded survival feeling. New ores, items and displays, and we are still beginner friendly.");
+msg.prefix(player, "§eSurvival", "§aEnjoy classic survival extended by our plugin.");
 goto("wait");
 
 @infopoint2
@@ -1703,7 +1715,7 @@ goto("wait");
 
 @infopoint5
 msg.string(player, string.getSpacer());
-msg.prefix(player, "§eCities", "§aAs a clan leader you can raise your plots to big cities. Create sub-plots and sell them to other players.");
+msg.prefix(player, "§eCities", "§aAs a plot owner you can raise your plots to big cities. Create sub-plots and sell them to other players.");
 goto("wait");
 
 @infopoint6
@@ -1728,7 +1740,7 @@ goto("wait");
 
 @infopoint10
 msg.string(player, string.getSpacer());
-msg.prefix(player, "§eRules", "§aThere is at least one rule: Be respectful. Look at our fake rules.");
+msg.prefix(player, "§eRules", "§aWe have no rules, except to be respectful. Look at our jokes instead.");
 goto("wait");
 
 @infopoint11
@@ -2818,7 +2830,7 @@ iter = iterator(list);
 if(title_a == null) {
 	while(hasNext(iter)) {
 	p = next(iter);
-		sb.setTitle(p, text.new("§c§k# §6minecraft§c.§6hammerle§c.§6me §c§k#"));
+		sb.setTitle(p, text.new("§c§k# §6minecraft§c.§6marvin§c.§6lu §c§k#"));
 		title_a = true;
 	}
 } else {
@@ -2963,6 +2975,19 @@ if(size == 0) {
 	msg.string(player, "§6 - setpose <bodypart> <x> <y> <z> §rSets the pose");
 	msg.string(player, "§6 - addpose <bodypart> <x> <y> <z> §rSets the pose");
 	goto("wait");
+}
+player_loc = entity.getLocation(player);
+player_world = loc.getWorld(player_loc);
+player_world_name = world.getName(player_world);
+if(!perm.has("plot.bypass", player)){
+	if(!(world.isSurvName(player_world_name) || world.isCreativeName(player_world_name))){
+		msg.action(player, "Wrong world.");
+		goto("wait");
+	}
+	if (!plot.check(player_loc, player, 0, true)){
+		msg.action(player, "You do not have permission for that on this plot.");
+		goto("wait");
+	}
 }
 as = player.getTargetEntity(player, 5);
 if(!entity.isArmorstand(entity)) {
@@ -4079,12 +4104,19 @@ elseif(arg0 == "challenges") {
 	script.startNamed("AllItems", "utils/u_error", "challenges/all_items", "utils/u_general");
 }
 elseif(arg0 == "commands") {
-	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_cmdhelp", "utils/u_skills");
+	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_skills");
 	if(script == null) {
 		msg.dev("Old commands script still active due to error in new script");
 		goto("wait");
 	}
 	script.term(script.get());
+}
+elseif(arg0 == "commandhelp") {
+	if(players.getAmount() >= 0) {
+		msg.prefix(player, prefix_commands, "There are players online. Do /stop to restart the server.");
+		goto("wait");
+	}
+	script.startNamed("Commandhelp", "system/cmdhelp", "utils/u_general");
 }
 elseif(arg0 == "copyisland") {
 	script = script.get("Copyisland");
@@ -4113,13 +4145,6 @@ elseif(arg0 == "doors") {
 		script.term(script);
 	}
 	script.startNamed("Doors", "utils/u_error", "system/doors", "utils/u_general");
-}
-elseif(arg0 == "fixitems") {
-	script = script.get("Fixitems");
-	if(script != null) {
-		script.term(script);
-	}
-	script.startNamed("Fixitems", "utils/u_error", "system/fixitems", "utils/u_general");
 }
 elseif(arg0 == "games") {
 	script = script.get("Gamecenter");
@@ -4327,9 +4352,20 @@ elseif(arg0 == "survival") {
 	}
 	script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general", "utils/u_skills");
 }
+elseif(arg0 == "plots") {
+	script = script.get("Plots");
+	if(script != null) {
+		script.term(script);
+	}
+	script.startNamed("Plots", "utils/u_error", "system/plots", "utils/u_general");
+}
 else {
 	goto("starthelp");
 }
+goto("wait");
+
+@stop
+script.start("stop");
 goto("wait");
 
 @senditem
@@ -5018,7 +5054,13 @@ elseif(arg0 == "skin") {
 			citizen.setSkin(citizen, "eyJ0aW1lc3RhbXAiOjE1MzEyODIzODEyNTMsInByb2ZpbGVJZCI6ImNhYjI4ODVkMTUxNjQ1OTNhZmI2MDkwODJlOTE2NmU3IiwicHJvZmlsZU5hbWUiOiJGYW5jeV9MdWR3aWciLCJzaWduYXR1cmVSZXF1aXJlZCI6dHJ1ZSwidGV4dHVyZXMiOnsiU0tJTiI6eyJ1cmwiOiJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2M0M2JmYTY1NTMyNWI3ZjFhMTE5YmQwZTYxNGM2NWI4NzFiMmFiZWFlNmI5YWZjOTRmNzJkZTRkMjRiYTAxODgifX19", "XkwrwdctRApUCGLH+sLKu85AlcL+hpNicYzKdjGhlUVuZ+qR4K5q3hdL0K5sivm2iwWXRQfGizgwOqyBEORJ4V0/EnTYBy/NheE4/Y4Kp1Fy/5+fVrktCRRzb2ha1GFUiq0VL0KvBo5zGeQTcibVn+KSw9mK01SQJK7zN/Rz9SSHIdJvj6D2Ckmqodrxo8LOgdrzkP9iKdgpAebG2fii90Uw38M5RMG/n0JcmnGFS1qKeQHIxNvdzqi12DJzLUoZ7FL+DS4JyX2fAZwEajCfS18zXZRNZ15b6Ba7hW35D+nEHtNM6AlHz0fHevaAnFpWsA3Q02sw29/2mUUSYkEVSbBz/Yf2EYOhlzzpCQnrHW9qqotS3bOcolezr6NEgmDp96THd6h1sIKrctVINzAUgBA+3EQbFVscTLkQEtcXkImuB9zJuErEJTrpzfYVZR72zSLZq0pElBFYs5mwArEGsDlqmWWKL0rHZ68rXMNdMYcZx7NjAjdQ6TTTVGxGngp/KwY3B65sUMqk57jQYSdvbaNnFUoBgJsO2SxQwO989O64WhuQcMRgLQ90pksgQXLnCUnZ2Er5uQGDGZndQF/EPpS8xNCsNu2iOHw9VbrpSDmYmTjBF0SOgNyV7k0xcYydksIv/rrDhWF/A073hKBkvnSpPqKIdJtYR0bmHUFGP68=");
 		} elseif(name == "notch") {
 			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTYyNDUyNjI0NjM2MywKICAicHJvZmlsZUlkIiA6ICIwNjlhNzlmNDQ0ZTk0NzI2YTViZWZjYTkwZTM4YWFmNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJOb3RjaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yOTIwMDlhNDkyNWI1OGYwMmM3N2RhZGMzZWNlZjA3ZWE0Yzc0NzJmNjRlMGZkYzMyY2U1NTIyNDg5MzYyNjgwIgogICAgfQogIH0KfQ==", "K76X+5wYgbcKhUxr5ZJuF4MXquYNPM5ypUf6DdNz2k0+XaJlobLVVdETe2LotlHyj6ABoU3//8mGZnfwhdj2BiulOErpB6cQR4pMmIrW6T3TLCt4L8d9juQy7xy7Dw9sQngXWm2h3Cazm+205qa0apnvA/i+IGv+WeutP52kfGhJBAN7uBUQaut0NWBfFPL8Jo7DhwBvWf/KWVpcT9UcVQuS/dVP/VE0rrTTSf3x2/jGI0ksBEdOz5lROARCHwOA1sRDvP1nQHhZD1Uekj4Bmo6rsAjJCrzr++nK2IcaPMv1uTLv0sbsGe4JF884rqWHYzs7/Cc5lGv8FNy+QjHmTcISfjnlxwJIkI48KOmAjuaova+tU1gBHRFHqJR186Vw8gtIGHusitFr6rUuutODaHyJ1C9VnItyk5RF3eznsh+uUHSkT9NOCTAhx11UhaFjlIHgqHG3rRVmeFWyEKHE8Pk2yEAlROGPedp+oYEwMFbM97Q+og7W/RtSH+kYl9vNwpLrQEG2F0bQUtulwQrWzk8T2fKgPHncZIDS2YvQjrrHjjlG0bLbiakHGvRrMrLbrVtmQrKjOjLuc5j4M/quMoZpFz98q4uftCmNOyN9ZmoEjgFv5fOdsJDGJawSaug9VEieCWhuuPnXPx19GpT1TRzGRjDW9DqO08kNeCcRxq0=");
-		} else {
+		} elseif(name == "oldman1") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTU4OTAxMTIxMjA2NCwKICAicHJvZmlsZUlkIiA6ICI5MWYwNGZlOTBmMzY0M2I1OGYyMGUzMzc1Zjg2ZDM5ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTdG9ybVN0b3JteSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS85YWZhODBlNjA0NTExNmEyMDhjNTBiOTllZGM0MWE0Yjg4MTZlODgxNjAxMWMxY2Q0MGYyMmY3YThkOTZlODUyIgogICAgfQogIH0KfQ==", "AZP+lLAvazx7YRzKtNYZ2y6gxfkxvyJce7LC7O0Q3BOKj80kbBEgOmA3m2yDSOJUm6hLlGND8nIReifHua0I1xkajnoUfBQmiptyGNby+LIpwORn4RHtes80fe1ZFbzg4icXDknRetINlMnGw+QAg/m+cKpP+ydpBoIOONz1EWhV3sEOpsxIKns+HVxJ4XBFvIy+bCGGylJFtqSK1z6Z2cM8Y//Uv4p1nN+71N3OI7RPuQiG4/8edaYce7ufxmbGc8wROnm6yjRLS749D5XG/z4eppe9FjptkY0S2m6R5JDRZ69kziI1VmKViSBbcrNTwOnXuCtdCvbALRy77QsO7pJvg2RvHXPi9lz+c1/lKiHq7Xy2KncmioBbC1Jap/5lJW094HrLf35kYmbav//8TWA9itUJzhdik+NfU6r1Q7wPeNG8Z8hZZ5ELxK+G5BCJqxsJTFdF23tkp7KoA7yOuNdtPaay48h1pBpk66oIo6ump5ON+KSNSPJ5IM5hn6lwy7fQ+IzTcLgeeXU2rs7ju/vIcVhUat/UvGl9oWKnFB7bhaJARNRIwrWTg3OiYAC9GMHOvoutYQJyJVmJ46gA5D2uwUwvtkphDR3bjuX9RD/7/b2qRtpMszgkx0j9alO2pK4ZTV70MbX2QX38ghLaXu1HAPshSRSp6Ox5V2gJb0s=");
+		} elseif(name == "oldman2") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTYxNDA4ODgxMjk5NiwKICAicHJvZmlsZUlkIiA6ICIyYzEwNjRmY2Q5MTc0MjgyODRlM2JmN2ZhYTdlM2UxYSIsCiAgInByb2ZpbGVOYW1lIiA6ICJOYWVtZSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9jM2ZjNDJhNGJiY2EwNTk2MTRmYjZlMGQ2NWQxMmU4NTFiYTM2YTA2ZjAyMzVkZGI2OTlhNWE2ZDFhMzgzNmMyIgogICAgfQogIH0KfQ==", "Ucbd0D4Nb8lGoZ9UF3A5yi00IfK0O7YcBrHO7osRimtISi92dhkKThJtjq7ibXf+8qu1a7wWrwgNpFHLtz5g1vcbJfkuzfHxuRQN+jcZIZt8skV+vujUP3eS1wezQATHuvhA3wBztn3UuTl7tCZXFEoq/ywcWN9qZH3QRljnWu88VOXHKtoBrkMPHO3t7BXaXyRMl5+wpkzWdSJIYD/wXop7yys78R2e6MAiPeKBsr+Bh5rNUIsUSUi80vAo51dH3aSzY0LW43m99UG1P9w2U56IfqJetpvrTVHm1xwNoyHcyQGXSeVlTXJkpCzFHdOlT8L5Pi6EbkyozxKTod/gH3PzhpYMlVCsqs/c3qBHma3GmL5+mppCdrulQnY5jkltIkp1wikXxneo3tRAIWpTVDrSFwhjZ6TLD/hL8By5i/xohgmpTFXl1rQZVJFoti1kd764vLDZyuuswXe33txS6+gV2eA6XR2DUnOpcoFcLF4kx10PubtSt32WAKDShhv6lu/f8ciYMNjk2ZBR1PZ+meeIqW9n10T5x21JRbDg3bUV1d9kd0wuliuBeEu6/2D9sB7c1JSQ3NtShacQHEHMr/2xBrE3beKd/MKNzWEjAkZsitiTuobWrFvb9gK6jxgfdX1CSXc6x8iZBeyMrrGYLj221SHY08CDMkoGvqbXfBM=");
+		} elseif(name == "oldman3") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTY4ODY2Njc5MDMyNiwKICAicHJvZmlsZUlkIiA6ICJmZjQ3NzI5YmQwZDI0YWYwOThiMTFjMGE3ZTFiMGVlZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJtYXRzY2FuIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzEyOTg5ZjMxOTQ3NmQ1NDk1MmUwOTQ5ZWEzMGIyZTQ3N2M5NDE4YjBiOGFiOTc0YmU2YzFmOWYwMGQ4NWMzMTYiCiAgICB9CiAgfQp9", "inFYrkbI1KbykFuDWprHxnDRpaLxOYuQLUC/w8mFMR8/joqRyBkqAOgnt4PlgG/KrBOYLwSgQ4VZbqkzGXTcuX+FkJAlXU0jNY6/GAyX686YhjP2OACXCE9AzUMhoWHHhNd5zlBNef3RGei9jIR7bZdJmGBfp6zNHT9ZGHGBBy3kFhmpg6wEJ3zSF2YnWAvAlZ+nxSbNMkn+Zb/hwIGV0pRjFKLX59ubS6wYZYeduxNLJjM9VcP3SZDu1YK4hsyo0crbFtX1GIIfUKgKvqGyJMsx2tmgbzPuSfcObaLBYWam3okcIkBsf9zqvhp/qY9jHB85+F1NZhx7axR53oEgOnv90n3hLOTKI01we1nSuFirg3LiOeH5rteEfCFuZVpb2/WrJ1JqF+0dwQU5H0qEuRbSgJlR2BYv7F/THs69MCB0wlfdIX5IddUhJj7n9dcHkp38YkfP595SGDhdcCMZvZL1OYOUMwJ1qhaXZLhNTSIZo1jnLtsqpUbk5ny78E/u5oyyRrvJAMf+6N8Gjx5S7JLpSgM2TX1rmiGe0GS9HoLF+Gd8sbe2A3gJJxPR1P2R9Q1HXG7opYEPPyUM2WCdzfg8kKpaPUfX5M3Kudm7rjPCG+2z3krbEbtbYLchFwpUn3wmZwybX9R/Xzv3HsI0mzOGk+WgxBRY804L1UGzVpo=");
+		}else {
 		    msg.action(player, "Not supported name.");
 		}
 		goto("wait");
@@ -5360,7 +5402,7 @@ if(size > 1) {
 	reason = "You got banned.";
 	msg.team(sender_name, string.concat("§c", p_name, " got banned."));
 }
-ban.add(player.getUuid(p_name), reason, sender_name);
+ban.add(p_name, reason, sender_name);
 if(isOnline(p_name)) {
 	p = read.player(p_name);
 	ban.kick(p, text.new(reason));
@@ -5377,8 +5419,9 @@ if(!checkIfEverOnline(p_name)) {
 	msg.prefix(sender, prefix_commands, "This player has never been online.");
 	goto("wait");
 }
-p_name = player.getName(player.getUuid(p_name));
-ban.remove(player.getUuid(p_name));
+p_uuid = player.getUuid(p_name);
+p_name = player.getName(p_uuid);
+ban.remove(p_uuid);
 msg.team(player.getName(sender), string.concat("§cUnbanned ", p_name, "."));
 goto("wait");
 
@@ -5419,7 +5462,7 @@ if(size > 4) {
 	msg.team(sender_name, string.concat("§c", p_name, " got banned until ", timestring, "."));
 }
 calendar = time.new(endtime);
-ban.add(player.getUuid(p_name), reason, sender_name, calendar);
+ban.add(p_name, reason, sender_name, calendar);
 if(isOnline(p_name)) {
 	p = read.player(p_name);
 	ban.kick(p, text.new(reason));

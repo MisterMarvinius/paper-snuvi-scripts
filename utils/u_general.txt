@@ -1,4 +1,4 @@
-function calcLeftShift(bit) { //Deprecated, kaje soll << einbauen
+function calcLeftShift(bit) { //kaje soll << einbauen
 	a = 1;
 	a <<= bit;
 	return a;
@@ -230,6 +230,55 @@ function player.splitGiveItem(player, item, safe_give) {
 	} else {
 		player.safeGiveItem(player, item);
 	}
+}
+
+function getItemFlags() {
+	list = list.new();
+	list.add(list, "HIDE_ATTRIBUTES");
+	list.add(list, "HIDE_UNBREAKABLE");
+	list.add(list, "HIDE_DESTROYS");
+	list.add(list, "HIDE_PLACED_ON");
+	list.add(list, "HIDE_POTION_EFFECTS");
+	list.add(list, "HIDE_DYE");
+	list.add(list, "HIDE_ENCHANTS");
+	return list;
+}
+
+function getPotionTypes() {
+	list = list.new();
+	list.add(list, "ABSORPTION");
+	list.add(list, "BAD_OMEN");
+	list.add(list, "BLINDNESS");
+	list.add(list, "CONDUIT_POWER");
+	list.add(list, "CONFUSION");
+	list.add(list, "DAMAGE_RESISTANCE");
+	list.add(list, "DOLPHINS_GRACE");
+	list.add(list, "FAST_DIGGING");
+	list.add(list, "FIRE_RESISTANCE");
+	list.add(list, "GLOWING");
+	list.add(list, "HARM");
+	list.add(list, "HEAL");
+	list.add(list, "HEALTH_BOOST");
+	list.add(list, "HERO_OF_THE_VILLAGE");
+	list.add(list, "HUNGER");
+	list.add(list, "INCREASE_DAMAGE");
+	list.add(list, "INVISIBILITY");
+	list.add(list, "JUMP");
+	list.add(list, "LEVITATION");
+	list.add(list, "LUCK");
+	list.add(list, "NIGHT_VISION");
+	list.add(list, "POISON");
+	list.add(list, "REGENERATION");
+	list.add(list, "SATURATION");
+	list.add(list, "SLOW");
+	list.add(list, "SLOW_DIGGING");
+	list.add(list, "SLOW_FALLING");
+	list.add(list, "SPEED");
+	list.add(list, "UNLUCK");
+	list.add(list, "WATER_BREATHING");
+	list.add(list, "WEAKNESS");
+	list.add(list, "WITHER");
+	return list;
 }
 
 function player.safeGiveItem(player, item) {
@@ -2843,7 +2892,11 @@ function plot.getLeaderName(plot) {
 	if(plot_leader_id == null) {
 		return "";
 	}
-	return player.getNameFromId(plot_leader_id);
+	p_name = player.getNameFromId(plot_leader_id);
+	if(p_name == null) {
+		return "";
+	}
+	return p_name;
 }
 
 function plot.getLeaderId(plot) {
@@ -3004,6 +3057,10 @@ function plot.isPlot(plot) {
 	return !plot.isCity(plot) && !plot.isFree(plot) && !plot.isSub(plot);
 }
 
+function plot.hasDisabledSigns(plot) {
+	return plot.hasFlags(plot, calcLeftShift(26));
+}
+
 function plot.isExplosive(plot) {
 	return plot.hasFlags(plot, calcLeftShift(27));
 }
@@ -3018,6 +3075,10 @@ function plot.isFree(plot) {
 
 function plot.isSub(plot) {
 	return plot.hasFlags(plot, calcLeftShift(30));
+}
+
+function plot.setDisabledSigns(plot, boolean) {
+	plot.setFlags(plot, calcLeftShift(26), boolean);
 }
 
 function plot.setCity(plot, boolean) {
@@ -3578,7 +3639,11 @@ function perm.initPlayer(player_or_id) {
 		perm.loadGroupToPlayer(next(iter), player);
 	}
 	perm.update(player);
-	command.sendHelp(player);
+	command.sendHelpWorkaround();
+}
+
+function command.sendHelpWorkaround() {
+	command.unregister("cmdsendworkaround");
 }
 
 //--------------------------------------------------

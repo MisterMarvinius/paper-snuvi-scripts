@@ -28,7 +28,7 @@ if(event == "block_click") {
 		} else {
 			s = "§cFalse";
 		}
-		sign.setString(block, 3, s);
+		sign.setString(block, "FRONT", 3, s);
 		return;
 	}
 	if(block.getLocation(block) == rule_2_loc) {
@@ -36,7 +36,7 @@ if(event == "block_click") {
 		if(amount_ai_players >= minigame.getMaxPlayers()) {
 			amount_ai_players = 0;
 		}
-		sign.setString(block, 3, string.number(amount_ai_players));
+		sign.setString(block, "FRONT", 3, string.number(amount_ai_players));
 		if(!minigame.isStarting()) {
 			goto("startcountdown");
 		}
@@ -582,8 +582,8 @@ function getColorCode(team) {
 }
 
 function resetRuleSigns() {
-	sign.setString(block.get($rule_1_loc), 3, "§cFalse");
-	sign.setString(block.get($rule_2_loc), 3, "0");
+	sign.setString(block.get($rule_1_loc), "FRONT", 3, "§cFalse");
+	sign.setString(block.get($rule_2_loc), "FRONT", 3, "0");
 }
 
 function resetGameField() {

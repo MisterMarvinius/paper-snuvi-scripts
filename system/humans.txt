@@ -51,7 +51,30 @@ addCitizen("Shop", loc.new(gamesworld, -6.5, 101, 3000.5), "xmas_girl"); //Team 
 addCitizen("Shop", loc.new(gamesworld, -6.5, 101, 2998.5), "xmas_girl");
 addCitizen("Shop", loc.new(gamesworld, -6.5, 101, 3002.5), "xmas_girl");
 //bedwars
-
+addCitizen("Shop", loc.new(gamesworld, -69.5, 42, 256.5), "notch"); // BW-1
+addCitizen("Shop", loc.new(gamesworld, 106.5, 42, 263.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -3981.5, 64, 5976.5), "notch"); // BW-2
+addCitizen("Shop", loc.new(gamesworld, -3968.5, 64, 5982.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, 1009.5, 79, 4972), "notch"); // BW-3
+addCitizen("Shop", loc.new(gamesworld, 1032.5, 79, 4891), "notch");
+addCitizen("Shop", loc.new(gamesworld, -9008.5, 47, 2003), "notch"); // BW-4
+addCitizen("Shop", loc.new(gamesworld, -8929.5, 47, 2083.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -9009.5, 47, 2162.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -9088.5, 47, 2082.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -5044.5, 51, -5003.5), "notch"); // BW-5
+addCitizen("Shop", loc.new(gamesworld, -4995.5, 51, -5044.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -4954.5, 51, -4995.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -5003.5, 51, -4954.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, 3035.5, 101, 23.5), "notch"); // BW-6
+addCitizen("Shop", loc.new(gamesworld, 3035.5, 101, -106.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -96.5, 96, 1982.5), "notch"); // BW-7
+addCitizen("Shop", loc.new(gamesworld, 53.5, 96, 1994.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -6097.5, 101, 1991.5), "notch"); // BW-8
+addCitizen("Shop", loc.new(gamesworld, -5991.5, 101, 1901.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -5901.5, 101, 2007.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -6007.5, 101, 2097.5), "notch");
+addCitizen("Shop", loc.new(gamesworld, -3032.5, 119, 1998.5), "notch"); // BW-9
+addCitizen("Shop", loc.new(gamesworld, -2884.5, 119, 2034.5), "notch");
 initCitizens();
 
 msg.string("dev", "§bHumans §rloaded.");
@@ -154,10 +177,7 @@ function initCitizens() {
 		//spawn citizen
 		c = citizen.spawn(loc, name);
 		if(skin_name != null) {
-			msg.dev(skin_name);
 			a_skin = map.get($skins, skin_name);
-			msg.dev(c);
-			msg.dev(a_skin);
 			citizen.setSkin(c, a_skin[0], a_skin[1]);
 		}
 		citizen.lookclose(c);

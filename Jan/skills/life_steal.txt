@@ -27,8 +27,8 @@ part_array[0] = part_loc;
 part_array[1] = player;
 part_array[2] = damage;
 part_array[3] = level;
-part_array[4] = math.roundUp(math.ln(particle_array[2]/2));
-part_array[4] = 0;
+part_array[4] = math.roundUp(math.ln(damage/2));
+part_array[5] = 0;
 list.add(part, part_array);
 
 goto("heal");

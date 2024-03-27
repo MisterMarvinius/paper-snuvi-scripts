@@ -1,0 +1,52 @@
+event.load("block_click");
+event.load("explosion");
+
+all_signs_tag = block.getTag("minecraft:all_signs");
+
+msg.string("dev", "§bPlots §rloaded.");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@explosion
+plot_list = plot.get(entity.getLocation(entity));
+plot_amount = list.getSize(plot_list);
+for(i = 0; i < plot_amount; i++) {
+	plot = list.getIndex(plot_list, i);
+	if(plot.isExplosive(plot)) {
+		cancel = false;
+	} else {
+		cancel = true;
+		break;
+	}
+}
+//Kein Grundstück existiert
+if(plot_amount == 0) {
+	cancel = false;
+}
+goto("wait");
+
+@block_click
+if(action != "RIGHT_CLICK_BLOCK") {
+	goto("wait");
+}
+if(!block.hasTag(block, all_signs_tag)) {
+	goto("wait");
+}
+plot_list = plot.get(block.getLocation(block));
+plot_amount = list.getSize(plot_list);
+for(i = 0; i < plot_amount; i++) {
+	plot = list.getIndex(plot_list, i);
+	if(plot.hasDisabledSigns(plot)) {
+		cancel = true;
+		break;
+	} else {
+		cancel = false;
+	}
+}
+//Kein Grundstück existiert
+if(plot_amount == 0) {
+	cancel = false;
+}
+goto("wait");

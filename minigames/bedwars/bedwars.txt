@@ -324,7 +324,7 @@ if(player.hasMinigameId(player, script_id)) {
 goto("checkgame");
 
 @entity_click
-if(entity.isHuman(entity)) {
+if(isCitizen(entity)) {
 	shopmenu = map.get(shopmenus, player.getId(player));
 	setShopmenu1(shopmenu);
 	inv.open(shopmenu, player);
@@ -866,7 +866,7 @@ function showstats(player, show_time, won) { //Player player, Boolean show_time,
 	wongames = minigame.getWon(player, "bw");
 	if(won) {
 		wongames++;
-		minigame.setWon(player, "knock", wongames);
+		minigame.setWon(player, $game_short, wongames);
 	}
 	minigame.statsLine(player, "§e", "Won games", string.number(wongames));
 	if(playedgames != 0) {

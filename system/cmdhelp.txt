@@ -1,0 +1,1470 @@
+msg.string("dev", "§bCommandHelp §rloaded");
+
+commandhelp.add("brush");
+
+//Unregister vanilla commands
+command.unregister("icanhasbukkit");
+command.unregister("time");
+command.unregister("tp");
+command.unregister("help");
+command.unregister("ban");
+command.unregister("kick");
+command.unregister("gamemode");
+command.unregister("gamerule");
+command.unregister("enchant");
+command.unregister("jumpto");
+command.unregister("ride");
+
+commandhelp.add("afk");
+commandhelp.add("back");
+commandhelp.add("color");
+commandhelp.add("comeback");
+commandhelp.add("customitems");
+commandhelp.add("fuckit");
+commandhelp.add("giveup");
+commandhelp.add("hat");
+commandhelp.add("head");
+commandhelp.add("hub");
+commandhelp.add("icon");
+commandhelp.add("iteminfo");
+commandhelp.add("joinme");
+commandhelp.add("jumpto");
+commandhelp.add("lag");
+commandhelp.add("leave");
+commandhelp.add("lightning");
+commandhelp.add("live");
+commandhelp.add("memory");
+commandhelp.add("nowb");
+commandhelp.add("ping");
+commandhelp.add("rank");
+commandhelp.add("repair");
+commandhelp.add("ride");
+commandhelp.add("settings");
+commandhelp.add("silentjoin");
+commandhelp.add("skipnight");
+commandhelp.add("sponsor");
+commandhelp.add("startgame");
+commandhelp.add("top");
+commandhelp.add("voteshop");
+
+command.registerHelp(command.newHelp("colour", "color"));
+command.registerHelp(command.newHelp("l", "leave"));
+command.registerHelp(command.newHelp("thor", "lightning"));
+command.registerHelp(command.newHelp("skull", "head"));
+command.registerHelp(command.newHelp("ram", "memory"));
+command.registerHelp(command.newHelp("mem", "memory"));
+
+commandhelp.addChildPlayer("unmute");
+commandhelp.addChildPlayer("tpa");
+commandhelp.addChildPlayer("tpaccept");
+commandhelp.addChildPlayer("tpahere");
+commandhelp.addChildPlayer("tpaccepthere");
+commandhelp.addChildPlayer("head");
+commandhelp.addChildPlayer("seen");
+commandhelp.addChildPlayer("heal");
+commandhelp.addChildPlayer("feed");
+commandhelp.addChildPlayer("warn");
+commandhelp.addChildPlayer("jail");
+commandhelp.addChildPlayer("unjail");
+
+commandhelp.addChildLiteral("start", "challenges");
+commandhelp.addChildLiteral("start", "chat");
+commandhelp.addChildLiteral("start", "commands");
+commandhelp.addChildLiteral("start", "commandhelp");
+commandhelp.addChildLiteral("start", "copyisland");
+commandhelp.addChildLiteral("start", "creative");
+commandhelp.addChildLiteral("start", "damage");
+commandhelp.addChildLiteral("start", "doors");
+commandhelp.addChildLiteral("start", "gemstones");
+commandhelp.addChildLiteral("start", "harvest");
+commandhelp.addChildLiteral("start", "herobrine");
+commandhelp.addChildLiteral("start", "humans");
+commandhelp.addChildLiteral("start", "lectern");
+commandhelp.addChildLiteral("start", "loom");
+commandhelp.addChildLiteral("start", "games");
+commandhelp.addChildLiteral("start", "mails");
+commandhelp.addChildLiteral("start", "market");
+commandhelp.addChildLiteral("start", "mobarena");
+commandhelp.addChildLiteral("start", "perms");
+commandhelp.addChildLiteral("start", "playerdata");
+commandhelp.addChildLiteral("start", "playtime");
+commandhelp.addChildLiteral("start", "pumpkin");
+commandhelp.addChildLiteral("start", "recipes");
+commandhelp.addChildLiteral("start", "scheduler");
+commandhelp.addChildLiteral("start", "shop");
+commandhelp.addChildLiteral("start", "sitting");
+commandhelp.addChildLiteral("start", "skills");
+commandhelp.addChildLiteral("start", "stats");
+commandhelp.addChildLiteral("start", "story");
+commandhelp.addChildLiteral("start", "survival");
+commandhelp.addChildLiteral("start", "teleporter");
+commandhelp.addChildLiteral("start", "ticket");
+commandhelp.addChildLiteral("start", "timber");
+commandhelp.addChildLiteral("start", "tiploop");
+commandhelp.addChildLiteral("start", "trader");
+
+commandhelp.addChildLiteral("setspawn", "server");
+commandhelp.addChildLiteral("setspawn", "games");
+commandhelp.addChildLiteral("setspawn", "creative");
+
+commandhelp.addChildLiteral("block", "info");
+commandhelp.addChildLiteral("block", "public");
+commandhelp.addChildLiteral("block", "remove");
+commandhelp.addChildLiteral("block", "fix");
+
+addGmHelp("gamemode");
+addGmHelp("gm");
+
+addScriptHelp("script");
+addScriptHelp("s");
+
+addAsHelp("armorstand");
+addAsHelp("as");
+
+addDtHelp("datatools");
+addDtHelp("dt");
+
+addHomeHelp("home");
+addHomeHelp("h");
+
+addPlotHelp("plot");
+addPlotHelp("p");
+
+help = command.newHelp("fly", "fly");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "fly.other"));
+command.addHelpArgument(help, command.newHelpLiteral("on"));
+command.registerHelp(help);
+help = command.newHelp("fly", "fly");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "fly.other"));
+command.addHelpArgument(help, command.newHelpLiteral("off"));
+command.registerHelp(help);
+
+help = command.newHelp("vanish", "vanish");
+command.addHelpArgument(help, command.newHelpLiteral("on"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("vanish", "vanish");
+command.addHelpArgument(help, command.newHelpLiteral("off"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("v", "vanish");
+command.addHelpArgument(help, command.newHelpLiteral("on"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("v", "vanish");
+command.addHelpArgument(help, command.newHelpLiteral("off"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+help = command.newHelp("databank", "databank");
+command.addHelpArgument(help, command.newHelpLiteral("showtables"));
+command.registerHelp(help);
+help = command.newHelp("databank", "databank");
+command.addHelpArgument(help, command.newHelpLiteral("showfields"));
+command.addHelpArgument(help, command.newHelpString("table", false));
+command.registerHelp(help);
+help = command.newHelp("databank", "databank");
+command.addHelpArgument(help, command.newHelpLiteral("showdatatypes"));
+command.addHelpArgument(help, command.newHelpString("table", false));
+command.registerHelp(help);
+
+help = command.newHelp("copyisland", "copyisland");
+command.addHelpArgument(help, command.newHelpLiteral("copy"));
+command.registerHelp(help);
+help = command.newHelp("copyisland", "copyisland");
+command.addHelpArgument(help, command.newHelpLiteral("paste"));
+command.registerHelp(help);
+help = command.newHelp("copyisland", "copyisland");
+command.addHelpArgument(help, command.newHelpLiteral("pos1"));
+command.registerHelp(help);
+help = command.newHelp("copyisland", "copyisland");
+command.addHelpArgument(help, command.newHelpLiteral("pos2"));
+command.registerHelp(help);
+
+help = command.newHelp("enchant", "enchant");
+command.addHelpArgument(help, command.newHelpSpecial("Enchantment", "enchantment"));
+command.addHelpArgument(help, command.newHelpInt("level", 0, 100));
+command.registerHelp(help);
+
+help = command.newHelp("allsounds", "allsounds");
+command.addHelpArgument(help, command.newHelpLiteral("start"));
+command.registerHelp(help);
+help = command.newHelp("allsounds", "allsounds");
+command.addHelpArgument(help, command.newHelpLiteral("stop"));
+command.registerHelp(help);
+help = command.newHelp("allsounds", "allsounds");
+command.addHelpArgument(help, command.newHelpLiteral("play"));
+command.addHelpArgument(help, command.newHelpSpecial("Sound", "sound"));
+command.registerHelp(help);
+help = command.newHelp("allsounds", "allsounds");
+command.addHelpArgument(help, command.newHelpLiteral("show"));
+command.addHelpArgument(help, command.newHelpInt("page", 1, 200));
+command.registerHelp(help);
+
+help = command.newHelp("spawn", "spawn");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "tp.other"));
+command.registerHelp(help);
+
+help = command.newHelp("games", "games");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "tp.other"));
+command.registerHelp(help);
+
+help = command.newHelp("creative", "creative");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "tp.other"));
+command.registerHelp(help);
+
+help = command.newHelp("ass", "ass");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpString("name", true));
+command.registerHelp(help);
+
+help = command.newHelp("ass", "ass");
+command.addHelpArgument(help, command.newHelpLiteral("name"));
+command.addHelpArgument(help, command.newHelpString("name", true));
+command.registerHelp(help);
+
+help = command.newHelp("ass", "ass");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.addHelpArgument(help, command.newHelpInt("radius", 0, 10));
+command.registerHelp(help);
+
+help = command.newHelp("tppos", "tppos");
+command.addHelpArgument(help, command.newHelpInt("x", -32000, 32000));
+command.addHelpArgument(help, command.newHelpInt("y", 0, 1000));
+command.addHelpArgument(help, command.newHelpInt("z", -32000, 32000));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+addStatsGameHelp("AmongUs");
+addStatsGameHelp("BedWars");
+addStatsGameHelp("RageMode");
+addStatsGameHelp("JR-Endless");
+addStatsGameHelp("Rebuild");
+addStatsGameHelp("FastBridge");
+addStatsGameHelp("Snowfight");
+addStatsGameHelp("JR-Death");
+addStatsGameHelp("JR-Ice");
+addStatsGameHelp("JR-Rooms");
+addStatsGameHelp("Letters");
+addStatsGameHelp("ItemHunt");
+addStatsGameHelp("Sammelfieber");
+addStatsGameHelp("Buttons");
+addStatsGameHelp("HideAndSeek");
+addStatsGameHelp("Inverting");
+addStatsGameHelp("Spleef");
+addStatsGameHelp("Knockfight");
+addStatsGameHelp("Leapfrog");
+addStatsGameHelp("Parcour");
+addStatsGameHelp("Halma");
+addStatsGameHelp("ShoppingChaos");
+addStatsGameHelp("MengerRun");
+addStatsGameHelp("Snake");
+addStatsGameHelp("DontGetAngry");
+addStatsGameHelp("CaptureTheFlag");
+addStatsGameHelp("Cores");
+
+help = command.newHelp("help", "help");
+command.addHelpArgument(help, command.newHelpInt("page", 1, 100));
+command.registerHelp(help);
+
+help = command.newHelp("suicide", "suicide");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "suicide.other"));
+command.registerHelp(help);
+
+help = command.newHelp("tempfly", "tempfly");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpInt("seconds", 1, 10000));
+command.registerHelp(help);
+
+help = command.newHelp("tempban", "tempban");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpInt("days", 0, 365));
+command.addHelpArgument(help, command.newHelpInt("hours", 0, 100));
+command.addHelpArgument(help, command.newHelpInt("minutes", 0, 100));
+command.addHelpArgument(help, command.newHelpString("reason", true));
+command.registerHelp(help);
+
+help = command.newHelp("unban", "unban");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("pardon", "unban");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+help = command.newHelp("ban", "ban");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("reason", true));
+command.registerHelp(help);
+
+help = command.newHelp("kick", "kick");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("reason", true));
+command.registerHelp(help);
+
+help = command.newHelp("answer", "answer");
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("r", "answer");
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("time", "time");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpInt("time", 0, 100000));
+command.registerHelp(help);
+help = command.newHelp("time", "time");
+command.addHelpArgument(help, command.newHelpLiteral("add"));
+command.addHelpArgument(help, command.newHelpInt("time", 0, 100000));
+command.registerHelp(help);
+help = command.newHelp("time", "time");
+command.addHelpArgument(help, command.newHelpLiteral("day"));
+command.registerHelp(help);
+help = command.newHelp("time", "time");
+command.addHelpArgument(help, command.newHelpLiteral("noon"));
+command.registerHelp(help);
+help = command.newHelp("time", "time");
+command.addHelpArgument(help, command.newHelpLiteral("night"));
+command.registerHelp(help);
+help = command.newHelp("time", "time");
+command.addHelpArgument(help, command.newHelpLiteral("midnight"));
+command.registerHelp(help);
+
+help = command.newHelp("enderchest", "enderchest");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("from-player", false));
+command.registerHelp(help);
+
+help = command.newHelp("nickname", "nickname");
+command.addHelpArgument(help, command.newHelpString("name", true));
+command.registerHelp(help);
+help = command.newHelp("nickname", "nickname");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.registerHelp(help);
+
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("give", "perm.give"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpLiteral("owner", "isOwner"));
+command.registerHelp(help);
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("give", "perm.give"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpLiteral("admin", "isAdmin"));
+command.registerHelp(help);
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("give", "perm.give"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpLiteral("moderator", "isAdmin"));
+command.registerHelp(help);
+addPermHelp("perm", "give", "supporter");
+addPermHelp("perm", "give", "builder");
+addPermHelp("perm", "give", "worldedit");
+addPermHelp("perm", "give", "vip");
+addPermHelp("perm", "give", "developer");
+addPermHelp("perm", "give", "devmaster");
+addPermHelp("perm", "give", "yt");
+addPermHelp("perm", "give", "streamer");
+addPermHelp("perm", "give", "sponsor");
+addPermHelp("perm", "give", "creative");
+addPermHelp("perm", "give", "notickets");
+addPermHelp("perm", "give", "bypass");
+addPermHelp("perm", "give", "altruist");
+addPermHelp("perm", "give", "legend");
+addPermHelp("perm", "give", "creativeWE");
+
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("remove", "perm.remove"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpLiteral("owner", "isOwner"));
+command.registerHelp(help);
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("remove", "perm.remove"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpLiteral("admin", "isAdmin"));
+command.registerHelp(help);
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("remove", "perm.remove"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpLiteral("moderator", "isAdmin"));
+command.registerHelp(help);
+addPermHelp("perm", "remove", "supporter");
+addPermHelp("perm", "remove", "builder");
+addPermHelp("perm", "remove", "worldedit");
+addPermHelp("perm", "remove", "vip");
+addPermHelp("perm", "remove", "developer");
+addPermHelp("perm", "remove", "devmaster");
+addPermHelp("perm", "remove", "yt");
+addPermHelp("perm", "remove", "streamer");
+addPermHelp("perm", "remove", "sponsor");
+addPermHelp("perm", "remove", "creative");
+addPermHelp("perm", "remove", "notickets");
+addPermHelp("perm", "remove", "bypass");
+addPermHelp("perm", "remove", "altruist");
+addPermHelp("perm", "remove", "legend");
+addPermHelp("perm", "remove", "creativeWE");
+
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("removeall", "perm.removeall"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("list", "perm.list"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+help = command.newHelp("perm", "perm");
+command.addHelpArgument(help, command.newHelpLiteral("toggle", "perm.toggle"));
+command.registerHelp(help);
+
+help = command.newHelp("warp", "warp");
+command.addHelpArgument(help, command.newHelpLiteral("set", "warp.create"));
+command.addHelpArgument(help, command.newHelpString("name", false, "warp.create"));
+command.registerHelp(help);
+
+help = command.newHelp("warp", "warp");
+command.addHelpArgument(help, command.newHelpLiteral("delete", "warp.create"));
+command.addHelpArgument(help, command.newHelpString("name", false, "warp.create"));
+command.registerHelp(help);
+
+help = command.newHelp("warp", "warp");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+
+help = command.newHelp("warp", "warp");
+command.addHelpArgument(help, command.newHelpLiteral("name"));
+command.addHelpArgument(help, command.newHelpString("name", false));
+command.registerHelp(help);
+
+help = command.newHelp("tp", "tp");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "to-player", "tp.other"));
+command.registerHelp(help);
+
+addLoginrequestsHelp("loginrequests", "ALLOWED");
+addLoginrequestsHelp("loginrequests", "KICK_FULL");
+addLoginrequestsHelp("loginrequests", "KICK_BANNED");
+addLoginrequestsHelp("loginrequests", "KICK_WHITELIST");
+addLoginrequestsHelp("loginrequests", "KICK_OTHER");
+
+help = command.newHelp("lastseen", "lastseen");
+command.addHelpArgument(help, command.newHelpInt("amount", 1, 100));
+command.registerHelp(help);
+
+addSkinHelp("alena");
+addSkinHelp("anna");
+addSkinHelp("baker");
+addSkinHelp("banker");
+addSkinHelp("butcher");
+addSkinHelp("casino");
+addSkinHelp("dark_mage");
+addSkinHelp("diver");
+addSkinHelp("farmer");
+addSkinHelp("fisher");
+addSkinHelp("girl");
+addSkinHelp("librarian");
+addSkinHelp("lumberjack");
+addSkinHelp("mage");
+addSkinHelp("mage_assistant");
+addSkinHelp("mage_guard");
+addSkinHelp("mason");
+addSkinHelp("miner");
+addSkinHelp("notch");
+addSkinHelp("oldman1");
+addSkinHelp("oldman2");
+addSkinHelp("oldman3");
+addSkinHelp("priest");
+addSkinHelp("santa_marv");
+addSkinHelp("smith");
+
+help = command.newHelp("mail", "mail");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("mail", "mail");
+command.addHelpArgument(help, command.newHelpLiteral("new"));
+command.registerHelp(help);
+help = command.newHelp("mail", "mail");
+command.addHelpArgument(help, command.newHelpLiteral("inbox"));
+command.registerHelp(help);
+help = command.newHelp("mail", "mail");
+command.addHelpArgument(help, command.newHelpLiteral("outbox"));
+command.registerHelp(help);
+help = command.newHelp("mail", "mail");
+command.addHelpArgument(help, command.newHelpLiteral("reset", "mail.reset"));
+command.registerHelp(help);
+
+help = command.newHelp("playtime", "playtime");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("playtime", "playtime");
+command.addHelpArgument(help, command.newHelpLiteral("all"));
+command.registerHelp(help);
+help = command.newHelp("playtime", "playtime");
+command.addHelpArgument(help, command.newHelpLiteral("month"));
+command.addHelpArgument(help, command.newHelpInt("month", 1, 12));
+command.addHelpArgument(help, command.newHelpInt("year", 2019, 2100));
+command.registerHelp(help);
+help = command.newHelp("playtime", "playtime");
+command.addHelpArgument(help, command.newHelpLiteral("year"));
+command.addHelpArgument(help, command.newHelpInt("year", 2019, 2100));
+command.registerHelp(help);
+
+help = command.newHelp("user", "user");
+command.addHelpArgument(help, command.newHelpLiteral("info"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "user.other"));
+command.registerHelp(help);
+help = command.newHelp("user", "user");
+command.addHelpArgument(help, command.newHelpLiteral("addmoney"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "user.money"));
+command.addHelpArgument(help, command.newHelpInt("money", -10000000, 10000000));
+command.registerHelp(help);
+help = command.newHelp("user", "user");
+command.addHelpArgument(help, command.newHelpLiteral("setmoney"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "user.money"));
+command.addHelpArgument(help, command.newHelpInt("money", -10000000, 10000000));
+command.registerHelp(help);
+
+help = command.newHelp("skills", "skills");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "user.other"));
+command.registerHelp(help);
+
+help = command.newHelp("grow", "grow");
+command.addHelpArgument(help, command.newHelpInt("int", 0, 1000));
+command.registerHelp(help);
+
+help = command.newHelp("news", "news");
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+
+help = command.newHelp("inv", "inv");
+command.addHelpArgument(help, command.newHelpLiteral("ignore"));
+command.registerHelp(help);
+help = command.newHelp("inv", "inv");
+command.addHelpArgument(help, command.newHelpLiteral("see"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("inv", "inv");
+command.addHelpArgument(help, command.newHelpLiteral("backups"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("inv", "inv");
+command.addHelpArgument(help, command.newHelpLiteral("reload"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("inv", "inv");
+command.addHelpArgument(help, command.newHelpLiteral("loadFrom"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.registerHelp(help);
+help = command.newHelp("inv", "inv");
+command.addHelpArgument(help, command.newHelpLiteral("saveFor"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.registerHelp(help);
+
+help = command.newHelp("friend", "friend");
+command.addHelpArgument(help, command.newHelpLiteral("add"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("friend", "friend");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("friend", "friend");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+
+help = command.newHelp("sign", "sign");
+command.addHelpArgument(help, command.newHelpLiteral("copy"));
+command.registerHelp(help);
+help = command.newHelp("sign", "sign");
+command.addHelpArgument(help, command.newHelpLiteral("paste"));
+command.registerHelp(help);
+help = command.newHelp("sign", "sign");
+command.addHelpArgument(help, command.newHelpLiteral("FRONT"));
+command.addHelpArgument(help, command.newHelpInt("1-4", 1, 4));
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+help = command.newHelp("sign", "sign");
+command.addHelpArgument(help, command.newHelpLiteral("BACK"));
+command.addHelpArgument(help, command.newHelpInt("1-4", 1, 4));
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+
+help = command.newHelp("speed", "speed");
+command.addHelpArgument(help, command.newHelpInt("int", 1, 10));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "speed.other"));
+command.registerHelp(help);
+
+help = command.newHelp("error", "error");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+help = command.newHelp("error", "error");
+command.addHelpArgument(help, command.newHelpLiteral("clear"));
+command.registerHelp(help);
+
+help = command.newHelp("mailbox", "mailbox");
+command.addHelpArgument(help, command.newHelpLiteral("show"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "mailbox.other"));
+command.registerHelp(help);
+help = command.newHelp("mailbox", "mailbox");
+command.addHelpArgument(help, command.newHelpLiteral("send"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("info"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("tp"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("diffi"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.addHelpArgument(help, command.newHelpLiteral("PEACEFUL"));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("diffi"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.addHelpArgument(help, command.newHelpLiteral("EASY"));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("diffi"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.addHelpArgument(help, command.newHelpLiteral("NORMAL"));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("diffi"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.addHelpArgument(help, command.newHelpLiteral("HARD"));
+command.registerHelp(help);
+help = command.newHelp("world", "world");
+command.addHelpArgument(help, command.newHelpLiteral("setspawn"));
+command.registerHelp(help);
+
+help = command.newHelp("quest", "quest");
+command.addHelpArgument(help, command.newHelpLiteral("see"));
+command.registerHelp(help);
+help = command.newHelp("quest", "quest");
+command.addHelpArgument(help, command.newHelpLiteral("term"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+
+help = command.newHelp("pvp", "pvp");
+command.addHelpArgument(help, command.newHelpLiteral("on"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "pvp.other"));
+command.registerHelp(help);
+help = command.newHelp("pvp", "pvp");
+command.addHelpArgument(help, command.newHelpLiteral("off"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "pvp.other"));
+command.registerHelp(help);
+
+help = command.newHelp("game", "game");
+command.addHelpArgument(help, command.newHelpLiteral("open"));
+command.registerHelp(help);
+help = command.newHelp("game", "game");
+command.addHelpArgument(help, command.newHelpLiteral("close"));
+command.registerHelp(help);
+
+
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("invite"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("accept"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("deny"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("kick"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("leave"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("promote"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("demote"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("disband"));
+command.registerHelp(help);
+help = command.newHelp("party", "party");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+
+help = command.newHelp("weather", "weather");
+command.addHelpArgument(help, command.newHelpLiteral("clear"));
+command.addHelpArgument(help, command.newHelpInt("duration", 0, 1000000));
+command.registerHelp(help);
+help = command.newHelp("weather", "weather");
+command.addHelpArgument(help, command.newHelpLiteral("rain"));
+command.addHelpArgument(help, command.newHelpInt("duration", 0, 1000000));
+command.registerHelp(help);
+help = command.newHelp("weather", "weather");
+command.addHelpArgument(help, command.newHelpLiteral("thunder"));
+command.addHelpArgument(help, command.newHelpInt("duration", 0, 1000000));
+command.registerHelp(help);
+
+help = command.newHelp("var", "var");
+command.addHelpArgument(help, command.newHelpInt("id", 0, 1000000));
+command.addHelpArgument(help, command.newHelpString("varname", false));
+command.registerHelp(help);
+
+help = command.newHelp("msg", "msg");
+command.addHelpArgument(help, command.newHelpLiteral("team"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("msg", "msg");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("setservermessage", "setservermessage");
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("dev", "dev");
+command.addHelpArgument(help, command.newHelpLiteral("boost"));
+command.registerHelp(help);
+help = command.newHelp("dev", "dev");
+command.addHelpArgument(help, command.newHelpLiteral("logo"));
+command.registerHelp(help);
+help = command.newHelp("dev", "dev");
+command.addHelpArgument(help, command.newHelpLiteral("yeet"));
+command.addHelpArgument(help, command.newHelpInt("strength", 1, 10000000000000));
+command.registerHelp(help);
+help = command.newHelp("dev", "dev");
+command.addHelpArgument(help, command.newHelpLiteral("debug"));
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+help = command.newHelp("dev", "dev");
+command.addHelpArgument(help, command.newHelpLiteral("debug"));
+command.addHelpArgument(help, command.newHelpLiteral("clear"));
+command.registerHelp(help);
+help = command.newHelp("dev", "dev");
+command.addHelpArgument(help, command.newHelpLiteral("entities"));
+command.addHelpArgument(help, command.newHelpString("world", false));
+command.registerHelp(help);
+
+list = getPotionTypes();
+iter = iterator(list);
+while(hasNext(iter)) {
+	potion_name = next(iter);
+	addPotionHelp(next(iter));
+}
+
+help = command.newHelp("support", "support");
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("mute", "mute");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("vote", "vote");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "user.other"));
+command.registerHelp(help);
+
+help = command.newHelp("ticket", "ticket");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+help = command.newHelp("ticket", "ticket");
+command.addHelpArgument(help, command.newHelpLiteral("release"));
+command.registerHelp(help);
+help = command.newHelp("ticket", "ticket");
+command.addHelpArgument(help, command.newHelpLiteral("finish"));
+command.registerHelp(help);
+help = command.newHelp("ticket", "ticket");
+command.addHelpArgument(help, command.newHelpLiteral("get"));
+command.addHelpArgument(help, command.newHelpInt("id", 1, 1000));
+command.registerHelp(help);
+help = command.newHelp("ticket", "ticket");
+command.addHelpArgument(help, command.newHelpLiteral("note"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+
+help = command.newHelp("tip", "tip");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+help = command.newHelp("tip", "tip");
+command.addHelpArgument(help, command.newHelpLiteral("add"));
+command.addHelpArgument(help, command.newHelpString("tip", false));
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+help = command.newHelp("tip", "tip");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.addHelpArgument(help, command.newHelpString("tip", false));
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+help = command.newHelp("tip", "tip");
+command.addHelpArgument(help, command.newHelpString("tip", false));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("tip", "tip");
+command.addHelpArgument(help, command.newHelpLiteral("loop"));
+command.addHelpArgument(help, command.newHelpString("tip", false));
+command.addHelpArgument(help, command.newHelpBool("boolean"));
+command.registerHelp(help);
+
+help = command.newHelp("shop", "shop");
+command.addHelpArgument(help, command.newHelpLiteral("create"));
+command.registerHelp(help);
+help = command.newHelp("shop", "shop");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.addHelpArgument(help, command.newHelpLiteral("buy"));
+help = command.newHelp("shop", "shop");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.addHelpArgument(help, command.newHelpLiteral("sell"));
+command.registerHelp(help);
+help = command.newHelp("shop", "shop");
+command.addHelpArgument(help, command.newHelpLiteral("buy"));
+command.addHelpArgument(help, command.newHelpInt("amount", 0, 1000));
+command.addHelpArgument(help, command.newHelpInt("price", 0, 10000));
+command.registerHelp(help);
+help = command.newHelp("shop", "shop");
+command.addHelpArgument(help, command.newHelpLiteral("sell"));
+command.addHelpArgument(help, command.newHelpInt("amount", 0, 1000));
+command.addHelpArgument(help, command.newHelpInt("price", 0, 10000));
+command.registerHelp(help);
+
+help = command.newHelp("setmessage", "setmessage");
+command.addHelpArgument(help, command.newHelpLiteral("info"));
+command.registerHelp(help);
+help = command.newHelp("setmessage", "setmessage");
+command.addHelpArgument(help, command.newHelpLiteral("join"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("setmessage", "setmessage");
+command.addHelpArgument(help, command.newHelpLiteral("leave"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("setmessage", "setmessage");
+command.addHelpArgument(help, command.newHelpLiteral("death"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("setmessage", "setmessage");
+command.addHelpArgument(help, command.newHelpLiteral("delete"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "setmessage.delete"));
+command.registerHelp(help);
+
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("invite"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("info"));
+command.addHelpArgument(help, command.newHelpInt("id", 1, 500));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("info"));
+command.addHelpArgument(help, command.newHelpString("name", false));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("info"));
+command.addHelpArgument(help, command.newHelpString("tag", false));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("accept"));
+command.addHelpArgument(help, command.newHelpInt("id", 1, 500));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("accept"));
+command.addHelpArgument(help, command.newHelpString("name", false));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("accept"));
+command.addHelpArgument(help, command.newHelpString("tag", false));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("create"));
+command.addHelpArgument(help, command.newHelpString("name", false));
+command.addHelpArgument(help, command.newHelpString("tag", false));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("kick"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("leader"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("mod"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("degrade"));
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("leave"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("rename"));
+command.addHelpArgument(help, command.newHelpString("name", false));
+command.addHelpArgument(help, command.newHelpString("tag", false));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("disband"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("msg"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("mail"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("shout"));
+command.addHelpArgument(help, command.newHelpString("message", true));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("deposit"));
+command.addHelpArgument(help, command.newHelpInt("money", 0, 1000));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("withdraw"));
+command.addHelpArgument(help, command.newHelpInt("money", 0, 1000));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("party"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("setspawn"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("spawn"));
+command.registerHelp(help);
+help = command.newHelp("clan", "clan");
+command.addHelpArgument(help, command.newHelpLiteral("list"));
+command.registerHelp(help);
+
+addGameRuleBoolean("announceAdvancements");
+addGameRuleBoolean("commandBlockOutput");
+addGameRuleBoolean("disableElytraMovementCheck");
+addGameRuleBoolean("disableRaids");
+addGameRuleBoolean("doDaylightCycle");
+addGameRuleBoolean("doEntityDrops");
+addGameRuleBoolean("doFireTick");
+addGameRuleBoolean("doInsomnia");
+addGameRuleBoolean("doImmediateRespawn");
+addGameRuleBoolean("doLimitedCrafting");
+addGameRuleBoolean("doMobLoot");
+addGameRuleBoolean("doMobSpawning");
+addGameRuleBoolean("doPatrolSpawning");
+addGameRuleBoolean("doTileDrops");
+addGameRuleBoolean("doTraderSpawning");
+addGameRuleBoolean("doWeatherCycle");
+addGameRuleBoolean("drowningDamage");
+addGameRuleBoolean("fallDamage");
+addGameRuleBoolean("fireDamage");
+addGameRuleBoolean("forgiveDeadPlayers");
+addGameRuleBoolean("freezeDamage");
+addGameRuleBoolean("keepInventory");
+addGameRuleBoolean("logAdminCommands");
+addGameRuleBoolean("mobGriefing");
+addGameRuleBoolean("reducedDebugInfo");
+addGameRuleBoolean("respawnBlocksExplode");
+addGameRuleBoolean("sendCommandFeedback");
+addGameRuleBoolean("showDeathMessages");
+addGameRuleBoolean("spawnRadius");
+addGameRuleBoolean("spectatorsGenerateChunks");
+addGameRuleBoolean("universalAnger");
+addGameRuleInt("maxCommandChainLength", 0, 100000);
+addGameRuleInt("maxEntityCramming", 0, 100);
+addGameRuleInt("playersSleepingPercentage", 0, 100);
+addGameRuleInt("randomTickSpeed", 0, 4096);
+
+command.sendHelpWorkaround();
+
+function addPotionHelp(potion_name) {
+	help = command.newHelp("potion", "potion");
+	command.addHelpArgument(help, command.newHelpLiteral(potion_name));
+	command.addHelpArgument(help, command.newHelpInt("duration", 0, 10000));
+	command.addHelpArgument(help, command.newHelpInt("power", 0, 50));
+	command.registerHelp(help);
+}
+	
+function addGameRuleBoolean(gamerule) {
+	help = command.newHelp("gamerule", "gamerule");
+	command.addHelpArgument(help, command.newHelpLiteral(gamerule));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+}
+
+function addGameRuleInt(gamerule, from, to) {
+	help = command.newHelp("gamerule", "gamerule");
+	command.addHelpArgument(help, command.newHelpLiteral(gamerule));
+	command.addHelpArgument(help, command.newHelpInt("value", from, to));
+	command.registerHelp(help);
+}
+
+function commandhelp.add(command) {
+	help = command.newHelp(command, command);
+	command.registerHelp(help);
+}
+
+function commandhelp.addChildString(command, arg0, bool) {
+	help = command.newHelp(command, command);
+	command.addHelpArgument(help, command.newHelpString(arg0, bool));
+	command.registerHelp(help);
+}
+
+function commandhelp.addChildPlayer(command) {
+	help = command.newHelp(command, command);
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.registerHelp(help);
+}
+
+function commandhelp.addChildLiteral(command, literal) {
+	help = command.newHelp(command, command);
+	command.addHelpArgument(help, command.newHelpLiteral(literal));
+	command.registerHelp(help);
+}
+
+function commandhelp.addChildBool(command, arg0) {
+	help = command.newHelp(command, command);
+	command.addHelpArgument(help, command.newHelpBool(arg0));
+	command.registerHelp(help);
+}
+
+function addScriptHelp(command) {
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("start"));
+	command.addHelpArgument(help, command.newHelpString("scrips...", true));
+	command.registerHelp(help);
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("s"));
+	command.addHelpArgument(help, command.newHelpString("scrips...", true));
+	command.registerHelp(help);
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("see"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("term"));
+	command.addHelpArgument(help, command.newHelpLiteral("all"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("term"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 1000000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("t"));
+	command.addHelpArgument(help, command.newHelpLiteral("all"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "script");
+	command.addHelpArgument(help, command.newHelpLiteral("t"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 1000000));
+	command.registerHelp(help);
+}
+
+function addHomeHelp(command) {
+	help = command.newHelp(command, "home");
+	command.addHelpArgument(help, command.newHelpLiteral("set"));
+	command.addHelpArgument(help, command.newHelpString("name", false));
+	command.registerHelp(help);
+	help = command.newHelp(command, "home");
+	command.addHelpArgument(help, command.newHelpLiteral("delete"));
+	command.addHelpArgument(help, command.newHelpString("name", false));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "home.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "home");
+	command.addHelpArgument(help, command.newHelpLiteral("list"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "home.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "home");
+	command.addHelpArgument(help, command.newHelpLiteral("name"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "home.other"));
+	command.registerHelp(help);
+}
+
+function addStatsGameHelp(game) {
+	help = command.newHelp("stats", "stats");
+	command.addHelpArgument(help, command.newHelpLiteral(game));
+	command.addHelpArgument(help, command.newHelpLiteral("top"));
+	command.registerHelp(help);
+	help = command.newHelp("stats", "stats");
+	command.addHelpArgument(help, command.newHelpLiteral(game));
+	command.addHelpArgument(help, command.newHelpInt("rank", 1, 1000));
+	command.registerHelp(help);
+	help = command.newHelp("stats", "stats");
+	command.addHelpArgument(help, command.newHelpLiteral(game));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpLiteral("remove", "stats.remove"));
+	command.registerHelp(help);
+}
+
+function addAsHelp(command) {
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("name"));
+	command.addHelpArgument(help, command.newHelpString("name", true));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("visible"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("arms"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("small"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("baseplate"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("move"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("tick"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral("setpose"));
+	command.addHelpArgument(help, command.newHelpLiteral("head"));
+	command.addHelpArgument(help, command.newHelpInt("x", -360, 360));
+	command.addHelpArgument(help, command.newHelpInt("y", -360, 360));
+	command.addHelpArgument(help, command.newHelpInt("z", -360, 360));
+	command.registerHelp(help);
+	
+	addAsBodypartHelp(command, "setpose", "head");
+	addAsBodypartHelp(command, "setpose", "body");
+	addAsBodypartHelp(command, "setpose", "leftarm");
+	addAsBodypartHelp(command, "setpose", "rightarm");
+	addAsBodypartHelp(command, "setpose", "leftleg");
+	addAsBodypartHelp(command, "setpose", "rightleg");
+	addAsBodypartHelp(command, "addpose", "head");
+	addAsBodypartHelp(command, "addpose", "body");
+	addAsBodypartHelp(command, "addpose", "leftarm");
+	addAsBodypartHelp(command, "addpose", "rightarm");
+	addAsBodypartHelp(command, "addpose", "leftleg");
+	addAsBodypartHelp(command, "addpose", "rightleg");
+}
+
+function addAsBodypartHelp(command, subcommand, bodypart) {
+	help = command.newHelp(command, "armorstand");
+	command.addHelpArgument(help, command.newHelpLiteral(subcommand));
+	command.addHelpArgument(help, command.newHelpLiteral(bodypart));
+	command.addHelpArgument(help, command.newHelpInt("x", -360, 360));
+	command.addHelpArgument(help, command.newHelpInt("y", -360, 360));
+	command.addHelpArgument(help, command.newHelpInt("z", -360, 360));
+	command.registerHelp(help);
+}
+
+function addPlotHelp(command) {
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("info"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("i"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("pos1"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("pos2"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("pos2"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("create"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("create3D"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("remove"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("name"));
+	command.addHelpArgument(help, command.newHelpString("name", true));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("name"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.addHelpArgument(help, command.newHelpString("name", true));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("share"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("kick"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("raise"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("leader"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("mod"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("chest"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpInt("id", 0, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("sell"));
+	command.addHelpArgument(help, command.newHelpInt("price", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("moreinfo", "plot.moreinfo"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("list"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "plot.moreinfo"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("listall"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("plot"));
+	command.addHelpArgument(help, command.newHelpInt("int", 1, 1000));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("expand"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("north"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("expand"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("east"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("expand"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("south"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("expand"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("west"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("move"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("north"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("move"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("east"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("move"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("south"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+	help = command.newHelp(command, "plot");
+	command.addHelpArgument(help, command.newHelpLiteral("move"));
+	command.addHelpArgument(help, command.newHelpInt("value", 1, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral("west"));
+	command.addHelpArgument(help, command.newHelpInt("id", 1, 10000));
+	command.registerHelp(help);
+}
+
+function addGmHelp(command) {
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("adventure"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("creative"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("spectator"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("survival"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("a"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("c"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("w"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpLiteral("s"));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+	help = command.newHelp(command, "gamemode");
+	command.addHelpArgument(help, command.newHelpInt("0-3", 0, 3));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "gamemode.other"));
+	command.registerHelp(help);
+}
+
+function addDtHelp(command) {
+	//datatools item-flag <name>
+	item_flags = getItemFlags();
+	iter = iterator(item_flags);
+	while(hasNext(iter)) {
+		addDtFlagHelp(command, next(iter));
+	}
+	
+	//datatools item-attribute <attribute> <slot> <double> <op>
+	addDtAttributeHelp(command, "GENERIC_ARMOR");
+	addDtAttributeHelp(command, "GENERIC_ARMOR_TOUGHNESS");
+	addDtAttributeHelp(command, "GENERIC_ATTACK_DAMAGE");
+	addDtAttributeHelp(command, "GENERIC_ATTACK_KNOCKBACK");
+	addDtAttributeHelp(command, "GENERIC_ATTACK_SPEED");
+	addDtAttributeHelp(command, "GENERIC_FLYING_SPEED");
+	addDtAttributeHelp(command, "GENERIC_FOLLOW_RANGE");
+	addDtAttributeHelp(command, "GENERIC_KNOCKBACK_RESISTANCE");
+	addDtAttributeHelp(command, "GENERIC_LUCK");
+	addDtAttributeHelp(command, "GENERIC_MAX_HEALTH");
+	addDtAttributeHelp(command, "GENERIC_MOVEMENT_SPEED");
+	addDtAttributeHelp(command, "HORSE_JUMP_STRENGTH");
+	addDtAttributeHelp(command, "ZOMBIE_SPAWN_REINFORCEMENTS");
+
+	//datatools entity-hide
+	commandhelp.addChildLiteral(command, "entity-hide");
+	//datatools entity-show
+	commandhelp.addChildLiteral(command, "entity-show");
+	//datatools frame-hide
+	commandhelp.addChildLiteral(command, "frame-hide");
+	//datatools frame-show
+	commandhelp.addChildLiteral(command, "frame-show");
+	
+	//datatools entity-name <name>
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("entity-name"));
+	command.addHelpArgument(help, command.newHelpString("name", true));
+	command.registerHelp(help);
+	//datatools name-visibility <name>
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("name-visibility"));
+	command.addHelpArgument(help, command.newHelpBool("boolean"));
+	command.registerHelp(help);
+	//datatools item-name <name>
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("item-name"));
+	command.addHelpArgument(help, command.newHelpString("name", true));
+	command.registerHelp(help);
+	//datatools entity-print
+	commandhelp.addChildLiteral(command, "entity-print");
+	//datatools item-lore <line> <lore>
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("item-lore"));
+	command.addHelpArgument(help, command.newHelpString("lore", true));
+	command.registerHelp(help);
+}
+
+function addDtFlagHelp(command, flag) {
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("item-flag"));
+	command.addHelpArgument(help, command.newHelpLiteral(flag));
+	command.registerHelp(help);
+}
+
+function addDtAttributeHelp(command, attribute) {
+	addDtAttributeAttributHelp(command, "HAND", attribute, "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, "HAND", attribute, "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, "HAND", attribute, "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, "OFF_HAND", attribute, "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, "OFF_HAND", attribute, "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, "OFF_HAND", attribute, "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, "HEAD", attribute, "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, "HEAD", attribute, "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, "HEAD", attribute, "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, "CHEST", attribute, "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, "CHEST", attribute, "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, "CHEST", attribute, "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, "LEGS", attribute, "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, "LEGS", attribute, "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, "LEGS", attribute, "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, "FEET", attribute, "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, "FEET", attribute, "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, "FEET", attribute, "MULTIPLY_SCALAR_1");
+}
+
+function addDtAttributeAttributHelp(command, attribute, slot, op) {
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("item-attribute"));
+	command.addHelpArgument(help, command.newHelpLiteral(attribute));
+	command.addHelpArgument(help, command.newHelpLiteral(slot));
+	command.addHelpArgument(help, command.newHelpInt("double", 0, 1000));
+	command.addHelpArgument(help, command.newHelpLiteral(op));
+	command.registerHelp(help);
+}
+
+function addPermHelp(command, subcommand, perm) {
+	help = command.newHelp(command, "perm");
+	command.addHelpArgument(help, command.newHelpLiteral(subcommand));
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpLiteral(perm));
+	command.registerHelp(help);
+}
+
+function addLoginrequestsHelp(command, reason) {
+	help = command.newHelp(command, "loginrequests");
+	command.addHelpArgument(help, command.newHelpLiteral("all"));
+	command.addHelpArgument(help, command.newHelpInt("amount", 1, 100));
+	command.addHelpArgument(help, command.newHelpLiteral(reason));
+	command.registerHelp(help);
+	
+	help = command.newHelp(command, "loginrequests");
+	command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
+	command.addHelpArgument(help, command.newHelpInt("amount", 1, 100));
+	command.addHelpArgument(help, command.newHelpLiteral(reason));
+	command.registerHelp(help);
+}
+
+function addSkinHelp(name) {
+	help = command.newHelp("human", "human");
+	command.addHelpArgument(help, command.newHelpLiteral("skin"));
+	command.addHelpArgument(help, command.newHelpLiteral(name));
+	command.registerHelp(help);
+}

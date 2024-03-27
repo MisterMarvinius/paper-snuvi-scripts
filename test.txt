@@ -1,39 +1,4 @@
-p = read.player("marvinius");
-
-command2.unregister("cmdsendworkaround");
-cmd = command2.newHelp("fly", "fly");
-command2.addHelpArgument(cmd, command2.newHelpSpecial("Player", "player"));
-command2.addHelpArgument(cmd, command2.newHelpLiteral("wusi"));
-command2.registerHelp(cmd);
-
-cmd = command2.newHelp("icon", "icon");
-command2.addHelpArgument(cmd, command2.newhelpstring("gusi", false));
-command2.registerHelp(cmd);
-
-cmd = command2.newHelp("tp", "tp");
-command2.addHelpArgument(cmd, command2.newHelpLiteral("wusi"));
-command2.registerHelp(cmd);
-
-cmd = command2.newHelp("allsounds", "allsounds");
-command2.addHelpArgument(cmd, command2.newHelpInt("wusi", 0, 100));
-command2.registerHelp(cmd);
-
-cmd = command2.newHelp("abc", "abc");
-command2.addHelpArgument(cmd, command2.newHelpInt("wusi", 0, 100));
-command2.registerHelp(cmd);
-
-cmd = command2.newHelp("iteminfo", "iteminfo");
-command2.addHelpArgument(cmd, command2.newHelpSpecial("Item", "item"));
-command2.addHelpArgument(cmd, command2.newHelpSpecial("Player", "player"));
-command2.registerHelp(cmd);
-
-cmd = command2.newHelp("iteminfo", "iteminfo");
-command2.addHelpArgument(cmd, command2.newHelpLiteral("gusi"));
-command2.addHelpArgument(cmd, command2.newHelpLiteral("wusi"));
-command2.addHelpArgument(cmd, command2.newHelpLiteral("susi", "susi"));
-command2.addHelpArgument(cmd, command2.newHelpLiteral("kusi"));
-command2.registerHelp(cmd);
-
-
-msg("dev",text.new("wusi"));
-msg("SERVER",text.new("wusi"));
+player = read.player("marvinius");
+player_loc = entity.getLocation(player);
+cit = citizen.spawn(player_loc, "");
+citizen.showNameplate(cit, false);

@@ -8,7 +8,6 @@ event.load("living_death");
 event.load("player_move");
 event.load("block_click");
 event.load("entity_damage");
-event.load("explosion");
 event.load("entity_change_block");
 
 clan.loadData();
@@ -124,7 +123,7 @@ if(event == "player_move") {
 //Wenn Event aus Survival-Welten, dann wird er verarbeitet
 if(event == "living_death") {
 	loc = entity.getLocation(living_entity);
-} elseif(event == "explosion" || event == "entity_damage" || event == "entity_change_block") {
+} elseif(event == "entity_damage" || event == "entity_change_block") {
 	loc = entity.getLocation(entity);
 } else {
 	loc = entity.getLocation(player);
@@ -144,24 +143,6 @@ goto("wait");
 @entity_change_block
 if(entity.getType(entity) == "enderman") {
 	cancel = true;
-}
-goto("wait");
-
-@explosion
-plot_list = plot.get(loc);
-plot_amount = list.getSize(plot_list);
-for(i = 0; i < plot_amount; i++) {
-	plot = list.getIndex(plot_list, i);
-	if(plot.isExplosive(plot)) {
-		cancel = false;
-	} else {
-		cancel = true;
-		break;
-	}
-}
-//Kein Grundstück existiert
-if(plot_amount == 0) {
-	cancel = false;
 }
 goto("wait");
 
@@ -336,24 +317,24 @@ if(string_name == "Mareen") {
 	}
 	goto("wait");
 }
-goto("wait");
-if(entity_name == "Info-Point") {
-	msg(player, string.getSpacer());
+if(string_name == "Info-Point") {
+	msg.string(player, string.getSpacer());
 	msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
+	//msg(player, string.getClickText("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
 	msg(player, string.getClickText("§r [§cclick§r] [§ePlots§r]", "/infopoint3"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eClans§r]", "/infopoint4"));
+	//msg(player, string.getClickText("§r [§cclick§r] [§eClans§r]", "/infopoint4"));
 	msg(player, string.getClickText("§r [§cclick§r] [§eCities§r]", "/infopoint5"));
 	msg(player, string.getClickText("§r [§cclick§r] [§eShops§r]", "/infopoint6"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), " ", string.getClickText("§f[§bTeleport§f]", "/games"));
+	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), text.new(" "), string.getClickText("§f[§bTeleport§f]", "/games")));
 	msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), " ", string.getClickText("§f[§bTeleport§f]", "/creative"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), " ", string.getLinkText("§f[§bRanks§f]", "https://minecraft.hammerle.me/?site=ranks"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eRules§r]", "/infopoint10"), " ", string.getLinkText("§f[§bFake Rules§f]", "https://minecraft.hammerle.me/?site=rules"));
-	msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
+	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), text.new(" "), string.getClickText("§f[§bTeleport§f]", "/creative")));
+	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), text.new(" "), string.getLinkText("§f[§bRanks§f]", "https://minecraft.marvin.lu/?site=ranks")));
+	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eJokes§r]", "/infopoint10"), text.new(" "), string.getLinkText("§f[§bJokes§f]", "https://minecraft.marvin.lu/?site=rules")));
+	//msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
 	goto("wait");
 }
-if(entity_name == "Adventure") {
+goto("wait");
+if(string_name == "Adventure") {
 	if(!player.isOnAdventure(player)) {
 		msg.prefix(player, "§5Adventure", "You aren't on an adventure. Click the chest in the teleporter to start an adventure.");
 		goto("wait");

@@ -9,6 +9,8 @@ birch_mat = material.get("BIRCH_LOG");
 jungle_mat = material.get("JUNGLE_LOG");
 acacia_mat = material.get("ACACIA_LOG");
 dark_oak_mat = material.get("DARK_OAK_LOG");
+cherry_mat = material.get("CHERRY_LOG");
+mangrove_mat = material.get("MANGROVE_LOG");
 vine_mat = material.get("VINE");
 
 horizontal_dist_map = map.new();
@@ -18,6 +20,8 @@ map.add(horizontal_dist_map, birch_mat, 2);
 map.add(horizontal_dist_map, jungle_mat, 8);
 map.add(horizontal_dist_map, acacia_mat, 8);
 map.add(horizontal_dist_map, dark_oak_mat, 5);
+map.add(horizontal_dist_map, cherry_mat, 8);
+map.add(horizontal_dist_map, mangrove_mat, 8);
 
 msg.string("dev", "§bTimber §rloaded.");
 @wait
@@ -86,7 +90,7 @@ function block.isTree(break_loc) {
 		return false;
 	}
 	else{
-		if($tree_type == "minecraft:acacia_log") {
+		if($tree_type == "minecraft:acacia_log" || $tree_type == "minecraft:mangrove_log") {
 			for(i = 0; i < 5; i++) {
 				if(block.isLeaves(mod_block) && !block.isPersistent(mod_block)) {
 					return true;

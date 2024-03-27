@@ -1,6 +1,6 @@
 whitelist.enable();
-whitelist.add("e41b5335-3c74-46e9-a6c5-dafc6334a477");
-whitelist.add("51e240f9-ab10-4ea6-8a5d-779319f51257");
+whitelist.add("e41b5335-3c74-46e9-a6c5-dafc6334a477"); //marvinius
+whitelist.add("6cc9f8c7-9dfd-44f4-a3f2-af30054411a8"); //SirTerence7
 
 debug.setConsolePrint(false);
 
@@ -25,6 +25,9 @@ script.startNamed("Perms", "utils/u_error", "system/perms", "utils/u_general");
 script.startNamed("Playerdata", "utils/u_error", "system/player_data", "utils/u_general");
 script.startNamed("Chat", "utils/u_error", "system/chat", "utils/u_general");
 script.startNamed("Commands", "startcommands");
+if(players.getAmount() == 0) {
+	script.startNamed("Commandhelp", "system/cmdhelp", "utils/u_general");
+}
 script.startNamed("Creative", "utils/u_error", "system/creative", "utils/u_general");
 script.startNamed("Copyisland", "system/copyisland", "utils/u_general");
 script.startNamed("Damage", "utils/u_error", "system/damage", "utils/u_general");
@@ -40,6 +43,7 @@ script.startNamed("Market", "utils/u_error", "system/market", "utils/u_general")
 script.startNamed("ChestShops", "utils/u_error", "system/chestshops", "utils/u_general");
 script.startNamed("Humans", "utils/u_error", "system/humans", "utils/u_general");
 script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general", "utils/u_skills");
+script.startNamed("Plots", "utils/u_error", "system/plots", "utils/u_general");
 script.startNamed("Teleporter", "utils/u_error", "survival/teleporter", "utils/u_general");
 script.startNamed("Skills", "utils/u_error", "survival/skills", "utils/u_general", "utils/u_skills", "utils/u_quest");
 script.startNamed("Gamecenter", "utils/u_error", "minigames/gamecenter", "utils/u_general", "utils/u_games");
@@ -59,12 +63,8 @@ script.startNamed("TicTacToe", "utils/u_error", "minigames/tictactoe/tictactoe",
 script.startNamed("TipLoop", "utils/u_error", "system/tiploop", "utils/u_general");
 script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
 
-//whitelist.disable();
-//setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cMentorMentos §7- §bCommunity Server");
-//setMOTD("§d§k# §eMundus Crassus §d§k# §f-  [§d1.18.2§f]\n§cNew: §a§lCHALLENGES");
-setMOTD("§eMundus Crassus §f- [§d1.20.4§f]\n§cPrivate");
-
-command2.unregister("icanhasbukkit");
+whitelist.disable();
+setMOTD("§eMundus Crassus §f- [§d1.20.4§f]\n§cSURVIVAL §f| §cMINIGAMES §f| §cCREATIVE");
 
 error.setConsolePrint(false);
 term();

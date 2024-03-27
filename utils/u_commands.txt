@@ -1217,6 +1217,7 @@ function initPlotFlags() {
 	list.add(list, initPlotFlag(calcLeftShift(29), "FREE_FLAG"));
 	list.add(list, initPlotFlag(calcLeftShift(28), "CITY_FLAG"));
 	list.add(list, initPlotFlag(calcLeftShift(27), "EXPLOSION_FLAG"));
+	list.add(list, initPlotFlag(calcLeftShift(26), "DISABLE_SIGNS_FLAG"));
 	list.add(list, initPlotFlag(calcLeftShift(5), "ENTITY_INTERACT_FLAG"));
 	list.add(list, initPlotFlag(calcLeftShift(4), "BLOCK_INTERACT_FLAG"));
 	list.add(list, initPlotFlag(calcLeftShift(3), "HIT_AMBIENT_FLAG"));
@@ -1258,18 +1259,6 @@ function getFlagLists(plot) {
 	a[0] = flags_true;
 	a[1] = flags_false;
 	return a;
-}
-
-function getItemFlags() {
-	list = list.new();
-	list.add(list, "HIDE_ATTRIBUTES");
-	list.add(list, "HIDE_UNBREAKABLE");
-	list.add(list, "HIDE_DESTROYS");
-	list.add(list, "HIDE_PLACED_ON");
-	list.add(list, "HIDE_POTION_EFFECTS");
-	list.add(list, "HIDE_DYE");
-	list.add(list, "HIDE_ENCHANTS");
-	return list;
 }
 
 function getRickRollSounds() {
@@ -1376,41 +1365,4 @@ function getBobbyCarSoundDists() {
 	list.add(bobbyCarSoundDists, 6);
 	list.add(bobbyCarSoundDists, 6);
 	return bobbyCarSoundDists;
-}
-
-function getPotionTypes() {
-	list = list.new();
-	list.add(list, "ABSORPTION");
-	list.add(list, "BAD_OMEN");
-	list.add(list, "BLINDNESS");
-	list.add(list, "CONDUIT_POWER");
-	list.add(list, "CONFUSION");
-	list.add(list, "DAMAGE_RESISTANCE");
-	list.add(list, "DOLPHINS_GRACE");
-	list.add(list, "FAST_DIGGING");
-	list.add(list, "FIRE_RESISTANCE");
-	list.add(list, "GLOWING");
-	list.add(list, "HARM");
-	list.add(list, "HEAL");
-	list.add(list, "HEALTH_BOOST");
-	list.add(list, "HERO_OF_THE_VILLAGE");
-	list.add(list, "HUNGER");
-	list.add(list, "INCREASE_DAMAGE");
-	list.add(list, "INVISIBILITY");
-	list.add(list, "JUMP");
-	list.add(list, "LEVITATION");
-	list.add(list, "LUCK");
-	list.add(list, "NIGHT_VISION");
-	list.add(list, "POISON");
-	list.add(list, "REGENERATION");
-	list.add(list, "SATURATION");
-	list.add(list, "SLOW");
-	list.add(list, "SLOW_DIGGING");
-	list.add(list, "SLOW_FALLING");
-	list.add(list, "SPEED");
-	list.add(list, "UNLUCK");
-	list.add(list, "WATER_BREATHING");
-	list.add(list, "WEAKNESS");
-	list.add(list, "WITHER");
-	return list;
 }

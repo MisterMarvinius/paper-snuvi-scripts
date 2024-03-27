@@ -128,14 +128,16 @@ if(!fixsigns) {
 		block.setMaterial(tempblock, oak_wall_sign);
 		block.setDirectionalFace(tempblock, facing);
 		tempindex = math.random(0 , list.getSize(letters2) - 1);
-		sign.setString(tempblock, 0, list.getIndex(letters2, tempindex));
+		sign.setString(tempblock, "FRONT", 0, list.getIndex(letters2, tempindex));
+		block.signSetWaxed(tempblock, true);
 		list.removeIndex(letters2, tempindex);
 	}
 } elseif(fixsigns) {
 	for(i = 0; i < list.getSize(signcoords); i++) {
 		tempblock = block.get(list.getIndex(signcoords, i));
 		tempindex = math.random(0 , list.getSize(letters2) - 1);
-		sign.setString(tempblock, 0, list.getIndex(letters2, tempindex));
+		sign.setString(tempblock, "FRONT", 0, list.getIndex(letters2, tempindex));
+		block.signSetWaxed(tempblock, true);
 		list.removeIndex(letters2, tempindex);
 	}
 }
@@ -162,7 +164,7 @@ if(block == null) {
 }
 cancel = true;
 if(block.hasTag(block, sign_tag)) {
-	letter = sign.getString(block, 0);
+	letter = sign.getString(block, "FRONT", 0);
 	if(letter == nextletter) {
 		counter++;
 		msg.prefix(player, gamename, string.concat("Progress: ", string.number(counter), "/26"));

@@ -959,7 +959,7 @@ if(event == "entity_damage") {
 		reportBody(attacker, found_player_uuid);
 	}
 	//kill crewmate at cam
-	if(entity.isHuman(entity)) {
+	if(isCitizen(entity)) {
 		item = living.getHand(attacker);
 		if(item != kill_item) {
 			goto("checkgame");
@@ -968,7 +968,7 @@ if(event == "entity_damage") {
 		if(cooldown == null || cooldown == -1) {
 			p_uuid = map.get(cam_map_4, entity);
 			if(p_uuid == null) {
-				entity.remove(entity);
+				citizen.destroy(entity);
 				msg.prefix(attacker, gamename, "Defect entity removed.");
 				goto("checkgame");
 			}
@@ -1244,14 +1244,13 @@ if(set.contains(cams_locs, block_loc)) {
 	player_loc = entity.getLocation(player);
 	map.add(cam_map_2, player_uuid, player_loc);
 	if(!player.isGhost(player)) {
-		ent = human.spawn(player_loc, "");
-		human.setAi(ent, 0);
+		ent = citizen.spawn(player_loc, player.getName(player));
 		map.add(cam_map_3, player_uuid, ent);
 		map.add(cam_map_4, ent, player_uuid);
-		human.setSkinUuid(ent, player_uuid);
+		citizen.setName(ent, "");
+		citizen.showNameplate(ent, false);
 		color = amongus.getPlayerColor(player);
-		amongus.equipHuman(ent, color, player);
-		living.setInvisible(ent, true);
+		amongus.equipCitizen(ent, color, player);
 	}
 	cam.enter(player);
 	goto("checkgame");
@@ -4042,7 +4041,7 @@ function removeCamBodies() {
 	iter = map.iterator($cam_map_3);
 	while(hasNext(iter)) {
 		element = next(iter);
-		entity.remove(map.getValue(element));
+		citizen.destroy(map.getValue(element));
 	}
 }
 
@@ -4916,6 +4915,7 @@ function cam.enter(player) {
 	player.giveItem(player, $prev_cam_item);
 	player.giveItem(player, $next_cam_item);
 	player.giveItem(player, $leave_cam_item);
+	amongus.removeequip(player);
 	if(isImpostor(player)) {
 		cooldown = data.getTimer(player, "Kill Cooldown");
 		map.add($holded_kill_cooldown, player_uuid, cooldown);
@@ -4934,7 +4934,7 @@ function cam.leave(player) {
 	if(ent != null) {
 		map.remove($cam_map_3, ent);
 		map.remove($cam_map_4, ent);
-		entity.remove(ent);
+		citizen.destroy(ent);
 	}
 	entity.teleport(player, map.get($cam_map_2, player_uuid));
 	list.add($gravity_list, player.getUuid(player));
@@ -4947,6 +4947,8 @@ function cam.leave(player) {
 	player.removeItem(player, $leave_cam_item);
 	amongus.manageEffects(player);
 	if(!player.isGhost(player)) {
+		color = amongus.getPlayerColor(player);
+		amongus.equip(player, color);
 		player.showOnline(player);
 	}
 }
@@ -5475,10 +5477,20 @@ function amongus.removeEquip(player) {
 	living.setEquip(player, slot.getFeet(), $air_item);
 }
 
-function amongus.equipHuman(human, color, player) {
+function amongus.equipCitizen(citizen, color, player) {
 	item = player.getHead(player.getUuid(player), player.getName(player));
-	living.setEquip(human, slot.getHead(), item);
-	amongus.equip(human, color);
+	citizen.setEquip(citizen, "HELMET", item);
+	
+	color_code = map.get($cloth_code_map, color);
+	item = read.item(string.concat("{id:\"minecraft:leather_chestplate\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	citizen.setEquip(citizen, "CHESTPLATE", item);
+	item = read.item(string.concat("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	citizen.setEquip(citizen, "LEGGINGS", item);
+	item = read.item(string.concat("{id:\"minecraft:leather_boots\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
+	item.addFlag(item, "HIDE_ATTRIBUTES");
+	citizen.setEquip(citizen, "BOOTS", item);
 }
 
 function amongus.equip(entity, color) {
@@ -5496,6 +5508,13 @@ function amongus.equip(entity, color) {
 	item = read.item(string.concat("{id:\"minecraft:leather_boots\",Count:1b,tag:{Damage:0,display:{color:", color_code, "}}}"));
 	item.addFlag(item, "HIDE_ATTRIBUTES");
 	living.setEquip(entity, slot.getFeet(), item);
+}
+
+function amongus.removeequip(player) {
+	living.setEquip(player, slot.getHead(), air_item);
+	living.setEquip(player, slot.getChest(), air_item);
+	living.setEquip(player, slot.getLegs(), air_item);
+	living.setEquip(player, slot.getFeet(), air_item);
 }
 
 function createVoteInv(player, reporter_uuid) {

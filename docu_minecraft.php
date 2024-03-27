@@ -247,7 +247,7 @@
     <table>
         <tr>
             <th class="command">block_break</th>
-            <th class="desc">a block is broken</th>
+            <th class="desc">a block is broken by a player</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
@@ -257,7 +257,7 @@
     <table>
         <tr>
             <th class="command">block_place</th>
-            <th class="desc">a block is placed</th>
+            <th class="desc">a block is placed by a player</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
@@ -267,11 +267,41 @@
     <table>
         <tr>
             <th class="command">block_click</th>
-            <th class="desc">a block gets clicked</th>
+            <th class="desc">a block gets clicked by a player</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
             <td>player<br>**block<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/event/block/Action.html" target="_blank">action</a> as string<br><a href="https://papermc.io/javadocs/paper/1.20/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">block_burn</th>
+            <th class="desc">a block is burned</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>block<br>block_source<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">block_spread</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.20/org/bukkit/event/block/BlockSpreadEvent.html" target="_blank">Paper API#BlockSpreadEvent</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>block<br>block_source<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">block_fade</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.20/org/bukkit/event/block/BlockFadeEvent.html" target="_blank">Paper API#BlockFadeEvent</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>block<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -631,7 +661,35 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>ban.remove(player_name)</td>
+            <td>ban.remove(player_uuid)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">ban.addIp</th>
+            <th class="desc">bans an IP from the server</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>ban.addIp(ip, reason, banner, [end_date])</td>
+        </tr>
+        <tr>
+            <td class="bold">Arguments</td>
+            <td>
+				reason as string<br>
+				banner as string (the person who bans, write what you want)<br>
+				end_date as calendar object
+			</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">ban.removeIp</th>
+            <th class="desc">unbans an IP from the server</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>ban.removeIp(ip)</td>
         </tr>
     </table>
 	<table>
@@ -723,12 +781,12 @@
     </table>
     <table>
         <tr>
-            <th class="command">block.setSignWaxed</th>
+            <th class="command">block.signSetWaxed</th>
             <th class="desc">wax/unwax a sign</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>block.setSignWaxed(block, boolean)</td>
+            <td>block.signSetWaxed(block, boolean)</td>
         </tr>
     </table>
     <table>
@@ -1190,6 +1248,27 @@
     </table>
 	<table>
         <tr>
+            <th class="command">citizen.despawn</th>
+            <th class="desc">despawns a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.despawn(citizen)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">citizen.destroy</th>
+            <th class="desc">destroys a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.destroy(citizen)</td>
+        </tr>
+    </table>
+	<table>
+	<table>
+        <tr>
             <th class="command">citizen.setSkin</th>
             <th class="desc">sets the skin of a citizen</th>
         </tr>
@@ -1206,6 +1285,26 @@
         <tr>
             <td class="bold">Format</td>
             <td>citizen.setName(citizen, name)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">citizen.showNameplate</th>
+            <th class="desc">sets the nameplate visibility of a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.showNameplate(citizen, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">citizen.setEquip</th>
+            <th class="desc">equips a citizen</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>citizen.setEquip(citizen, <a href="https://jd.citizensnpcs.co/net/citizensnpcs/api/trait/trait/Equipment.EquipmentSlot.html" target="_blank">slot_name</a>, itemstack)</td>
         </tr>
     </table>
 	<table>
@@ -2996,26 +3095,6 @@
     </table>
     <table>
         <tr>
-            <th class="command">command.addIgnored</th>
-            <th class="desc">ignores a (vanilla) command-help</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>command.addIgnored(string)</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">command.clearIgnored</th>
-            <th class="desc">removes all ignored command-helps</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>command.clearIgnored()</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
             <th class="command">command.newHelp</th>
             <th class="desc">returns a help-object</th>
         </tr>
@@ -3027,7 +3106,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpLiteral</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3037,7 +3116,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpBool</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3047,7 +3126,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpDouble</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3057,7 +3136,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpFloat</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3067,7 +3146,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpInt</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3077,7 +3156,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpLong</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3087,7 +3166,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpString</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3101,7 +3180,7 @@
     <table>
         <tr>
             <th class="command">command.newHelpSpecial</th>
-            <th class="desc">returns a help-sub-object</th>
+            <th class="desc">returns a help argument</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -3109,57 +3188,27 @@
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td>type = "Item", "Block", "Potion", "Enchantment", "Player"</td>
+            <td>type = "Item", "Particle", "Potion", "Sound", "Enchantment", "Player"</td>
         </tr>
     </table>
     <table>
         <tr>
-            <th class="command">command.addHelp</th>
+            <th class="command">command.registerHelp</th>
             <th class="desc">registers a command-help</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>command.addHelp(help-object)</td>
+            <td>command.registerHelp(help-object)</td>
         </tr>
     </table>
     <table>
         <tr>
-            <th class="command">command.addHelpChild</th>
-            <th class="desc">help-sub-object2 is added to help-(sub-)object1 as a new argument</th>
+            <th class="command">command.addHelpArgument</th>
+            <th class="desc">adds a help argument to a help</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>command.addHelpChild(help-(sub-)object1, help-sub-object2)</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">command.addHelpAlias</th>
-            <th class="desc">help-object1 refers to help-object2</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>command.addHelpAlias(help-object1, help-object2)</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">command.sendHelp</th>
-            <th class="desc">sends all registered command-helps to all players</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>command.sendHelp([player])</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">command.clearHelp</th>
-            <th class="desc">removes all registered command-helps</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>command.clearHelp()</td>
+            <td>command.addHelpArgument(help, helpArgument)</td>
         </tr>
     </table>
 </section>

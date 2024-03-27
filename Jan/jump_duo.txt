@@ -1,0 +1,45 @@
+event.load("player_jump");
+event.load("entity_click");
+
+entangled_player = list.new();
+
+//mirrored?
+//sneaking cancel?
+//only with item?
+@start
+wait();
+if (event == "entity_click"){
+	list.add(entangled_player, player);
+	list.add(entangled_player, entity);
+	goto("wait");
+}
+goto("start");
+
+@wait
+wait();
+if (event == "entity_click"){
+	goto("wait");
+}
+
+if (!list.contains(entangled_player, player)){
+	if(player.getName(player) == "SirTerence7" || player.getName(player) == "Mareeeen"){
+		list.add(entangled_player, player);
+	}
+	goto("wait");
+}
+sgoto(1,"jump");
+goto("wait");
+
+@jump
+Motion = entity.getMotion(player);
+
+list_iterator = iterator(entangled_player);
+while(hasnext(list_iterator)){
+	pl = next(list_iterator);
+	if (pl == player){
+		continue;
+	}
+	pl_Motion = entity.getMotion(pl);
+	entity.setMotion(pl, Motion[0],Motion[1],Motion[2]);
+}
+goto("wait");

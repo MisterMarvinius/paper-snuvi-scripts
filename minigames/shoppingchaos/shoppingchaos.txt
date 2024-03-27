@@ -452,7 +452,7 @@ if(action != "RIGHT_CLICK_BLOCK") {
 	goto("checkgame");
 }
 if(block.hasTag(block, wall_signs_tag)) {
-	if(sign.getString(block, 0) == "Click here") {
+	if(sign.getString(block, "FRONT", 0) == "Click here") {
 		if(player.getItemAmount(player, emerald) >= 10) {
 			direction = block.getDirectionalFace(block);
 			block.setMaterial(block, air_mat);
@@ -508,7 +508,7 @@ if(map.contains(sales_map, human)) {
 		msg.prefix(player, gamename, "Wrong item in your mainhand.");
 	}
 } else {
-	if(human.getName(human) != "Recipes") {
+	if(string_name != "Recipes") {
 		msg.prefix(player, gamename, "Shop locked.");
 	}
 }
@@ -555,8 +555,10 @@ goto("checkgame");
 if(slot.isOffHand(hand)) {
 	goto("checkgame");
 }
-if(entity.isHuman(entity)) {
-	if(human.getName(entity) == "Recipes") {
+if(isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Recipes") {
 		player_uuid = player.getUuid(player);
 		menu = map.get(recipe_menus, player_uuid);
 		setRecipePage(player, menu, 1);
@@ -734,7 +736,7 @@ function getItem(index) {
 
 function setItemFrames(team, index) {
 	loc = list.getIndex($frame_locs, team);
-	entity.removeAll(item_frame_class, loc, 3.5);
+	entity.removeAll($item_frame_class, loc, 3.5);
 	direction = map.get($frame_directions, team);
 	array = list.getIndex($items_list, index);
 	entity.frame.spawn(loc, direction, array[0]);
@@ -789,15 +791,15 @@ function resetSigns() {
 	for(i = 0; i < list.getSize($sell_frame_locs); i++) {
 		if(counter != 0) { //Erste Locs werden übersprungen. Kein Schild platzieren = Freigeschalteter Shop
 			loc = list.getIndex($sell_frame_locs, i);
-			entity.removeAll(item_frame_class, loc, 1);
+			entity.removeAll($item_frame_class, loc, 1);
 			direction = map.get($sell_frame_directions, team);
 			block = block.get(loc);
 			block.setMaterial(block, oak_wall_sign);
 			block.setDirectionalFace(block, direction);
-			sign.setString(block, 0, "Click here");
-			sign.setString(block, 1, "to unlock for");
-			sign.setString(block, 2, "§a10 §rEmerald");
-			sign.setString(block, 3, ">> >> >>");
+			sign.setString(block, "FRONT", 0, "Click here");
+			sign.setString(block, "FRONT", 1, "to unlock for");
+			sign.setString(block, "FRONT", 2, "§a10 §rEmerald");
+			sign.setString(block, "FRONT", 3, ">> >> >>");
 		}
 		if(++counter == step) {
 			counter = 0;
@@ -809,7 +811,7 @@ function resetSigns() {
 function resetFrames() {
 	for(i = 0; i < list.getSize($frame_locs); i++) {
 		loc = list.getIndex($frame_locs, i);
-		entity.removeAll(item_frame_class, loc, 3.5);
+		entity.removeAll($item_frame_class, loc, 3.5);
 		direction = map.get($frame_directions, i);
 		entity.frame.spawn(loc, direction, $air_item);
 		entity.frame.spawn(loc.mod(loc, 0, -1, 0), direction, $air_item);
@@ -891,7 +893,7 @@ function getAllEntites() {
 		list.add(humans_list, human);
 		//as
 		location = loc.mod(location, 0, 2.05, 0);
-		as = entity.get(location, 1, armor_stand_class);
+		as = entity.get(location, 1, $armor_stand_class);
 		map.add($as_map, human, as);
 	}
 	return humans_list;

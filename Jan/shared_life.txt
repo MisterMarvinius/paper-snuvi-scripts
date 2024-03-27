@@ -1,0 +1,75 @@
+event.load("entity_damage");
+event.load("entity_heal");
+event.load("entity_click");
+
+shared_links_map = map.new();
+shared_link_max = 0;
+
+cust_damage_source = damage.get("generic");
+
+@wait
+wait();
+
+if (!isPlayer(entity)){
+//	goto("wait");
+}
+if (event == "entity_click"){
+	if(map.contains(shared_links_map, player)){
+		if(!map.contains(shared_links_map, entity)){
+			shared_link = map.get(shared_links_map, player);
+			map.add(shared_links_map, entity, shared_link);
+		}
+	}
+	elseif(map.contains(shared_links_map, entity)){
+		if(!map.contains(shared_links_map, player)){
+			shared_link = map.get(shared_links_map, entity);
+			map.add(shared_links_map, player, shared_link);
+		}
+	}
+	else{
+		map.add(shared_links_map, player, shared_link_max);
+		map.add(shared_links_map, entity, shared_link_max);
+		shared_link_max++;
+	}
+	goto("wait");
+}
+if (cause == "CUSTOM"){
+	goto("wait");
+}
+player = entity;
+if (!map.contains(shared_links_map, player)){
+	goto("wait");
+}
+goto(event);
+goto("wait");
+
+//player.getHunger
+//player.setHunger
+//player.getSaturation
+//player.setSaturation
+
+@entity_damage
+ori_link = map.get(shared_links_map, player);
+list_iterator = map.iterator(shared_links_map);
+while(hasnext(list_iterator)){
+	it = next(list_iterator);
+	shared_player = map.getKey(it);
+	link = map.getValue(it);
+	if (ori_link == link && shared_player != player){
+		living.damage(shared_player, damage, cust_damage_source);
+	}
+}
+goto("wait");
+
+@entity_heal
+ori_link = map.get(shared_links_map, player);
+list_iterator = map.iterator(shared_links_map);
+while(hasnext(list_iterator)){
+	it = next(list_iterator);
+	shared_player = map.getKey(it);
+	link = map.getValue(it);
+	if (ori_link == link && shared_player != player){
+		living.heal(shared_player, heal);
+	}
+}
+goto("wait");

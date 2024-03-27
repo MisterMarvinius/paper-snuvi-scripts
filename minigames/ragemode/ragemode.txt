@@ -298,7 +298,7 @@ if(item != null) {
 		if(map.get(emeralds, player_name) >= 15) {
 			living.addEffect(player, "SPEED", 1200, 4);
 			map.add(emeralds, player_name, map.get(emeralds, player_name) - 15);
-			sb.add(player, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, player_name)));
+			sb.add(player, emeraldid, string.concat("Emeralds: §a", string.number(map.get(emeralds, player_name))));
 			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Speed."));
 			inv.close(player);
 		}
@@ -312,7 +312,7 @@ if(item != null) {
 			no_emerald = true;
 			attacker = player;
 			attacker_name = player_name;
-			sb.add(player, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, player_name)));
+			sb.add(player, emeraldid, string.concat("Emeralds: §a", string.number(map.get(emeralds, player_name))));
 			for(i = 0; i < list.getSize(player_list); i++) {
 				defender = player.get(list.getIndex(player_list, i));
 				defender_name = player.getName(defender);
@@ -337,7 +337,7 @@ if(item != null) {
 				living.addEffect(p, "GLOWING", 200, 0);
 			}
 			map.add(emeralds, player_name, map.get(emeralds, player_name) - 4);
-			sb.add(player, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, player_name)));
+			sb.add(player, emeraldid, string.concat("Emeralds: §a", string.number(map.get(emeralds, player_name))));
 			minigame.speakAll(gamename, string.concat("§8", player_name, "§e used Glowing."));
 			inv.close(player);
 		}
@@ -377,13 +377,13 @@ emeraldid = 97 - list.getSize(player_list);
 if(!no_emerald) {
 	msg.prefix(attacker, gamename, "§e+§r1 §aEmerald");
 	map.add(emeralds, attacker_name, map.get(emeralds, attacker_name) + 1);
-	sb.add(attacker, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, attacker_name)));
+	sb.add(attacker, emeraldid, string.concat("Emeralds: §a", string.number(map.get(emeralds, attacker_name))));
 }
 if(defender_name == map.get(nemesis, attacker_name)) {
 	msg.prefix(attacker, gamename, "§eYou killed your §cNemesis enemy.");
 	msg.prefix(attacker, gamename, "§e+§r1 §aEmerald");
 	map.add(emeralds, attacker_name, map.get(emeralds, attacker_name) + 1);
-	sb.add(attacker, emeraldid, "Emeralds: §a", string.number(map.get(emeralds, attacker_name)));
+	sb.add(attacker, emeraldid, string.concat("Emeralds: §a", string.number(map.get(emeralds, attacker_name))));
 }
 sb.add(attacker, --emeraldid, sb.getSpacer());
 map.add(deaths, defender_name, map.get(deaths, defender_name) + 1);
