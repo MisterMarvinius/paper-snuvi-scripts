@@ -776,7 +776,7 @@ goto("checkgame");
 
 @living_death
 map.add(deaths, player_name, map.get(deaths, player_name) + 1);
-list.clear(drops);
+player.clearInventory(player);
 tempmap = map.get(lastdamagers, player);
 if(tempmap != null) {
 	nowtime = time.getMillis();
