@@ -29,7 +29,7 @@ ranking.add("§9", "Spleef", "spleef", "spleefranks", "Wins", "DESC", null);
 ranking.add("§c", "Knockfight", "knock", "knockranks", "All Kills", "DESC", null);
 ranking.add("§9", "Leapfrog", "lf", "leapfrogranks", "Points Record", "DESC", null);
 ranking.add("§6", "Parcour", null, "parcourranks1", "Time", "ASC", null);
-ranking.add("§e", "Halma", "halma", "halmaranks", "Wins", "DESC", null);
+ranking.add("§e", "ChineseCheckers", "halma", "halmaranks", "Wins", "DESC", null);
 ranking.add("§e", "ShoppingChaos", "sc", "shoppingranks", "Max Items", "DESC", null);
 ranking.add("§e", "MengerRun", "mr", "mrranks", "Wins", "DESC", null);
 ranking.add("§c", "AmongUs", "among_us", "among_us_ranks", "Time", "ASC", null);
@@ -37,6 +37,7 @@ ranking.add("§2", "Snake", "snake", "snakeranks", "Size Record", "DESC", null);
 ranking.add("§c", "DontGetAngry", "dga", "dgaranks", "Finished tokens", "DESC", null);
 ranking.add("§3", "CaptureTheFlag", "ctf", "ctfranks", "Wins", "DESC", null);
 ranking.add("§b", "Cores", "cores", "coresranks", "Broken cores", "DESC", null);
+ranking.add("§e", "Checkers", "checkers", "dameranks", "Wins", "DESC", null);
 
 ranking.register("invertranks5x5");
 ranking.register("invertranks7x7");

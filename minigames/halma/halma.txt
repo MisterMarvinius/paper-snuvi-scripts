@@ -1,10 +1,10 @@
 rankingtable = "halmaranks";
 game_short = "halma";
-game_tab = "§eHalma";
+game_tab = "§eCHINESE CHECKERS";
+gamename = "§eChinese Checkers";
 
 teams = map.new();
 pointed_block = block.get(loc.new(gamesworld, 0, 0, 0)); //Default-Wert, um Error zu verhindern
-gamename = "§eHalma";
 minigame.setSpecificLobbyHandling(true);
 minigame.setPlayerResetInCore(false);
 

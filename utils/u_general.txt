@@ -29,17 +29,11 @@ function perm.no(perm, player) {
 }
 
 function checkIfEverOnline(player_name) {
-	if(player.getUuid(player_name) == null) {
-		return false;
-	}
-	return true;
+	return player.getUuid(player_name) != null;
 }
 
 function isOnline(player_name) {
-	if(read.player(player_name) == null) {
-		return false;
-	}
-	return true;
+	return read.player(player_name) != null;
 }
 
 function list.copy(list) {
@@ -2592,6 +2586,11 @@ function block.gotWater(block) {
 	return false;
 }
 
+function block.clearInventory(block) {
+	inv = block.getInventory(block);
+	inv.clear(inv);
+}
+
 //--------------------------------------------------
 //Money-Utils
 //--------------------------------------------------
@@ -3778,6 +3777,20 @@ function friend.getList(player_id) {
 	databank.close(result);
 	databank.close(stmt);
 	return list;
+}
+
+function friend.getListOnline(player_id) {
+	friends = friend.getList(player_id);
+	l = list.new();
+	iter = iterator(friends);
+	while(hasNext(iter)) {
+		f_id = next(iter);
+		f_name = player.getNameFromId(f_id);
+		if(isOnline(f_name)) {
+			list.add(l, f_name);
+		}
+	}
+	return l;
 }
 
 //--------------------------------------------------

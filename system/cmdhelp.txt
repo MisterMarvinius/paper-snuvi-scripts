@@ -6,6 +6,7 @@ commandhelp.add("brush");
 command.unregister("icanhasbukkit");
 command.unregister("time");
 command.unregister("tp");
+command.unregister("msg");
 command.unregister("help");
 command.unregister("ban");
 command.unregister("kick");
@@ -82,6 +83,7 @@ commandhelp.addChildLiteral("start", "humans");
 commandhelp.addChildLiteral("start", "lectern");
 commandhelp.addChildLiteral("start", "loom");
 commandhelp.addChildLiteral("start", "games");
+commandhelp.addChildLiteral("start", "minigames");
 commandhelp.addChildLiteral("start", "mails");
 commandhelp.addChildLiteral("start", "market");
 commandhelp.addChildLiteral("start", "mobarena");
@@ -209,6 +211,10 @@ help = command.newHelp("games", "games");
 command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "tp.other"));
 command.registerHelp(help);
 
+help = command.newHelp("minigames", "minigames");
+command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "tp.other"));
+command.registerHelp(help);
+
 help = command.newHelp("creative", "creative");
 command.addHelpArgument(help, command.newHelpSpecial("Player", "player", "tp.other"));
 command.registerHelp(help);
@@ -256,7 +262,8 @@ addStatsGameHelp("Spleef");
 addStatsGameHelp("Knockfight");
 addStatsGameHelp("Leapfrog");
 addStatsGameHelp("Parcour");
-addStatsGameHelp("Halma");
+addStatsGameHelp("ChineseCheckers");
+addStatsGameHelp("Checkers");
 addStatsGameHelp("ShoppingChaos");
 addStatsGameHelp("MengerRun");
 addStatsGameHelp("Snake");
@@ -452,31 +459,45 @@ help = command.newHelp("lastseen", "lastseen");
 command.addHelpArgument(help, command.newHelpInt("amount", 1, 100));
 command.registerHelp(help);
 
-addSkinHelp("alena");
-addSkinHelp("anna");
-addSkinHelp("baker");
-addSkinHelp("banker");
-addSkinHelp("butcher");
-addSkinHelp("casino");
-addSkinHelp("dark_mage");
-addSkinHelp("diver");
-addSkinHelp("farmer");
-addSkinHelp("fisher");
-addSkinHelp("girl");
-addSkinHelp("librarian");
-addSkinHelp("lumberjack");
-addSkinHelp("mage");
-addSkinHelp("mage_assistant");
-addSkinHelp("mage_guard");
-addSkinHelp("mason");
-addSkinHelp("miner");
-addSkinHelp("notch");
-addSkinHelp("oldman1");
-addSkinHelp("oldman2");
-addSkinHelp("oldman3");
-addSkinHelp("priest");
-addSkinHelp("santa_marv");
-addSkinHelp("smith");
+addHumanSkinHelp("alena");
+addHumanSkinHelp("anna");
+addHumanSkinHelp("baker");
+addHumanSkinHelp("banker");
+addHumanSkinHelp("butcher");
+addHumanSkinHelp("casino");
+addHumanSkinHelp("dark_mage");
+addHumanSkinHelp("diver");
+addHumanSkinHelp("eropster");
+addHumanSkinHelp("farmer");
+addHumanSkinHelp("fisher");
+addHumanSkinHelp("girl");
+addHumanSkinHelp("kajetanjohannes");
+addHumanSkinHelp("librarian");
+addHumanSkinHelp("lumberjack");
+addHumanSkinHelp("mage");
+addHumanSkinHelp("mage_assistant");
+addHumanSkinHelp("mage_guard");
+addHumanSkinHelp("mareeeen");
+addHumanSkinHelp("marvinius");
+addHumanSkinHelp("mason");
+addHumanSkinHelp("mentormentos");
+addHumanSkinHelp("miner");
+addHumanSkinHelp("miner2");
+addHumanSkinHelp("notch");
+addHumanSkinHelp("oldman1");
+addHumanSkinHelp("oldman2");
+addHumanSkinHelp("oldman3");
+addHumanSkinHelp("priest");
+addHumanSkinHelp("santa_marv");
+addHumanSkinHelp("sirterence7");
+addHumanSkinHelp("smith");
+
+addHumanEquipHelp("HAND");
+addHumanEquipHelp("CHESTPLATE");
+addHumanEquipHelp("BOOTS");
+addHumanEquipHelp("HELMET");
+addHumanEquipHelp("LEGGINGS");
+addHumanEquipHelp("OFF_HAND");
 
 help = command.newHelp("mail", "mail");
 command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
@@ -1462,9 +1483,17 @@ function addLoginrequestsHelp(command, reason) {
 	command.registerHelp(help);
 }
 
-function addSkinHelp(name) {
+function addHumanSkinHelp(name) {
 	help = command.newHelp("human", "human");
 	command.addHelpArgument(help, command.newHelpLiteral("skin"));
 	command.addHelpArgument(help, command.newHelpLiteral(name));
+	command.registerHelp(help);
+}
+
+function addHumanEquipHelp(name) {
+	help = command.newHelp("human", "human");
+	command.addHelpArgument(help, command.newHelpLiteral("equip"));
+	command.addHelpArgument(help, command.newHelpLiteral(name));
+	command.addHelpArgument(help, command.newHelpSpecial("Item", "item"));
 	command.registerHelp(help);
 }

@@ -1,4 +1,0 @@
-player = read.player("marvinius");
-player_loc = entity.getLocation(player);
-cit = citizen.spawn(player_loc, "");
-citizen.showNameplate(cit, false);

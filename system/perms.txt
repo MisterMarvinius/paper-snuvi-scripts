@@ -116,6 +116,8 @@ perm.addToGroup(1, "minecraft.command.op");
 perm.addToGroup(1, "minecraft.command.worldborder");
 perm.addToGroup(1, "test");
 perm.addToGroup(1, "stop");
+perm.addToGroup(1, "missing.dynmap");
+perm.addToGroup(1, "dynmap.*");
 
 perm.addToGroup(2, "isAdmin");
 perm.addToGroup(2, "butcher");

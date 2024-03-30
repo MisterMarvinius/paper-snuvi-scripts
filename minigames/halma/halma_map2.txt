@@ -1,5 +1,5 @@
 gamesignloc = minigame.getSignLoc("halmasign2");
-mapname = "Sternenhalma";
+mapname = "Small Star";
 maxplayers = 3;
 minplayers = 2;
 

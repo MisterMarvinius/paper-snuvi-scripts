@@ -3,15 +3,14 @@ event.load("quest_term");
 event.load("block_click");
 event.load("entity_click");
 
-world = world.get("story");
-arrow_chest_loc = loc.new(world, -1659, 76, 50);
-treasure_chest_loc = loc.new(world, -1662, 75, 46);
-mob_loc_1 = loc.new(world, -1666.5, 76, 53.5);
-mob_loc_2 = loc.new(world, -1661.5, 74, 48.5);
+world = world.getOverworld();
+treasure_chest_loc = loc.new(world, 96, 66, -54);
+mob_loc_1 = loc.new(world, 99, 65, -38);
+mob_loc_2 = loc.new(world, 100, 66, -49);
 
 stage = 0;
 all_stages = 2;
-quest_name = "Schatz von Admont";
+quest_name = "Treasure of Admont";
 
 @wait
 wait();
@@ -24,55 +23,40 @@ if(event == "quest_term") {
 }
 if(event == "quest_start") {
 	quest.display(player, quest_name, stage, all_stages);
-	msg.prefix(player, "§dHerbert", "Hier in Admont ist seit langem ein Schatz versteckt. Niemand hat ihn je gesehen...");
-	scheduler.msgPrefix(30, player, "§dHerbert", "Ich versuche es schon seit Ewigkeiten.");
-	scheduler.msgPrefix(60, player, "§dHerbert", "Schau doch mal auf die Karte. Vielleicht hast du ja mehr Erfolg.");
-	player.giveSingleItem(player, read.item("minecraft:iron_sword"), false);
-	entity.spawn("zombie", mob_loc_1);
-	entity.spawn("skeleton", mob_loc_1);
-	entity.spawn("zombie", mob_loc_2);
-	entity.spawn("skeleton", mob_loc_2);
-	block.addItem(arrow_chest_loc, read.item("minecraft:arrow", 64));
+	msg.prefix(player, "§dMiner", "In Admont there is a hidden treasure. Nobody has ever seen it...");
+	scheduler.msgPrefix(30, player, "§dMiner", "I have tried it to find it since years.");
+	scheduler.msgPrefix(60, player, "§dMiner", "Alena told me she had found a strange hole hidden in the tavern behind a door.");
+	scheduler.msgPrefix(90, player, "§dMiner", "Maybe you have more success than me.");
+	entity.spawn(mob_loc_1, "ZOMBIE");
+	entity.spawn(mob_loc_1, "SKELETON");
+	entity.spawn(mob_loc_2, "ZOMBIE");
+	entity.spawn(mob_loc_2, "SKELETON");
 	goto("wait");
 }
-label = concat("stage", text.number(stage));
+label = string.concat("stage", string.number(stage));
 goto(label);
 
 @stage0
 if(event == "block_click") {
+	block_loc = block.getLocation(block);
 	if(block_loc == treasure_chest_loc) {
 		stage.increase(player);
-		msg.prefix(player, "§dHerbert", "Gut gemacht! Jetzt komm zu mir zurück.");
-		block.addItem(treasure_chest_loc, read.item("minecraft:gold_ingot", 8));
-		block.addItem(treasure_chest_loc, read.item("minecraft:diamond"));
+		msg.prefix(player, "§dMiner", "Well done! Now come back to me.");
+		inv = block.getInventory(block);
+		inv.addItem(inv, item.create("GOLD_INGOT", 1, "Schatz von Admont", null));
 	}
 }
 goto("wait");
 
 @stage1
-if(event == "entity_click" && hand == "MAIN_HAND" && isCitizen(entity)) {
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
 	entity_name = entity.getName(entity);
 	string_name = string.text(entity_name);
-	if(string_name == "Herbert") {
-		item = living.getEquip(player, "hand");
-		item_type = item.getType(item);
-		if(item_type == "minecraft:gold_ingot" || item_type == "minecraft:diamond") {
-			amount = player.getItemAmount(player, false, read.item("minecraft:diamond"));
-			if(amount == 0) {
-				msg.prefix(player, "§dHerbert", "Du hast keinen Diamand im Inventar.");
-				goto("wait");
-			}
-			event.unload("entity_click");
-			msg.prefix(player, "§dHerbert", "Du hast es tatsächlich geschafft.");
-			scheduler.msgPrefix(30, player, "§dHerbert", "Den Diamanten behalte ich.");
-			scheduler.msgPrefix(60, player, "§dHerbert", "Die Goldbarren hast du dir verdient.");
-			player.removeItem(player, read.item("minecraft:diamond"));
-			money.addBoost(player, 24);
-			scheduler.msg(65, player, "§dQuest abgeschlossen. Belohnung: 24 Snuvis!");
-			scheduler.questFinish(65, script, player);
-		} else {
-			msg.prefix(player, "§dHerbert", "Gib mir bitte den Schatz.");
-		}
+	if(string_name == "Miner") {
+		msg.prefix(player, "§dMiner", "You have actually made it. Whoever finds it can keep it.");
+		msg.string(player, "§dQuest finished. Reward: 4 snuvis!");
+		money.addBoost(player, 4);
+		quest.finish(script, player);
 	}
 }
 goto("wait");

@@ -83,6 +83,7 @@ command.register("game", "marvs minigame shit");
 command.register("gamemode", "Change gamemode");
 command.register("gamerule", "Manage gamerules");
 command.register("games", "Teleports to games-spawn");
+command.register("minigames", "Teleports to games-spawn");
 command.register("giveup", "Giveup a quest");
 command.register("grow", "Grow seeds");
 command.register("hat", "Be fame with a new hat");
@@ -1758,6 +1759,7 @@ if(size == 0) {
 	@partyhelp
 	msg.prefix(player, prefix_party, "/party ...");
 	msg.string(player, "§5 - invite <player> §rInvite a player");
+	msg.string(player, "§5 - invite friends §rInvites all online friends");
 	msg.string(player, "§5 - accept <player> §rAccept an invitation");
 	msg.string(player, "§5 - deny <player> §rDeny an invitation");
 	msg.string(player, "§5 - kick <player> §rKick a player");
@@ -1923,7 +1925,20 @@ if(arg0 == "invite") {
 	if(size != 2) {
 		msg.prefix(player, prefix_party, "§5/party invite <player>");
 	} else {
-		p_name = list.getIndex(args, 1);
+		arg1 = list.getIndex(args, 1);
+		if(arg1 == "friends") {
+			player_id =  player.getId(player);
+			friends = friend.getListOnline(player_id);
+			iter = iterator(friends);
+			while(hasNext(iter)) {
+				f_name = next(iter);
+				f = read.player(f_name);
+				party.invitePlayer(player, f);
+			}
+			msg.prefix(player, prefix_party, "All online friends invited.");
+			goto("wait");
+		}
+		p_name = arg1;
 		if(!checkIfEverOnline(p_name)) {
 			msg.prefix(player, prefix_party, "This player has never been online.");
 			goto("wait");
@@ -4453,6 +4468,7 @@ if(player.teleport(p, crea_spawn, true)) {
 }
 goto("wait");
 
+@minigames
 @games
 world = loc.getWorld(world.getGamesSpawn());
 if(world == null) {
@@ -4999,6 +5015,7 @@ if(size == 0) {
 	@humanhelp
 	msg.prefix(player, prefix_human, "/human ...");
 	msg.string(player, string.concat("§6 - skin <name> §rSets the skin of a citizen"));
+	msg.string(player, string.concat("§6 - equip [bodypart] [itemstack] §rEquips a citizen"));
 	goto("wait");
 }
 arg0 = string.toLowerCase(list.getIndex(args, 0));
@@ -5006,6 +5023,29 @@ citizen = player.getTargetCitizen(player, 5);
 if(!isCitizen(citizen)) {
 	msg.prefix(player, prefix_human, "No citizen.");
 	goto("wait");	
+}
+elseif(arg0 == "equip") {
+	slot = "HAND";
+	if(size > 1) {
+		slot = string.toUpperCase(list.getIndex(args, 1));
+		if(slot != "BOOTS" && slot != "CHESTPLATE" && slot != "HAND" && slot != "HELMET" && slot != "LEGGINGS" && slot != "OFF_HAND") {
+			msg.prefix(player, prefix_commands, "Not supported bodypart.");
+			goto("wait");
+		}
+	}
+	if(size < 3) {
+		equip_item = living.getHand(player);
+	} elseif(size >= 3) {
+		arg2 = list.getIndex(args, 2);
+		equip_mat = material.get(arg2);
+		if(equip_mat == null) {
+			msg.prefix(player, prefix_commands, "Not a valid item.");
+			goto("wait");
+		}
+		equip_item = item.new(equip_mat);
+	}
+	citizen.setEquip(citizen, slot, equip_item);
+	goto("wait");
 }
 elseif(arg0 == "skin") {
 	if(size == 2) {
@@ -5060,6 +5100,20 @@ elseif(arg0 == "skin") {
 			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTYxNDA4ODgxMjk5NiwKICAicHJvZmlsZUlkIiA6ICIyYzEwNjRmY2Q5MTc0MjgyODRlM2JmN2ZhYTdlM2UxYSIsCiAgInByb2ZpbGVOYW1lIiA6ICJOYWVtZSIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9jM2ZjNDJhNGJiY2EwNTk2MTRmYjZlMGQ2NWQxMmU4NTFiYTM2YTA2ZjAyMzVkZGI2OTlhNWE2ZDFhMzgzNmMyIgogICAgfQogIH0KfQ==", "Ucbd0D4Nb8lGoZ9UF3A5yi00IfK0O7YcBrHO7osRimtISi92dhkKThJtjq7ibXf+8qu1a7wWrwgNpFHLtz5g1vcbJfkuzfHxuRQN+jcZIZt8skV+vujUP3eS1wezQATHuvhA3wBztn3UuTl7tCZXFEoq/ywcWN9qZH3QRljnWu88VOXHKtoBrkMPHO3t7BXaXyRMl5+wpkzWdSJIYD/wXop7yys78R2e6MAiPeKBsr+Bh5rNUIsUSUi80vAo51dH3aSzY0LW43m99UG1P9w2U56IfqJetpvrTVHm1xwNoyHcyQGXSeVlTXJkpCzFHdOlT8L5Pi6EbkyozxKTod/gH3PzhpYMlVCsqs/c3qBHma3GmL5+mppCdrulQnY5jkltIkp1wikXxneo3tRAIWpTVDrSFwhjZ6TLD/hL8By5i/xohgmpTFXl1rQZVJFoti1kd764vLDZyuuswXe33txS6+gV2eA6XR2DUnOpcoFcLF4kx10PubtSt32WAKDShhv6lu/f8ciYMNjk2ZBR1PZ+meeIqW9n10T5x21JRbDg3bUV1d9kd0wuliuBeEu6/2D9sB7c1JSQ3NtShacQHEHMr/2xBrE3beKd/MKNzWEjAkZsitiTuobWrFvb9gK6jxgfdX1CSXc6x8iZBeyMrrGYLj221SHY08CDMkoGvqbXfBM=");
 		} elseif(name == "oldman3") {
 			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTY4ODY2Njc5MDMyNiwKICAicHJvZmlsZUlkIiA6ICJmZjQ3NzI5YmQwZDI0YWYwOThiMTFjMGE3ZTFiMGVlZiIsCiAgInByb2ZpbGVOYW1lIiA6ICJtYXRzY2FuIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzEyOTg5ZjMxOTQ3NmQ1NDk1MmUwOTQ5ZWEzMGIyZTQ3N2M5NDE4YjBiOGFiOTc0YmU2YzFmOWYwMGQ4NWMzMTYiCiAgICB9CiAgfQp9", "inFYrkbI1KbykFuDWprHxnDRpaLxOYuQLUC/w8mFMR8/joqRyBkqAOgnt4PlgG/KrBOYLwSgQ4VZbqkzGXTcuX+FkJAlXU0jNY6/GAyX686YhjP2OACXCE9AzUMhoWHHhNd5zlBNef3RGei9jIR7bZdJmGBfp6zNHT9ZGHGBBy3kFhmpg6wEJ3zSF2YnWAvAlZ+nxSbNMkn+Zb/hwIGV0pRjFKLX59ubS6wYZYeduxNLJjM9VcP3SZDu1YK4hsyo0crbFtX1GIIfUKgKvqGyJMsx2tmgbzPuSfcObaLBYWam3okcIkBsf9zqvhp/qY9jHB85+F1NZhx7axR53oEgOnv90n3hLOTKI01we1nSuFirg3LiOeH5rteEfCFuZVpb2/WrJ1JqF+0dwQU5H0qEuRbSgJlR2BYv7F/THs69MCB0wlfdIX5IddUhJj7n9dcHkp38YkfP595SGDhdcCMZvZL1OYOUMwJ1qhaXZLhNTSIZo1jnLtsqpUbk5ny78E/u5oyyRrvJAMf+6N8Gjx5S7JLpSgM2TX1rmiGe0GS9HoLF+Gd8sbe2A3gJJxPR1P2R9Q1HXG7opYEPPyUM2WCdzfg8kKpaPUfX5M3Kudm7rjPCG+2z3krbEbtbYLchFwpUn3wmZwybX9R/Xzv3HsI0mzOGk+WgxBRY804L1UGzVpo=");
+		} elseif(name == "miner2") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc0NDU5MDcwNCwKICAicHJvZmlsZUlkIiA6ICJiZDE1ZDAxODA0YzA0MmIxYmUzZmEyMWRhZmI0ZDE0ZSIsCiAgInByb2ZpbGVOYW1lIiA6ICJNZWwyOCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yMzU3ZGQ4N2JmZmZlNjRhYzllYTkwM2Y3MjlhOThhNTExZmJjNmYyZDg4YjM4MmE5MmViMGI5ZjhiZTdkNjRjIgogICAgfQogIH0KfQ==", "F8DMxRODIh1ODYumldhr3KxwuOmVB3sKR9CAZNjn/ZFZIZo5GyRVexH7ITY1FQovFf9PCVyVMbQwXv6Xw4Hpsqp9ZokFPB6sT0fVjg4TDw3lygsEZJoKQacb2RDBTnTl8QgTXcPHj14jIw00KO9qIeC+nSL0FyunN6eC/Rgj451lvzynUZniYtLLvQK+1O+K4egqh+cpL2yC8svTpbITz97Y71RY8l2kxKgyPZlrvxFE2ngwitntSKCU8eOd/pDycqsc/VywTutL7cQgrFBg+S/JWoz8uY4Fn7jyuG+3aeEbJ/MUPv+RZ2/Zr+ymXlVJAjNj3Gs4q1N/rzVgq43zciiQZuYX0EnxzTtrygET/vyUfqWtsCuzbwS4W1yt2sixqKZVC3CXFA4UUVlwN0ZGrXMijagY2vgUM0CuxRTJTKE1dDN0Ztlj0WsIdVpa/n3Qlk1Kww0Xf5Qk0ZAxddT9CPRNDRNy3nRrD+eAnnOCIyWiCVFQG6xVtBJQoZNFR7k4SIUkPV6IvEszDuYQOMSz0TLNJtrDDmQGg+Ya+LP7BmtcRUzV7ReOPRjdIw4Yn0O++uPvBrizDg5kQSwd8zQLsbrXLSby3+rJxdrfk0950V2NZz/3BDSesUY3cwgII4YJlM9tIfp9djeiwpoOq0uNRETKeXMQHC94f4NaKpUWjjQ=");
+		} elseif(name == "marvinius") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc1ODE4NDAxNCwKICAicHJvZmlsZUlkIiA6ICI5ZTA5YzM4ZGUzZTY0MDA2OTAwYzAwZTJiOTQ3ZTQwMyIsCiAgInByb2ZpbGVOYW1lIiA6ICJ4RFRPTUFTX1lUIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2UyYjI2MWE4OTM4ZTAyODdmZTRkZjI0MWY1MWZlYjE1MTA1MGNlOTYyNGE4ZDhhZGI0ZWI5M2EyZDAwYzhjMTUiCiAgICB9CiAgfQp9", "CSsd1bBr7HduBUUIm4M4RJo488Qkv5rMMCQQqqen64yBK5S8C9aZJAcHyWZ14Hcw8JQ8FI033zpzou9odoVkUGKNfZxTAsEvMb6pMtECKtO6VpTyt0rh4WcJ3LTgRXpCtRu+lmKvucUQcFgLAgbbxa1F8PuGzsIfT7B9Nk/Z6Ps3XbGKftbtBbTOrWKjulR9lrFRhQe92U/fmh7VbU2x61icJyK7t/VxMW+GKn0fq4f+E1UPKIcXDqUSF6UX1SXpKPw/e/N6kZ2bgUoTrBaqPIT4Jo+W2OuqNx/jAmMnxaUUlGnHiEAno0f4yMDm6DNngweLMkgWpwWUrPYEuaTjZqWkdfpUmz3a9EIE8ZD5hUWiyRZNawQfFuGd3E3ZrjiP5cQzZ2xa9+wOfyqYNVGO9SB8Ip/Exs7jFAs1N4BChrcGgycDgLlLofeK8mqbMKuXO7jdAHBBiPbxtahegOn9YKAzeIdvRjAWy/B6pQx0wfnxpwWltSs4SNA/x5kZnunh1YqvdxkU3ACCRiNpIEzdiV9FJQhUoEUy0ziI6KPVrQZM8L4Qwv58zwtc9zR7rO/5dCsYY7JQghd+PqNJvShhYMXiKUYcfykKJs6vqlTGIWGeD32JrC/5BZRXTLiQgJU0lVV+qBq8HSS/r9co933pBhv5CQVmCrQlMm6rPo/z58s=");
+		} elseif(name == "mareeeen") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc1ODMyNzA0NSwKICAicHJvZmlsZUlkIiA6ICJlODhjMjBiOTUyMTA0NTA0OThkMDU4OTA5ODVhOTQ2OSIsCiAgInByb2ZpbGVOYW1lIiA6ICJTY2huZWxsZXJUYWc0MjciLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODVlMjdhM2NhM2E4YWY3ODMyYjkwZjhhMmE3MTRlN2ZiMDE2YmI3M2JlNWY3OGIwZjVhZDJhOTMwM2EwOTY3NSIsCiAgICAgICJtZXRhZGF0YSIgOiB7CiAgICAgICAgIm1vZGVsIiA6ICJzbGltIgogICAgICB9CiAgICB9CiAgfQp9", "LUccDCWbqkNJ6s+4fSk39iBNaaN4M4w1jxRDioAOsGgYaWS+K9l55+SlWdDc7VzotE7m6hws/JM6h1uOt8LtIRcRHivH72GqRQXZmq2FbL7vv+E5O8W1tlJQlU24UwGLj29S5zEDEhBFXdXU5+5nK/83pVoYx01x3e8mA0sBikafpUYsvsR1jhb8Zw53LNYUvpyPMZTPKirQPvjlUOlAJhH7iVbhPMgWC/9QZWbRJ8T//MVJedvopPbg2v21SDwk6YvmZwo61RDTMkAwZsjkD5bBGOlvvbLcmk/oJPPLziHFoD2B09OZNWgWTZdbxnObD7iZMbhbkMWCE6HfyY34lwacrxtp1ssV2JWPcc2Mmp3iD3Mixlrp9fxWfNTbc0h25uIQWw9r2/3rsG845grQgh62Zem7pVWqi8S/Cfl7Y6a5wYfLiX2HrjHeoBQlZIZMAQPme5oT2zTTdxBTBwcyjn3vN76CVzYmhvWus81pM9X/1ZbgohkRy4Nge+u45EfZ5RvQXI7PSsaQiW4M19eULeDywPgSq0YTrRfjlvmZzv6hjH2rESjNSYvmUVkdTM1e+iu69fPqGXFShJXL9v7/KxzKwUpabO6rL+5oGzjCy/OVbZMVOIUgtPNTrmVbtsv+xg6QZeRXpSwa3OPfIEwUAKqhjh2EeOmworrANT5jWeQ=");
+		} elseif(name == "sirterence7") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc1ODM1MzY2NiwKICAicHJvZmlsZUlkIiA6ICIxNDU1MDNhNDRjZmI0NzcwYmM3NWNjMTRjYjUwMDE4NyIsCiAgInByb2ZpbGVOYW1lIiA6ICJMaWtlbHlFcmljIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlL2VkMjI0OGZkNzA5MDU0ZmMwMTJhNzdlMDg2ZDcwZjEyMjA0MjU2ZDZhNDg0Y2E2MzIwZTMzZjkzOWRkNTNjMjciCiAgICB9CiAgfQp9", "Cgaoe8gmJqfeRFi/5yt9W6FlE3/tgcStT/yKVAQN6PABHfuIOS00AmVrTwn8VEO26bLhH5v4iqFDK0w3hDTLryA8wWY07n3ct++j+HZZk1f7oDlFFKIGtAYrAgzGIltrS1o3fMa+JQxwqQUfcbREaVdZLBMBfAjfCdnxk6Mf3XVXHaP+qDcMIfrZlrDzN8LPXcUgBuPLBYJ8/WLYn5g+Ua/iVupKYzdoS7r2Kwfg2EtoFGOoLEPLtZ3orrflXxCcAX0leA2oTQtg8UvxRBnoZUtSNxnFk77e2KpMPhC33tO1TFsUe9LNnCnQg+sZoE5VTqV4yEfEGXzh8SYcztO+SZHKeQSbm8oOfYWtyXnQiDVLIbyA4zaeu1aUlWEKEqRDieawJp3AxRTd25vskdqxO+1LG91cQGEYyvnJAmq8cUHetSE68TMgt1NWnn92cv8ZGP/9ux0JWgT9Yf8o0gblr3CRvV+QKRgFl7z8hvvY81T52zJpIgBQLCCSeNgvNDPmAtKwWTORWuxLc12eQO2tUf4AjdgFbBqUAhIKdGr+as92ai+NWyzyems2+4tohRXrRkTbytgYvsu23AIUBhvQdkh5CmASVgjXgzgzztitR2AHxQaq5sW23SSx1TKcDYjV68YU6lm+enlsrnnA1iOo3JxUdl6sciAEYEnIu3peukI=");
+		} elseif(name == "eropster") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc1ODQ5OTExOSwKICAicHJvZmlsZUlkIiA6ICJmYjNhZTU0OTU3ODQ0MGVlODIzODJlMDY2MzlhYTkzMiIsCiAgInByb2ZpbGVOYW1lIiA6ICJXZWx0ZXJ3ZWlnaHQiLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzg1MjIxOTc1YzYxYTI0ZTVkM2QyZjk3ZjZlYjcwYmZhYmRjNDJmNWZhODczYWM0YWI1YTcwOWQxZmZkNDZjIgogICAgfQogIH0KfQ==", "CNf2gpk+SxDEAqhEihbXlFWfclU9Oh4epq1piekO6P6xFvAmW5sayCslTaJw27+FQL32bFCWR+ZeqBswJ/bKLll24YItj1ag20K5xkBJXFInJ97e55rcbZ5hJ5wnR6+4pooBi6WLdxNTmP/Eb65dlY2thewhW2jqFWmix29Z8fYZsZI6SJ/Eyz6X2eEtlaMBcPLg+07NNfOY/fH8OHSxGwTvB+F9ZBtjCKh0ryaXPgdYfWqsTI0NW5h03pha/EIhQzCC0UT3vol3zu+iYduwXUtHLCGhRO4IC3EOEkGNNjG4+a7aorOqt3c38K0L8gfLNraMV2RHAIiMXorWCsm86pWWUdxNuTTkklbyaUAMT1ns1R5cHZdAIX3CYhDLnQL8ZqioovbNHuuQrpRpYjxguM1NP2/x6NDSilnUUzJQZ8ECg82gg1YEHt2OFLxqYWfxj4/K4ybEobCQ9qyTAc9bKvMp3yF5xpRZYvOTH0LRTsjZCsTWlkL+EevTsPn7zHnhCA4Eil6BIn1X7qD/Zbs1bkp17PK5nPMBa8zv1l6BvErX29BBvaBlxdSeErPIK8dqNAi42JqMVS/uTwT/a/AqHoq5k9jFvVXEz5zBtr3Xy0B9gWZqxA+2ZLayL3IcpBoapOPbIkSn4sW1b8/HYoFUjptRf8V0QtsU+V18MHqQ4U4=");
+		} elseif(name == "mentormentos") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc1ODUxMTExMiwKICAicHJvZmlsZUlkIiA6ICJkZmU5ODdkZjMzZjM0YTU2YWQyZmY5NThmYTBmZmVkYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJLaW5nUG90dGVyIiwKICAic2lnbmF0dXJlUmVxdWlyZWQiIDogdHJ1ZSwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzNkMjNlMzM5ZWFiYzljNTkwNzJjZGQ4NTg1YjYzODI1NzJiZWFjYWRmOWQxZmFkMzIxZDE4OWY1ZWZmMjMzYWQiCiAgICB9CiAgfQp9", "aH7Wq8FQORkDi2nzTinPbRZX98F/yi62FZ4UHv15a42yPN9qIYs/jXJJD+7Vt4YHrB/bvtvzjNThTI2T6pzimFq7GXkrOROqOJfK2YL55W3UPM0jO3vB/g6bAaDUJMj7X4LtzIB46y/2FFSJh7B6U1Ae7riZ6NU+4G0/KmNNM63mNGcGdhiT25/DpOMurEjKVEpBRTlvSdj8dDQ5i9KsVFKfCIHvWwuzJ14KI0zenwrUzyqe3PDZyDZAodwCnk3ljKRZ1ifR44aoPes2P3tb00h/47gBzptJwdLLtINdUNS9v4euSVrDO1OJI0Gks3n+SN/3cOaRuqiXSI9xBkRrLxQmrZAsP+QjmMrywBtO0RsxNoh519f2GCw0aNl1p16MJP3Ww8AoQNrhm0ykXjF69TlZDsgOnxrc/N7Qr1UWcAFFmw6KEj0QKJNAStw5o92ZHGf3Wi21O2XzJB9rVkn4Z5VnITrBoubYEJK+qQv3lwt0gvIgPLfnu5g16AXTPttYsNcZ1Vq1xTZBAudaJ+6baCsjJSUmyKecP3sS0sNiHWCJ6gxD9o1o9qqmCG/NCuoHCL+f3I6ErhjCCp8pRA0DPI6mfuTB6XMSq2H5O/gB9nHPxmrsQNTcpiBKUP0HQg691zuY4GhRKgQp9NMocq77ADcz/EMT2m471iBrUi5/yyI=");
+		} elseif(name == "kajetanjohannes") {
+			citizen.setSkin(citizen, "ewogICJ0aW1lc3RhbXAiIDogMTcxMTc1ODQ5MjI4MSwKICAicHJvZmlsZUlkIiA6ICJkZTU3MWExMDJjYjg0ODgwOGZlN2M5ZjQ0OTZlY2RhZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJNSEZfTWluZXNraW4iLAogICJzaWduYXR1cmVSZXF1aXJlZCIgOiB0cnVlLAogICJ0ZXh0dXJlcyIgOiB7CiAgICAiU0tJTiIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzIwOTBmNTM1OGRlOGIyNTZiY2Y2YmU5MzA1Yzg2YjE0YjA4MTJmMmFhZjk4MzEyMjI5YzdiNmExYzVjZGQwNSIKICAgIH0KICB9Cn0=", "lT4YppbKGCzA9knunjsxeBvjGRGzFB5yYN9BgHmNI+QC/Ls17o/sJdAvbCR0fsUnOj07NQeyePsTKgPpL39DRx2AdBC20iGXSvAKvvzHPljiMpEPipL7oHjQmgpOLJF3B1zdAseR2/ifhiKGsVOcBxBDpyLcLozcvNb7y5f8gLZHTNugw3kzHiXbv3RHqtL7844dOx4ZcvAxINd9AOP4ePnBYTslrLumNrx3pDkLYxcltEepqqm4ATyJvJ47q+Bc6BiUwHWaNIsG7bLVo3jW8Gapk58u7YQx3aXl7HgW/9hzainVEzgNvZ4NwWPFl5p1QYb7m+WFBuuybBRAbxOcb7LBhkXpWw+ncm7pAQzDjrTeAS4q4/xJ7V2D2YQcG1AqcTvvm0DJI89z3LqVRDF9J2ntvIGD0DGojB2XFR5G6ojpSK9fx+Uee++9PkwTDUBWZva6XjLqNqZ2znhlbSURqim35Qd77UhVOiznb1TfrP58zIMIDFlaP52/ny/p2GLeNa+gSsXS9ZIM4AYe8f4oEPOfeBka3DFN9TQRvlNptBt8hXSqdx5HkblFzkzaWS3z52yN+/dYvFrbnm9cLcdjtqoTuE49FWtxlKj6HDJFv6e8qpEmSTfJuxnnZPk0Q/uCQNrLa4XKwCapYey9Oa+H2mtwEbKXQb9kTnoVLf4PQUA=");
 		}else {
 		    msg.action(player, "Not supported name.");
 		}
@@ -5070,7 +5124,7 @@ goto("humanhelp");
 
 @answer
 if(player.isMuted(player)) {
-	msg.prefix(player, "§6Commands", "You are muted.");
+	msg.prefix(player, prefix_commands, "You are muted.");
 	goto("wait");
 }
 if(size < 1) {
@@ -5124,7 +5178,7 @@ if(p_uuid == null) {
 }
 p = read.player(p_name);
 if(p == null) {
-	msg.prefix(sender, prefix_commands, "This player is not online.");
+	msg.prefix(sender, prefix_commands, "This player is not online. Send a /mail instead.");
 	goto("wait");
 }
 msg(p, text.merge(text.new(string.concat("§6[§c", player.getName(sender), " §6-> §cme§6] ")), message));
@@ -7049,16 +7103,10 @@ if(arg0 == "set") {
 	player_id = player.getId(player);
 	homes_list = home.getList(player_id);
 	home_amount = list.getSize(homes_list);
-	if(perm.has("isAdmin", player)) {
-		max_homes = 100;
-	} elseif(perm.has("isMod", player)) {
-		max_homes = 40;
-	} elseif(perm.has("isTeam", player)) {
+	if(perm.has("isTeam", player)) {
 		max_homes = 20;
-	} elseif(perm.has("canTP", player)) {
-		max_homes = 10;
 	} else {
-		max_homes = 5;
+		max_homes = 1;
 	}
 	max_homes += getAdditionalVoteHomes();
 	if(home_amount >= max_homes) {

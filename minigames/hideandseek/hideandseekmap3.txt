@@ -1,0 +1,18 @@
+maxplayers = 2;
+minplayers = 2;
+mapname = "Mine";
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 886.5, 87, 918.5);
+gamesignloc = minigame.getSignLoc("hideandseeksign3");
+radius = 50;
+middleloc = loc.new(gamesworld, 5000, 100, 2000);
+
+seeker_amount = 2;
+dia_block = block.get(loc.new(gamesworld, 5000, 93, 2000));
+escaper_spawn_loc = loc.new(gamesworld, 5010.5, 97, 2010.5, 135, 0.0001);
+seeker_spawn_loc = loc.new(gamesworld, 4990.5, 97, 1990.5, -45, 0.0001);
+slowtime = 200; //Zeit in Ticks, wie lange Seeker slowness haben
+
+allowed_breaks = set.new();
+set.add(allowed_breaks, material.get("minecraft:coarse_dirt"));
+set.add(allowed_breaks, material.get("minecraft:stone"));

@@ -24,6 +24,9 @@ moveid_creaspawn = event.addMoveData(loc.new(overworld, 102, 60, -20), loc.new(o
 moveid_mobarena = event.addMoveData(loc.new(overworld, 81, 59, -28), loc.new(overworld, 82, 63, -24), 5, -1);
 moveid_afk_down = event.addMoveData(loc.new(overworld, 135, 66, -59), loc.new(overworld, 136, 67, -58), 20, -1);
 moveid_afk_up = event.addMoveData(loc.new(overworld, 170, 34, -47), loc.new(overworld, 171, 35, -46), 20, -1);
+moveid_tpcave_down = event.addMoveData(loc.new(overworld, 103, 80, -12), loc.new(overworld, 104, 81, -11), 20, -1);
+moveid_tpcave_up = event.addMoveData(loc.new(overworld, 91, 60, -22), loc.new(overworld, 92, 61, -21), 20, -1);
+
 
 config = getScriptVar("server_config");
 adventure_chest_loc = loc.new(overworld, 177, 74, 237);
@@ -31,6 +34,8 @@ adventure_aim_loc = loc.new(overworld, 180, 70, 241);
 mobarena_spawn = loc.new(overworld, 1150.5, -5, 1087, 90, 0);
 afk_down_loc = loc.new(overworld, 168.5, 34, -46.5, 135, 25);
 afk_up_loc = loc.new(overworld, 137.5, 66.6, -56.5, -35, 0);
+tpcave_down_loc = loc.new(overworld, 95.5, 60, -20.5, -180, 0);
+tpcave_up_loc = loc.new(overworld, 104.5, 80, -9.5, -145, 0);
 prefix_skill = "§2Skill";
 prefix_money = "§2Money";
 
@@ -93,6 +98,16 @@ msg.string("dev", "§bSurvival §rloaded.");
 @wait
 wait();
 if(event == "player_move") {
+	if(id == moveid_tpcave_up) {
+		player.setBackPosLoc(player, tpcave_down_loc);
+		player.teleport(player, tpcave_up_loc, false);
+		goto("wait");
+	}
+	if(id == moveid_tpcave_down) {
+		player.setBackPosLoc(player, tpcave_up_loc);
+		player.teleport(player, tpcave_down_loc, false);
+		goto("wait");
+	}
 	if(id == moveid_afk_up) {
 		player.setBackPosLoc(player, afk_down_loc);
 		player.teleport(player, afk_up_loc, false);
@@ -328,8 +343,8 @@ if(string_name == "Info-Point") {
 	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eMinigames§r]", "/infopoint7"), text.new(" "), string.getClickText("§f[§bTeleport§f]", "/games")));
 	msg(player, string.getClickText("§r [§cclick§r] [§eQuests§r]", "/infopoint8"));
 	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), text.new(" "), string.getClickText("§f[§bTeleport§f]", "/creative")));
-	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), text.new(" "), string.getLinkText("§f[§bRanks§f]", "https://minecraft.marvin.lu/?site=ranks")));
-	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eJokes§r]", "/infopoint10"), text.new(" "), string.getLinkText("§f[§bJokes§f]", "https://minecraft.marvin.lu/?site=rules")));
+	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), text.new(" "), string.getLinkText("§f[§bRanks§f]", "https://mundus-crassus.de/?site=ranks")));
+	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eJokes§r]", "/infopoint10"), text.new(" "), string.getLinkText("§f[§bJokes§f]", "https://mundus-crassus.de/?site=rules")));
 	//msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
 	goto("wait");
 }

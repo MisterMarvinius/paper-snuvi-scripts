@@ -1,0 +1,58 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+event.load("block_click");
+
+stage = 0;
+all_stages = 2;
+quest_name = "Teleporter";
+
+overworld = world.getOverWorld();
+source_disp_loc = loc.new(overworld, 137, 80, -23);
+target_disp_loc = loc.new(overworld, 134, 83, 5);
+
+block.clearInventory(block.get(target_disp_loc));
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dMage Guard", "Hello Adventurer! Over there you can see my teleporter.");
+	scheduler.msgPrefix(30, player, "§dMage Guard", "It was connected to the teleporter at the spawn, but it got broken.");
+	scheduler.msgPrefix(60, player, "§dMage Guard", "Please retrieve a gear by left-clicking the dispenser of the teleporter at the spawn and then place it into the dispenser of my teleporter.");
+	scheduler.msgPrefix(120, player, "§dMage Guard", "You can also build your own teleporters and conntect them. You can build them with any type of wood, even mix the wood types and create your own personal design.");
+	goto("wait");
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_click") {
+	block_loc = block.getLocation(block);
+	if(block_loc == source_disp_loc) {
+		stage.increase(player);
+		msg.prefix(player, "§dMage Guard", "Great! Now place the gear into the dispenser of my teleporter.");
+		goto("wait");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "block_click") {	
+	block_loc = block.getLocation(block);
+	if(block_loc == target_disp_loc) {
+		stage.increase(player);
+		msg.prefix(player, "§dMage Guard", "Thank you adventurer for fixing my teleporter. If you want to you can start the teleport process by right-clicking on the shroomlight on the bottom.");
+		msg.string(player, "§dQuest finished. Reward: 2 snuvis!");
+		money.addBoost(player, 2);
+		quest.finish(script, player);
+	}
+}
+goto("wait");

@@ -14,6 +14,7 @@ inv.setItem(dieter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fGaumen
 	
 mageguard_inv = inv.new("333333333", text.new("Quests: Mage Guard"));
 inv.setItem(mageguard_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage", null));
+inv.setItem(mageguard_inv, 1, item.create("minecraft:enchanted_book", 1, "§fTeleporter", null));
 
 farmer_inv = inv.new("220000000", text.new("Quests: Farmer"));
 inv.setItem(farmer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFirst Date", null));
@@ -23,9 +24,11 @@ inv.setItem(farmer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fHarves
 anna_inv = inv.new("200000000", text.new("Quests: Anna"));
 inv.setItem(anna_inv, 0, item.create("minecraft:enchanted_book", 1, "§fAnna in Trouble", null));
 
-miner_inv = inv.new("200000000", text.new("Quests: Miner"));
-inv.setItem(miner_inv, 0, item.create("minecraft:enchanted_book", 1, "§fNightmare", null));
-//inv.setItem(miner_inv, 1, item.create("minecraft:enchanted_book", 1, "§fSchatz von Admont", null));
+miner_inv = inv.new("220000000", text.new("Quests: Miner"));
+inv.setItem(miner_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTreasure of Admont", null));
+
+mason_inv = inv.new("220000000", text.new("Quests: Mason"));
+inv.setItem(mason_inv, 0, item.create("minecraft:enchanted_book", 1, "§fNightmare", null));
 
 gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
 inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand", null));
@@ -95,6 +98,8 @@ if(item == quest_book) {
 		inv.open(anna_inv, player);
 	} elseif(title_string == "Miner") {
 		inv.open(miner_inv, player);
+	} elseif(title_string == "Mason") {
+		inv.open(mason_inv, player);
 	} elseif(entity_name == "Gustav") {
 		inv.open(gustav_inv, player);
 	} elseif(entity_name == "Gertrude") {
@@ -148,6 +153,14 @@ if(title_string == "Quests: Mage Guard") {
 		quest.start(player, "story/admont/mage");
 		goto("main");
 	}
+	if(inv_slot == 1) {
+		if(script.isActiveName("scripts/story/admont/teleporter.txt")) {
+			msg.prefix(player, "§dMage Guard", "This quest is active at the moment.");
+			goto("main");
+		}
+		quest.start(player, "story/admont/teleporter");
+		goto("main");
+	}
 	goto("main");
 }
 if(title_string == "Quests: Farmer") {
@@ -174,18 +187,20 @@ if(title_string == "Quests: Anna") {
 }
 if(title_string == "Quests: Miner") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/nightmare");
-		goto("main");
-	}
-	if(inv_slot == 1) {
 		if(script.isActiveName("scripts/story/admont/schatz_von_admont.txt")) {
-			msg.prefix(player, "§dMiner", "Diese Quest ist momentan aktiv und kann nicht vergeben werden.");
+			msg.prefix(player, "§dMiner", "This quest is active at the moment.");
 			goto("main");
 		}
 		quest.start(player, "story/admont/schatz_von_admont");
 		goto("main");
 	}
 	goto("main");
+}
+if(title_string == "Quests: Mason") {
+	if(inv_slot == 0) {
+		quest.start(player, "story/admont/nightmare");
+		goto("main");
+	}
 }
 if(title_string == "Quests: Gustav") {
 	if(inv_slot == 0) {

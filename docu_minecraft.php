@@ -64,7 +64,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>block<br>*drops as list with ItemEntities</td>
+            <td>player<br>block<br>old_material<br>*drops as list with ItemEntities</td>
         </tr>
     </table>
     <table>
