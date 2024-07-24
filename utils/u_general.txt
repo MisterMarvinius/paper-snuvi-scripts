@@ -1523,6 +1523,7 @@ function msg.chat(player, text_or_string) {
 		}
 		msg(p, text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), getMessage(text_or_string)));
 	}
+	msg("SERVER", text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), getMessage(text_or_string)));
 }
 
 function msg.send(from_player, to_name, prefix, string_message, send_mail) {
@@ -3374,9 +3375,6 @@ function rank.checkCriteria(player, tech_name) {
 		return player.hasPlotRaised(player);
 	}
 	//Team
-	if(tech_name == "rank.owner") {
-		return perm.has("isOwner", player);
-	}
 	if(tech_name == "rank.admin") {
 		return perm.has("isAdmin", player);
 	}

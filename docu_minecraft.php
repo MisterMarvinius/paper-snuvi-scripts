@@ -12,10 +12,6 @@
             <td class="bold">**</td>
             <td>can be null</td>
         </tr>
-        <tr>
-            <td class="bold">receiver</td>
-            <td>sender (player / console)<br>"dev" (perm "script.debug" needed)<br>"online"<br>"server"</td>
-        </tr>
     </table>
 	<table>
         <tr>
@@ -1523,6 +1519,10 @@
         <tr>
             <td class="bold">Format</td>
             <td>msg(receiver, text)</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>receiver:<br>sender (player / console)<br>"dev" (perm "script.debug" needed)<br>"online"<br>"server"</td>
         </tr>
     </table>
     <table>
@@ -3490,6 +3490,10 @@
         <tr>
             <td class="bold">Format</td>
             <td>player.action(receiver, text)</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>receiver:<br>sender (player / console)<br>"dev" (perm "script.debug" needed)<br>"online"<br>"server"</td>
         </tr>
     </table>
     <table>

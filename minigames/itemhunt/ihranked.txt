@@ -341,6 +341,7 @@ while(hasNext(iter)) {
 	
 	minigame.statsHeader(player, $gamename, "§e");
 	minigame.statsLine(player, "§e", "Found Items", string.number(yetfound));
+	minigame.statsLine(player, "§e", "Your record", string.number(last_record));
 	if(diff != null) {
 		msg(player, text.new(string.concat(" §e- §rBeat own record by §e", string.number(diff))));
 	}

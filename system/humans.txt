@@ -9,6 +9,7 @@ quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 scroll = item.custom.create("SCROLL", 1, "§2Skills", null);
 spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
 
+//createMainMenu(inv_name, market, quests, skills, challenges)
 anna_inv = createMainMenu("Anna", false, true, false, false);
 farmer_inv = createMainMenu("Farmer", true, true, false, false);
 fisher_inv = createMainMenu("Fisher", true, false, false, false);
@@ -19,11 +20,12 @@ mason_inv = createMainMenu("Mason", true, true, false, false);
 priest_inv = createMainMenu("Priest", true, false, false, false);
 mage_inv = createMainMenu("Mage", true, false, true, false);
 lumberjack_inv = createMainMenu("Lumberjack", true, true, true, true);
-butcher_inv = createMainMenu("Butcher", true, false, false, true);
+butcher_inv = createMainMenu("Butcher", true, true, false, true);
 librarian_inv = createMainMenu("Librarian", true, false, false, true);
 nether_inv = createMainMenu("Nether Merchant", true, false, false, false);
 diver_inv = createMainMenu("Diver", true, false, false, false);
 mage_guard_inv = createMainMenu("Mage Guard", false, true, false, false);
+innkeeper_inv = createMainMenu("Innkeeper", false, true, false, false);
 
 skins = map.new();
 addSkin("notch", "ewogICJ0aW1lc3RhbXAiIDogMTYyNDUyNjI0NjM2MywKICAicHJvZmlsZUlkIiA6ICIwNjlhNzlmNDQ0ZTk0NzI2YTViZWZjYTkwZTM4YWFmNSIsCiAgInByb2ZpbGVOYW1lIiA6ICJOb3RjaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yOTIwMDlhNDkyNWI1OGYwMmM3N2RhZGMzZWNlZjA3ZWE0Yzc0NzJmNjRlMGZkYzMyY2U1NTIyNDg5MzYyNjgwIgogICAgfQogIH0KfQ==", "K76X+5wYgbcKhUxr5ZJuF4MXquYNPM5ypUf6DdNz2k0+XaJlobLVVdETe2LotlHyj6ABoU3//8mGZnfwhdj2BiulOErpB6cQR4pMmIrW6T3TLCt4L8d9juQy7xy7Dw9sQngXWm2h3Cazm+205qa0apnvA/i+IGv+WeutP52kfGhJBAN7uBUQaut0NWBfFPL8Jo7DhwBvWf/KWVpcT9UcVQuS/dVP/VE0rrTTSf3x2/jGI0ksBEdOz5lROARCHwOA1sRDvP1nQHhZD1Uekj4Bmo6rsAjJCrzr++nK2IcaPMv1uTLv0sbsGe4JF884rqWHYzs7/Cc5lGv8FNy+QjHmTcISfjnlxwJIkI48KOmAjuaova+tU1gBHRFHqJR186Vw8gtIGHusitFr6rUuutODaHyJ1C9VnItyk5RF3eznsh+uUHSkT9NOCTAhx11UhaFjlIHgqHG3rRVmeFWyEKHE8Pk2yEAlROGPedp+oYEwMFbM97Q+og7W/RtSH+kYl9vNwpLrQEG2F0bQUtulwQrWzk8T2fKgPHncZIDS2YvQjrrHjjlG0bLbiakHGvRrMrLbrVtmQrKjOjLuc5j4M/quMoZpFz98q4uftCmNOyN9ZmoEjgFv5fOdsJDGJawSaug9VEieCWhuuPnXPx19GpT1TRzGRjDW9DqO08kNeCcRxq0=");
@@ -124,6 +126,8 @@ if(string_name == "Farmer") {
 	inv.open(diver_inv, player);
 } elseif(string_name == "Mage Guard") {
 	inv.open(mage_guard_inv, player);
+} elseif(string_name == "Innkeeper") {
+	inv.open(innkeeper_inv, player);
 }
 goto("main");
 

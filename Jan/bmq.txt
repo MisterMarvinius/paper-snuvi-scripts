@@ -45,7 +45,7 @@ if(event == "entity_click"){
 	}
 	entity_name = entity.getName(entity);
 	string_name = string.text(entity_name);
-	if(entity_name == "§9Jan") {
+	if(entity_name == "§cJan") {
 		if(player.isSneaking(player)){
 			inv.open(Jan_inv, player);
 			goto("wait");

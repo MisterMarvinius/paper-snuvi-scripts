@@ -697,7 +697,7 @@ function updateDisplay() {
 		}
 		minigame.displayAll(97 - team, string.concat("§r", string.number(map.get($points, team)), " ", map.get($colorcodes, team), team_string));
 	}
-	minigame.displayAll(97 - i, sb.getSpacer());
+	minigame.displayAll(97 - team - 1, sb.getSpacer());
 }
 
 function addItem(item, item1, item2, item3, item4, item5, item6, item7, item8, item9) {

@@ -1,5 +1,4 @@
 event.load("entity_click");
-//event.load("inv_click");
 event.load("snuvi_click");
 event.load("player_pre_respawn");
 event.load("player_post_respawn");
@@ -12,9 +11,6 @@ event.load("entity_change_block");
 
 clan.loadData();
 
-tp_list = list.new();
-tp_map = map.new();
-tp_set = set.new();
 afk_loop_map = map.new();
 survival_respawn = set.new();
 
@@ -27,10 +23,9 @@ moveid_afk_up = event.addMoveData(loc.new(overworld, 170, 34, -47), loc.new(over
 moveid_tpcave_down = event.addMoveData(loc.new(overworld, 103, 80, -12), loc.new(overworld, 104, 81, -11), 20, -1);
 moveid_tpcave_up = event.addMoveData(loc.new(overworld, 91, 60, -22), loc.new(overworld, 92, 61, -21), 20, -1);
 
+daily_reward_loc = loc.new(overworld, 136, 77, -22);
 
 config = getScriptVar("server_config");
-adventure_chest_loc = loc.new(overworld, 177, 74, 237);
-adventure_aim_loc = loc.new(overworld, 180, 70, 241);
 mobarena_spawn = loc.new(overworld, 1150.5, -5, 1087, 90, 0);
 afk_down_loc = loc.new(overworld, 168.5, 34, -46.5, 135, 25);
 afk_up_loc = loc.new(overworld, 137.5, 66.6, -56.5, -35, 0);
@@ -377,19 +372,53 @@ goto("wait");
 
 @player_join
 if(player.isOnAdventure(player)) {
-	addAdventureDisplay(player, adventure_aim_loc);
-}
-goto("wait");
-
-@inv_click
-//Verhindert während eines (Abenteuer-)Teleports, die Benutzung des Spielerinventars (inkl. Crafting-Bereich!)
-player_uuid = player.getUuid(player);
-if(set.contains(tp_set, player_uuid)) {
-	cancel = true;
+	//addAdventureDisplay(player, adventure_aim_loc);
 }
 goto("wait");
 
 @snuvi_click
+title_string = string.text(inv_title);
+if(title_string == "Daily Reward") {
+	item = inv.getItem(inv, inv_slot);
+	lore_list = item.getLore(item);
+	lore_string_0 = string.removeFormat(string.text(list.getIndex(lore_list, 0)));
+	if(lore_string_0 == "Heute abholen!") {
+		player.setLastVoteTime(player, time.getMillis());
+		dr_value = player.getDailyReward(player);
+		dr_value <<= 1; // shift all days to the left
+		dr_value = bit.set(dr_value, 0); // set today's bit
+		player.setDailyReward(player, dr_value);
+		player.setDailyRewardTime(player, time.getMillis());
+		list.setIndex(lore_list, 0, text.new("Bereits abgeholt"));
+		item.setLore(item, lore_list);
+		if(inv_slot == 0) {
+			reward_text = "1 Snuvi";
+			money.add(player, 1);
+		} elseif(inv_slot == 1) {
+			reward_text = "2 Snuvi";
+			money.add(player, 2);
+		} elseif(inv_slot == 2) {
+			reward_text = "4 Snuvi";
+			money.add(player, 4);
+		} elseif(inv_slot == 3) {
+			reward_text = "8 Snuvi";
+			money.add(player, 8);
+		} elseif(inv_slot == 4) {
+			reward_text = "16 Snuvi";
+			money.add(player, 16);
+		} elseif(inv_slot == 5) {
+			reward_text = "32 Snuvi";
+			money.add(player, 32);
+		} elseif(inv_slot == 6) {
+			reward_text = "1 Amber";
+			reward_item = item.custom.create("AMBER", 1, null, null);
+			player.safeGiveItem(player, reward_item);
+		}
+		msg.prefix(player, "§6Daily Reward", string.concat("Daily reward received: ", reward_text));
+	}
+	goto("wait");
+}
+
 inv_id = inv.getId(inv);
 if(inv_id == bankinvid) { //Bankmenü
 	//Einzahlen
@@ -568,6 +597,54 @@ function fire_ring(location, block_string, radius){
 }
 
 @block_click
+if(block != null) {
+	block_loc = block.getLocation(block);
+	if(block_loc == daily_reward_loc) {
+		cancel = true;
+		dr_value = player.getDailyReward(player);
+		dr_time = player.getDailyRewardTime(player);
+		now_time = time.getMillis();
+		if(dr_value >= 127 && isFollowingDay(dr_time, now_time)) {
+			player.setDailyReward(player, 0);
+			player.setDailyRewardTime(player, 0);
+			dr_value = 0;
+			dr_time = 0;
+		}
+		
+		daily_reward_inv = inv.new("222222200", text.new("Daily Reward"));
+		canGetRewardTodayAlreadyShown = false;
+		for(i = 0; i < 7; i++) {
+			dr_bit = bit.get(dr_value, i);
+			if(dr_bit) {
+				lore = "Bereits abgeholt";
+			} elseif((dr_time == 0 || isFollowingDay(dr_time, now_time)) && !canGetRewardTodayAlreadyShown) {
+				lore = "Heute abholen!";
+				canGetRewardTodayAlreadyShown = true;
+			} else {
+				lore = "An einem anderen Tag abzuholen";
+			}
+			if(i == 0) {
+				inv.setItem(daily_reward_inv, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", lore));
+			} elseif(i == 1) {
+				inv.setItem(daily_reward_inv, 1, item.custom.create("COPPER_COIN", 2, "§f2 Snuvi", lore));
+			} elseif(i == 2) {
+				inv.setItem(daily_reward_inv, 2, item.custom.create("COPPER_COIN", 4, "§f4 Snuvi", lore));
+			} elseif(i == 3) {
+				inv.setItem(daily_reward_inv, 3, item.custom.create("COPPER_COIN", 8, "§f8 Snuvi", lore));
+			} elseif(i == 4) {
+				inv.setItem(daily_reward_inv, 4, item.custom.create("COPPER_COIN", 16, "§f16 Snuvi", lore));
+			} elseif(i == 5) {
+				inv.setItem(daily_reward_inv, 5, item.custom.create("COPPER_COIN", 32, "§f32 Snuvi", lore));
+			} elseif(i == 6) {
+				inv.setItem(daily_reward_inv, 6, item.custom.create("AMBER", 1, "§f1 Amber", lore));
+			}
+		}
+		
+		
+		inv.open(daily_reward_inv, player);
+		goto("wait");
+	}
+}
 if(action == "RIGHT_CLICK_AIR") {
 	player_loc = entity.getLocation(player);
 	world = loc.getWorld(player_loc);
@@ -640,4 +717,26 @@ function lottery.setValue(value) {
 function lottery.getValue() {
 	config = getServerConfig();
 	return config.getDouble(config, "lottery_value", 0);
+}
+
+function player.getDailyReward(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "dailyreward", 0);
+}
+
+function player.setDailyReward(player_or_id, value) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "dailyreward", value);
+	config.saveAsync(config);
+}
+
+function player.setDailyRewardTime(player_or_id, millis) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "lastdailyrewardtime", millis);
+	config.saveAsync(config);
+}
+
+function player.getDailyRewardTime(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "lastdailyrewardtime", 0);
 }

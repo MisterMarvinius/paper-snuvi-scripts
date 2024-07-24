@@ -1,0 +1,110 @@
+event.load("entity_click");
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_click");
+event.load("custom_command");
+
+stage = 0;
+all_stages = 5;
+quest_name = "The beginning...";
+cake_loc = loc.new(world.getOverworld(), 124, 78, -38);
+cake_mat = material.get("CAKE");
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dBaker", "Hello, greenhorn! You look very lost... Is everything okay with you?");
+	scheduler.msgPrefix(30, player, "§dBaker", "Have some of my freshly baked cake so you don't starve.");
+	block.setMaterial(block.get(cake_loc), cake_mat);
+	if(player.getHunger(player) > 18) {
+		player.setHunger(player, 18);
+		player.setSaturation(player, 0);
+	}
+	goto("wait");
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_click") {
+	block_loc = block.getLocation(block);
+	if(block_loc == cake_loc) {
+		stage.increase(player);
+		msg.prefix(player, "§dBaker", "Well, that's better :)");
+		scheduler.msgPrefix(30, player, "§dBaker", "Go into the tavern and talk to the Innkeeper. He will definitely help you!");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Innkeeper") {
+		stage.increase(player);
+		msg.prefix(player, "§dInnkeeper", "Hello, how can I help you?");
+		msg.string(player, "§dAnswer options:");
+		msg(player, string.getClickText("[§dA§r] §eI don't know where I ended up here.", "/questanswer A"));
+		msg(player, string.getClickText("[§dB§r] §eI can't be helped anymore.", "/questanswer B"));
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dInnkeeper", "I am the right person to contact. You are here in Admont, a small village in the wide world.");
+		scheduler.msgPrefix(30, player, "§dInnkeeper", "You look pretty trustworthy to me. Maybe you could relieve us of some of the work.");
+		scheduler.msgPrefix(60, player, "§dInnkeeper", "Go to my wife at the counter, she will help you.");
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dInnkeeper", "But of course. We'll get this sorted out.");
+		scheduler.msgPrefix(30, player, "§dInnkeeper", "You are here in Admont, a small village in the wide world.");
+		scheduler.msgPrefix(60, player, "§dInnkeeper", "You look pretty trustworthy to me. Maybe you could relieve us of some of the work.");
+		scheduler.msgPrefix(90, player, "§dInnkeeper", "Go to my wife at the counter, she will help you.");
+	}
+}
+goto("wait");
+
+@stage3
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Alena") {
+		stage.increase(player);
+		msg.prefix(player, "§dAlena", string.concat("Hello, ", player.getName(player), " you seem new. My husband already told me about you."));
+		scheduler.msgPrefix(30, player, "§dAlena", "First take a look around Admont and when you're done, please bring me some water.");
+		scheduler.msgPrefix(60, player, "§dAlena", "After this long day I am very thirsty. Here you have a water bottle.");
+		player.safeGiveItem(player, item.create("GLASS_BOTTLE", 1, null, null));
+	}
+}
+goto("wait");
+
+@stage4
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Alena") {
+		item = living.getHand(player);
+		if(string.item(item) == "{Count:1b,id:\"minecraft:potion\",tag:{Potion:\"minecraft:water\"}}") {
+			msg.prefix(player, "§dInnkeeper", "Thanks! Here's a little reward.");
+			player.removeItem(player, item);
+			msg(player, text.new("§dQuest finished. Reward: 15 snuvis!"));
+			money.addBoost(player, 15);
+			quest.finish(script, player);
+		}
+	}
+}
+goto("wait");

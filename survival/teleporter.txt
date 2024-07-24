@@ -17,7 +17,7 @@ adv_tp_sound = sound.get("BLOCK_PORTAL_TRAVEL");
 sound_category_ambient = sound.getCategory("AMBIENT");
 
 overworld = world.getOverWorld();
-adventure_chest_loc = loc.new(overworld, 104, 74, -6);
+random_tp_loc = loc.new(overworld, 134, 79, 5);
 
 event.load("block_click");
 
@@ -61,24 +61,25 @@ if(block.getType(block) == shroomlight_mat && action == "RIGHT_CLICK_BLOCK") {
 		goto("main");
 	}
 	map.add(tp_map, player_uuid, now_time);
-	//Abenteuer-Teleport
-	if(block_loc == adventure_chest_loc) {
+	//Random-Teleport
+	if(block_loc == random_tp_loc) {
 		/*if(!player.isOnAdventure(player)) {
 			if(!player.hasClearInventory(player)) {
 				msg.prefix(player, "§5Adventure", "Your inventory needs to be empty!");
 				goto("main");
 			}*/
+			disp_loc = loc.mod(block_loc, 0, 4, 0);
 			alpha = math.random(0, 360);
 			alpha *= math.pi() / 180;
 			x = math.round(math.sin(alpha) * 5000) + 0.5;
 			z = math.round(math.cos(alpha) * 5000) + 0.5;
 			tp_loc = loc.getHighestPoint(loc.new(world.getOverWorld(), x, 0, z));
-			setTpWallX(block_loc, tinted_glass_mat);
-			sound.spawn(block_loc, piston_sound, sound_category_ambient);
+			setTpWallX(disp_loc, tinted_glass_mat);
+			sound.spawn(disp_loc, piston_sound, sound_category_ambient);
 			player_uuid = player.getUuid(player);
 			array = array.new(4);
 			array[0] = player_uuid;
-			array[1] = block_loc;
+			array[1] = disp_loc;
 			array[2] = tp_loc;
 			//array[3] = true;
 			array[3] = false;
@@ -178,12 +179,12 @@ if(adventure) {
 			p = player.get(next(iter));
 			p_name = player.getName(p);
 			p_loc = entity.getLocation(p);
-			if(!loc.isSameWorld(adventure_chest_loc, p_loc)) {
+			if(!loc.isSameWorld(random_tp_loc, p_loc)) {
 				msg.prefix(player, "§5Party", string.concat(p_name, "§c is in another world."));
 				msg.prefix(p, "§5Party", "§cYou are in another world.");
 				continue;
 			}
-			if(loc.distance(adventure_chest_loc, p_loc) > 5) {
+			if(loc.distance(random_tp_loc, p_loc) > 5) {
 				msg.prefix(player, "§5Party", string.concat(p_name, "§c is too far away."));
 				msg.prefix(p, "§5Party", "§cYou are too far away.");
 				continue;

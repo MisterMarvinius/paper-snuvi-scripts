@@ -374,36 +374,35 @@ set.add(not_blocked_cmd, "quest");
 set.add(not_blocked_cmd, "msg");
 set.add(not_blocked_cmd, "help");
 
-rank_array = array.new(28, 2);
+rank_array = array.new(27, 2);
 //Playtime
-rank.add(0, "rank.owner", "4Owner");
-rank.add(1, "rank.admin", "cAdmin");
-rank.add(2, "rank.moderator", "9Moderator");
-rank.add(3, "rank.supporter", "bSupporter");
-rank.add(4, "rank.dev", "5Developer");
-rank.add(5, "rank.builder", "5Builder");
-rank.add(6, "rank.vip", "dVIP");
-rank.add(7, "rank.influencer", "dInfluencer");
-rank.add(8, "rank.sponsor", "dSponsor");
-rank.add(9, "rank.legend", "2Legend");
-rank.add(10, "rank.pioneer", "2Pioneer");
-rank.add(11, "rank.lord", "2Lord");
-rank.add(12, "rank.altruist", "2Altruist");
-rank.add(13, "rank.major", "2Major");
-rank.add(14, "rank.frequenter", "6Frequenter");
-rank.add(15, "rank.explorer", "6Explorer");
-rank.add(16, "rank.chief", "6Chief");
-rank.add(17, "rank.friend", "6Friend");
-rank.add(18, "rank.colonizer", "6Colonizer");
-rank.add(19, "rank.newcomer", "eNewcomer");
-rank.add(20, "rank.adventurer", "eAdventurer");
-rank.add(21, "rank.commander", "eCommander");
-rank.add(22, "rank.volunteer", "eVolunteer");
-rank.add(23, "rank.settler", "eSettler");
-rank.add(24, "rank.user", "3User");
-rank.add(25, "rank.challenger", "5Challenger");
-rank.add(26, "rank.mobhunter", "6Mobhunter");
-rank.add(27, "rank.collector", "2Collector");
+rank.add(0, "rank.admin", "cAdmin");
+rank.add(1, "rank.moderator", "9Moderator");
+rank.add(2, "rank.supporter", "bSupporter");
+rank.add(3, "rank.dev", "5Developer");
+rank.add(4, "rank.builder", "5Builder");
+rank.add(5, "rank.vip", "dVIP");
+rank.add(6, "rank.influencer", "dInfluencer");
+rank.add(7, "rank.sponsor", "dSponsor");
+rank.add(8, "rank.legend", "2Legend");
+rank.add(9, "rank.pioneer", "2Pioneer");
+rank.add(10, "rank.lord", "2Lord");
+rank.add(11, "rank.altruist", "2Altruist");
+rank.add(12, "rank.major", "2Major");
+rank.add(13, "rank.frequenter", "6Frequenter");
+rank.add(14, "rank.explorer", "6Explorer");
+rank.add(15, "rank.chief", "6Chief");
+rank.add(16, "rank.friend", "6Friend");
+rank.add(17, "rank.colonizer", "6Colonizer");
+rank.add(18, "rank.newcomer", "eNewcomer");
+rank.add(19, "rank.adventurer", "eAdventurer");
+rank.add(20, "rank.commander", "eCommander");
+rank.add(21, "rank.volunteer", "eVolunteer");
+rank.add(22, "rank.settler", "eSettler");
+rank.add(23, "rank.user", "3User");
+rank.add(24, "rank.challenger", "5Challenger");
+rank.add(25, "rank.mobhunter", "6Mobhunter");
+rank.add(26, "rank.collector", "2Collector");
 setScriptVar("ranks", rank_array);
 
 month_array = array.new(12, 2);
@@ -1721,7 +1720,7 @@ goto("wait");
 
 @infopoint6
 msg.string(player, string.getSpacer());
-msg.prefix(player, "§eShops", "§aUse our admin-shop to trade, or create an own shop with /shop. We might do a YT-tutorial on this.");
+msg.prefix(player, "§eShops", "§aTrade with citizens and players, or create your own chest shop with /shop.");
 goto("wait");
 
 @infopoint7
@@ -1741,7 +1740,7 @@ goto("wait");
 
 @infopoint10
 msg.string(player, string.getSpacer());
-msg.prefix(player, "§eRules", "§aWe have no rules, except to be respectful. Look at our jokes instead.");
+msg.prefix(player, "§eJokes", "§aWe have no rules, except to be respectful. Look at our jokes instead.");
 goto("wait");
 
 @infopoint11
@@ -1751,7 +1750,7 @@ goto("wait");
 
 @infopoint12
 msg.string(player, string.getSpacer());
-msg.prefix(player, "§eNote", "§aBe Creative in our creative world.");
+msg.prefix(player, "§eCreative", "§aBe Creative in our creative world.");
 goto("wait");
 
 @party
@@ -2845,7 +2844,7 @@ iter = iterator(list);
 if(title_a == null) {
 	while(hasNext(iter)) {
 	p = next(iter);
-		sb.setTitle(p, text.new("§c§k# §6minecraft§c.§6marvin§c.§6lu §c§k#"));
+		sb.setTitle(p, text.new("§c§k# §6mundus§c-§6crassus§c.§6de §c§k#"));
 		title_a = true;
 	}
 } else {
@@ -3471,12 +3470,6 @@ if(arg0 == "give") {
 		msg.prefix(player, prefix_perms, "This is not a permission group.");
 		goto("wait");
 	}
-	if(!perm.has("isOwner", player)) {
-		if(perm == "owner") {
-			msg.prefix(player, prefix_perms, "Only owners can give this permission group.");
-			goto("wait");
-		}
-	}
 	if(!perm.has("isAdmin", player)) {
 		if(perm == "admin" || perm == "mod") {
 			msg.prefix(player, prefix_perms, "Only admins can give this permission group.");
@@ -3525,12 +3518,6 @@ if(arg0 == "remove") {
 	if(!perm.isGroupName(perm)) {
 		msg.prefix(player, prefix_perms, "This is not a permission group.");
 		goto("wait");
-	}
-	if(!perm.has("isOwner", player)) {
-		if(perm == "owner") {
-			msg.prefix(player, prefix_perms, "Only owners can remove this permission group.");
-			goto("wait");
-		}
 	}
 	if(!perm.has("isAdmin", player)) {
 		if(perm == "admin" || perm == "mod") {

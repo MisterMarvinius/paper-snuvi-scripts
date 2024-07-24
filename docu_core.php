@@ -2,7 +2,7 @@
     <table>
         <tr>
             <th class="command">
-                + - * / % &amp; | ^ ~ = += -= *= /= %= ++ -- &lt;&lt; &lt;&lt;= &gt;&gt; 
+                + - * / % = += -= *= /= %= ++ -- &lt;&lt;= 
                 &gt;&gt;= &amp;= ^= |= || &amp;&amp; () &lt; &gt; &lt;= &gt;= == ! !=
                 if while break continue elseif else
             </th>
@@ -11,10 +11,6 @@
         <tr>
             <td class="bold">Examples</td>
             <td>a = 3 * (5 - 1);<br>a++;<br>a <<= 3;</td>
-        </tr>
-        <tr>
-            <td class="bold">Info</td>
-            <td><< and >> are not implemented at the moment</td>
         </tr>
     </table>
     <table>
@@ -569,6 +565,90 @@
         <tr>
             <td class="bold">Returns</td>
             <td>true or false depending on the bit</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">bit.leftShift</th>
+            <th class="desc">&lt;&lt;</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>bit.leftShift(value, value)</td>
+        </tr>
+        <tr>
+            <td class="bold">Returns</td>
+            <td>the left shifted value</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">bit.rightShift</th>
+            <th class="desc">&gt;&gt;</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>bit.rightShift(value, value)</td>
+        </tr>
+        <tr>
+            <td class="bold">Returns</td>
+            <td>the right shifted value</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">bit.and</th>
+            <th class="desc">&</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>bit.and(value, value)</td>
+        </tr>
+        <tr>
+            <td class="bold">Returns</td>
+            <td>the and value</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">bit.or</th>
+            <th class="desc">|</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>bit.or(value, value)</td>
+        </tr>
+        <tr>
+            <td class="bold">Returns</td>
+            <td>the or value</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">bit.xor</th>
+            <th class="desc">^</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>bit.xor(value, value)</td>
+        </tr>
+        <tr>
+            <td class="bold">Returns</td>
+            <td>the xor value</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">bit.invert</th>
+            <th class="desc">~</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>bit.invert(value)</td>
+        </tr>
+        <tr>
+            <td class="bold">Returns</td>
+            <td>the inverted value</td>
         </tr>
     </table>
 </section>

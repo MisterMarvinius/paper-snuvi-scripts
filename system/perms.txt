@@ -10,12 +10,12 @@ databank.workerExecute(databank.prepare("
 
 permgroups = array.new(20, 4);
 perm.addGroup(0, "user", "3User", false);
-perm.addGroup(1, "owner", "4Owner", true);
+perm.addGroup(1, "owner", null, false);
 perm.addGroup(2, "admin", "cAdmin", true);
 perm.addGroup(3, "moderator", "9Moderator", true);
 perm.addGroup(4, "supporter", "bSupporter", true);
 perm.addGroup(5, "developer", "5Developer", true);
-perm.addGroup(6, "devmaster", null, true);
+perm.addGroup(6, "", null, false); //not used anymore, just a placeholder
 perm.addGroup(7, "builder", "5Builder", true);
 perm.addGroup(8, "streamer", "dInfluencer", true);
 perm.addGroup(9, "yt", "dInfluencer", true);
@@ -108,8 +108,8 @@ perm.addToGroup(1, "bukkit.command.paper.entity");
 perm.addToGroup(1, "bukkit.command.paper.mobcaps");
 perm.addToGroup(1, "bukkit.command.paper.reload");
 perm.addToGroup(1, "bukkit.command.paper.debug");
-perm.addToGroup(1, "bukkit.command.plugins");
-perm.addToGroup(1, "bukkit.command.reload");
+perm.addToGroup(1, "block.fix");
+perm.addToGroup(1, "mail.reset");
 perm.addToGroup(1, "minecraft.command.datapack");
 perm.addToGroup(1, "minecraft.command.deop");
 perm.addToGroup(1, "minecraft.command.op");
@@ -118,6 +118,10 @@ perm.addToGroup(1, "test");
 perm.addToGroup(1, "stop");
 perm.addToGroup(1, "missing.dynmap");
 perm.addToGroup(1, "dynmap.*");
+perm.addToGroup(1, "isSnuviMaster");
+perm.addToGroup(1, "removeinvstats");
+perm.addToGroup(1, "removesfstats");
+perm.addToGroup(1, "stats.remove");
 
 perm.addToGroup(2, "isAdmin");
 perm.addToGroup(2, "butcher");
@@ -281,6 +285,7 @@ perm.addToGroup(5, "color");
 perm.addToGroup(5, "databank");
 perm.addToGroup(5, "dev");
 perm.addToGroup(5, "error");
+perm.addToGroup(5, "game");
 perm.addToGroup(5, "iteminfo");
 perm.addToGroup(5, "joinme");
 perm.addToGroup(5, "loginrequests");
@@ -307,20 +312,6 @@ perm.addToGroup(5, "top");
 perm.addToGroup(5, "var");
 perm.addToGroup(5, "warp");
 perm.addToGroup(5, "warp.create");
-
-perm.addToGroup(6, "isSnuviMaster");
-perm.addToGroup(6, "block.fix");
-perm.addToGroup(6, "bukkit.command.plugins");
-perm.addToGroup(6, "bukkit.command.reload");
-perm.addToGroup(6, "game");
-perm.addToGroup(6, "mail.reset");
-perm.addToGroup(6, "minecraft.command.datapack");
-perm.addToGroup(6, "minecraft.command.deop");
-perm.addToGroup(6, "minecraft.command.op");
-perm.addToGroup(6, "minecraft.command.worldborder");
-perm.addToGroup(6, "removeinvstats");
-perm.addToGroup(6, "removesfstats");
-perm.addToGroup(6, "stats.remove");
 
 perm.addToGroup(7, "isBuilder");
 perm.addToGroup(7, "isTeam");

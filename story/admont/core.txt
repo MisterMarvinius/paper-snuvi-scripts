@@ -4,13 +4,6 @@ quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 //stable_loc = loc.new(world.getStory(), -1584, 66, -57);
 prefix_skill = "§2Skill";
 prefix_quest = "§dQuest";
-
-oma_inv = inv.new("333333333", text.new("Quests: Oma"));
-inv.setItem(oma_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDer Anfang...", "§e...beginnt immer mit einer netten Oma."));
-inv.setItem(oma_inv, 8, item.create("minecraft:enchanted_book", 1, "§fMülleimer", "§eOma räumt für dich auf"));
-
-dieter_inv = inv.new("333333333", text.new("Quests: Dieter"));
-inv.setItem(dieter_inv, 0, item.create("minecraft:enchanted_book", 1, "§fGaumenschmauß...", "§e...für die ganze Familie."));
 	
 mageguard_inv = inv.new("333333333", text.new("Quests: Mage Guard"));
 inv.setItem(mageguard_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage", null));
@@ -33,8 +26,11 @@ inv.setItem(mason_inv, 0, item.create("minecraft:enchanted_book", 1, "§fNightma
 gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
 inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand", null));
 
-gertrude_inv = inv.new("333333333", text.new("Quests: Gertrude"));
-inv.setItem(gertrude_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage Guard", null));
+butcher_inv = inv.new("200000000", text.new("Quests: Butcher"));
+inv.setItem(butcher_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage Guard", null));
+
+innkeeper_inv = inv.new("200000000", text.new("Quests: Innkeeper"));
+inv.setItem(innkeeper_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDelicacy...", "§e...for the whole family."));
 
 bernd_inv = inv.new("333333333", text.new("Quests: Bernd"));
 inv.setItem(bernd_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHide and Seek", null));
@@ -45,8 +41,9 @@ inv.setItem(kunibert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fKrä
 bauer_inv = inv.new("333333333", text.new("Quests: Bauer"));
 inv.setItem(bauer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fSpezialwunsch", null));
 
-baker_inv = inv.new("200000000", text.new("Quests: Baker"));
+baker_inv = inv.new("220000000", text.new("Quests: Baker"));
 inv.setItem(baker_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIn Haste", null));
+inv.setItem(baker_inv, 1, item.create("minecraft:enchanted_book", 1, "§fThe beginning...", "§e...always starts with a nice grandma."));
 
 isabell_inv = inv.new("333333333", text.new("Quests: Isabell"));
 inv.setItem(isabell_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFür die Wissenschaft!", null));
@@ -61,8 +58,9 @@ inv.setItem(rolf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTücher"
 schmied_inv = inv.new("333333333", text.new("Quests: Schmied"));
 inv.setItem(schmied_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDie Uhr tickt", null));
 
-lumberjack_inv = inv.new("200000000", text.new("Quests: Lumberjack"));
+lumberjack_inv = inv.new("220000000", text.new("Quests: Lumberjack"));
 inv.setItem(lumberjack_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMe and my wood", null));
+inv.setItem(lumberjack_inv, 1, item.create("minecraft:enchanted_book", 1, "§fReforestation", null));
 
 msg.string("dev", "§bQuests: §rAdmont loaded.");
 @main
@@ -79,19 +77,8 @@ if(item == quest_book) {
 		msg.prefix(player, prefix_quest, "You already have a quest.");
 		goto("main");
 	}
-	if(entity_name == "Oma") {
-		inv.open(oma_inv, player);
-	} elseif(entity_name == "Dieter") {
-		inv.open(dieter_inv, player);
-	} elseif(title_string == "Mage Guard") {
+	if(title_string == "Mage Guard") {
 		inv.open(mageguard_inv, player);
-	} elseif(entity_name == "Felsmagier") {
-		/*if() {
-			skill.showShop(player, "skill.subcu_inv", "skill.comeback", "skill.head_human", "skill.head_monster", "skill.fly10min", "skill.grow", "skill.haste", "skill.speed", "skill.jump_boost", "skill.dolphin", "skill.block_up", "skill.block_down", "skill.fire_arrow", "skill.cobweb_miner", null, null, null, null);
-		} else {
-			msg.prefix(player, "§dFelsmagier", "Du musst zuerst ein paar Aufgaben für mich erledigen. Finde meinen Zauberlehrling, der hilft dir weiter.");
-		}*/
-		goto("main");
 	} elseif(title_string == "Farmer") {
 		inv.open(farmer_inv, player);
 	} elseif(title_string == "Anna") {
@@ -102,8 +89,10 @@ if(item == quest_book) {
 		inv.open(mason_inv, player);
 	} elseif(entity_name == "Gustav") {
 		inv.open(gustav_inv, player);
-	} elseif(entity_name == "Gertrude") {
-		inv.open(gertrude_inv, player);
+	} elseif(title_string == "Butcher") {
+		inv.open(butcher_inv, player);
+	} elseif(title_string == "Innkeeper") {
+		inv.open(innkeeper_inv, player);
 	} elseif(entity_name == "Bernd") {
 		inv.open(bernd_inv, player);
 	} elseif(entity_name == "Kunibert") {
@@ -122,25 +111,6 @@ if(item == quest_book) {
 		inv.open(schmied_inv, player);
 	} elseif(title_string == "Lumberjack") {
 		inv.open(lumberjack_inv, player);
-	}
-	goto("main");
-}
-if(title_string == "Quests: Oma") {
-	if(inv_slot == 0) {
-		quest.start(player, "story/admont/der_anfang");
-		goto("main");
-	}
-	if(inv_slot == 8) {
-		waste_inv = inv.new("111111111111111111111111111", text.new("Mülleimer"));
-		inv.open(waste_inv, player);
-		goto("main");
-	}
-	goto("main");
-}
-if(title_string == "Quests: Dieter") {
-	if(inv_slot == 0) {
-		quest.start(player, "story/admont/gaumenschmauss");
-		goto("main");
 	}
 	goto("main");
 }
@@ -209,9 +179,16 @@ if(title_string == "Quests: Gustav") {
 	}
 	goto("main");
 }
-if(inv_name == "Quests: Gertrude") {
+if(title_string == "Quests: Butcher") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/zauberlehrling");
+		quest.start(player, "story/admont/mage_guard");
+		goto("main");
+	}
+	goto("main");
+}
+if(title_string == "Quests: Innkeeper") {
+	if(inv_slot == 0) {
+		quest.start(player, "story/admont/delicacy");
 		goto("main");
 	}
 	goto("main");
@@ -244,6 +221,10 @@ if(title_string == "Quests: Bauer") {
 if(title_string == "Quests: Baker") {
 	if(inv_slot == 0) {
 		quest.start(player, "story/admont/in_haste");
+		goto("main");
+	}
+	if(inv_slot == 1) {
+		quest.start(player, "story/admont/the_beginning");
 		goto("main");
 	}
 	goto("main");
@@ -283,6 +264,10 @@ if(title_string == "Quests: Schmied") {
 if(title_string == "Quests: Lumberjack") {
 	if(inv_slot == 0) {
 		quest.start(player, "story/admont/me_and_my_wood");
+		goto("main");
+	}
+	if(inv_slot == 1) {
+		quest.start(player, "story/admont/reforestation");
 		goto("main");
 	}
 	goto("main");

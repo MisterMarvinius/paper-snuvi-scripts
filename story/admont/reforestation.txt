@@ -1,0 +1,48 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("block_place");
+
+stage = 0;
+all_stages = 1;
+quest_name = "Reforestation";
+
+spruce_sap = 0;
+spruce_sap_mat = material.get("SPRUCE_SAPLING");
+saps = item.create("SPRUCE_SAPLING", 5, null, null);
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	player.removeItem(player, saps);
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dLumberjack", "I am concerned about the sustainability of the forest.");
+	scheduler.msgPrefix(30, player, "§dLumberjack", "Please plant 5 new trees around the village. Here you have 5 saplings.");
+	player.giveItem(player, saps);
+	goto("wait");
+}
+
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "block_place") {
+	block_type = block.getType(block);
+	if(block_type == spruce_sap_mat && !cancel) {
+		spruce_sap++;
+		if(spruce_sap == 5) {
+			stage.increase(player);
+			msg.prefix(player, "§dLumberjack", "Part of the forest, part of the crew.");
+			msg(player, text.new("§dQuest finished. Reward: 3 snuvis!"));
+			money.addBoost(player, 3);
+			quest.finish(script, player);
+		}
+	}
+	goto("wait");
+}
+goto("wait");

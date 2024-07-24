@@ -1,0 +1,61 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("custom_command");
+event.load("player_move");
+
+stage = 0;
+all_stages = 2;
+quest_name = "Zauberlehrling";
+
+breads = item.create("minecraft:bread", 5, null, null);
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	player.removeItem(player, breads);
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dButcher", " have so much to do. Please be my helping hand. I'm devastated! I would love to visit my grandson, the Mage Guard. Unfortunately, I'm not the youngest anymore and my knees can't handle it either. It would be so kind of you if you could bring him his favorite bread and greet him from me!");
+	msg.string(player, "§dAnswer options:");
+	msg(player, string.getClickText("[§dA§r] §eNo problem, I'll set off right away.", "/questanswer A"));
+	msg(player, string.getClickText("[§dB§r] §eI also have knee problems.", "/questanswer B"));
+	goto("wait");
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		player.giveItem(player, breads);
+		msg.prefix(player, "§dButcher", "Follow the way to the mage tower.");
+		w = world.getOverworld();
+		loc1 = loc.new(w, 191, 23, -81);
+		loc2 = loc.new(w, 201, 20, -71);
+		move_id = event.addMoveData(loc1, loc2, -1, -1, player);
+		goto("wait");
+	}
+	if(option == "B") {
+		msg.prefix(player, "§dButcher", "Then he will probably never hear from me again...");
+		msg.prefix(player, "§dQuest", "Quest termed.");
+		quest.term(script, player);
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "player_move") {
+	if(id == move_id) {
+		money.addBoost(player, 4);
+		msg(player, text.new("§dQuest finished. Reward: 4 snuvis!"));
+		quest.finish(script, player);
+	}
+}
+goto("wait");

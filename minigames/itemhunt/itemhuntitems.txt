@@ -44,7 +44,6 @@ list.add(items1, "pink_tulip");
 list.add(items1, "oxeye_daisy");
 list.add(items1, "sandstone");
 list.add(items1, "red_sandstone");
-list.add(items1, "grass");
 list.add(items1, "brown_mushroom");
 list.add(items1, "red_mushroom");
 list.add(items1, "crafting_table");

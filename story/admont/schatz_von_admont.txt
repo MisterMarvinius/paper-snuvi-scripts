@@ -24,7 +24,7 @@ if(event == "quest_term") {
 if(event == "quest_start") {
 	quest.display(player, quest_name, stage, all_stages);
 	msg.prefix(player, "§dMiner", "In Admont there is a hidden treasure. Nobody has ever seen it...");
-	scheduler.msgPrefix(30, player, "§dMiner", "I have tried it to find it since years.");
+	scheduler.msgPrefix(30, player, "§dMiner", "I have tried it to find it for years.");
 	scheduler.msgPrefix(60, player, "§dMiner", "Alena told me she had found a strange hole hidden in the tavern behind a door.");
 	scheduler.msgPrefix(90, player, "§dMiner", "Maybe you have more success than me.");
 	entity.spawn(mob_loc_1, "ZOMBIE");
@@ -38,6 +38,9 @@ goto(label);
 
 @stage0
 if(event == "block_click") {
+	if (block == NULL){
+		goto("wait");
+	}
 	block_loc = block.getLocation(block);
 	if(block_loc == treasure_chest_loc) {
 		stage.increase(player);

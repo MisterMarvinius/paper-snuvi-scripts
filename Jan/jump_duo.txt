@@ -27,8 +27,8 @@ if (!list.contains(entangled_player, player)){
 	}
 	goto("wait");
 }
-sgoto(1,"jump");
-goto("wait");
+
+goto("jump");
 
 @jump
 Motion = entity.getMotion(player);
@@ -40,6 +40,6 @@ while(hasnext(list_iterator)){
 		continue;
 	}
 	pl_Motion = entity.getMotion(pl);
-	entity.setMotion(pl, Motion[0],Motion[1],Motion[2]);
+	entity.setMotion(pl, Motion[0],0.42,Motion[2]);
 }
 goto("wait");

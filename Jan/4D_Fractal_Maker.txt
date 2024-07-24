@@ -498,9 +498,39 @@ function place_blocks(current_layer, currently_active_dimensions, Blocks, first_
 		msg("dev",text.new("FirstCoords bigger than 32K"));
 		term();
 	}
-	wusi = false;//ob die koordinaten existieren und verändert worden sind
+
+    if(currently_active_dimensions == 0){//0 = XYZ
+        i = 3;
+        x = 0;
+        y = 1;
+        z = 2;
+    }elseif(currently_active_dimensions == 1){//1 = WYZ
+		i = 0;
+        x = 3;
+        y = 1;
+        z = 2;									  
+    }elseif(currently_active_dimensions == 2){//2 = WYX
+        i = 2;
+        x = 3;
+        y = 1;
+        z = 0;
+    }elseif(currently_active_dimensions == 3){//3 = ZYX
+        i = 3;
+        x = 2;
+        y = 1;
+        z = 0;
+    }elseif(currently_active_dimensions == 4){//4 = ZYW
+        i = 0;
+        x = 2;
+        y = 1;
+        z = 3;
+    }elseif(currently_active_dimensions == 5){//5 = XYW
+        i = 2;
+        x = 0;
+        y = 1;
+        z = 3;
+    }
 	while(hasnext(iterator)){
-		wusi = false;
 		element = next(iterator);
 		Coord_Array = map.getKey(element);//map.get(Blocks, key) ist der Block-Type, bei remove egal. D_Array[0] = x, D_Array[1] = y, D_Array[2] = z, D_Array[3] = w
 		//0 = XYZ, 1 = WYZ, 2 = XYW
@@ -514,71 +544,10 @@ function place_blocks(current_layer, currently_active_dimensions, Blocks, first_
 			waitfor(2);
 		}
 		
-		if(currently_active_dimensions == 0){//0 = XYZ
-			if(Coord_Array[3] == temp_c_l){
-				wusi = true;
-				X_place = Coord_Array[0];
-				Y_place = Coord_Array[1];
-				Z_place = Coord_Array[2];
-			}
-		}elseif(currently_active_dimensions == 1){//1 = WYZ
-			if(Coord_Array[0] == temp_c_l){
-				wusi = true;
-				X_place = Coord_Array[3];
-				Y_place = Coord_Array[1];
-				Z_place = Coord_Array[2];
-			}
-		}elseif(currently_active_dimensions == 2){//2 = WYX
-			if(Coord_Array[2] == temp_c_l){
-				wusi = true;
-				X_place = Coord_Array[3];
-				Y_place = Coord_Array[1];
-				Z_place = Coord_Array[0];
-			}
-		}elseif(currently_active_dimensions == 3){//3 = ZYX
-			if(Coord_Array[3] == temp_c_l){
-				wusi = true;
-				X_place = Coord_Array[2];
-				Y_place = Coord_Array[1];
-				Z_place = Coord_Array[0];
-			}
-		}elseif(currently_active_dimensions == 4){//4 = ZYW
-			if(Coord_Array[0] == temp_c_l){
-				wusi = true;
-				X_place = Coord_Array[2];
-				Y_place = Coord_Array[1];
-				Z_place = Coord_Array[3];
-			}
-		}elseif(currently_active_dimensions == 5){//5 = XYW
-			if(Coord_Array[2] == temp_c_l){
-				wusi = true;
-				X_place = Coord_Array[0];
-				Y_place = Coord_Array[1];
-				Z_place = Coord_Array[3];
-			}
-		}
-		if(math.abs(X_place) > 32000){
-			msg("dev",text.new("X_Coords bigger than 32K"));
-			msg("dev",text.new(X_place));
-			msg("dev",text.new(Y_place));
-			msg("dev",text.new(Z_place));
-			term();
-		}
-		if(math.abs(Y_place) > 32000 ){
-			msg("dev",text.new("Y_Coords bigger than 32K"));
-			msg("dev",text.new(X_place));
-			msg("dev",text.new(Y_place));
-			msg("dev",text.new(Z_place));
-			term();
-		}
-		if(math.abs(Z_place) > 32000){
-			msg("dev",text.new("Z_Coords bigger than 32K"));
-			msg("dev",text.new(X_place));
-			msg("dev",text.new(Y_place));
-			msg("dev",text.new(Z_place));
-			term();
-		}
-		if(wusi){
+		if(Coord_Array[i] == temp_c_l){
+			X_place = Coord_Array[x];
+			Y_place = Coord_Array[y];
+			Z_place = Coord_Array[z];
 			c += 2;
 			X_place += first_X;
 			Y_place += first_Y;

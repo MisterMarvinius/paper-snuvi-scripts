@@ -1,0 +1,168 @@
+event.load("entity_click");
+event.load("quest_start");
+event.load("quest_term");
+event.load("custom_command");
+event.load("block_click");
+event.load("block_break");
+event.load("entity_damage");
+event.load("living_death");
+
+stage = 0;
+all_stages = 7;
+quest_name = "Delicacy...";
+coal_counter = 0;
+
+w = world.getOverworld();
+cow_loc = loc.new(w, 136.5, 74, -40);
+coal_ore_mat = material.get("COAL_ORE");
+coal_mat = material.get("COAL");
+beef_mat = material.get("BEEF");
+
+@wait
+wait();
+if(event == "living_death") {
+	player = player.getFromDamageSource(damage_source);
+	if(player == null) {
+		goto("wait");
+	}
+}
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	//Hier Code einfügen...
+	wait(); //Script wird von außen terminiert
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dInnkeeper", "It looks like we have company! If you've come here to eat with us, I'm afraid I have to disappoint you. We have neither a dish nor fire. You could say we need someone to cheer us up.");
+	msg.string(player, "§dAnswer options:");
+	msg(player, string.getClickText("[§dA§r] §eI'd love to join in the cheering!", "/questanswer A"));
+	msg(player, string.getClickText("[§dB§r] §eCheerleading? I can do that.", "/questanswer B"));
+	goto("wait");
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A" || option == "B") {
+		stage.increase(player);
+		msg.prefix(player, "§dInnkeeper", "Well, that's great. The Odelstein Cave is downstairs in Church Square 5. Go get us 6 pieces of coal.");
+	}
+}
+goto("wait");
+
+@stage1
+if(event == "block_click") {
+	if(block == null) {
+		goto("wait");
+	}
+	block_type = block.getType(block);
+	if(block_type == coal_ore_mat) {
+		cancel = false;
+	}
+	goto("wait");
+}
+if(event == "block_break") {
+	block_type = block.getType(block);
+	if(block_type == coal_ore_mat) {
+		cancel = true;
+		item.drop(item.create("COAL", 1, null, null), entity.getLocation(player));
+		coal_counter++;
+		if(coal_counter == 6) {
+			stage.increase(player);
+		}
+	}
+}
+goto("wait");
+
+@stage2
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Innkeeper") {
+		item = living.getHand(player);
+		item_type = item.getType(item);
+		if(item_type == coal_mat) {
+			rest_amount = citizen.giveItem(string_name, player, item_type, coal_counter);
+			if(rest_amount == 0) {
+				stage.increase(player);
+				msg.prefix(player, "§dInnkeeper", "Thank you! Now all we're missing is a proper roast.");
+				scheduler.msgPrefix(30, player, "§dInnkeeper", "We'll start the fire with some wood. Meanwhile, you go to the butcher and get us some beef!");
+			} else {
+				coal_counter = rest_amount;
+			}
+		}
+	}
+}
+goto("wait");
+
+@stage3
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Butcher") {
+		stage.increase(player);
+		msg.prefix(player, "§dButcher", "Hey, you really shouldn't be here! I don't want your young eyes to witness this gruesome scene.");
+		msg.string(player, "§dAnswer options:");
+		msg(player, string.getClickText("[§dA§r] §eIt's okay. I would like some beef, if that's possible.", "/questanswer A"));
+		msg(player, string.getClickText("[§dB§r] §eI can't bear to watch this at all!", "/questanswer B"));
+	}
+}
+goto("wait");
+
+@stage4
+if(event == "custom_command" && command == "questanswer") {
+	option = list.getIndex(args, 0);
+	if(option == "A") {
+		stage.increase(player);
+		msg.prefix(player, "§dButcher", "Well then, go through the door next to us in the slaughterhouse and pick one. I'll even let you do it yourself.");
+		entity.spawn(cow_loc, "COW");
+		goto("wait");
+	}
+	if(option == "B") {
+		stage.increase(player);
+		stage.increase(player);
+		player.safeGiveItem(player, item.create("BEEF", 1, null, null));
+		msg.prefix(player, "§dButcher", "No problem. I have some stored.");
+		scheduler.msgPrefix(30, player, "§dInnkeeper", "Come back to me.");
+	}
+}
+goto("wait");
+
+@stage5
+if(event == "entity_damage") {
+	if(entity.getType(entity) == "cow") {
+		cancel = false;
+	}
+}
+if(event == "living_death") {
+	if(entity.getType(living_entity) == "cow") {
+		stage.increase(player);
+		msg.prefix(player, "§dInnkeeper", "Come back to me.");
+	}
+}
+goto("wait");
+
+@stage6
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == "Innkeeper") {
+		item = living.getHand(player);
+		item_type = item.getType(item);
+		if(item_type == beef_mat) {
+			rest_amount = citizen.giveItem(string_name, player, item_type, 1);
+			if(rest_amount == 0) {
+				msg.prefix(player, "§dInnkeeper", "Excellent! This will be a unique culinary delight.");
+				player.safeGiveItem(player, item.create("COOKED_BEEF", 1, null, null));
+				msg(player, text.new("§dQuest finished. Reward: 22 snuvis!"));
+				money.addBoost(player, 22);
+				quest.finish(script, player);
+			}
+		}
+	}
+}
+goto("wait");
