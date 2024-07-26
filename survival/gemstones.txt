@@ -39,10 +39,38 @@ anvil_use = sound.get("BLOCK_ANVIL_USE");
 sc_master = sound.getCategory("MASTER");
 snuvis = 4096;
 
-tag_helmet = item.getTag("km:helmet");
-tag_chestplate = item.getTag("km:chestplate");
-tag_leggings = item.getTag("km:leggings");
-tag_boots = item.getTag("km:boots");
+helmets = set.new();
+set.add(helmets, material.get("minecraft:diamond_helmet"));
+set.add(helmets, material.get("minecraft:chainmail_helmet"));
+set.add(helmets, material.get("minecraft:iron_helmet"));
+set.add(helmets, material.get("minecraft:golden_helmet"));
+set.add(helmets, material.get("minecraft:netherite_helmet"));
+set.add(helmets, material.get("minecraft:leather_helmet"));
+set.add(helmets, material.get("minecraft:turtle_helmet"));
+
+chestplates = set.new();
+set.add(chestplates, material.get("diamond_chestplate"));
+set.add(chestplates, material.get("minecraft:chainmail_chestplate"));
+set.add(chestplates, material.get("minecraft:iron_chestplate"));
+set.add(chestplates, material.get("minecraft:golden_chestplate"));
+set.add(chestplates, material.get("minecraft:netherite_chestplate"));
+set.add(chestplates, material.get("minecraft:leather_chestplate"));
+
+leggings = set.new();
+set.add(leggings, material.get("minecraft:diamond_leggings"));
+set.add(leggings, material.get("minecraft:chainmail_leggings"));
+set.add(leggings, material.get("minecraft:iron_leggings"));
+set.add(leggings, material.get("minecraft:golden_leggings"));
+set.add(leggings, material.get("minecraft:netherite_leggings"));
+set.add(leggings, material.get("minecraft:leather_leggings"));
+
+boots = set.new();
+set.add(boots, material.get("minecraft:diamond_boots"));
+set.add(boots, material.get("minecraft:chainmail_boots"));
+set.add(boots, material.get("minecraft:iron_boots"));
+set.add(boots, material.get("minecraft:golden_boots"));
+set.add(boots, material.get("minecraft:netherite_boots"));
+set.add(boots, material.get("minecraft:leather_boots"));
 
 msg.string("dev", "§bGemstones §rloaded.");
 @wait
@@ -101,13 +129,14 @@ if(event == "snuvi_click") {
 			msg.prefix(player, prefix_commands, "Second slot is empty.");
 			goto("wait");
 		}
-		if(item.hasTag(item_0, tag_helmet)) {
+		item_0_type = item.getType(item_0);
+		if(set.contains(helmets, item_0_type)) {
 			slot = slot_head;
-		} elseif(item.hasTag(item_0, tag_chestplate)) {
+		} elseif(set.contains(chestplates, item_0_type)) {
 			slot = slot_chest;
-		} elseif(item.hasTag(item_0, tag_leggings)) {
+		} elseif(set.contains(leggings, item_0_type)) {
 			slot = slot_legs;
-		} elseif(item.hasTag(item_0, tag_boots)) {
+		} elseif(set.contains(boots, item_0_type)) {
 			slot = slot_feet;
 		} else {
 			msg.prefix(player, prefix_commands, "First slot is not an armor part.");

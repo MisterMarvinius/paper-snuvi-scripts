@@ -32,8 +32,6 @@ skill.add("Timber", "skill.timber", "minecraft:iron_axe", "Break whole trees wit
 
 death_loc_map = map.new();
 
-//sword_tag = item.getTag("km:sword");
-//dye_tag = item.getTag("km:dye");
 leaves_tag = block.getTag("minecraft:leaves");
 //prop_persistent = block.getProperty("persistent");
 
@@ -228,7 +226,7 @@ if(block_type == "minecraft:cobweb") {
 		goto("wait");
 	}
 	hand_item = living.getHand(player);
-	if(!item.hasTag(hand_item, sword_tag)) {
+	if(!item.hasTag(hand_item, sword_tag)) { //TODO sword_tag (km:sword) no longer exists
 		goto("wait");
 	}
 	amount = skill.getAmount(player, "skill.cobweb_miner");

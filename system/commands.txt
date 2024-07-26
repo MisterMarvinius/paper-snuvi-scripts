@@ -196,7 +196,6 @@ command.registerAlias("thor", "lightning");
 composter_par = particle.get("COMPOSTER");
 wall_signs_tag = block.getTag("minecraft:wall_signs");
 beds_tag = block.getTag("minecraft:beds");
-chest_tag = block.getTag("km:container");
 all_signs_tag = block.getTag("minecraft:all_signs");
 sign_tag = block.getTag("minecraft:signs");
 //dirt_tag = block.getTag("minecraft:dirt");
@@ -468,6 +467,17 @@ list.add(lore_list, text.new("§5To use at jewelry smith."));
 inv.setItem(vote_inv, 6, item.custom.create("SAPPHIRE", 1, "§aSapphire", lore_list));
 vote_inv_id = inv.getId(vote_inv);
 
+lockable_containers = set.new();
+set.add(lockable_containers, material.get("minecraft:chest"));
+set.add(lockable_containers, material.get("minecraft:trapped_chest"));
+set.add(lockable_containers, material.get("minecraft:furnace"));
+set.add(lockable_containers, material.get("minecraft:blast_furnace"));
+set.add(lockable_containers, material.get("minecraft:smoker"));
+set.add(lockable_containers, material.get("minecraft:dropper"));
+set.add(lockable_containers, material.get("minecraft:dispenser"));
+set.add(lockable_containers, material.get("minecraft:hopper"));
+set.add(lockable_containers, material.get("minecraft:barrel"));
+
 consoleCommands = set.new();
 set.add(consoleCommands, "ban");
 set.add(consoleCommands, "help");
@@ -707,7 +717,7 @@ if(event == "block_click") {
 	if(player.hasBypass(player)) {
 		goto("wait");
 	}
-	if(block.hasTag(block, chest_tag)) {
+	if(block.isLockable(block)) {
 		block_loc = block.getLocation(block);
 		if(plot.check(block_loc, player, 16, true)) {
 			cancel = false;
@@ -9990,4 +10000,8 @@ function decreaseHomeBoost() {
 	config.set(config, "homeBoostPoints", points);
 	config.saveAsync(config);
 	updateVoteInv();
+}
+
+function block.isLockable(block) {
+	return set.contains($lockable_containers, block.getType(block));
 }

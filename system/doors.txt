@@ -3,7 +3,6 @@ event.load("block_click");
 doors = list.new();
 orig_value_map = map.new();
 
-auto_door_tag = block.getTag("km:auto_door");
 doors_tag = block.getTag("minecraft:wooden_doors");
 trapdoors_tag = block.getTag("minecraft:wooden_trapdoors");
 fencegates_tag = block.getTag("minecraft:fence_gates");
@@ -30,7 +29,7 @@ goto("main");
 if(block == null) {
 	goto("main");
 }
-if(block.hasTag(block, auto_door_tag) && action == "RIGHT_CLICK_BLOCK") {
+if(block.isAutomaticDoor(block) && action == "RIGHT_CLICK_BLOCK") {
 	if(cancel) {
 		goto("main");
 	}
@@ -74,7 +73,7 @@ goto("main");
 @closedoor
 block = list.getIndex(doors, 0);
 list.removeIndex(doors, 0);
-if(block.hasTag(block, auto_door_tag)) {
+if(block.isAutomaticDoor(block)) {
 	//close door
 	open_value = block.isOpen(block);
 	if(block.hasTag(block, doors_tag)) {
@@ -169,4 +168,8 @@ function block.isSameDoorHalf(door_block_1, door_block_2) {
 	state_half = block.getBisectedHalf(door_block_1);
 	state_half_2 = block.getBisectedHalf(door_block_2);
 	return state_half == state_half_2;
+}
+
+function block.isAutomaticDoor(block) {
+	return block.hasTag(block, $doors_tag) || block.hasTag(block, $trapdoors_tag) || block.hasTag(block, $fencegates_tag);
 }

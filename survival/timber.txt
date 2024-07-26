@@ -1,7 +1,6 @@
 event.load("block_break");
 
 tag_log_burn = block.getTag("minecraft:logs_that_burn");
-axe_tag = item.getTag("km:axe");
 
 oak_mat = material.get("OAK_LOG");
 spruce_mat = material.get("SPRUCE_LOG");
@@ -23,6 +22,14 @@ map.add(horizontal_dist_map, dark_oak_mat, 5);
 map.add(horizontal_dist_map, cherry_mat, 8);
 map.add(horizontal_dist_map, mangrove_mat, 8);
 
+axes = set.new();
+set.add(axes, material.get("minecraft:netherite_axe"));
+set.add(axes, material.get("minecraft:diamond_axe"));
+set.add(axes, material.get("minecraft:iron_axe"));
+set.add(axes, material.get("minecraft:golden_axe"));
+set.add(axes, material.get("minecraft:stone_axe"));
+set.add(axes, material.get("minecraft:wooden_axe"));
+
 msg.string("dev", "§bTimber §rloaded.");
 @wait
 wait();
@@ -41,7 +48,7 @@ if(event == "block_break") {
 	if(!skill.isActivated(player, "skill.timber")) {
 		goto("wait");
 	}
-	if(!player.checkHandsForTag(player, axe_tag)) {
+	if(!player.checkHandsForAxe(player)) {
 		goto("wait");
 	}
 	tree_type = block.getType(block);
@@ -209,4 +216,13 @@ function block.addTreePart(location) {
 		set.add($tree_set, location);
 		block.break(block.get(location), $player);
 	}
+}
+
+function player.checkHandsForAxe(player) {
+	hand = living.getHand(player);
+	if(set.contains($axes, item.getType(hand))) {
+		return true;
+	}
+	offhand = living.getOffHand(player);
+	return set.contains($axes, item.getType(offhand));
 }
