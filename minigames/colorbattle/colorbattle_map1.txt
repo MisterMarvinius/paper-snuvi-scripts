@@ -1,0 +1,23 @@
+mapname = "Rectangles";
+
+numberofteams = 8;
+teamsize = 1;
+minplayers = 1;
+maxplayers = numberofteams * teamsize;
+
+gamesignloc = minigame.getSignLoc("colorbattlesign1");
+gamesworld = world.getGames();
+lobbyspawnloc = loc.new(gamesworld, 1032, 83, 992);
+spawnloc = loc.new(gamesworld, -1997.5, 101, 2992.5);
+middleloc = loc.new(gamesworld, -2000, 100, 3000);
+radius = 50;
+
+join_blocks = list.new();
+list.add(join_blocks, loc.new(gamesworld, 1033, 84, 996));
+list.add(join_blocks, loc.new(gamesworld, 1032, 84, 996));
+list.add(join_blocks, loc.new(gamesworld, 1028, 84, 992));
+list.add(join_blocks, loc.new(gamesworld, 1028, 84, 991));
+list.add(join_blocks, loc.new(gamesworld, 1032, 84, 987));
+list.add(join_blocks, loc.new(gamesworld, 1033, 84, 987));
+list.add(join_blocks, loc.new(gamesworld, 1037, 84, 991));
+list.add(join_blocks, loc.new(gamesworld, 1037, 84, 992));

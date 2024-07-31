@@ -25,6 +25,111 @@ moveid_tpcave_up = event.addMoveData(loc.new(overworld, 91, 60, -22), loc.new(ov
 
 daily_reward_loc = loc.new(overworld, 136, 77, -22);
 
+itemhunter_ass_loc = loc.new(overworld, 137, 78.5, -19);
+itemhunter_frame_loc = loc.new(overworld, 135, 76, -19);
+itemhunter_reward = 7; // snuvis
+itemhunter_frame_direction = "WEST";
+itemhunter_default_seconds = 300;
+itemhunter_seconds = itemhunter_default_seconds;
+itemhunter_items = list.new();
+itemhunter.addItem("minecraft:rail");
+itemhunter.addItem("minecraft:oak_fence");
+itemhunter.addItem("minecraft:glass_bottle");
+itemhunter.addItem("minecraft:dropper");
+itemhunter.addItem("minecraft:iron_sword");
+itemhunter.addItem("minecraft:ladder");
+itemhunter.addItem("minecraft:minecart");
+itemhunter.addItem("minecraft:hopper");
+itemhunter.addItem("minecraft:redstone_torch");
+itemhunter.addItem("minecraft:torch");
+itemhunter.addItem("minecraft:bow");
+itemhunter.addItem("minecraft:cobblestone_wall");
+itemhunter.addItem("minecraft:stone");
+itemhunter.addItem("minecraft:oak_door");
+itemhunter.addItem("minecraft:oak_fence_gate");
+itemhunter.addItem("minecraft:stone_pressure_plate");
+itemhunter.addItem("minecraft:oak_pressure_plate");
+itemhunter.addItem("minecraft:oak_trapdoor");
+itemhunter.addItem("minecraft:bucket");
+itemhunter.addItem("minecraft:iron_bars");
+itemhunter.addItem("minecraft:oak_sign");
+itemhunter.addItem("minecraft:shears");
+itemhunter.addItem("minecraft:fishing_rod");
+itemhunter.addItem("minecraft:compass");
+itemhunter.addItem("minecraft:oak_boat");
+itemhunter.addItem("minecraft:bowl");
+itemhunter.addItem("minecraft:white_wool");
+itemhunter.addItem("minecraft:wooden_sword");
+itemhunter.addItem("minecraft:tripwire_hook");
+itemhunter.addItem("minecraft:chest_minecart");
+itemhunter.addItem("minecraft:iron_door");
+itemhunter.addItem("minecraft:smooth_stone_slab");
+itemhunter.addItem("minecraft:activator_rail");
+itemhunter.addItem("minecraft:detector_rail");
+itemhunter.addItem("minecraft:dispenser");
+itemhunter.addItem("minecraft:piston");
+itemhunter.addItem("minecraft:repeater");
+itemhunter.addItem("minecraft:comparator");
+itemhunter.addItem("minecraft:heavy_weighted_pressure_plate");
+itemhunter.addItem("minecraft:arrow");
+itemhunter.addItem("minecraft:bookshelf");
+itemhunter.addItem("minecraft:mushroom_stew");
+itemhunter.addItem("minecraft:pumpkin_pie");
+itemhunter.addItem("minecraft:cooked_beef");
+itemhunter.addItem("minecraft:cooked_porkchop");
+itemhunter.addItem("minecraft:book");
+itemhunter.addItem("minecraft:map");
+itemhunter.addItem("minecraft:ender_eye");
+itemhunter.addItem("minecraft:lead");
+itemhunter.addItem("minecraft:stone_brick_slab");
+itemhunter.addItem("minecraft:brewing_stand");
+itemhunter.addItem("minecraft:leather_helmet");
+itemhunter.addItem("minecraft:leather_chestplate");
+itemhunter.addItem("minecraft:leather_leggings");
+itemhunter.addItem("minecraft:leather_boots");
+itemhunter.addItem("minecraft:cauldron");
+itemhunter.addItem("minecraft:clock");
+itemhunter.addItem("minecraft:paper");
+itemhunter.addItem("minecraft:tnt");
+itemhunter.addItem("minecraft:magma_cream");
+itemhunter.addItem("minecraft:bread");
+itemhunter.addItem("minecraft:white_bed");
+itemhunter.addItem("minecraft:cake");
+itemhunter.addItem("minecraft:cooked_cod");
+itemhunter.addItem("minecraft:tnt_minecart");
+itemhunter.addItem("minecraft:melon");
+itemhunter.addItem("minecraft:hay_block");
+itemhunter.addItem("minecraft:ender_chest");
+itemhunter.addItem("minecraft:sticky_piston");
+itemhunter.addItem("minecraft:daylight_detector");
+itemhunter.addItem("minecraft:golden_apple");
+itemhunter.addItem("minecraft:jukebox");
+itemhunter.addItem("minecraft:anvil");
+itemhunter.addItem("minecraft:quartz_stairs");
+itemhunter.addItem("minecraft:enchanting_table");
+itemhunter.addItem("minecraft:golden_carrot");
+itemhunter.addItem("minecraft:glistering_melon_slice");
+itemhunter.addItem("minecraft:redstone_lamp");
+itemhunter.addItem("minecraft:writable_book");
+itemhunter.addItem("minecraft:powered_rail");
+itemhunter.addItem("minecraft:stick");
+itemhunter.addItem("minecraft:wooden_pickaxe");
+itemhunter.addItem("minecraft:iron_pickaxe");
+itemhunter.addItem("minecraft:golden_pickaxe");
+itemhunter.addItem("minecraft:wooden_hoe");
+itemhunter.addItem("minecraft:diamond_hoe");
+itemhunter.addItem("minecraft:golden_hoe");
+itemhunter.addItem("minecraft:diamond_chestplate");
+itemhunter.addItem("minecraft:iron_chestplate");
+itemhunter.addItem("minecraft:golden_boots");
+itemhunter.addItem("minecraft:diamond_boots");
+itemhunter.addItem("minecraft:iron_helmet");
+itemhunter.addItem("minecraft:iron_leggings");
+itemhunter.addItem("minecraft:iron_boots");
+itemhunter.addItem("minecraft:golden_leggings");
+itemhunter.addItem("minecraft:golden_helmet");
+itemhunter.addItem("minecraft:golden_chestplate");
+
 config = getScriptVar("server_config");
 mobarena_spawn = loc.new(overworld, 1150.5, -5, 1087, 90, 0);
 afk_down_loc = loc.new(overworld, 168.5, 34, -46.5, 135, 25);
@@ -88,6 +193,9 @@ inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", lore
 inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 Snuvis", lore_list));
 inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", lore_list));
 inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll Snuvis", lore_list));
+
+itemhunter.setNextItem();
+sgoto(20, "itemhunter_loop");
 
 msg.string("dev", "§bSurvival §rloaded.");
 @wait
@@ -204,8 +312,13 @@ if(!isCitizen(entity)) {
 }
 entity_name = entity.getName(entity);
 string_name = string.text(entity_name);
+if(string_name == "Item Hunter") {
+	itemhunter.shopItem(player);
+	goto("wait");
+}
 if(string_name == "Casino") {
 	inv.open(casino_inv, player);
+	goto("wait");
 }
 if(string_name == "Banker") {
 	inv.open(bankmenu, player);
@@ -340,7 +453,6 @@ if(string_name == "Info-Point") {
 	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eCreative§r]", "/infopoint12"), text.new(" "), string.getClickText("§f[§bTeleport§f]", "/creative")));
 	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eRanking§r]", "/infopoint9"), text.new(" "), string.getLinkText("§f[§bRanks§f]", "https://mundus-crassus.de/?site=ranks")));
 	msg(player, text.merge(string.getClickText("§r [§cclick§r] [§eJokes§r]", "/infopoint10"), text.new(" "), string.getLinkText("§f[§bJokes§f]", "https://mundus-crassus.de/?site=rules")));
-	//msg(player, string.getClickText("§r [§cclick§r] [§eNote§r]", "/infopoint11"));
 	goto("wait");
 }
 goto("wait");
@@ -604,7 +716,15 @@ if(block != null) {
 		dr_value = player.getDailyReward(player);
 		dr_time = player.getDailyRewardTime(player);
 		now_time = time.getMillis();
+		// reset if all rewards claimed and it is the follow up day
 		if(dr_value >= 127 && isFollowingDay(dr_time, now_time)) {
+			player.setDailyReward(player, 0);
+			player.setDailyRewardTime(player, 0);
+			dr_value = 0;
+			dr_time = 0;
+		}
+		// reset if at least one day has been skipped
+		if(time.hasWholeDaySkipped(dr_time, now_time)) {
 			player.setDailyReward(player, 0);
 			player.setDailyRewardTime(player, 0);
 			dr_value = 0;
@@ -700,6 +820,11 @@ if(set.contains(survival_respawn, player_uuid)) {
 }
 goto("wait");
 
+@itemhunter_loop
+itemhunter.decreaseSecondsAndProcess();
+sgoto(20, "itemhunter_loop");
+goto("wait");
+
 function lottery.addValue(value) {
 	config = getServerConfig();
 	new_value = config.getDouble(config, "lottery_value", 0) + value;
@@ -739,4 +864,58 @@ function player.setDailyRewardTime(player_or_id, millis) {
 function player.getDailyRewardTime(player_or_id) {
 	config = playerdata.getSurvival(player_or_id);
 	return config.getDouble(config, "lastdailyrewardtime", 0);
+}
+
+function itemhunter.addItem(material) {
+	list.add($itemhunter_items, item.new(material.get(material)));
+}
+
+function itemhunter.decreaseSecondsAndProcess() {
+	$itemhunter_seconds--;
+	if($itemhunter_seconds <= 0) {
+		itemhunter.setNextItem();
+		return;
+	}
+	itemhunter.updateName();
+}
+
+function itemhunter.updateName() {
+	itemhunter_ass = entity.get($itemhunter_ass_loc, 1, "org.bukkit.entity.ArmorStand");
+	entity.setName(itemhunter_ass, text.new(string.number($itemhunter_seconds)), true);
+}
+
+function itemhunter.resetTimer() {
+	$itemhunter_seconds = $itemhunter_default_seconds;
+}
+
+function itemhunter.setItemFrame(item) {
+	entity.removeAll("org.bukkit.entity.ItemFrame", $itemhunter_frame_loc, 1);
+	entity.frame.spawn($itemhunter_frame_loc, $itemhunter_frame_direction, item);
+}
+
+function itemhunter.getRandomItem() {
+	random_index = math.random(0, list.getSize($itemhunter_items) - 1);
+	return list.getIndex($itemhunter_items, random_index);
+}
+
+function itemhunter.setNextItem() {
+	$itemhunter_item = itemhunter.getRandomItem();
+	itemhunter.setItemFrame($itemhunter_item);
+	itemhunter.resetTimer();
+}
+
+function itemhunter.reward(player) {
+	money.add(player, $itemhunter_reward);
+}
+
+function itemhunter.shopItem(player) {
+	if($itemhunter_item == null) {
+		return;
+	}
+	item = living.getHand(player);
+	if(item.getType(item) == item.getType($itemhunter_item)) {
+		player.removeItem(player, $itemhunter_item);
+		itemhunter.reward(player);
+		itemhunter.setNextItem();
+	}
 }

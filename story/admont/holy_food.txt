@@ -1,0 +1,86 @@
+event.load("quest_start");
+event.load("quest_term");
+event.load("entity_click");
+
+server_config = getServerConfig();
+holy_food_book = read.item(config.getString(server_config, "holy_food_priest", ""));
+
+citizens1 = list.new();
+list.add(citizens1, "Librarian");
+list.add(citizens1, "Lumberjack");
+list.add(citizens1, "Anna");
+list.add(citizens1, "Farmer");
+
+citizens2 = list.new();
+list.add(citizens2, "Butcher");
+list.add(citizens2, "Mason");
+list.add(citizens2, "Smith");
+list.add(citizens2, "Baker");
+
+citizens3 = list.new();
+list.add(citizens3, "Innkeeper");
+list.add(citizens3, "Alena");
+list.add(citizens3, "Miner");
+list.add(citizens3, "Fisher");
+list.add(citizens3, "Nether Merchant");
+
+citizen1 = list.getIndex(citizens1, math.random(0, list.getSize(citizens1) - 1));
+citizen2 = list.getIndex(citizens2, math.random(0, list.getSize(citizens2) - 1));
+citizen3 = list.getIndex(citizens3, math.random(0, list.getSize(citizens3) - 1));
+
+stage = 0;
+all_stages = 3;
+quest_name = "Holy food";
+
+@wait
+wait();
+if(!player.isQuester(player, script)) {
+	goto("wait");
+}
+if(event == "quest_term") {
+	player.removeItem(player, holy_food_book);
+	player.removeItem(player, holy_food_book);
+	player.removeItem(player, holy_food_book);
+	wait(); //script will be terminated externally
+}
+if(event == "quest_start") {
+	quest.display(player, quest_name, stage, all_stages);
+	msg.prefix(player, "§dPriest", string.concat("My lamb. I need you to bring this holy food in form of a book to the hungry people of Admont!"));
+	scheduler.msgPrefix(60, player, "§dPriest", string.concat("Bring the food to: ", citizen1, ", ", citizen2, ", ", citizen3));
+	player.giveItem(player, holy_food_book);
+	player.giveItem(player, holy_food_book);
+	player.giveItem(player, holy_food_book);
+	goto("wait");
+}
+label = string.concat("stage", string.number(stage));
+goto(label);
+
+@stage0
+@stage1
+@stage2
+if(event == "entity_click" && slot.isHand(hand) && isCitizen(entity)) {
+	entity_name = entity.getName(entity);
+	string_name = string.text(entity_name);
+	if(string_name == citizen1) {
+		citizen1 = null;
+		player.removeItem(player, holy_food_book);
+		stage.increase(player);
+	}
+	elseif(string_name == citizen2) {
+		citizen2 = null;
+		player.removeItem(player, holy_food_book);
+		stage.increase(player);
+	}
+	elseif(string_name == citizen3) {
+		citizen3 = null;
+		player.removeItem(player, holy_food_book);
+		stage.increase(player);
+	}
+	if(stage >= all_stages) {
+		msg.prefix(player, "§dPriest", "The admin may be with you.");
+		msg.string(player, "§dQuest finished. Reward: 6 snuvis!");
+		money.addBoost(player, 6);
+		quest.finish(script, player);
+	}
+}
+goto("wait");

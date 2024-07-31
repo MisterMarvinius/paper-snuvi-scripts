@@ -90,6 +90,7 @@ commandhelp.addChildLiteral("start", "mobarena");
 commandhelp.addChildLiteral("start", "perms");
 commandhelp.addChildLiteral("start", "playerdata");
 commandhelp.addChildLiteral("start", "playtime");
+commandhelp.addChildLiteral("start", "plots");
 commandhelp.addChildLiteral("start", "pumpkin");
 commandhelp.addChildLiteral("start", "recipes");
 commandhelp.addChildLiteral("start", "scheduler");

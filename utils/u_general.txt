@@ -390,6 +390,22 @@ function time.getString(millis) {
 	return timestring;
 }
 
+/*
+* returns true if a whole day is skipped. (technial: if between the timestamps are two midnights)
+* precondition: timestamp_1 < timestamp_2
+*/
+function time.hasWholeDaySkipped(timestamp_1, timestamp_2) {
+	cal_1 = time.new(timestamp_1);
+	time.nextDay(cal_1); // first midnight after timestamp_1
+	time.nextDay(cal_1); // second midnight after timestamp_1
+	midnight = time.from(cal_1); // timestamp of 2nd midnight
+	return midnight < timestamp_2;
+}
+
+/*
+* returns true if timestamp_2 is within the next day of timestamp_1
+* precondition: timestamp_1 < timestamp_2
+*/
 function isFollowingDay(timestamp_1, timestamp_2) {
 	cal_1 = time.new(timestamp_1);
 	time.nextDay(cal_1);

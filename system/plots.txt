@@ -10,7 +10,8 @@ ignoreGoto(event);
 goto("wait");
 
 @explosion
-plot_list = plot.get(entity.getLocation(entity));
+entity_loc = entity.getLocation(entity);
+plot_list = plot.get(entity_loc);
 plot_amount = list.getSize(plot_list);
 for(i = 0; i < plot_amount; i++) {
 	plot = list.getIndex(plot_list, i);
@@ -21,7 +22,12 @@ for(i = 0; i < plot_amount; i++) {
 		break;
 	}
 }
-//Kein Grundstück existiert
+// no explosions in crea world
+world_name = world.getName(loc.getWorld(entity_loc));
+if(world.isCreativeName(world_name)) {
+	goto("wait");
+}
+// if no plot exists allow explosions
 if(plot_amount == 0) {
 	cancel = false;
 }

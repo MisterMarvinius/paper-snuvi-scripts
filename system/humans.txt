@@ -10,14 +10,14 @@ scroll = item.custom.create("SCROLL", 1, "§2Skills", null);
 spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
 
 //createMainMenu(inv_name, market, quests, skills, challenges)
-anna_inv = createMainMenu("Anna", false, true, false, false);
+anna_inv = createMainMenu("Anna", true, true, false, false);
 farmer_inv = createMainMenu("Farmer", true, true, false, false);
 fisher_inv = createMainMenu("Fisher", true, false, false, false);
 miner_inv = createMainMenu("Miner", true, true, false, false);
 baker_inv = createMainMenu("Baker", true, true, false, false);
 alena_inv = createMainMenu("Alena", true, false, false, false);
 mason_inv = createMainMenu("Mason", true, true, false, false);
-priest_inv = createMainMenu("Priest", true, false, false, false);
+priest_inv = createMainMenu("Priest", true, true, false, false);
 mage_inv = createMainMenu("Mage", true, false, true, false);
 lumberjack_inv = createMainMenu("Lumberjack", true, true, true, true);
 butcher_inv = createMainMenu("Butcher", true, true, false, true);

@@ -1,0 +1,372 @@
+//rankingtable = "colorbattleranks";
+game_short = "cb";
+game_tab = "§bCB";
+minigame.setSpecificLobbyHandling(true);
+minigame.setPlayerResetInCore(false);
+minigame.setIndivStartCheck(true);
+
+colorcodes = map.new();
+map.add(colorcodes, 0, "§9");
+map.add(colorcodes, 1, "§c");
+map.add(colorcodes, 2, "§e");
+map.add(colorcodes, 3, "§2");
+map.add(colorcodes, 4, "§6");
+map.add(colorcodes, 5, "§5");
+map.add(colorcodes, 6, "§d");
+map.add(colorcodes, 7, "§0");
+
+teamcolortext = map.new();
+map.add(teamcolortext, 0, "blue");
+map.add(teamcolortext, 1, "red");
+map.add(teamcolortext, 2, "yellow");
+map.add(teamcolortext, 3, "green");
+map.add(teamcolortext, 4, "orange");
+map.add(teamcolortext, 5, "magenta");
+map.add(teamcolortext, 6, "pink");
+map.add(teamcolortext, 7, "black");
+
+default_mat = material.get("minecraft:white_wool");
+wool_tag = block.getTag("minecraft:wool");
+
+team_types = map.new();
+map.add(team_types, 0, material.get("minecraft:blue_wool"));
+map.add(team_types, 1, material.get("minecraft:red_wool"));
+map.add(team_types, 2, material.get("minecraft:yellow_wool"));
+map.add(team_types, 3, material.get("minecraft:green_wool"));
+map.add(team_types, 4, material.get("minecraft:orange_wool"));
+map.add(team_types, 5, material.get("minecraft:magenta_wool"));
+map.add(team_types, 6, material.get("minecraft:pink_wool"));
+map.add(team_types, 7, material.get("minecraft:black_wool"));
+
+team_types2 = map.new();
+map.add(team_types2, material.get("minecraft:blue_wool"), 0);
+map.add(team_types2, material.get("minecraft:red_wool"), 1);
+map.add(team_types2, material.get("minecraft:yellow_wool"), 2);
+map.add(team_types2, material.get("minecraft:green_wool"), 3);
+map.add(team_types2, material.get("minecraft:orange_wool"), 4);
+map.add(team_types2, material.get("minecraft:magenta_wool"), 5);
+map.add(team_types2, material.get("minecraft:pink_wool"), 6);
+map.add(team_types2, material.get("minecraft:black_wool"), 7);
+
+clothescode = map.new(); // list of datablues for colored clothes
+map.add(clothescode, 0, 5592575);
+map.add(clothescode, 1, 16733525);
+map.add(clothescode, 2, 16777045);
+map.add(clothescode, 3, 5635925);
+map.add(clothescode, 4, 16755200);
+map.add(clothescode, 5, 43690);
+map.add(clothescode, 6, 5592405);
+map.add(clothescode, 7, 0);
+
+team_lists = map.new(); // map with list of players for each team
+changedblocks = set.new(); // list of all changed blocks
+waiters = list.new(); // list with players in lobby without an assigned team
+players = map.new(); // map of all players (key) with their assigned team (value)
+points = map.new(); // map with points per team
+
+seconds_to_play = 120;
+gamename = "§cColorBattle";
+
+shooting_item = item.new(material.get("minecraft:stick"));
+enchantment.add(enchantment.get("infinity"), shooting_item, 1);
+item.setName(shooting_item, text.new("§bStick of §mTruth§r §bColor"));
+
+for(team = 0; team < numberofteams; team++) {
+	map.add(team_lists, team, list.new());
+	map.add(points, team, 0);
+}
+minigame.initStart();
+goto("simplelobby");
+
+@specificLobbyHandling
+player_name = player.getName(player);
+if(event == "minigame_join") {
+	list.add(waiters, player.getName(player));
+	resetplayer(player);
+	sb.add(player, 99, gamename);
+	sb.add(player, 98, string.concat("Map: ", mapname));
+	sb.add(player, 97, string.concat(string.number(numberofteams), "x", string.number(teamsize)));
+	sb.add(player, 96, sb.getSpacer());
+	return;
+}
+if(event == "player_quit" || event == "player_giveup") {
+	list.remove(waiters, player_name);
+	team = getTeamFromPlayer(player);
+	if(team != null) {
+		teamlist = map.get(team_lists, team);
+		list.remove(teamlist, player.getName(player));
+	}
+	map.remove(players, player_name);
+	return;
+}
+if(event == "block_click") {
+	if(slot.isOffHand(hand)) {
+		return;
+	}
+	if(action != "RIGHT_CLICK_BLOCK") {
+		return;
+	}
+	block_loc = block.getLocation(block);
+	if(list.contains(join_blocks, block_loc)) {
+		newteam = list.getIndexOf(join_blocks, block_loc);
+		newteamlist = map.get(team_lists, newteam);
+		if(list.contains(newteamlist, player_name)) {
+			msg.prefix(player, gamename, "§eYou are already in this team.");
+			return;
+		}
+		if(list.getSize(newteamlist) >= teamsize) {
+			msg.prefix(player, gamename, "§eNo space for you in this team.");
+			return;
+		}
+		list.remove(waiters, player_name);
+		yetteam = map.get(players, player_name);
+		if(yetteam != null) {
+			yetteamlist = map.get(team_lists, yetteam);
+			list.remove(yetteamlist, player_name);
+		}
+		list.add(newteamlist, player_name);
+		map.add(players, player_name, newteam);
+		color = getTeamColor(newteam);
+		msg.prefix(player, gamename, string.concat("§eYou joined the ", color, map.get(teamcolortext, newteam), " §eteam."));;
+		entity.setName(player, text.new(string.concat(map.get(colorcodes, newteam), player.getName(player))));
+		if(!minigame.isStarting()) {
+			goto("startcountdown");
+		}
+	}
+}
+return;
+
+@finalstart
+player_list = minigame.getPlayers(script_id);
+
+while(list.getSize(waiters) != 0) {
+	team = getTeamWithLowestPeople(team_lists, numberofteams);
+	teamlist = map.get(team_lists, team);
+	p_name = list.getIndex(waiters, 0);
+	list.add(teamlist, p_name);
+	list.remove(waiters, p_name);
+	map.add(players, p_name, team);
+	entity.setName(read.player(p_name), text.new(string.concat(map.get(colorcodes, team), p_name)));
+}
+
+for(i = 0; i < list.getSize(player_list); i++) {
+	p = player.get(list.getIndex(player_list, i));
+	entity.teleport(p, spawnloc);
+	player.giveItem(p, shooting_item);
+	
+	p_name = player.getName(p);
+	clothescolor = map.get(clothescode, map.get(players, p_name));
+	chestplate = read.item(string.concat("{id:'minecraft:leather_chestplate',Count:1b,tag:{display:{color:", clothescolor, "}}}"));
+	living.setEquip(p, read.slot("CHEST"), chestplate);
+}
+
+sb.clearGameAll();
+minigame.displayAll(99, gamename);
+updateDisplay();
+
+event.load("inv_click");
+event.load("block_click");
+event.load("projectile_hit");
+
+sgoto(20, "timer_loop");
+
+@checkgame
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("checkgame");
+	}
+	player = entity;
+}
+if(event == "projectile_hit") {
+	if(!isPlayer(shooter)) {
+		goto("checkgame");
+	}
+	player = shooter;
+}
+if(player.hasMinigameId(player, script_id)) {
+	player_name = player.getName(player);
+	ignoreGoto(event);
+}
+goto("checkgame");
+
+@inv_click
+if(inv_slot == 38) {
+	cancel = true; // prevents that chestplates are taken out of slot
+}
+goto("checkgame");
+
+@entity_damage
+cancel = true; // prevent player damage
+goto("checkgame");
+
+@block_click
+if(action == "RIGHT_CLICK_AIR" || action == "RIGHT_CLICK_BLOCK") {
+	hand = living.getEquip(player, read.slot("HAND"));
+	offhand = living.getEquip(player, read.slot("OFF_HAND"));
+	if(hand == shooting_item || offhand == shooting_item) {
+		living.shootProjectile(player, "org.bukkit.entity.Snowball");
+	}
+}
+goto("checkgame");
+
+@projectile_hit
+if(block_hit != null) {
+	colorCentre(block.getLocation(block_hit), player);
+}
+goto("checkgame");
+
+@player_quit
+@player_giveup
+team = getTeamFromPlayer(player);
+minigame.speakAll(gamename, string.concat(getTeamColor(team), player.getName(player), " §ehas left the game."));
+player.setFly(player, false);
+leaveGame(player);
+map.remove(players, player_name);
+script = script.getFromId(script_id);
+minigame.kickPlayer(script, player);
+goto("checkgame");
+
+@timer_loop
+seconds_to_play--;
+if(seconds_to_play <= 0) {
+	sortAndPrintPoints();
+	endGame();
+}
+updateDisplay();
+sgoto(20, "timer_loop");
+goto("checkgame");
+
+function leaveGame(player) {
+	team = getTeamFromPlayer(player);
+	teamlist = map.get($team_lists, team);
+	list.remove(teamlist, player.getName(player));
+	
+	script = script.getFromId($script_id);
+	minigame.kickPlayer(script, player);
+	if(list.getSize($player_list) == 0) {
+		endGame();
+	}
+}
+
+function updateDisplay() {
+	minutes = math.roundDown($seconds_to_play / 60);
+	seconds = $seconds_to_play % 60;
+	if(seconds < 10) {
+		minigame.displayAll(98, string.concat("Time: ", string.number(minutes), ":0", string.number(seconds)));
+	} else {
+		minigame.displayAll(98, string.concat("Time: ", string.number(minutes), ":", string.number(seconds)));
+	}
+	
+	index = 97;
+	sort_array = map.sort($points, false);
+	for(i = 0; i < array.getSize(sort_array); i++) {
+		team = sort_array[i, 0];
+		p = sort_array[i, 1];
+		color = getTeamColor(team);
+		if(p > 0) {
+			minigame.displayAll(index--, string.concat(color, string.upperFirstLetter(map.get($teamcolortext, team)), ": ", string.number(p)));
+		}
+	}
+	minigame.displayAll(index, sb.getSpacer());
+	
+	for(i = 0; i < list.getSize($player_list); i++) {
+		p = player.get(list.getIndex($player_list, i));
+		player.setHunger(p, 20);
+		player.setSaturation(p, 5);
+	}
+}
+
+function minigame.canStartIndiv() {
+	player_list = minigame.getPlayers($script_id);
+	p_amount = list.getSize(player_list);
+	return p_amount >= minigame.getMinPlayers();
+}
+
+function getTeamFromPlayer(player) {
+	return map.get($players, player.getName(player));
+}
+
+function getTeamFromMat(mat) {
+	return map.get($team_types2, mat);
+}
+
+function getMatFromTeam(team) {
+	return map.get($team_types, team);
+}
+
+function getTeamColor(team) {
+	return map.get($colorcodes, team);
+}
+
+function colorCentre(location, player) {
+	checkAndSetColor(location, player);
+	colorNeighbour(loc.mod(location, 0, 1, 0), player);
+	colorNeighbour(loc.mod(location, 0, -1, 0), player);
+	colorNeighbour(loc.mod(location, 0, 0, 1), player);
+	colorNeighbour(loc.mod(location, 0, 0, -1), player);
+	colorNeighbour(loc.mod(location, 1, 0, 0), player);
+	colorNeighbour(loc.mod(location, -1, 0, 0), player);
+}
+
+function colorNeighbour(location, player) {
+	checkAndSetColor(location, player);
+}
+
+function checkAndSetColor(location, player) {
+	block = block.get(location);
+	if(block.isAir(block)) {
+		return; // return if block is air
+	}
+	if(!block.hasTag(block, $wool_tag)) {
+		return; // return if not a replaceable block
+	}
+	team = getTeamFromPlayer(player);
+	team_mat = getMatFromTeam(team);
+	block_mat = block.getType(block);
+	if(block_mat == team_mat) {
+		return; // return if already team color
+	}
+	if(block_mat != $default_mat) {
+		opp_team = getTeamFromMat(block_mat);
+		removePoint(opp_team);
+	}
+	block.setMaterial(block, team_mat);
+	set.add($changedblocks, block);
+	addPoint(team);
+}
+
+function addPoint(team) {
+	map.add($points, team, map.get($points, team) + 1);
+}
+
+function removePoint(team) {
+	map.add($points, team, map.get($points, team) - 1);
+}
+
+function sortAndPrintPoints() {
+	sort_array = map.sort($points, false);
+	for(i = 0; i < array.getSize(sort_array); i++) {
+		team = sort_array[i, 0];
+		p = sort_array[i, 1];
+		color = getTeamColor(team);
+		if(p > 0) {
+			minigame.speakAll($gamename, string.concat(color, string.upperFirstLetter(map.get($teamcolortext, team)), ": ", string.number(p)));
+		}
+	}
+}
+
+function endGame() {
+	resetMap();
+	script = script.getFromId($script_id);
+	minigame.kickAllPlayers(script);
+	minigame.term(script, $gamesignloc);
+}
+
+function resetMap() {
+	iter = iterator($changedblocks);
+	while(hasNext(iter)) {
+		b = next(iter);
+		block.setMaterial(b, $default_mat);
+	}
+}

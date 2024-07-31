@@ -7,7 +7,7 @@ event.load("block_drop");
 
 stage = 0;
 all_stages = 2;
-quest_name = "In Eile";
+quest_name = "In Haste";
 
 bread_needed = 21;
 wheat_needed = 63;

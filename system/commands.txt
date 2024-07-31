@@ -47,7 +47,6 @@ command.add("infopoint7");
 command.add("infopoint8");
 command.add("infopoint9");
 command.add("infopoint10");
-command.add("infopoint11");
 command.add("infopoint12");
 //Overwrite vanilla
 command.add("butcher");
@@ -590,6 +589,9 @@ sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
 sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
 creeper_primed = sound.get("ENTITY_CREEPER_PRIMED");
 
+world = world.getOverWorld();
+daily_reward_loc = loc.new(world, 136, 77, -22);
+
 event.load("player_move");
 event.load("snuvi_click");
 event.load("inv_close");
@@ -662,14 +664,16 @@ if(event == "vote") {
 		}
 		last_vote_time = player.getLastVoteTime(p_id);
 		new_streak = player.getVoteStreak(p_id);
-		if(last_vote_time == 0) {
+		voted_again_on_same_day = isSameDay(last_vote_time, now_time);
+		// increase votestreak if vote is on two following days or if it is the first vote ever
+		if(last_vote_time == 0 || isFollowingDay(last_vote_time, now_time)) {
 			new_streak++;
-		} elseif(isFollowingDay(last_vote_time, now_time)) {
-			new_streak++;
-		} elseif(!isSameDay(last_vote_time, now_time)) {
+		} elseif(!voted_again_on_same_day) { // votes on multiple sites on one day are possible. if the first if is not met and it is not the same day, reset votestreak
 			new_streak = 1;
 		}
-		if(new_streak % 7 == 0) {
+		
+		// votes on multiple sites on the same day are fine, but when a votestreak was reached with first vote of the day, the other votes will not give the additional votepoint
+		if(new_streak > 0 && !voted_again_on_same_day && new_streak % 7 == 0) {
 			msg.online(prefix_vote, string.concat(player.getName(p_uuid), " reached a votestreak of 7 and gets an additional votepoint."));
 			player.addVotePoints(p_id, 1);
 		}
@@ -719,6 +723,9 @@ if(event == "block_click") {
 	}
 	if(block.isLockable(block)) {
 		block_loc = block.getLocation(block);
+		if(block_loc == daily_reward_loc) {
+			goto("wait");
+		}
 		if(plot.check(block_loc, player, 16, true)) {
 			cancel = false;
 			goto("wait");
@@ -1751,11 +1758,6 @@ goto("wait");
 @infopoint10
 msg.string(player, string.getSpacer());
 msg.prefix(player, "§eJokes", "§aWe have no rules, except to be respectful. Look at our jokes instead.");
-goto("wait");
-
-@infopoint11
-msg.string(player, string.getSpacer());
-msg.prefix(player, "§eNote", "§aEverything is self-coded. Worldedit is the only external mod we use.");
 goto("wait");
 
 @infopoint12
@@ -9970,6 +9972,7 @@ function updateVoteInv() {
 	list.add(lore_list, text.new(string.concat("§fCounter: §e", string.number(getHomeBoost()))));
 	list.add(lore_list, text.new("§5Every 20 VP the possible homes increase by one."));
 	list.add(lore_list, text.new("§5Counter automatically shrinks by one every day."));
+	list.add(lore_list, text.new("§5The counter is shared with everybody on the server."));
 	inv.setItem($vote_inv, 2, item.create("RED_BED", 1, "§aMore Homes", lore_list));
 }
 

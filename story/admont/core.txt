@@ -5,26 +5,30 @@ quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 prefix_skill = "§2Skill";
 prefix_quest = "§dQuest";
 	
-mageguard_inv = inv.new("333333333", text.new("Quests: Mage Guard"));
+mageguard_inv = inv.new("220000000", text.new("Quests: Mage Guard"));
 inv.setItem(mageguard_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage", null));
 inv.setItem(mageguard_inv, 1, item.create("minecraft:enchanted_book", 1, "§fTeleporter", null));
 
-farmer_inv = inv.new("220000000", text.new("Quests: Farmer"));
+farmer_inv = inv.new("222200000", text.new("Quests: Farmer"));
 inv.setItem(farmer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFirst Date", null));
 inv.setItem(farmer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fHarvest Season", null));
-//inv.setItem(farmer_inv, 1, item.create("minecraft:enchanted_book", 1, "§fNeue Hose", null));
+//inv.setItem(farmer_inv, 2, item.create("minecraft:enchanted_book", 1, "§fNeue Hose", null));
+//inv.setItem(farmer_inv, 3, item.create("minecraft:enchanted_book", 1, "§fSpezialwunsch", null));
 
 anna_inv = inv.new("200000000", text.new("Quests: Anna"));
 inv.setItem(anna_inv, 0, item.create("minecraft:enchanted_book", 1, "§fAnna in Trouble", null));
 
-miner_inv = inv.new("220000000", text.new("Quests: Miner"));
+priest_inv = inv.new("200000000", text.new("Quests: Priest"));
+inv.setItem(priest_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHoly food", null));
+
+miner_inv = inv.new("200000000", text.new("Quests: Miner"));
 inv.setItem(miner_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTreasure of Admont", null));
 
-mason_inv = inv.new("220000000", text.new("Quests: Mason"));
+mason_inv = inv.new("200000000", text.new("Quests: Mason"));
 inv.setItem(mason_inv, 0, item.create("minecraft:enchanted_book", 1, "§fNightmare", null));
 
-gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
-inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand", null));
+//gustav_inv = inv.new("333333333", text.new("Quests: Gustav"));
+//inv.setItem(gustav_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHelfende Hand", null));
 
 butcher_inv = inv.new("200000000", text.new("Quests: Butcher"));
 inv.setItem(butcher_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage Guard", null));
@@ -32,31 +36,28 @@ inv.setItem(butcher_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMage 
 innkeeper_inv = inv.new("200000000", text.new("Quests: Innkeeper"));
 inv.setItem(innkeeper_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDelicacy...", "§e...for the whole family."));
 
-bernd_inv = inv.new("333333333", text.new("Quests: Bernd"));
-inv.setItem(bernd_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHide and Seek", null));
+//bernd_inv = inv.new("333333333", text.new("Quests: Bernd"));
+//inv.setItem(bernd_inv, 0, item.create("minecraft:enchanted_book", 1, "§fHide and Seek", null));
 
-kunibert_inv = inv.new("333333333", text.new("Quests: Kunibert"));
-inv.setItem(kunibert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fKräutermeister", null));
-
-bauer_inv = inv.new("333333333", text.new("Quests: Bauer"));
-inv.setItem(bauer_inv, 0, item.create("minecraft:enchanted_book", 1, "§fSpezialwunsch", null));
+//kunibert_inv = inv.new("333333333", text.new("Quests: Kunibert"));
+//inv.setItem(kunibert_inv, 0, item.create("minecraft:enchanted_book", 1, "§fKräutermeister", null));
 
 baker_inv = inv.new("220000000", text.new("Quests: Baker"));
 inv.setItem(baker_inv, 0, item.create("minecraft:enchanted_book", 1, "§fIn Haste", null));
 inv.setItem(baker_inv, 1, item.create("minecraft:enchanted_book", 1, "§fThe beginning...", "§e...always starts with a nice grandma."));
 
-isabell_inv = inv.new("333333333", text.new("Quests: Isabell"));
-inv.setItem(isabell_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFür die Wissenschaft!", null));
+//isabell_inv = inv.new("333333333", text.new("Quests: Isabell"));
+//inv.setItem(isabell_inv, 0, item.create("minecraft:enchanted_book", 1, "§fFür die Wissenschaft!", null));
 
-olaf_inv = inv.new("333333333", text.new("Quests: Olaf"));
-inv.setItem(olaf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fReinigung", null));
-inv.setItem(olaf_inv, 1, item.create("minecraft:enchanted_book", 1, "§fMitbringsel", null));
+//olaf_inv = inv.new("333333333", text.new("Quests: Olaf"));
+//inv.setItem(olaf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fReinigung", null));
+//inv.setItem(olaf_inv, 1, item.create("minecraft:enchanted_book", 1, "§fMitbringsel", null));
 
-rolf_inv = inv.new("333333333", text.new("Quests: Rolf"));
-inv.setItem(rolf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTücher", null));
+//rolf_inv = inv.new("333333333", text.new("Quests: Rolf"));
+//inv.setItem(rolf_inv, 0, item.create("minecraft:enchanted_book", 1, "§fTücher", null));
 
-schmied_inv = inv.new("333333333", text.new("Quests: Schmied"));
-inv.setItem(schmied_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDie Uhr tickt", null));
+//schmied_inv = inv.new("333333333", text.new("Quests: Schmied"));
+//inv.setItem(schmied_inv, 0, item.create("minecraft:enchanted_book", 1, "§fDie Uhr tickt", null));
 
 lumberjack_inv = inv.new("220000000", text.new("Quests: Lumberjack"));
 inv.setItem(lumberjack_inv, 0, item.create("minecraft:enchanted_book", 1, "§fMe and my wood", null));
@@ -83,32 +84,18 @@ if(item == quest_book) {
 		inv.open(farmer_inv, player);
 	} elseif(title_string == "Anna") {
 		inv.open(anna_inv, player);
+	} elseif(title_string == "Priest") {
+		inv.open(priest_inv, player);
 	} elseif(title_string == "Miner") {
 		inv.open(miner_inv, player);
 	} elseif(title_string == "Mason") {
 		inv.open(mason_inv, player);
-	} elseif(entity_name == "Gustav") {
-		inv.open(gustav_inv, player);
 	} elseif(title_string == "Butcher") {
 		inv.open(butcher_inv, player);
 	} elseif(title_string == "Innkeeper") {
 		inv.open(innkeeper_inv, player);
-	} elseif(entity_name == "Bernd") {
-		inv.open(bernd_inv, player);
-	} elseif(entity_name == "Kunibert") {
-		inv.open(kunibert_inv, player);
-	} elseif(entity_name == "Bauer") {
-		inv.open(bauer_inv, player);
 	} elseif(title_string == "Baker") {
 		inv.open(baker_inv, player);
-	} elseif(entity_name == "Isabell") {
-		inv.open(isabell_inv, player);
-	} elseif(entity_name == "Olaf") {
-		inv.open(olaf_inv, player);
-	} elseif(entity_name == "Rolf") {
-		inv.open(rolf_inv, player);
-	} elseif(entity_name == "Schmied") {
-		inv.open(schmied_inv, player);
 	} elseif(title_string == "Lumberjack") {
 		inv.open(lumberjack_inv, player);
 	}
@@ -142,8 +129,12 @@ if(title_string == "Quests: Farmer") {
 		quest.start(player, "story/admont/harvest_season");
 		goto("main");
 	}
-	if(inv_slot == 1) {
+	if(inv_slot == 2) {
 		//quest.start(player, "story/admont/neue_hose");
+		goto("main");
+	}
+	if(inv_slot == 3) {
+		//quest.start(player, "story/admont/spezialwunsch");
 		goto("main");
 	}
 	goto("main");
@@ -151,6 +142,13 @@ if(title_string == "Quests: Farmer") {
 if(title_string == "Quests: Anna") {
 	if(inv_slot == 0) {
 		quest.start(player, "story/admont/anna_in_trouble");
+		goto("main");
+	}
+	goto("main");
+}
+if(title_string == "Quests: Priest") {
+	if(inv_slot == 0) {
+		quest.start(player, "story/admont/holy_food");
 		goto("main");
 	}
 	goto("main");
@@ -174,7 +172,7 @@ if(title_string == "Quests: Mason") {
 }
 if(title_string == "Quests: Gustav") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/helfende_hand");
+		//quest.start(player, "story/admont/helfende_hand");
 		goto("main");
 	}
 	goto("main");
@@ -195,25 +193,14 @@ if(title_string == "Quests: Innkeeper") {
 }
 if(title_string == "Quests: Bernd") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/hide_and_seek");
+		//quest.start(player, "story/admont/hide_and_seek");
 		goto("main");
 	}
 	goto("main");
 }
 if(title_string == "Quests: Kunibert") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/kraeutermeister");
-		goto("main");
-	}
-	goto("main");
-}
-if(title_string == "Quests: Bauer") {
-	if(inv_slot == 0) {
-		quest.start(player, "story/admont/erntezeit");
-		goto("main");
-	}
-	if(inv_slot == 1) {
-		quest.start(player, "story/admont/spezialwunsch");
+		//quest.start(player, "story/admont/kraeutermeister");
 		goto("main");
 	}
 	goto("main");
@@ -231,32 +218,32 @@ if(title_string == "Quests: Baker") {
 }
 if(title_string == "Quests: Isabell") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/fuer_die_wissenschaft");
+		//quest.start(player, "story/admont/fuer_die_wissenschaft");
 		goto("main");
 	}
 	goto("main");
 }
 if(title_string == "Quests: Olaf") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/reinigung");
+		//quest.start(player, "story/admont/reinigung");
 		goto("main");
 	}
 	if(inv_slot == 1) {
-		quest.start(player, "story/admont/mitbringsel");
+		//quest.start(player, "story/admont/mitbringsel");
 		goto("main");
 	}
 	goto("main");
 }
 if(title_string == "Quests: Rolf") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/tuecher");
+		//quest.start(player, "story/admont/tuecher");
 		goto("main");
 	}
 	goto("main");
 }
 if(title_string == "Quests: Schmied") {
 	if(inv_slot == 0) {
-		quest.start(player, "story/admont/die_uhr_tickt");
+		//quest.start(player, "story/admont/die_uhr_tickt");
 		goto("main");
 	}
 	goto("main");
