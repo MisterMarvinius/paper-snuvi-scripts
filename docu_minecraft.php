@@ -30,7 +30,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>damage_source<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html" target="_blank">cause</a> as string<br>**damager_block<br>**damager_entity<br>damage<br>raw_damage<br>*cancel</td>
+            <td>entity<br>damage_source<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html" target="_blank">cause</a> as string<br>**damager_block<br>**damager_entity<br>damage<br>raw_damage<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -40,7 +40,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>*heal<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/entity/EntityRegainHealthEvent.RegainReason.html" target="_blank">cause</a> as string<br>*cancel</td>
+            <td>entity<br>*heal<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/EntityRegainHealthEvent.RegainReason.html" target="_blank">cause</a> as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -70,7 +70,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>entity<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>entity<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
 	</table>
@@ -81,7 +81,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>living_entity<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html" target="_blank">cause</a> as string<br>location<br>*cancel</td>
+            <td>living_entity<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html" target="_blank">cause</a> as string<br>location<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -257,7 +257,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>block<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>block<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -267,7 +267,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>**block<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/block/Action.html" target="_blank">action</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>**block<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/block/Action.html" target="_blank">action</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
 	<table>
@@ -283,7 +283,7 @@
 	<table>
         <tr>
             <th class="command">block_spread</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21/org/bukkit/event/block/BlockSpreadEvent.html" target="_blank">Paper API#BlockSpreadEvent</a></th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BlockSpreadEvent.html" target="_blank">Paper API#BlockSpreadEvent</a></th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
@@ -293,7 +293,7 @@
 	<table>
         <tr>
             <th class="command">block_fade</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21/org/bukkit/event/block/BlockFadeEvent.html" target="_blank">Paper API#BlockFadeEvent</a></th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BlockFadeEvent.html" target="_blank">Paper API#BlockFadeEvent</a></th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
@@ -307,7 +307,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>block<br>bucket as material<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>block<br>bucket as material<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -317,7 +317,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>inv<br>**inv_clicked<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string<br>*cancel</td>
+            <td>player<br>inv<br>**inv_clicked<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -327,7 +327,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>inv<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string</td>
+            <td>player<br>inv<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string</td>
         </tr>
 		<tr>
             <td class="bold">Info</td>
@@ -395,7 +395,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>from as location<br>to as location<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html" target="_blank">cause</a> as string<br>*cancel</td>
+            <td>player<br>from as location<br>to as location<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html" target="_blank">cause</a> as string<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -459,7 +459,7 @@
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
 	<table>
@@ -726,7 +726,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>block.setMaterial(block, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Material.html" target="_blank">material</a>, [boolean | false])</td>
+            <td>block.setMaterial(block, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/Material.html" target="_blank">material</a>, [boolean | false])</td>
         </tr>
 		<tr>
             <td class="bold">Arguments</td>
@@ -818,7 +818,7 @@
     <table>
         <tr>
             <th class="command">block.getType</th>
-            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Material.html" target="_blank">material</a> of a block</th>
+            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/Material.html" target="_blank">material</a> of a block</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -1575,7 +1575,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>material.get(<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Material.html" target="_blank">material_name</a>)</td>
+            <td>material.get(<a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/Material.html" target="_blank">material_name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -1664,7 +1664,7 @@
     <table>
         <tr>
             <th class="command">item.getType</th>
-            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Material.html" target="_blank">material</a> of an itemstack</th>
+            <th class="desc">returns the <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/Material.html" target="_blank">material</a> of an itemstack</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -1762,7 +1762,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.addAttribute(itemstack, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/attribute/Attribute.html" target="_blank">attribute</a>, slot, double, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/attribute/AttributeModifier.Operation.html" target="_blank">operation</a>)</td>
+            <td>item.addAttribute(itemstack, <a href="https://minecraft.fandom.com/wiki/Attribute#Attributes" target="_blank">attribute</a>, slot, double, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/attribute/AttributeModifier.Operation.html" target="_blank">operation</a>)</td>
         </tr>
     </table>
 	<table>
@@ -1802,7 +1802,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.addFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
+            <td>item.addFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
         </tr>
     </table>
 	<table>
@@ -1812,7 +1812,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.removeFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
+            <td>item.removeFlag(itemstack, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/ItemFlag.html" target="_blank">flag</a>)</td>
         </tr>
     </table>
     <table>
@@ -1822,7 +1822,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>item.addPotion(itemstack, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/potion/PotionEffectType.html" target="_blank">potion_name</a>, duration, power)</td>
+            <td>item.addPotion(itemstack, <a href="https://minecraft.fandom.com/wiki/Potion#ID" target="_blank">potion_name</a>, duration, power)</td>
         </tr>
     </table>
     <table>
@@ -1923,46 +1923,6 @@
         <tr>
             <td class="bold">Format</td>
             <td>item.entity.setPickupDelay(item_entity, ticks)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">item.custom.getAll</th>
-            <th class="desc">returns an array with all custom items</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>item.custom.getAll()</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">item.custom.get</th>
-            <th class="desc">returns a custom item</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>item.custom.get(custom_item_name)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">item.custom.new</th>
-            <th class="desc">returns an itemstack</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>item.custom.new(custom_item)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">item.getCustom</th>
-            <th class="desc">returns a custom item or null</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>item.getCustom(itemstack)</td>
         </tr>
     </table>
 </section>
@@ -2418,16 +2378,6 @@
 <section id="Read">
     <table>
         <tr>
-            <th class="command">read.spawnMob</th>
-            <th class="desc">spawns a mob and returns the entity or null</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>read.spawnMob(location, nbt_string)</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
             <th class="command">read.player</th>
             <th class="desc">returns a player or null</th>
         </tr>
@@ -2463,7 +2413,7 @@
 		</tr>
 		<tr>
 			<td class="bold">Format</td>
-			<td>read.slot(<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot_name</a>)</td>
+			<td>read.slot(<a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot_name</a>)</td>
 		</tr>
 	</table>
 	<table>
@@ -4139,7 +4089,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>world.setDifficulty(world, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Difficulty.html" target="_blank">difficulty</a>)</td>
+            <td>world.setDifficulty(world, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/Difficulty.html" target="_blank">difficulty</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4546,7 +4496,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>entity.spawn(location, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/entity/EntityType.html" target="_blank">type</a>)</td>
+            <td>entity.spawn(location, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/entity/EntityType.html" target="_blank">type</a>)</td>
         </tr>
     </table>
     <table>
@@ -4640,7 +4590,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>entity.frame.spawn(location, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/block/BlockFace.html" target="_blank">block_face</a>, itemstack)</td>
+            <td>entity.frame.spawn(location, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/block/BlockFace.html" target="_blank">block_face</a>, itemstack)</td>
         </tr>
     </table>
     <table>
@@ -4681,6 +4631,36 @@
         <tr>
             <td class="bold">Format</td>
             <td>entity.frame.setFixed(entity_frame, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">entity.frame.setFacing</th>
+            <th class="desc">sets the facing for an itemframe</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.frame.setFacing(entity_frame, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/block/BlockFace.html" target="_blank">block_face</a>)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">entity.spawnSeat</th>
+            <th class="desc">returns an itemframe (as a seat to mount another entity)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.spawnSeat(location)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">rabbit.spawnKillerBunny</th>
+            <th class="desc">spawns a killer bunny and returns it</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>rabbit.spawnKillerBunny(location)</td>
         </tr>
     </table>
     <table>
@@ -4810,7 +4790,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.setEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>, itemstack)</td>
+            <td>living.setEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>, itemstack)</td>
         </tr>
     </table>
     <table>
@@ -4820,7 +4800,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.getEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>)</td>
+            <td>living.getEquip(living_entity, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">slot</a>)</td>
         </tr>
     </table>
     <table>
@@ -4858,7 +4838,7 @@
         </tr>
         <tr>
             <td class="bold">Properties</td>
-            <td><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/attribute/Attribute.html" target="_blank">attributes</a> without "GENERIC" and "_"</td>
+            <td><a href="https://minecraft.fandom.com/wiki/Attribute#Attributes" target="_blank">attributes</a> without "GENERIC." and "_"</td>
         </tr>
     </table>
     <table>
@@ -4888,7 +4868,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.addEffect(living_entity, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>, ticks, amplifier, [particle | true])</td>
+            <td>living.addEffect(living_entity, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>, ticks, amplifier, [particle | true])</td>
         </tr>
         <tr>
             <td class="bold">Arguments</td>
@@ -4912,7 +4892,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>living.getEffectAmplifier(entity, <a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>)</td>
+            <td>living.getEffectAmplifier(entity, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>)</td>
         </tr>
     </table>
 </section>
@@ -4925,7 +4905,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>particle.get(<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Particle.html" target="_blank">name</a>)</td>
+            <td>particle.get(<a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/Particle.html" target="_blank">name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4968,7 +4948,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>sound.get(<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/Sound.html" target="_blank">name</a>)</td>
+            <td>sound.get(<a href="https://minecraft.fandom.com/wiki/Sounds.json#Sound_events" target="_blank">name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -4978,7 +4958,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>sound.getCategory(<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/SoundCategory.html" target="_blank">name</a>)</td>
+            <td>sound.getCategory(<a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/SoundCategory.html" target="_blank">name</a>)</td>
         </tr>
     </table>
 	<table>
@@ -5003,49 +4983,6 @@
     </table>
 </section>
 
-<section id="Shop">
-	<table>
-        <tr>
-            <th class="command">shop.new</th>
-            <th class="desc">returns a new shop</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>shop.new(text)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">shop.addOffer</th>
-            <th class="desc">adds an offer to a shop</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>shop.addOffer(shop, buy_item, sell_item, max_uses)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">shop.addDoubleOffer</th>
-            <th class="desc">adds a double offer to a shop</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>shop.addDoubleOffer(shop, buy_item_1, buy_item_2, sell_item, max_uses)</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">shop.open</th>
-            <th class="desc">shows a shop to a player</th>
-        </tr>
-        <tr>
-            <td class="bold">Format</td>
-            <td>shop.open(shop, player)</td>
-        </tr>
-    </table>
-</section>
-
 <section id="Boss">
 	<table>
         <tr>
@@ -5060,8 +4997,8 @@
             <td class="bold">Arguments</td>
             <td>
 				title as string<br>
-				<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/boss/BarColor.html" target="_blank">color</a> as string<br>
-				<a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/boss/BarStyle.html" target="_blank">barstyle</a> as string
+				<a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/boss/BarColor.html" target="_blank">color</a> as string<br>
+				<a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/boss/BarStyle.html" target="_blank">barstyle</a> as string
 			</td>
         </tr>
     </table>
@@ -5106,7 +5043,7 @@
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
+            <td><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
         </tr>
     </table>
 	<table>
@@ -5120,7 +5057,7 @@
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td><a href="https://papermc.io/javadocs/paper/1.21/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
+            <td><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/boss/BarFlag.html" target="_blank">flag</a> as string</td>
         </tr>
     </table>
 	<table>

@@ -256,7 +256,8 @@ addStatsGameHelp("JR-Rooms");
 addStatsGameHelp("Letters");
 addStatsGameHelp("ItemHunt");
 addStatsGameHelp("Sammelfieber");
-addStatsGameHelp("Buttons");
+addStatsGameHelp("ButtonsEndles");
+addStatsGameHelp("ButtonsRush");
 addStatsGameHelp("HideAndSeek");
 addStatsGameHelp("Inverting");
 addStatsGameHelp("Spleef");
@@ -788,7 +789,6 @@ command.registerHelp(help);
 list = getPotionTypes();
 iter = iterator(list);
 while(hasNext(iter)) {
-	potion_name = next(iter);
 	addPotionHelp(next(iter));
 }
 
@@ -1376,19 +1376,19 @@ function addDtHelp(command) {
 	}
 	
 	//datatools item-attribute <attribute> <slot> <double> <op>
-	addDtAttributeHelp(command, "GENERIC_ARMOR");
-	addDtAttributeHelp(command, "GENERIC_ARMOR_TOUGHNESS");
-	addDtAttributeHelp(command, "GENERIC_ATTACK_DAMAGE");
-	addDtAttributeHelp(command, "GENERIC_ATTACK_KNOCKBACK");
-	addDtAttributeHelp(command, "GENERIC_ATTACK_SPEED");
-	addDtAttributeHelp(command, "GENERIC_FLYING_SPEED");
-	addDtAttributeHelp(command, "GENERIC_FOLLOW_RANGE");
-	addDtAttributeHelp(command, "GENERIC_KNOCKBACK_RESISTANCE");
-	addDtAttributeHelp(command, "GENERIC_LUCK");
-	addDtAttributeHelp(command, "GENERIC_MAX_HEALTH");
-	addDtAttributeHelp(command, "GENERIC_MOVEMENT_SPEED");
-	addDtAttributeHelp(command, "HORSE_JUMP_STRENGTH");
-	addDtAttributeHelp(command, "ZOMBIE_SPAWN_REINFORCEMENTS");
+	addDtAttributeHelp(command, "generic.armor");
+	addDtAttributeHelp(command, "generic.armor_toughness");
+	addDtAttributeHelp(command, "generic.attack_damage");
+	addDtAttributeHelp(command, "generic.attack_knockback");
+	addDtAttributeHelp(command, "generic.attack_speed");
+	addDtAttributeHelp(command, "generic.flying_speed");
+	addDtAttributeHelp(command, "generic.follow_range");
+	addDtAttributeHelp(command, "generic.knockback_resistance");
+	addDtAttributeHelp(command, "generic.luck");
+	addDtAttributeHelp(command, "generic.max_health");
+	addDtAttributeHelp(command, "generic.movement_speed");
+	addDtAttributeHelp(command, "horse.jump_strength");
+	addDtAttributeHelp(command, "zombie.spawn_reinforcements");
 
 	//datatools entity-hide
 	commandhelp.addChildLiteral(command, "entity-hide");
@@ -1431,24 +1431,24 @@ function addDtFlagHelp(command, flag) {
 }
 
 function addDtAttributeHelp(command, attribute) {
-	addDtAttributeAttributHelp(command, "HAND", attribute, "ADD_NUMBER");
-	addDtAttributeAttributHelp(command, "HAND", attribute, "ADD_SCALAR");
-	addDtAttributeAttributHelp(command, "HAND", attribute, "MULTIPLY_SCALAR_1");
-	addDtAttributeAttributHelp(command, "OFF_HAND", attribute, "ADD_NUMBER");
-	addDtAttributeAttributHelp(command, "OFF_HAND", attribute, "ADD_SCALAR");
-	addDtAttributeAttributHelp(command, "OFF_HAND", attribute, "MULTIPLY_SCALAR_1");
-	addDtAttributeAttributHelp(command, "HEAD", attribute, "ADD_NUMBER");
-	addDtAttributeAttributHelp(command, "HEAD", attribute, "ADD_SCALAR");
-	addDtAttributeAttributHelp(command, "HEAD", attribute, "MULTIPLY_SCALAR_1");
-	addDtAttributeAttributHelp(command, "CHEST", attribute, "ADD_NUMBER");
-	addDtAttributeAttributHelp(command, "CHEST", attribute, "ADD_SCALAR");
-	addDtAttributeAttributHelp(command, "CHEST", attribute, "MULTIPLY_SCALAR_1");
-	addDtAttributeAttributHelp(command, "LEGS", attribute, "ADD_NUMBER");
-	addDtAttributeAttributHelp(command, "LEGS", attribute, "ADD_SCALAR");
-	addDtAttributeAttributHelp(command, "LEGS", attribute, "MULTIPLY_SCALAR_1");
-	addDtAttributeAttributHelp(command, "FEET", attribute, "ADD_NUMBER");
-	addDtAttributeAttributHelp(command, "FEET", attribute, "ADD_SCALAR");
-	addDtAttributeAttributHelp(command, "FEET", attribute, "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, attribute, "HAND", "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, attribute, "HAND", "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, attribute, "HAND", "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, attribute, "OFF_HAND", "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, attribute, "OFF_HAND", "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, attribute, "OFF_HAND", "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, attribute, "HEAD", "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, attribute, "HEAD", "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, attribute, "HEAD", "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, attribute, "CHEST", "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, attribute, "CHEST", "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, attribute, "CHEST", "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, attribute, "LEGS", "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, attribute, "LEGS", "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, attribute, "LEGS", "MULTIPLY_SCALAR_1");
+	addDtAttributeAttributHelp(command, attribute, "FEET", "ADD_NUMBER");
+	addDtAttributeAttributHelp(command, attribute, "FEET", "ADD_SCALAR");
+	addDtAttributeAttributHelp(command, attribute, "FEET", "MULTIPLY_SCALAR_1");
 }
 
 function addDtAttributeAttributHelp(command, attribute, slot, op) {

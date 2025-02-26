@@ -1,6 +1,4 @@
 sign.started(gamesignloc);
-rankingtable = "buttonranks";
-game_short = "button";
 
 event.load("block_click");
 event.load("player_quit");
@@ -10,8 +8,6 @@ event.load("entity_damage");
 
 clicked = 0;
 checked = 0;
-tfn = 5; //timeForNext in sec
-factor = 0.98; //Faktor, um den tfn vermindert wird
 sgoto(tfn * 20, "gameover");
 gamename = "§2Buttons";
 
@@ -46,7 +42,7 @@ living.setHealth(player, 20);
 player.setHunger(player, 20);
 player.setSaturation(player, 5);
 player.clearInventory(player);
-sb.add(player, 99, gamename);
+sb.add(player, 99, string.concat(gamename, " ", mode));
 sb.add(player, 98, "Time for next click:");
 sb.add(player, 97, math.roundComma(tfn, 2));
 sb.add(player, 96, string.concat("Points: ", string.number(clicked)));
@@ -78,7 +74,7 @@ if(block_loc == toclick) {
 	tfn *= factor;
 	tfn = math.roundComma(tfn, 2);
 	sb.add(player, 97, tfn);
-	sb.add(player, 96, "Points: ", string.number(++clicked));
+	sb.add(player, 96, string.concat("Points: ", string.number(++clicked)));
 	sgoto(tfn * 20, "gameover");
 	block.setMaterial(marked_block, origin_material);
 	lastclick = toclick;

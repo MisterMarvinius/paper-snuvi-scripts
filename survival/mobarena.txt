@@ -36,8 +36,8 @@ list.add(bosses, "MAGMA_CUBE");
 
 entities_list = list.new();
 iron_sword = item.create("IRON_SWORD", 1, null, null);
-copper_coin = item.custom.create("COPPER_COIN", 1, null, null);
-ruby = item.getRuby();
+copper_coin = customitem.create("COPPER_COIN", 1, null, null);
+ruby = customitem.getRuby();
 
 msg.string("dev", "§bMobarena §rloaded.");
 @main
@@ -136,7 +136,7 @@ function spawnArenaMob() {
 	loc = getRandomLoc();
 	boss = getRandomBoss();
 	if(boss == "RABBIT") {
-		entity = read.spawnMob(loc, "{RabbitType:99,id:\"minecraft:rabbit\"}");
+		entity = rabbit.spawnkillerbunny(loc);
 	} else {
 		entity = entity.spawn(loc, boss);
 	}

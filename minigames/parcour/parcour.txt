@@ -14,7 +14,6 @@ event.load("entity_click");
 event.load("block_break");
 event.load("block_place");
 
-custom_red_return = item.custom.get("RETURN_RED");
 sign_tag = block.getTag("minecraft:signs");
 tp_time = time.getMillis();
 
@@ -45,7 +44,7 @@ for(i = 0; i < list.getSize(checkpoints); i++) {
 player.blockCommands(player);
 entity.teleport(player, list.getIndex(spawn_locs, jumpstage));
 player.clearInventory(player);
-player.giveItem(player, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+player.giveItem(player, customitem.create("RETURN_RED", 1, "§fReset to start", null));
 record_time = ranking.getPoints(rankingtable, player.getId(player));
 overall_record = ranking.getPointsFromRank(rankingtable, 1, "ASC", null);
 
@@ -172,7 +171,7 @@ goto("wait");
 
 @block_click
 item = living.getHand(player);
-if(item.custom.isType(item, custom_red_return)) {
+if(customitem.isRedReturn(item)) {
 	entity.teleport(player, list.getIndex(spawn_locs, 0));
 	for(i = 0; i <= jumpstage; i++) {
 		location1 = list.getIndex(checkpoints, i);

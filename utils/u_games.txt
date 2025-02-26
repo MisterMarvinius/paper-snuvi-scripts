@@ -333,8 +333,8 @@ function minigame.setupMultiplayer() {
 	minigame.setStarting(false);
 	$sound_category_ambient = sound.getCategory("AMBIENT");
 	$sound_category_player = sound.getCategory("PLAYERS");
-	$join_sound = sound.get("BLOCK_NOTE_BLOCK_BASS");
-	$pling_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
+	$join_sound = sound.get("minecraft:block.note_block.bass");
+	$pling_sound = sound.get("minecraft:block.note_block.pling");
 }
 
 function minigame.setLastPos(player) {

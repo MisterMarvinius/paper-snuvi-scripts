@@ -74,10 +74,10 @@ if(event == "minigame_join"){
 	remove_blocks();
 	$currently_active_dimensions = 0;
 	$current_layer[$currently_active_dimensions] = 0;
-	inv.setItem(player_inv, 0, item.custom.create("ARROW_LEFT",1,"Turn down","Interdimensionally"));
-	inv.setItem(player_inv, 1, item.custom.create("ARROW_RIGHT",1,"Turn up","Interdimensionally"));
-	inv.setItem(player_inv, 2, item.custom.create("ARROW_DOWN",1,"Move down","background axis"));
-	inv.setItem(player_inv, 3, item.custom.create("ARROW_UP",1,"Move up","background axis"));
+	inv.setItem(player_inv, 0, customitem.create("ARROW_LEFT",1,"Turn down","Interdimensionally"));
+	inv.setItem(player_inv, 1, customitem.create("ARROW_RIGHT",1,"Turn up","Interdimensionally"));
+	inv.setItem(player_inv, 2, customitem.create("ARROW_DOWN",1,"Move down","background axis"));
+	inv.setItem(player_inv, 3, customitem.create("ARROW_UP",1,"Move up","background axis"));
 	c = 0;
 	for(layer_var = 0; layer_var < Layer_amount; layer_var++){
 		x_d = layer_var * Layer_difference_X;

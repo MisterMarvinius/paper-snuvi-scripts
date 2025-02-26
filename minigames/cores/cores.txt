@@ -47,7 +47,7 @@ game_tab = "§bCores";
 minigame.setIndivStartCheck(true);
 minigame.setSpecificLobbyHandling(true);
 
-bed_sound = sound.get("ENTITY_WITHER_DEATH");
+bed_sound = sound.get("minecraft:entity.wither.death");
 air_mat = material.getAir();
 beacon_mat = material.get("BEACON");
 

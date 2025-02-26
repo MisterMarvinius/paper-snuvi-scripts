@@ -1,7 +1,7 @@
 function stage.increase(player) {
 	$stage++;
 	quest.display(player, $quest_name, $stage, $all_stages);
-	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+	sound = sound.get("minecraft:entity.experience_orb.pickup");
 	category = sound.getCategory("MASTER");
 	sound.spawnForPlayer(player, sound, category);
 }

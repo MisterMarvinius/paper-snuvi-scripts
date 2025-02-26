@@ -64,7 +64,7 @@ script.startNamed("TipLoop", "utils/u_error", "system/tiploop", "utils/u_general
 script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
 
 whitelist.disable();
-setMOTD("§eMundus Crassus §f- [§d1.21§f]\n§cSURVIVAL §f| §cMINIGAMES §f| §cCREATIVE");
+setMOTD("§eMundus Crassus §f- [§d1.21.4§f]\n§cSURVIVAL §f| §cMINIGAMES §f| §cCREATIVE");
 
 error.setConsolePrint(false);
 term();

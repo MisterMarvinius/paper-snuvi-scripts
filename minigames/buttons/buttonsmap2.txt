@@ -6,6 +6,12 @@ origin_material = material.get("minecraft:oak_planks");
 mark_material = material.get("minecraft:spruce_planks");
 maxplayers = 1;
 
+tfn = 5; //timeForNext in sec
+factor = 0.98; //Faktor, um den tfn vermindert wird
+rankingtable = "buttonranks";
+game_short = "button";
+mode = "Rush";
+
 buttons = list.new();
 list.add(buttons, loc.new(gamesworld, 4001, 103, -996));
 list.add(buttons, loc.new(gamesworld, 4000, 103, -996));

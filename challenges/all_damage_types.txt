@@ -20,7 +20,7 @@ next_damage_types = map.new(); //player_id -> material
 done_damage_types = map.new(); //player_id -> set -> material
 todo_damage_types = map.new(); //player_id -> list -> material
 
-sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+sound = sound.get("minecraft:entity.experience_orb.pickup");
 category = sound.getCategory("MASTER");
 
 all_damage_types = list.new();
@@ -133,7 +133,7 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All damage types received. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	player.giveItem(player, item.getAmber());
+	player.giveItem(player, customitem.getAmber());
 	resetDamageTypes(player);
 	challenge.removeDisplay(player, sb_id);
 	player.removeChallenge(player, challenge_short);

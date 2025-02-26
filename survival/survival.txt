@@ -147,22 +147,22 @@ packed_ice_mat = material.get("packed_ice");
 ench_flame = enchantment.get("flame");
 ench_unbreaking = enchantment.get("unbreaking");
 ench_sharpness = enchantment.get("sharpness");
-piston_sound = sound.get("BLOCK_PISTON_EXTEND");
-adv_tp_sound = sound.get("BLOCK_PORTAL_TRAVEL");
+piston_sound = sound.get("block.piston.extend");
+adv_tp_sound = sound.get("block.portal.travel");
 sound_category_ambient = sound.getCategory("AMBIENT");
 
 sound_category_master = sound.getCategory("MASTER");
-sound_flute = sound.get("BLOCK_NOTE_BLOCK_FLUTE");
-sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
-sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
-sound_cat = sound.get("ENTITY_CAT_AMBIENT");
-sound_stray_cat = sound.get("ENTITY_CAT_STRAY_AMBIENT");
-sound_purreow = sound.get("ENTITY_CAT_PURREOW");
-sound_drink_milk = sound.get("ENTITY_WANDERING_TRADER_DRINK_MILK");
-sound_slime_place = sound.get("BLOCK_SLIME_BLOCK_PLACE");
-sound_eating = sound.get("ENTITY_GENERIC_EAT");
+sound_flute = sound.get("block.note_block.flute");
+sound_harp = sound.get("block.note_block.harp");
+sound_pling = sound.get("block.note_block.pling");
+sound_cat = sound.get("entity.cat.ambient");
+sound_stray_cat = sound.get("entity.cat.stray_ambient");
+sound_purreow = sound.get("entity.cat.purreow");
+sound_drink_milk = sound.get("entity.wandering_trader.drink_milk");
+sound_slime_place = sound.get("block.slime_block.place");
+sound_eating = sound.get("entity.generic.eat");
 
-music_chirp = sound.get("MUSIC_DISC_CHIRP");
+music_chirp = sound.get("music_disc.chirp");
 
 Sound_Pitch_List = list.new();
 for(a = -12; a <= 12; a++){
@@ -174,24 +174,24 @@ casino_inv_id = inv.getId(casino_inv);
 lore_list = list.new();
 list.add(lore_list, text.new("§dClick to lose or double"));
 list.add(lore_list, text.new("§dWinrate: 45%"));
-inv.setItem(casino_inv, 1, item.custom.create("COPPER_COIN", 1, "§fGamble 1 Snuvi", lore_list));
-inv.setItem(casino_inv, 2, item.custom.create("SILVER_COIN", 1, "§fGamble 64 Snuvis", lore_list));
-inv.setItem(casino_inv, 3, item.custom.create("GOLD_COIN", 1, "§fGamble 4096 Snuvis", lore_list));;
+inv.setItem(casino_inv, 1, customitem.create("COPPER_COIN", 1, "§fGamble 1 Snuvi", lore_list));
+inv.setItem(casino_inv, 2, customitem.create("SILVER_COIN", 1, "§fGamble 64 Snuvis", lore_list));
+inv.setItem(casino_inv, 3, customitem.create("GOLD_COIN", 1, "§fGamble 4096 Snuvis", lore_list));;
 lore_list = list.new();
 lottery_value = lottery.getValue();
 list.add(lore_list, text.new(string.concat("§dWin value: ", string.number(lottery_value))));
 list.add(lore_list, text.new("§dBuy a ticket for 10 snuvis."));
 list.add(lore_list, text.new("§dWinrate 1:500"));
-inv.setItem(casino_inv, 6, item.custom.create("COPPER_COIN", 1, "§fLottery", lore_list));;
+inv.setItem(casino_inv, 6, customitem.create("COPPER_COIN", 1, "§fLottery", lore_list));;
 
 bankmenu = inv.new("222200000", text.new("Banker"));
 bankinvid = inv.getId(bankmenu);
 lore_list = list.new();
 list.add(lore_list, text.new("§aLeftclick §f= §eWithdraw"));
 list.add(lore_list, text.new("§cRightclick §f= §eDeposit"));
-inv.setItem(bankmenu, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", lore_list));
-inv.setItem(bankmenu, 1, item.custom.create("SILVER_COIN", 1, "§f64 Snuvis", lore_list));
-inv.setItem(bankmenu, 2, item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", lore_list));
+inv.setItem(bankmenu, 0, customitem.create("COPPER_COIN", 1, "§f1 Snuvi", lore_list));
+inv.setItem(bankmenu, 1, customitem.create("SILVER_COIN", 1, "§f64 Snuvis", lore_list));
+inv.setItem(bankmenu, 2, customitem.create("GOLD_COIN", 1, "§f4096 Snuvis", lore_list));
 inv.setItem(bankmenu, 3, item.create("NETHERITE_BLOCK", 1, "§fAll Snuvis", lore_list));
 
 itemhunter.setNextItem();
@@ -440,7 +440,9 @@ if(string_name == "Mareen") {
 	}
 	goto("wait");
 }
-if(string_name == "Info-Point") {
+
+// info point
+if(string_name == "Olaf") {
 	msg.string(player, string.getSpacer());
 	msg(player, string.getClickText("§r [§cclick§r] [§eSurvival§r]", "/infopoint1"));
 	//msg(player, string.getClickText("§r [§cclick§r] [§eAdventure§r]", "/infopoint2"));
@@ -476,7 +478,7 @@ if(string_name == "Adventure") {
 		offerRank(player, "rank.adventurer");
 	}
 	removeAdventureDisplay(player);
-	player.safeGiveItem(player, item.getAmber());
+	player.safeGiveItem(player, customitem.getAmber());
 	money.addBoost(player, 4096);
 	goto("wait");
 }
@@ -523,7 +525,7 @@ if(title_string == "Daily Reward") {
 			money.add(player, 32);
 		} elseif(inv_slot == 6) {
 			reward_text = "1 Amber";
-			reward_item = item.custom.create("AMBER", 1, null, null);
+			reward_item = customitem.create("AMBER", 1, null, null);
 			player.safeGiveItem(player, reward_item);
 		}
 		msg.prefix(player, "§6Daily Reward", string.concat("Daily reward received: ", reward_text));
@@ -540,9 +542,9 @@ if(inv_id == bankinvid) { //Bankmenü
 			amount_items = 64;
 		}
 		player_inv = player.getInv(player);
-		gold_item = item.custom.create("GOLD_COIN", 1, null, null);
-		silver_item = item.custom.create("SILVER_COIN", 1, null, null);
-		copper_item = item.custom.create("COPPER_COIN", 1, null, null);
+		gold_item = customitem.create("GOLD_COIN", 1, null, null);
+		silver_item = customitem.create("SILVER_COIN", 1, null, null);
+		copper_item = customitem.create("COPPER_COIN", 1, null, null);
 		gold_inv = inv.getItemAmount(player_inv, gold_item);
 		silver_inv = inv.getItemAmount(player_inv, silver_item);
 		copper_inv = inv.getItemAmount(player_inv, copper_item);
@@ -556,9 +558,9 @@ if(inv_id == bankinvid) { //Bankmenü
 			depositSnuvis(player, 0, 0, amount_items);
 		}
 		elseif(inv_slot == 3) {
-			gold_inv = inv.getItemAmount(player_inv, item.custom.create("GOLD_COIN", 1, null, null));
-			silver_inv = inv.getItemAmount(player_inv, item.custom.create("SILVER_COIN", 1, null, null));
-			copper_inv = inv.getItemAmount(player_inv, item.custom.create("COPPER_COIN", 1, null, null));
+			gold_inv = inv.getItemAmount(player_inv, customitem.create("GOLD_COIN", 1, null, null));
+			silver_inv = inv.getItemAmount(player_inv, customitem.create("SILVER_COIN", 1, null, null));
+			copper_inv = inv.getItemAmount(player_inv, customitem.create("COPPER_COIN", 1, null, null));
 			depositSnuvis(player, copper_inv, silver_inv, gold_inv);
 		}
 		goto("wait");
@@ -638,9 +640,9 @@ if(inv_id == casino_inv_id) {
 goto("wait");
 
 function depositSnuvis(player, copper, silver, gold) {
-	gold_item = item.custom.create("GOLD_COIN", 1, null, null);
-	silver_item = item.custom.create("SILVER_COIN", 1, null, null);
-	copper_item = item.custom.create("COPPER_COIN", 1, null, null);
+	gold_item = customitem.create("GOLD_COIN", 1, null, null);
+	silver_item = customitem.create("SILVER_COIN", 1, null, null);
+	copper_item = customitem.create("COPPER_COIN", 1, null, null);
 	player_inv = player.getInv(player);
 	gold_inv = inv.getItemAmount(player_inv, gold_item);
 	silver_inv = inv.getItemAmount(player_inv, silver_item);
@@ -672,17 +674,17 @@ function withdrawSnuvis(player, copper, silver, gold) {
 		return;
 	}
 	if(copper > 0) {
-		copper_item = item.custom.create("COPPER_COIN", 1, null, null);
+		copper_item = customitem.create("COPPER_COIN", 1, null, null);
 		item.setAmount(copper_item, copper);
 		player.safeGiveItem(player, copper_item);
 	}
 	if(silver > 0) {
-		silver_item = item.custom.create("SILVER_COIN", 1, null, null);
+		silver_item = customitem.create("SILVER_COIN", 1, null, null);
 		item.setAmount(silver_item, silver);
 		player.safeGiveItem(player, silver_item);
 	}
 	if(gold > 0) {
-		gold_item = item.custom.create("GOLD_COIN", 1, null, null);
+		gold_item = customitem.create("GOLD_COIN", 1, null, null);
 		item.setAmount(gold_item, gold);
 		player.safeGiveItem(player, gold_item);
 	}
@@ -744,19 +746,19 @@ if(block != null) {
 				lore = "An einem anderen Tag abzuholen";
 			}
 			if(i == 0) {
-				inv.setItem(daily_reward_inv, 0, item.custom.create("COPPER_COIN", 1, "§f1 Snuvi", lore));
+				inv.setItem(daily_reward_inv, 0, customitem.create("COPPER_COIN", 1, "§f1 Snuvi", lore));
 			} elseif(i == 1) {
-				inv.setItem(daily_reward_inv, 1, item.custom.create("COPPER_COIN", 2, "§f2 Snuvi", lore));
+				inv.setItem(daily_reward_inv, 1, customitem.create("COPPER_COIN", 2, "§f2 Snuvi", lore));
 			} elseif(i == 2) {
-				inv.setItem(daily_reward_inv, 2, item.custom.create("COPPER_COIN", 4, "§f4 Snuvi", lore));
+				inv.setItem(daily_reward_inv, 2, customitem.create("COPPER_COIN", 4, "§f4 Snuvi", lore));
 			} elseif(i == 3) {
-				inv.setItem(daily_reward_inv, 3, item.custom.create("COPPER_COIN", 8, "§f8 Snuvi", lore));
+				inv.setItem(daily_reward_inv, 3, customitem.create("COPPER_COIN", 8, "§f8 Snuvi", lore));
 			} elseif(i == 4) {
-				inv.setItem(daily_reward_inv, 4, item.custom.create("COPPER_COIN", 16, "§f16 Snuvi", lore));
+				inv.setItem(daily_reward_inv, 4, customitem.create("COPPER_COIN", 16, "§f16 Snuvi", lore));
 			} elseif(i == 5) {
-				inv.setItem(daily_reward_inv, 5, item.custom.create("COPPER_COIN", 32, "§f32 Snuvi", lore));
+				inv.setItem(daily_reward_inv, 5, customitem.create("COPPER_COIN", 32, "§f32 Snuvi", lore));
 			} elseif(i == 6) {
-				inv.setItem(daily_reward_inv, 6, item.custom.create("AMBER", 1, "§f1 Amber", lore));
+				inv.setItem(daily_reward_inv, 6, customitem.create("AMBER", 1, "§f1 Amber", lore));
 			}
 		}
 		

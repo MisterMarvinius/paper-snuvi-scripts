@@ -114,9 +114,9 @@ emeralds = map.new();
 lastposition = map.new();
 nemesis = map.new();
 
-sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
-wither_sound = sound.get("ENTITY_WITHER_SPAWN");
-sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
+sound_pling = sound.get("minecraft:block.note_block.pling");
+wither_sound = sound.get("minecraft:entity.wither.spawn");
+sound_harp = sound.get("minecraft:block.note_block.harp");
 ambient_sound_category = sound.getCategory("AMBIENT");
 
 p_amount = list.getSize(player_list);

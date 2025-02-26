@@ -8,12 +8,12 @@ trapdoors_tag = block.getTag("minecraft:wooden_trapdoors");
 fencegates_tag = block.getTag("minecraft:fence_gates");
 
 block_sound_category = sound.getCategory("BLOCKS");
-open_door_sound = sound.get("BLOCK_WOODEN_DOOR_OPEN");
-close_door_sound = sound.get("BLOCK_WOODEN_DOOR_CLOSE");
-open_trapdoor_sound = sound.get("BLOCK_WOODEN_TRAPDOOR_OPEN");
-close_trapdoor_sound = sound.get("BLOCK_WOODEN_TRAPDOOR_CLOSE");
-open_fencegate_sound = sound.get("BLOCK_FENCE_GATE_OPEN");
-close_fencegate_sound = sound.get("BLOCK_FENCE_GATE_CLOSE");
+open_door_sound = sound.get("block.wooden_door.open");
+close_door_sound = sound.get("block.wooden_door.close");
+open_trapdoor_sound = sound.get("block.wooden_trapdoor.open");
+close_trapdoor_sound = sound.get("block.wooden_trapdoor.close");
+open_fencegate_sound = sound.get("block.fence_gate.open");
+close_fencegate_sound = sound.get("block.fence_gate.close");
 
 msg.string("dev", "§bDoors §rloaded.");
 @main
@@ -29,36 +29,21 @@ goto("main");
 if(block == null) {
 	goto("main");
 }
+if (player.isSneaking(player)) {
+	goto("main");
+}
 if(block.isAutomaticDoor(block) && action == "RIGHT_CLICK_BLOCK") {
 	if(cancel) {
 		goto("main");
 	}
 	player_spec = player.getAutoCloseDoor(player);
 	open_value = block.isOpen(block);
-	if(block.hasTag(block, doors_tag)) {
-		if(!open_value) {
-			if(player_spec) {
-				list.add(doors, block);
-				sgoto(60, "closedoor");
-			}
-		}
-		//Double door
-		door_block_2 = block.getSecondDoor(block);
-		if(door_block_2 == null) {
-			goto("main");
-		}
-		open_value_2 = block.isOpen(door_block_2);
-		if(open_value && open_value_2) {
-			door.open(door_block_2, false);
-		} elseif(!open_value && !open_value_2) {
-			door.open(door_block_2, true);
-			if(player_spec) {
-				list.add(doors, door_block_2);
-				sgoto(60, "closedoor");
-			}
-		}
-		goto("main");
+	if(block.isDoor(block)) {
+		goto("door");
+	}elseif(block.isTrapdoor(block)) {
+		goto("trapdoor");
 	}
+	
 	if(player_spec) {
 		block_loc = block.getLocation(block);
 		if(!map.contains(orig_value_map, block_loc)) {
@@ -70,13 +55,149 @@ if(block.isAutomaticDoor(block) && action == "RIGHT_CLICK_BLOCK") {
 }
 goto("main");
 
+
+
+@door
+if(!open_value) {
+	if(player_spec) {
+		list.add(doors, block);
+		sgoto(60, "closedoor");
+	}
+}
+		//Double door
+door_block_2 = block.getSecondDoor(block);
+if(door_block_2 == null) {
+	goto("main");
+}
+open_value_2 = block.isOpen(door_block_2);
+if(open_value && open_value_2) {
+	door.open(door_block_2, false);
+} elseif(!open_value && !open_value_2) {
+	door.open(door_block_2, true);
+	if(player_spec) {
+		list.add(doors, door_block_2);
+		sgoto(60, "closedoor");
+	}
+}
+goto("main");
+
+
+
+@trapdoor
+open_value = block.isOpen(block);
+state_facing = block.getDirectionalFace(block);
+trapdoors = list.new();
+
+block_loc = block.getLocation(block);
+list.add(trapdoors, block_loc);
+if(player_spec) {
+	list.add(doors, block);
+	if(!map.contains(orig_value_map, block_loc)) {
+		map.add(orig_value_map, block_loc, open_value);
+	}
+	sgoto(60, "closedoor");
+}
+
+if(state_facing == "NORTH" || state_facing == "SOUTH") {
+	trapdoor_loc_2 = loc.mod(block_loc, -1, 0, 0);
+	trapdoor_loc_3 = loc.mod(block_loc, 1, 0, 0);
+			
+	if (state_facing == "NORTH") {
+		opposite_loc = loc.mod(block_loc, 0, 0, -1);
+	} else {
+		opposite_loc = loc.mod(block_loc, 0, 0, 1);
+	}			
+} elseif(state_facing == "EAST" || state_facing == "WEST") {
+	trapdoor_loc_2 = loc.mod(block_loc, 0, 0, -1);
+	trapdoor_loc_3 = loc.mod(block_loc, 0, 0, 1);
+			
+	if (state_facing == "EAST"){
+		opposite_loc = loc.mod(block_loc, 1, 0, 0);
+	} else {
+		opposite_loc = loc.mod(block_loc, -1, 0, 0);
+	}
+}
+
+block2 = block.get(trapdoor_loc_2);
+block3 = block.get(trapdoor_loc_3);
+block4 = block.get(opposite_loc);
+
+if (isNeighbouring_Trapdoor(block2, state_facing)) { 
+	list.add(trapdoors, trapdoor_loc_2); 
+	
+	if(player_spec) {
+		list.add(doors, block2);
+		if(!map.contains(orig_value_map, trapdoor_loc_2)) {
+			map.add(orig_value_map, trapdoor_loc_2, open_value);
+		}
+		sgoto(60, "closedoor");
+	}
+}
+if (isNeighbouring_Trapdoor(block3, state_facing)) {
+	list.add(trapdoors, trapdoor_loc_3); 
+	if(player_spec) {
+		list.add(doors, block3);
+		if(!map.contains(orig_value_map, trapdoor_loc_3)) {
+			map.add(orig_value_map, trapdoor_loc_3, open_value);
+		}
+		sgoto(60, "closedoor");
+	}
+}
+
+if ( isOpposite_Trapdoor(block4, state_facing)){
+	list.add(trapdoors, opposite_loc);
+	state_facing2 = block.getDirectionalFace(block4);
+	if(player_spec) {
+		list.add(doors, block4);
+		if(!map.contains(orig_value_map, opposite_loc)) {
+			map.add(orig_value_map, opposite_loc, open_value);
+		}
+		sgoto(60, "closedoor");
+	}
+	
+	if(state_facing == "NORTH" || state_facing == "SOUTH") {
+			ntrapdoor_loc_2 = loc.mod(opposite_loc, -1, 0, 0);
+			ntrapdoor_loc_3 = loc.mod(opposite_loc, 1, 0, 0);
+	}elseif(state_facing == "EAST" || state_facing == "WEST") {
+			ntrapdoor_loc_2 = loc.mod(opposite_loc, 0, 0, -1);
+			ntrapdoor_loc_3 = loc.mod(opposite_loc, 0, 0, 1);
+	}
+	nblock2 = block.get(ntrapdoor_loc_2);
+	nblock3 = block.get(ntrapdoor_loc_3);
+	if (isNeighbouring_Trapdoor(nblock2, state_facing2)){ 
+		list.add(trapdoors, ntrapdoor_loc_2); 
+		if(player_spec) {
+			list.add(doors, nblock2);
+			if(!map.contains(orig_value_map, ntrapdoor_loc_2)) {
+				map.add(orig_value_map, ntrapdoor_loc_2, open_value);
+			}
+			sgoto(60, "closedoor");
+		}
+	}
+	if (isNeighbouring_Trapdoor(nblock3, state_facing2)){ 
+		list.add(trapdoors, ntrapdoor_loc_3); 
+		if(player_spec) {
+			list.add(doors, nblock3);
+			if(!map.contains(orig_value_map, ntrapdoor_loc_3)) {
+				map.add(orig_value_map, ntrapdoor_loc_3, open_value);
+			}
+			sgoto(60, "closedoor");
+		}
+	}
+}
+
+door.openlist(trapdoors, open_value);
+goto("main");
+
+
+
 @closedoor
 block = list.getIndex(doors, 0);
 list.removeIndex(doors, 0);
 if(block.isAutomaticDoor(block)) {
 	//close door
 	open_value = block.isOpen(block);
-	if(block.hasTag(block, doors_tag)) {
+	if(block.isDoor(block)) {
 		if(open_value) {
 			door.open(block, false);
 		}
@@ -92,13 +213,28 @@ if(block.isAutomaticDoor(block)) {
 	if(orig_value == open_value) {
 		goto("main");
 	}
-	if(open_value) {
-		door.open(block, false);
-		goto("main");
-	}
-	door.open(block, true);
+	door.open(block, !open_value);
 }
 goto("main");
+
+
+
+function door.openlist(doors_list, open_value){
+	list_it = iterator(doors_list);
+	//msg("dev",text.new(doors_list));
+	
+	while (hasNext(list_it)){
+		door_loc = next(list_it);
+		block2 = block.get(door_loc);
+		open_value_2 = block.isOpen(block2);
+		
+		if(open_value && open_value_2) {
+			door.open(block2, false);
+		} elseif(!open_value && !open_value_2) {
+			door.open(block2, true);
+		}
+	}
+}
 
 function door.open(block, boolean) {
 	block.setOpen(block, boolean);
@@ -164,6 +300,27 @@ function block.getSecondDoor(door_block_1) {
 	return null;
 }
 
+function isNeighbouring_Trapdoor(block, state_facing){
+	if(block.isTrapdoor(block)){
+		return block.getDirectionalFace(block) == state_facing;
+	}
+	return false;
+}
+
+function isOpposite_Trapdoor(block, state_facing){
+	if(!block.isTrapdoor(block)){
+		return false;
+	}
+	state_facing2 = block.getDirectionalFace(block);
+	if (state_facing == "NORTH" && state_facing2 == "SOUTH" || state_facing == "SOUTH" && state_facing2 == "NORTH"){
+		return true;
+	}
+	if (state_facing == "EAST" && state_facing2 == "WEST" || state_facing == "WEST" && state_facing2 == "EAST"){
+		return true;
+	}
+	return false;
+}
+
 function block.isSameDoorHalf(door_block_1, door_block_2) {
 	state_half = block.getBisectedHalf(door_block_1);
 	state_half_2 = block.getBisectedHalf(door_block_2);
@@ -172,4 +329,12 @@ function block.isSameDoorHalf(door_block_1, door_block_2) {
 
 function block.isAutomaticDoor(block) {
 	return block.hasTag(block, $doors_tag) || block.hasTag(block, $trapdoors_tag) || block.hasTag(block, $fencegates_tag);
+}
+
+function block.isDoor(block) {
+	return block.hasTag(block, $doors_tag);
+}
+
+function block.isTrapdoor(block) {
+	return block.hasTag(block, $trapdoors_tag);
 }

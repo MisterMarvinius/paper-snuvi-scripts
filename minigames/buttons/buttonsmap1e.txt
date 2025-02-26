@@ -1,0 +1,35 @@
+gamesignloc = minigame.getSignLoc("buttonssign1e");
+gamesworld = world.getGames();
+spawn_loc = loc.new(gamesworld, 3976.5, 58, -4017.5, 0.0001, 0.0001);
+mapname = "Farmland";
+origin_material = material.get("minecraft:andesite");
+mark_material = material.get("minecraft:polished_andesite");
+maxplayers = 1;
+
+tfn = 3; //timeForNext in sec
+factor = 1; //Faktor, um den tfn vermindert wird
+rankingtable = "buttoneranks";
+game_short = "buttone";
+mode = "Endless";
+
+buttons = list.new();
+list.add(buttons, loc.new(gamesworld, 3977, 61, -4013));
+list.add(buttons, loc.new(gamesworld, 3976, 61, -4013));
+list.add(buttons, loc.new(gamesworld, 3975, 61, -4013));
+list.add(buttons, loc.new(gamesworld, 3977, 60, -4013));
+list.add(buttons, loc.new(gamesworld, 3976, 60, -4013));
+list.add(buttons, loc.new(gamesworld, 3975, 60, -4013));
+list.add(buttons, loc.new(gamesworld, 3977, 59, -4013));
+list.add(buttons, loc.new(gamesworld, 3976, 59, -4013));
+list.add(buttons, loc.new(gamesworld, 3975, 59, -4013));
+
+/*
+norden  1  // -z
+osten  -1  // +x
+süden  -1  // +z
+westen  1  // -x
+*/
+
+//In welche Richtung schauen die Knöpfe?
+direction = "z"; 	//x oder z
+number = 1; 		//-1 oder 1

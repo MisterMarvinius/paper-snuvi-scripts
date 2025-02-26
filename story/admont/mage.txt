@@ -18,7 +18,7 @@ cauldron_mat = material.get("CAULDRON");
 nether_wart_mat = material.get("NETHER_WART");
 water_bucket_mat = material.get("water_bucket");
 water_bucket = item.new(water_bucket_mat);
-key = item.custom.create("GOLDEN_KEY", 1, "Mage Cave Key", "Mage");
+key = customitem.create("GOLDEN_KEY", 1, "Mage Cave Key", "Mage");
 
 world = world.getOverworld();
 zombie_loc = loc.new(world, 215, 24, -80);

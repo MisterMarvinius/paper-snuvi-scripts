@@ -6,23 +6,23 @@ slot_chest = slot.getChest();
 slot_legs = slot.getLegs();
 slot_feet = slot.getFeet();
 
-amber = item.getAmber();
-ruby = item.getRuby();
-sapphire = item.getSapphire();
+amber = customitem.getAmber();
+ruby = customitem.getRuby();
+sapphire = customitem.getSapphire();
 air = item.getAir();
-arrow_right = item.custom.create("ARROW_RIGHT", 1, "§fConvert", null);
+arrow_right = customitem.create("ARROW_RIGHT", 1, "§fConvert", null);
 prefix_commands = "§6Commands";
 hint_1 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
-hint_2 = item.getRuby();
-hint_3 = item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
+hint_2 = customitem.getRuby();
+hint_3 = customitem.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
 hint_4 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
 hint_5 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
-hint_6 = item.getSapphire();
-hint_7 = item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
+hint_6 = customitem.getSapphire();
+hint_7 = customitem.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
 hint_8 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
 hint_9 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
-hint_10 = item.getAmber();
-hint_11 = item.custom.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
+hint_10 = customitem.getAmber();
+hint_11 = customitem.create("GOLD_COIN", 1, "§f4096 Snuvis", null);
 hint_12 = item.create("minecraft:iron_chestplate", 1, "§fArmor Part", null);
 item.addFlag(hint_2, "HIDE_ATTRIBUTES");
 item.addFlag(hint_3, "HIDE_ATTRIBUTES");
@@ -32,10 +32,10 @@ item.addFlag(hint_11, "HIDE_ATTRIBUTES");
 item.addDefaultTags(hint_4);
 item.addDefaultTags(hint_8);
 item.addDefaultTags(hint_12);
-item.addAttribute(hint_4, "GENERIC_MAX_HEALTH", slot_chest, 2, "ADD_NUMBER");
-item.addAttribute(hint_8, "GENERIC_ARMOR", slot_chest, 1, "ADD_NUMBER");
-item.addAttribute(hint_12, "GENERIC_KNOCKBACK_RESISTANCE", slot_chest, 0.1, "ADD_NUMBER");
-anvil_use = sound.get("BLOCK_ANVIL_USE");
+item.addAttribute(hint_4, "generic.max_health", slot_chest, 2, "ADD_NUMBER");
+item.addAttribute(hint_8, "generic.armor", slot_chest, 1, "ADD_NUMBER");
+item.addAttribute(hint_12, "generic.knockback_resistance", slot_chest, 0.1, "ADD_NUMBER");
+anvil_use = sound.get("block.anvil.use");
 sc_master = sound.getCategory("MASTER");
 snuvis = 4096;
 
@@ -147,19 +147,19 @@ if(event == "snuvi_click") {
 			goto("wait");
 		}
 		//which gemstone
-		if(item.isRuby(item_1)) {
+		if(customitem.isRuby(item_1)) {
 			gem = ruby;
-			att_type = "GENERIC_MAX_HEALTH";
+			att_type = "generic.max_health";
 			att_amount = 2;
 		}
-		elseif(item.isSapphire(item_1)) {
+		elseif(customitem.isSapphire(item_1)) {
 			gem = sapphire;
-			att_type = "GENERIC_ARMOR";
+			att_type = "generic.armor";
 			att_amount = 1;
 		}
-		elseif(item.isAmber(item_1)) {
+		elseif(customitem.isAmber(item_1)) {
 			gem = amber;
-			att_type = "GENERIC_KNOCKBACK_RESISTANCE";
+			att_type = "generic.knockback_resistance";
 			att_amount =  0.1;
 		} else {
 			msg.prefix(player, prefix_commands, "Second slot needs to be one Gemstone (Amber, Ruby, ...).");

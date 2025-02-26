@@ -28,8 +28,8 @@ if(player.hasMinigameId(player, script_id)) {
 goto("wait");
 
 @minigame_join
-custom_refresh_red = item.custom.get("REFRESH_RED");
-custom_return_red = item.custom.get("RETURN_RED");
+custom_refresh_red = customitem.getRedRefresh();
+custom_return_red = customitem.getGreenRefresh();
 amount_checkpoints = list.getSize(spawn_locs) - 1;
 single_uuid = player.getUuid(player);
 jr.setStarttime();
@@ -63,8 +63,8 @@ entity.teleport(player, list.getIndex(spawn_locs, jumpstage));
 player.clearInventory(player);
 sb.add(player, 99, gamename);
 sb.add(player, 97, sb.getSpacer());
-player.giveItem(player, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
-player.giveItem(player, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+player.giveItem(player, customitem.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
+player.giveItem(player, customitem.create("RETURN_RED", 1, "§fReset to start", null));
 title.send(player, text.new(gamename), text.new(mapname), 20, 20, 20);
 
 gosub("stage_specific");
@@ -79,7 +79,7 @@ goto("wait");
 
 @block_click
 item = living.getHand(player);
-if(item.custom.isType(item, custom_refresh_red)) {
+if(customitem.isRedRefresh(item)) {
 	living.setHealth(player, 20);
 	jr.teleportModule(player, jumpstage);
 	entity.setBurning(player, 0);
@@ -87,7 +87,7 @@ if(item.custom.isType(item, custom_refresh_red)) {
 	jr.setStarttime();
 	goto("wait");
 }
-if(item.custom.isType(item, custom_return_red)) {
+if(customitem.isRedReturn(item)) {
 	for(i = 1; i < amount_checkpoints; i++) {
 		location1 = list.getIndex(checkpoints, i);
 		location2 = loc.mod(location1, 1, 1, 1);

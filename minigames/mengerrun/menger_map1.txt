@@ -1,8 +1,8 @@
 jan_mr_skills = list.new();
-addMengerSkill("Normal", item.custom.create("DIGIT_0",1,"0", "Normal"), 0, 0);
-addMengerSkill("Medium", item.custom.create("DIGIT_1",1,"1", "Medium"), 1.5, 3);
-addMengerSkill("High", item.custom.create("DIGIT_2",1,"2", "High"), 2.5, 5);
-addMengerSkill("Extreme", item.custom.create("DIGIT_3",1,"3", "Extreme"), 4, 15);
+addMengerSkill("Normal", customitem.create("DIGIT_0",1,"0", "Normal"), 0, 0);
+addMengerSkill("Medium", customitem.create("DIGIT_1",1,"1", "Medium"), 1.5, 3);
+addMengerSkill("High", customitem.create("DIGIT_2",1,"2", "High"), 2.5, 5);
+addMengerSkill("Extreme", customitem.create("DIGIT_3",1,"3", "Extreme"), 4, 15);
 
 gamesworld = world.getGames();
 edge_loc_1 = loc.new(gamesworld, -1242, 242, 3081);

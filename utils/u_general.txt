@@ -239,40 +239,29 @@ function getItemFlags() {
 }
 
 function getPotionTypes() {
-	list = list.new();
-	list.add(list, "ABSORPTION");
-	list.add(list, "BAD_OMEN");
-	list.add(list, "BLINDNESS");
-	list.add(list, "CONDUIT_POWER");
-	list.add(list, "CONFUSION");
-	list.add(list, "DAMAGE_RESISTANCE");
-	list.add(list, "DOLPHINS_GRACE");
-	list.add(list, "FAST_DIGGING");
-	list.add(list, "FIRE_RESISTANCE");
-	list.add(list, "GLOWING");
-	list.add(list, "HARM");
-	list.add(list, "HEAL");
-	list.add(list, "HEALTH_BOOST");
-	list.add(list, "HERO_OF_THE_VILLAGE");
-	list.add(list, "HUNGER");
-	list.add(list, "INCREASE_DAMAGE");
-	list.add(list, "INVISIBILITY");
-	list.add(list, "JUMP");
-	list.add(list, "LEVITATION");
-	list.add(list, "LUCK");
-	list.add(list, "NIGHT_VISION");
-	list.add(list, "POISON");
-	list.add(list, "REGENERATION");
-	list.add(list, "SATURATION");
-	list.add(list, "SLOW");
-	list.add(list, "SLOW_DIGGING");
-	list.add(list, "SLOW_FALLING");
-	list.add(list, "SPEED");
-	list.add(list, "UNLUCK");
-	list.add(list, "WATER_BREATHING");
-	list.add(list, "WEAKNESS");
-	list.add(list, "WITHER");
-	return list;
+	potion = list.new();
+	list.add(potion, "night_vision");
+	list.add(potion, "invisibility");
+	list.add(potion, "leaping");
+	list.add(potion, "fire_resistance");
+	list.add(potion, "swiftness");
+	list.add(potion, "slowness");
+	list.add(potion, "water_breathing");
+	list.add(potion, "healing");
+	list.add(potion, "harming");
+	list.add(potion, "poison");
+	list.add(potion, "regeneration");
+	list.add(potion, "strength");
+	list.add(potion, "weakness");
+	list.add(potion, "levitation");
+	list.add(potion, "luck");
+	list.add(potion, "turtle_master");
+	list.add(potion, "slow_falling");
+	list.add(potion, "infested");
+	list.add(potion, "oozing");
+	list.add(potion, "weaving");
+	list.add(potion, "wind_charged");
+	return potion;
 }
 
 function player.safeGiveItem(player, item) {
@@ -1240,7 +1229,7 @@ function quest.addCounter(player, amount) {
 }
 
 function quest.finish(script, player) {
-	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+	sound = sound.get("entity.experience_orb.pickup");
 	category = sound.getCategory("MASTER");
 	sound.spawnForPlayer(player, sound, category);
 	quest.addCounter(player, 1);
@@ -1250,7 +1239,7 @@ function quest.finish(script, player) {
 function quest.finishReward(script, player, reward) {
 	msg.string(player, string.concat("§dQuest finished. §rReward: ", money.getString(reward)));
 	money.addBoost(player, reward);
-	sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+	sound = sound.get("entity.experience_orb.pickup");
 	category = sound.getCategory("MASTER");
 	sound.spawnForPlayer(player, sound, category);
 	quest.addCounter(player, 1);
@@ -1653,16 +1642,198 @@ function item.isAir(itemstack) {
 	return item.getType(itemstack) == material.getAir();
 }
 
-function item.custom.isType(item, custom) {
-	return item.getCustom(item) == custom;
+// do not use this command in other scripts
+function customitem.get(model, name) {
+	model = string.toLowerCase(model);
+	return read.item(string.concat("{components:{'minecraft:custom_name':'\"§f", name, "\"','minecraft:item_model':'minecraft:", model, "'},count:1,id:'minecraft:command_block'}"));
 }
 
-function item.custom.create(type, amount, name, wusi) {
+function customitem.getAll() {
+	customitems = list.new();
+	list.add(customitems, customitem.getAmber());
+	list.add(customitems, customitem.getSapphire());
+	list.add(customitems, customitem.getRuby());
+	list.add(customitems, customitem.getGoldCoin());
+	list.add(customitems, customitem.getSilverCoin());
+	list.add(customitems, customitem.getCopperCoin());
+	list.add(customitems, customitem.getDownArrow());
+	list.add(customitems, customitem.getLeftArrow());
+	list.add(customitems, customitem.getRightArrow());
+	list.add(customitems, customitem.getUpArrow());
+	list.add(customitems, customitem.getGreenCheck());
+	list.add(customitems, customitem.getRedCheck());
+	list.add(customitems, customitem.getDigit0());
+	list.add(customitems, customitem.getDigit1());
+	list.add(customitems, customitem.getDigit2());
+	list.add(customitems, customitem.getDigit3());
+	list.add(customitems, customitem.getDigit4());
+	list.add(customitems, customitem.getDigit5());
+	list.add(customitems, customitem.getDigit6());
+	list.add(customitems, customitem.getDigit7());
+	list.add(customitems, customitem.getDigit8());
+	list.add(customitems, customitem.getDigit9());
+	list.add(customitems, customitem.getGreenPlus());
+	list.add(customitems, customitem.getRedPlus());
+	list.add(customitems, customitem.getGreenRefresh());
+	list.add(customitems, customitem.getRedRefresh());
+	list.add(customitems, customitem.getGreenReturn());
+	list.add(customitems, customitem.getRedReturn());
+	list.add(customitems, customitem.getGreenCross());
+	list.add(customitems, customitem.getRedCross());
+	list.add(customitems, customitem.getGear());
+	list.add(customitems, customitem.getGreenMinus());
+	list.add(customitems, customitem.getRedMinus());
+	list.add(customitems, customitem.getScroll());
+	return customitems;
+}
+
+function customitem.getAmber() {
+	return customitem.get("AMBER", "Amber");
+}
+
+function customitem.getSapphire() {
+	return customitem.get("SAPPHIRE", "Sapphire");
+}
+
+function customitem.getRuby() {
+	return customitem.get("RUBY", "Ruby");
+}
+
+function customitem.getGoldCoin() {
+	return customitem.get("GOLD_COIN", "Gold Coin");
+}
+
+function customitem.getSilverCoin() {
+	return customitem.get("SILVER_COIN", "Silver Coin");
+}
+
+function customitem.getCopperCoin() {
+	return customitem.get("COPPER_COIN", "Copper Coin");
+}
+
+function customitem.getDownArrow() {
+	return customitem.get("ARROW_DOWN", "Down Arrow");
+}
+
+function customitem.getLeftArrow() {
+	return customitem.get("ARROW_LEFT", "Left Arrow");
+}
+
+function customitem.getRightArrow() {
+	return customitem.get("ARROW_RIGHT", "Right Arrow");
+}
+
+function customitem.getUpArrow() {
+	return customitem.get("ARROW_UP", "Up Arrow");
+}
+
+function customitem.getGreenCheck() {
+	return customitem.get("CHECK_GREEN", "Green Check");
+}
+
+function customitem.getRedCheck() {
+	return customitem.get("CHECK_RED", "Red Check");
+}
+
+function customitem.getDigit0() {
+	return customitem.get("DIGIT_0", "Digit 0");
+}
+
+function customitem.getDigit1() {
+	return customitem.get("DIGIT_1", "Digit 1");
+}
+
+function customitem.getDigit2() {
+	return customitem.get("DIGIT_2", "Digit 2");
+}
+
+function customitem.getDigit3() {
+	return customitem.get("DIGIT_3", "Digit 3");
+}
+
+function customitem.getDigit4() {
+	return customitem.get("DIGIT_4", "Digit 4");
+}
+
+function customitem.getDigit5() {
+	return customitem.get("DIGIT_5", "Digit 5");
+}
+
+function customitem.getDigit6() {
+	return customitem.get("DIGIT_6", "Digit 6");
+}
+
+function customitem.getDigit7() {
+	return customitem.get("DIGIT_7", "Digit 7");
+}
+
+function customitem.getDigit8() {
+	return customitem.get("DIGIT_8", "Digit 8");
+}
+
+function customitem.getDigit9() {
+	return customitem.get("DIGIT_9", "Digit 9");
+}
+
+function customitem.getGreenPlus() {
+	return customitem.get("PLUS_GREEN", "Green Plus");
+}
+
+function customitem.getRedPlus() {
+	return customitem.get("PLUS_RED", "Red Plus");
+}
+
+function customitem.getGreenRefresh() {
+	return customitem.get("REFRESH_GREEN", "Green Refresh");
+}
+
+function customitem.getRedRefresh() {
+	return customitem.get("REFRESH_RED", "Red Refresh");
+}
+
+function customitem.getGreenReturn() {
+	return customitem.get("RETURN_GREEN", "Green Return");
+}
+
+function customitem.getRedReturn() {
+	return customitem.get("RETURN_RED", "Red Return");
+}
+
+function customitem.getGreenCross() {
+	return customitem.get("CROSS_GREEN", "Green Cross");
+}
+
+function customitem.getRedCross() {
+	return customitem.get("CROSS_RED", "Red Cross");
+}
+
+function customitem.getGear() {
+	return customitem.get("GEAR", "Gear");
+}
+
+function customitem.getGreenMinus() {
+	return customitem.get("MINUS_GREEN", "Green Minus");
+}
+
+function customitem.getRedMinus() {
+	return customitem.get("MINUS_RED", "Red Minus");
+}
+
+function customitem.getScroll() {
+	return customitem.get("SCROLL", "Scroll");
+}
+
+function customitem.isType(item, custom) {
+	nbt = string.item(item);
+	custom = string.toLowerCase(custom);
+	custom = string.concat("\"minecraft:item_model\":\"minecraft:", custom);
+	return string.contains(nbt, custom);
+}
+
+function customitem.create(type, amount, name, wusi) {
 	//wusi: lore_list or lore_string
-	item = item.custom.new(item.custom.get(type), amount);
-	if(name != null) {
-		item.setName(item, text.new(name));
-	}
+	item = customitem.get(type, name);
+	item.setAmount(item, amount);
 	if(wusi != null) {
 		if(isString(wusi)) {
 			lore_list = list.new();
@@ -1673,6 +1844,86 @@ function item.custom.create(type, amount, name, wusi) {
 		}
 	}
 	return item;
+}
+
+function customitem.isAmber(item) {
+	return customitem.isType(item, "AMBER");
+}
+
+function customitem.isSapphire(item) {
+	return customitem.isType(item, "SAPPHIRE");
+}
+
+function customitem.isRuby(item) {
+	return customitem.isType(item, "RUBY");
+}
+
+function customitem.isGoldCoin(item) {
+	return customitem.isType(item, "GOLD_COIN");
+}
+
+function customitem.isSilverCoin(item) {
+	return customitem.isType(item, "SILVER_COIN");
+}
+
+function customitem.isCopperCoin(item) {
+	return customitem.isType(item, "COPPER_COIN");
+}
+
+function customitem.isRedReturn(item) {
+	return customitem.isType(item, "RETURN_RED");
+}
+
+function customitem.isGreenReturn(item) {
+	return customitem.isType(item, "RETURN_GREEN");
+}
+
+function customitem.isRedRefresh(item) {
+	return customitem.isType(item, "REFRESH_RED");
+}
+
+function customitem.isGreenRefresh(item) {
+	return customitem.isType(item, "REFRESH_GREEN");
+}
+
+function customitem.isRedCross(item) {
+	return customitem.isType(item, "CROSS_RED");
+}
+
+function customitem.isGreenCross(item) {
+	return customitem.isType(item, "CROSS_GREEN");
+}
+
+function customitem.isRedCheck(item) {
+	return customitem.isType(item, "CHECK_GREEN");
+}
+
+function customitem.isGreenCheck(item) {
+	return customitem.isType(item, "CHECK_RED");
+}
+
+function customitem.isUpArrow(item) {
+	return customitem.isType(item, "ARROW_UP");
+}
+
+function customitem.isDownArrow(item) {
+	return customitem.isType(item, "ARROW_DOWN");
+}
+
+function customitem.isLeftArrow(item) {
+	return customitem.isType(item, "ARROW_LEFT");
+}
+
+function customitem.isRightArrow(item) {
+	return customitem.isType(item, "ARROW_RIGHT");
+}
+
+function customitem.isGear(item) {
+	return customitem.isType(item, "GEAR");
+}
+
+function customitem.isDigit(item) {
+	return customitem.isType(item, "DIGIT");
 }
 
 function item.create(type, amount, name, wusi) {
@@ -1714,36 +1965,6 @@ function item.getAir() {
 
 function item.getAirString() {
 	return "{id:\"minecraft:air\",Count:1b}";
-}
-
-function item.isAmber(item) {
-	return item.custom.get("AMBER") == item.getCustom(item);
-}
-
-function item.isSapphire(item) {
-	return item.custom.get("SAPPHIRE") == item.getCustom(item);
-}
-
-function item.isRuby(item) {
-	return item.custom.get("RUBY") == item.getCustom(item);
-}
-
-function item.getAmber() {
-	return item.custom.new(item.custom.get("AMBER"));
-}
-
-function item.getSapphire() {
-	return item.custom.new(item.custom.get("SAPPHIRE"));
-}
-
-function item.getRuby() {
-	return item.custom.new(item.custom.get("RUBY"));
-}
-
-function item.isDigit(item) {
-	c = item.getCustom(item);
-	set = getScriptVar("digits");
-	return set.contains(set, c);
 }
 
 function drops.containsMaterial(drops_list, material) {

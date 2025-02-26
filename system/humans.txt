@@ -6,7 +6,7 @@ list.add(lore_list, text.new("§aLeftclick §f= §eBuy"));
 list.add(lore_list, text.new("§cRightclick §f= §eSell"));
 emerald = item.create("EMERALD", 1, "§fMarket", lore_list);
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
-scroll = item.custom.create("SCROLL", 1, "§2Skills", null);
+scroll = customitem.create("SCROLL", 1, "§2Skills", null);
 spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
 
 //createMainMenu(inv_name, market, quests, skills, challenges)

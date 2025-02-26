@@ -60,10 +60,10 @@ list.add(seat_locs, loc.new(gamesworld, 907, 84, 946));
 list.add(seat_locs, loc.new(gamesworld, 907, 84, 947));
 list.add(seat_locs, loc.new(gamesworld, 907, 84, 948));
 
-vent_left_item = item.custom.create("ARROW_LEFT", 1, "§fVent left", null);
-vent_right_item = item.custom.create("ARROW_RIGHT", 1, "§fVent right", null);
-vent_up_item = item.custom.create("ARROW_UP", 1, "§fVent up", null);
-vent_down_item = item.custom.create("ARROW_DOWN", 1, "§fVent down", null);
+vent_left_item = customitem.create("ARROW_LEFT", 1, "§fVent left", null);
+vent_right_item = customitem.create("ARROW_RIGHT", 1, "§fVent right", null);
+vent_up_item = customitem.create("ARROW_UP", 1, "§fVent up", null);
+vent_down_item = customitem.create("ARROW_DOWN", 1, "§fVent down", null);
 goto("game_core");
 
 @init_map_specific

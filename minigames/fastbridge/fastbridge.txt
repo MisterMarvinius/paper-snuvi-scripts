@@ -7,7 +7,7 @@ game_short = "fb";
 gamename = "§dFastBridge";
 minigame.setSpecificLobbyHandling(true);
 minigame.setPlayerResetInCore(false);
-start_sound = sound.get("BLOCK_NOTE_BLOCK_HARP");
+start_sound = sound.get("minecraft:block.note_block.harp");
 
 minigame.initStart();
 goto("simplelobby");

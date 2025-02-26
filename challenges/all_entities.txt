@@ -21,7 +21,7 @@ next_entities = map.new(); //player_id -> entity_type
 done_entities = map.new(); //player_id -> set -> entity_type
 todo_entities = map.new(); //player_id -> list -> entity_type
 
-sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+sound = sound.get("minecraft:entity.experience_orb.pickup");
 category = sound.getCategory("MASTER");
 
 entity_list = list.new();
@@ -181,7 +181,7 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All entities killed. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	amber = item.getAmber();
+	amber = customitem.getAmber();
 	item.setAmount(amber, 2);
 	player.giveItem(player, amber);
 	resetAE(player);

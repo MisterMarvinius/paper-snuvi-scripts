@@ -65,8 +65,8 @@ if(block.hasTag(block, stairs_tag)) {
 	if(!player.hasSittingActivated(player)) {
 		goto("wait");
 	}
-	entity = read.spawnMob(block.getLocation(block), "{Facing:1b,Invisible:1b,Invulnerable:1b,OnGround:0b,Rotation:[0.0f,-90.0f],id:\"minecraft:item_frame\"}");
-	entity.frame.setfixed(entity, true);
+	loc = block.getLocation(block);
+	entity = entity.spawnseat(loc);
 	map.add(sitting, player_uuid, entity);
 	entity.mount(player, entity);
 }

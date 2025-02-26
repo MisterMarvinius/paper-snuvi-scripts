@@ -1,10 +1,10 @@
 event.load("custom_command");
 event.load("player_quit");
 prefix = "§2Ticket";
-pling_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
+pling_sound = sound.get("block.note_block.pling");
 sound_category_ambient = sound.getCategory("AMBIENT");
 
-tickets = list.new(); //List with ticket-arrays: ticket[ticketid][helpneeder][message][supporter]
+tickets = list.new(); //List with ticket-arrays: ticket[0:ticketid, 1:helpneeder, 2:message, 3:supporter]
 ticketcounter = 0;
 
 msg.string("dev", "§bTickets §rloaded.");
@@ -177,6 +177,7 @@ goto("wait");
 
 @player_quit
 player_id = player.getId(player);
+// on player quit release tickets from supporters
 if(doesTickets(player)) {
 	iter = iterator(tickets);
 	while(hasNext(iter)) {
@@ -186,12 +187,18 @@ if(doesTickets(player)) {
 		}
 	}
 }
-//No iterator here, otherwise concurrent modification
+// on player quit stop tickets from players
+helper_list = list.new();
 for(i = 0; i < list.getSize(tickets); i++) {
 	ticket = list.getIndex(tickets, i);
 	if(ticket.isHelpNeeder(ticket, player)) {
-		ticket.stop(ticket);
+		list.add(helper_list, ticket);
 	}
+}
+iter = iterator(helper_list);
+while(hasNext(iter)) {
+	ticket = next(iter);
+	ticket.stop(ticket);
 }
 goto("wait");
 

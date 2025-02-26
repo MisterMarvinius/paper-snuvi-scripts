@@ -45,12 +45,12 @@ players = map.new(); //Alle Spieler (key) des Spiels und deren Teamzugehörigkei
 gamename = "§bBedWars";
 bedtruesymbol = "§2✔";
 bedfalsesymbol = "§4✘";
-custom_copper = item.custom.get("COPPER_COIN");
-custom_silver = item.custom.get("SILVER_COIN");
-custom_gold = item.custom.get("GOLD_COIN");
-coin_copper = item.custom.create("COPPER_COIN", 1, null, null);
-coin_silver = item.custom.create("SILVER_COIN", 1, null, null);
-coin_gold = item.custom.create("GOLD_COIN", 1, null, null);
+custom_copper = customitem.getCopperCoin();
+custom_silver = customitem.getSilverCoin();
+custom_gold = customitem.getGoldCoin();
+coin_copper = customitem.create("COPPER_COIN", 1, null, null);
+coin_silver = customitem.create("SILVER_COIN", 1, null, null);
+coin_gold = customitem.create("GOLD_COIN", 1, null, null);
 iron_block_mat = material.get("IRON_BLOCK");
 cobweb_mat = material.get("COBWEB");
 glowstone_dust_mat = material.get("GLOWSTONE_DUST");
@@ -136,9 +136,9 @@ if(voidedge1 != null) {
 	voidid = event.addMoveData(voidedge1, voidedge2, 3, -1);
 }
 
-trap_sound = sound.get("BLOCK_NOTE_BLOCK_PLING");
-newbed_sound = sound.get("BLOCK_ANVIL_USE");
-bed_sound = sound.get("ENTITY_WITHER_DEATH");
+trap_sound = sound.get("minecraft:block.note_block.pling");
+newbed_sound = sound.get("minecraft:block.anvil.use");
+bed_sound = sound.get("entity.wither.death");
 
 allkills = map.new();
 bedkills = map.new();
@@ -373,7 +373,7 @@ if(inv_slot < 9) {
 	goto("checkgame");
 }
 //buyitem
-if(item.custom.isType(item, custom_copper) || item.custom.isType(item, custom_silver) || item.custom.isType(item, custom_gold) || item_type == black_stained_glass_pane_mat) {
+if(customitem.isCopperCoin(item) || customitem.isSilverCoin(item) || customitem.isGoldCoin(item) || item_type == black_stained_glass_pane_mat) {
 	goto("checkgame");
 }
 priceitem = item.clone(inv.getItem(shopmenu, inv_slot + 9));
@@ -922,12 +922,12 @@ function setShopmenu1(shopmenu) {
 	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:leather_helmet\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
 	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:leather_leggings\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
 	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:leather_boots\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}]}}"));
-	inv.setItem(shopmenu, 28, item.custom.create("COPPER_COIN", 8, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("COPPER_COIN", 4, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("COPPER_COIN", 16, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 33, item.custom.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 28, customitem.create("COPPER_COIN", 8, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("COPPER_COIN", 4, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("COPPER_COIN", 16, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 33, customitem.create("COPPER_COIN", 1, null, null));
 }
 
 function setShopmenu2(shopmenu) {
@@ -936,11 +936,11 @@ function setShopmenu2(shopmenu) {
 	inv.setItem(shopmenu, 21, item.create("minecraft:iron_block", 1, null, null));
 	inv.setItem(shopmenu, 22, item.create("minecraft:chest", 1, null, null));
 	inv.setItem(shopmenu, 23, item.create("minecraft:glass", 1, null, null));
-	inv.setItem(shopmenu, 28, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("COPPER_COIN", 7, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("SILVER_COIN", 3, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("SILVER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("COPPER_COIN", 4, null, null));
+	inv.setItem(shopmenu, 28, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("COPPER_COIN", 7, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("SILVER_COIN", 3, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("SILVER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("COPPER_COIN", 4, null, null));
 }
 
 function setShopmenu3(shopmenu) {
@@ -951,22 +951,22 @@ function setShopmenu3(shopmenu) {
 	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:chainmail_chestplate\",Count:1b,tag:{Enchantments:[{lvl:2s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}],display:{Name:'{\"text\":\"§f§bKettenbrust Lvl2\"}'}}}"));
 	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:chainmail_chestplate\",Count:1b,tag:{Enchantments:[{lvl:3s,id:\"minecraft:protection\"},{lvl:1s,id:\"minecraft:unbreaking\"}],display:{Name:'{\"text\":\"§f§bKettenbrust Lvl3\"}'}}}"));
 	inv.setItem(shopmenu, 25, item.create("minecraft:shield", 1, null, null));
-	inv.setItem(shopmenu, 28, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("SILVER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("SILVER_COIN", 3, null, null));
-	inv.setItem(shopmenu, 33, item.custom.create("SILVER_COIN", 7, null, null));
-	inv.setItem(shopmenu, 34, item.custom.create("SILVER_COIN", 4, null, null));
+	inv.setItem(shopmenu, 28, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("SILVER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("SILVER_COIN", 3, null, null));
+	inv.setItem(shopmenu, 33, customitem.create("SILVER_COIN", 7, null, null));
+	inv.setItem(shopmenu, 34, customitem.create("SILVER_COIN", 4, null, null));
 }
 
 function setShopmenu4(shopmenu) {
 	inv.setItem(shopmenu, 21, read.item("{id:\"minecraft:wooden_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
 	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:stone_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
 	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:iron_pickaxe\",Count:1b,tag:{Enchantments:[{lvl:3s,id:\"minecraft:efficiency\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
-	inv.setItem(shopmenu, 30, item.custom.create("COPPER_COIN", 4, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("SILVER_COIN", 2, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("GOLD_COIN", 1, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("COPPER_COIN", 4, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("SILVER_COIN", 2, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("GOLD_COIN", 1, null, null));
 }
 
 function setShopmenu5(shopmenu) {
@@ -975,11 +975,11 @@ function setShopmenu5(shopmenu) {
 	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:wooden_axe\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2}}"));
 	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:golden_sword\",Count:1b,tag:{Enchantments:[{lvl:2s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"}],HideFlags:2,display:{Name:'{\"text\":\"§f§bGoldschwert Lvl2\"}'}}}"));
 	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:iron_sword\",Count:1b,tag:{Enchantments:[{lvl:2s,id:\"minecraft:sharpness\"},{lvl:1s,id:\"minecraft:unbreaking\"},{lvl:1s,id:\"minecraft:knockback\"}],HideFlags:2}}"));
-	inv.setItem(shopmenu, 29, item.custom.create("COPPER_COIN", 8, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("SILVER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("SILVER_COIN", 2, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("SILVER_COIN", 3, null, null));
-	inv.setItem(shopmenu, 33, item.custom.create("GOLD_COIN", 5, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("COPPER_COIN", 8, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("SILVER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("SILVER_COIN", 2, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("SILVER_COIN", 3, null, null));
+	inv.setItem(shopmenu, 33, customitem.create("GOLD_COIN", 5, null, null));
 }
 
 function setShopmenu6(shopmenu) {
@@ -988,11 +988,11 @@ function setShopmenu6(shopmenu) {
 	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:bow\",Count:1b,tag:{Enchantments:[{lvl:1s,id:\"minecraft:infinity\"},{lvl:1s,id:\"minecraft:power\"},{lvl:1s,id:\"minecraft:punch\"}],display:{\"text\":\"§f§bBogen Lvl3\"}}}"));
 	inv.setItem(shopmenu, 23, item.create("ARROW", 1, null, null));
 	inv.setItem(shopmenu, 24, item.create("SPECTRAL_ARROW", 1, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("GOLD_COIN", 3, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("GOLD_COIN", 7, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("GOLD_COIN", 13, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("GOLD_COIN", 1, null, null));
-	inv.setItem(shopmenu, 33, item.custom.create("SILVER_COIN", 2, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("GOLD_COIN", 3, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("GOLD_COIN", 7, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("GOLD_COIN", 13, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("GOLD_COIN", 1, null, null));
+	inv.setItem(shopmenu, 33, customitem.create("SILVER_COIN", 2, null, null));
 }
 
 function setShopmenu7(shopmenu) {
@@ -1000,10 +1000,10 @@ function setShopmenu7(shopmenu) {
 	inv.setItem(shopmenu, 21, item.create("minecraft:cooked_porkchop", 1, null, null));
 	inv.setItem(shopmenu, 22, item.create("minecraft:cake", 1, null, null));
 	inv.setItem(shopmenu, 23, item.create("minecraft:golden_apple", 1, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("COPPER_COIN", 2, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("SILVER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("GOLD_COIN", 2, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("COPPER_COIN", 2, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("SILVER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("GOLD_COIN", 2, null, null));
 }
 
 function setShopmenu8(shopmenu) {
@@ -1013,12 +1013,12 @@ function setShopmenu8(shopmenu) {
 	inv.setItem(shopmenu, 22, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:swiftness\"}}"));
 	inv.setItem(shopmenu, 23, read.item("{id:\"minecraft:potion\",Count:1b,tag:{Potion:\"minecraft:strength\"}}"));
 	inv.setItem(shopmenu, 24, read.item("{id:\"minecraft:splash_potion\",Count:1b,tag:{Potion:\"minecraft:weakness\"}}"));
-	inv.setItem(shopmenu, 28, item.custom.create("SILVER_COIN", 3, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("SILVER_COIN", 5, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("SILVER_COIN", 7, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("SILVER_COIN", 16, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("GOLD_COIN", 7, null, null));
-	inv.setItem(shopmenu, 33, item.custom.create("GOLD_COIN", 10, null, null));
+	inv.setItem(shopmenu, 28, customitem.create("SILVER_COIN", 3, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("SILVER_COIN", 5, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("SILVER_COIN", 7, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("SILVER_COIN", 16, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("GOLD_COIN", 7, null, null));
+	inv.setItem(shopmenu, 33, customitem.create("GOLD_COIN", 10, null, null));
 }
 
 function setShopmenu9(shopmenu) {
@@ -1032,15 +1032,15 @@ function setShopmenu9(shopmenu) {
 	inv.setItem(shopmenu, 25, $blaze_rod, 1, null, null);
 	inv.setItem(shopmenu, 26, $warp_powder, 1, null, null);
 	
-	inv.setItem(shopmenu, 27, item.custom.create("COPPER_COIN", 1, null, null));
-	inv.setItem(shopmenu, 28, item.custom.create("COPPER_COIN", 16, null, null));
-	inv.setItem(shopmenu, 29, item.custom.create("SILVER_COIN", 6, null, null));
-	inv.setItem(shopmenu, 30, item.custom.create("SILVER_COIN", 7, null, null));
-	inv.setItem(shopmenu, 31, item.custom.create("GOLD_COIN", 13, null, null));
-	inv.setItem(shopmenu, 32, item.custom.create("SILVER_COIN", 7, null, null));
-	inv.setItem(shopmenu, 33, item.custom.create("GOLD_COIN", 40, null, null));
-	inv.setItem(shopmenu, 34, item.custom.create("GOLD_COIN", 3, null, null));
-	inv.setItem(shopmenu, 35, item.custom.create("SILVER_COIN", 3, null, null));
+	inv.setItem(shopmenu, 27, customitem.create("COPPER_COIN", 1, null, null));
+	inv.setItem(shopmenu, 28, customitem.create("COPPER_COIN", 16, null, null));
+	inv.setItem(shopmenu, 29, customitem.create("SILVER_COIN", 6, null, null));
+	inv.setItem(shopmenu, 30, customitem.create("SILVER_COIN", 7, null, null));
+	inv.setItem(shopmenu, 31, customitem.create("GOLD_COIN", 13, null, null));
+	inv.setItem(shopmenu, 32, customitem.create("SILVER_COIN", 7, null, null));
+	inv.setItem(shopmenu, 33, customitem.create("GOLD_COIN", 40, null, null));
+	inv.setItem(shopmenu, 34, customitem.create("GOLD_COIN", 3, null, null));
+	inv.setItem(shopmenu, 35, customitem.create("SILVER_COIN", 3, null, null));
 }
 
 function bedwars.getTeamColor(player) {

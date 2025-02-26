@@ -40,9 +40,9 @@ bow = item.create("minecraft:bow", 1, null, null);
 ench = enchantment.get("infinity");
 enchantment.add(ench, bow, 1);
 
-custom_refresh_red = item.custom.get("REFRESH_RED");
-custom_return_red = item.custom.get("RETURN_RED");
-custom_gear = item.custom.get("GEAR");
+custom_refresh_red = customitem.getRedRefresh();
+custom_return_red = customitem.getreenRefresh();
+custom_gear = customitem.getGear();
 paper_mat = material.get("PAPER");
 
 gamesworld = world.getGames();
@@ -219,18 +219,18 @@ goto("wait");
 @block_click
 cancel = false;
 item = living.getHand(player);
-if(item.custom.isType(item, custom_gear)) {
+if(customitem.isGear(item)) {
 	inv.open(mode_menu, player);
 }
 mode = tjr.getMode();
 if(mode == "whole") {
-	if(item.custom.isType(item, custom_refresh_red)) {
+	if(customitem.isRedRefresh(item)) {
 		living.setHealth(player, 20);
 		tjr.teleportModule(player, jumpstage);
 		entity.setBurning(player, 0);
 		goto("wait");
 	}
-	if(item.custom.isType(item, custom_return_red)) {
+	if(customitem.isRedReturn(item)) {
 		living.setHealth(player, 20);
 		jumpstage = 0;
 		tjr.setStarttime();
@@ -242,7 +242,7 @@ if(mode == "whole") {
 	goto("wait");
 }
 if(mode == "fly") {
-	if(item.custom.isType(item, custom_return_red)) {
+	if(customitem.isRedReturn(item)) {
 		living.setHealth(player, 20);
 		jumpstage = 0;
 		tjr.setStarttime();
@@ -252,7 +252,7 @@ if(mode == "fly") {
 	goto("wait");
 } 
 if(mode == "modul") {
-	if(item.custom.isType(item, custom_refresh_red)) {
+	if(customitem.isRedRefresh(item)) {
 		living.setHealth(player, 20);
 		tjr.setStarttime();
 		tjr.teleportModule(player, jumpstage);
@@ -628,7 +628,7 @@ function tjr.setMode(player, mode) {
 		player.setFly(player, true);
 		type = "Modus: §eFly";
 		clearHotbar(player_inv);
-		inv.setItem(player_inv, 0, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+		inv.setItem(player_inv, 0, customitem.create("RETURN_RED", 1, "§fReset to start", null));
 		$jumpstage = 0;
 		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getFlyTime(player) / 1000)));
 		tjr.setStarttime();
@@ -636,8 +636,8 @@ function tjr.setMode(player, mode) {
 		player.setFly(player, false);
 		type = "Modus: §eWhole";
 		clearHotbar(player_inv);
-		inv.setItem(player_inv, 0, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
-		inv.setItem(player_inv, 1, item.custom.create("RETURN_RED", 1, "§fReset to start", null));
+		inv.setItem(player_inv, 0, customitem.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
+		inv.setItem(player_inv, 1, customitem.create("RETURN_RED", 1, "§fReset to start", null));
 		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getWholeTime(player) / 1000)));
 		$jumpstage = tjr.getWholeModuleTemp(player);
 		old_time = tjr.getWholeTimeTemp(player);
@@ -649,7 +649,7 @@ function tjr.setMode(player, mode) {
 		player.setFly(player, false);
 		type = "Modus: §eModul";
 		clearHotbar(player_inv);
-		inv.setItem(player_inv, 0, item.custom.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
+		inv.setItem(player_inv, 0, customitem.create("REFRESH_RED", 1, "§fReset to checkpoint", null));
 		inv.setItem(player_inv, 1, item.create("PAPER", 1, "§fChoose a modul", null));
 		$jumpstage = 0;
 		sb.add(player, 97, string.concat("Your record: §e", time.getClockString(tjr.getModulTime(player, $jumpstage) / 1000)));
@@ -664,7 +664,7 @@ function clearHotbar(inv) {
 	for(i = 0; i < 9; i++) {
 		inv.setItem(inv, i, null);
 	}
-	inv.setItem(inv, 8, item.custom.create("GEAR", 1, "§fSettings", null));
+	inv.setItem(inv, 8, customitem.create("GEAR", 1, "§fSettings", null));
 }
 
 function tjr.getMode() {

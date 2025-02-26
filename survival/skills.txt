@@ -8,7 +8,7 @@ event.load("snuvi_click");
 event.load("block_click");
 
 prefix_skill = "§2Skill";
-scroll_menu_item = item.custom.create("SCROLL", 1, "§2Skills", null);
+scroll_menu_item = customitem.create("SCROLL", 1, "§2Skills", null);
 
 setScriptVar("skills", list.new());
 //skill.add(skill_name, tech_name, item, description, cost, permanent, active, toggleable, cooldown, mana, time)

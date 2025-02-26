@@ -12,8 +12,8 @@ B_Candle = material.get("BLACK_CANDLE");
 B_Concrete = material.get("BLACK_CONCRETE"); //for black hole
 W_Concrete = material.get("WHITE_CONCRETE"); //for white hole
 
-pling_sound = sound.get("BLOCK_AMETHYST_BLOCK_CHIME"); //snowball hits candle
-Nom_sound = sound.get("ENTITY_GENERIC_EAT"); //snowball hits hole
+pling_sound = sound.get("minecraft:block.note_block.chime"); //snowball hits candle
+Nom_sound = sound.get("minecraft:entity.generic.eat"); //snowball hits hole
 sound_Category = sound.getCategory("MASTER");
 
 snow_particle = particle.get("SNOWFLAKE");

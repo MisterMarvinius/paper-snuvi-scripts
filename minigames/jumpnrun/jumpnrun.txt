@@ -11,7 +11,7 @@ maxplayers = 1;
 gamesignloc = minigame.getSignLoc("jrmap");
 sign.started(gamesignloc);
 gamename = "§aJump'n'Run";
-jump_sound = sound.get("ENTITY_ITEM_PICKUP");
+jump_sound = sound.get("minecraft:entity.item.pickup");
 sound_category_ambient = sound.getCategory("AMBIENT");
 air = material.getAir();
 

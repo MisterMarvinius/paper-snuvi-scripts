@@ -338,19 +338,19 @@ set.add(butcher_set, "cod");
 set.add(butcher_set, "guardian");
 
 attribut_set = set.new();
-set.add(attribut_set, "GENERIC_ARMOR");
-set.add(attribut_set, "GENERIC_ARMOR_TOUGHNESS");
-set.add(attribut_set, "GENERIC_ATTACK_DAMAGE");
-set.add(attribut_set, "GENERIC_ATTACK_KNOCKBACK");
-set.add(attribut_set, "GENERIC_ATTACK_SPEED");
-set.add(attribut_set, "GENERIC_FLYING_SPEED");
-set.add(attribut_set, "GENERIC_FOLLOW_RANGE");
-set.add(attribut_set, "GENERIC_KNOCKBACK_RESISTANCE");
-set.add(attribut_set, "GENERIC_LUCK");
-set.add(attribut_set, "GENERIC_MAX_HEALTH");
-set.add(attribut_set, "GENERIC_MOVEMENT_SPEED");
-set.add(attribut_set, "HORSE_JUMP_STRENGTH");
-set.add(attribut_set, "ZOMBIE_SPAWN_REINFORCEMENTS");
+set.add(attribut_set, "generic.armor");
+set.add(attribut_set, "generic.armor_toughness");
+set.add(attribut_set, "generic.attack_damage");
+set.add(attribut_set, "generic.attack_knockback");
+set.add(attribut_set, "generic.attack_speed");
+set.add(attribut_set, "generic.flying_speed");
+set.add(attribut_set, "generic.follow_range");
+set.add(attribut_set, "generic.knockback_resistance");
+set.add(attribut_set, "generic.luck");
+set.add(attribut_set, "generic.max_health");
+set.add(attribut_set, "generic.movement_speed");
+set.add(attribut_set, "horse.jump_strength");
+set.add(attribut_set, "zombie.spawn_reinforcements");
 
 operation_set = set.new();
 set.add(operation_set, "ADD_NUMBER");
@@ -431,9 +431,9 @@ inv.setItem(jailmenu, 7, ironbars);
 inv.setItem(jailmenu, 8, ironbars);
 
 skip_night_inv = inv.new("002020200", text.new("Skip Night?"));
-inv.setItem(skip_night_inv, 2, item.custom.create("CHECK_GREEN", 1, "§fYes", null));
+inv.setItem(skip_night_inv, 2, customitem.create("CHECK_GREEN", 1, "§fYes", null));
 inv.setItem(skip_night_inv, 4, item.create("clay_ball", 1, "§fI don´t care", null));
-inv.setItem(skip_night_inv, 6, item.custom.create("CROSS_RED", 1, "§fNo", null));
+inv.setItem(skip_night_inv, 6, customitem.create("CROSS_RED", 1, "§fNo", null));
 skip_night_inv_id = inv.getId(skip_night_inv);
 
 vote_inv = inv.new("222222222", text.new("§8Voteshop"));
@@ -441,7 +441,7 @@ lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e6 VP"));
 list.add(lore_list, text.new("§5Doubles incoming money for 10 minutes."));
 list.add(lore_list, text.new("§5Effects quests, minigames and mobarena."));
-inv.setItem(vote_inv, 0, item.custom.create("GOLD_COIN", 1, "§aMoney Booster", lore_list));
+inv.setItem(vote_inv, 0, customitem.create("GOLD_COIN", 1, "§aMoney Booster", lore_list));
 lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e2 VP"));
 list.add(lore_list, text.new("§5Rickroles every player on the server."));
@@ -463,7 +463,7 @@ lore_list = list.new();
 list.add(lore_list, text.new("§fCost: §e7 VP"));
 list.add(lore_list, text.new("§5A sapphire for your armor."));
 list.add(lore_list, text.new("§5To use at jewelry smith."));
-inv.setItem(vote_inv, 6, item.custom.create("SAPPHIRE", 1, "§aSapphire", lore_list));
+inv.setItem(vote_inv, 6, customitem.create("SAPPHIRE", 1, "§aSapphire", lore_list));
 vote_inv_id = inv.getId(vote_inv);
 
 lockable_containers = set.new();
@@ -584,10 +584,10 @@ bcar_sounds_amount = list.getSize(bobbyCarSoundDists);
 item_flags = getItemFlags();
 
 sound_category_master = sound.getCategory("MASTER");
-sound_flute = sound.get("BLOCK_NOTE_BLOCK_FLUTE");
-sound_harp = sound.get("BLOCK_NOTE_BLOCK_HARP");
-sound_pling = sound.get("BLOCK_NOTE_BLOCK_PLING");
-creeper_primed = sound.get("ENTITY_CREEPER_PRIMED");
+sound_flute = sound.get("block.note_block.flute");
+sound_harp = sound.get("minecraft:block.note_block.harp");
+sound_pling = sound.get("minecraft:block.note_block.pling");
+creeper_primed = sound.get("entity.creeper.primed");
 
 world = world.getOverWorld();
 daily_reward_loc = loc.new(world, 136, 77, -22);
@@ -989,7 +989,7 @@ if(event == "snuvi_click") {
 			}
 			msg.online(prefix_vote, string.concat(player.getName(player), " spend their votepoints to §dSapphire§r."));
 			player.setVotePoints(player, vp - 7);
-			player.giveItem(player, item.getSapphire());
+			player.giveItem(player, customitem.getSapphire());
 			goto("wait");
 		}
 		goto("wait");
@@ -2885,9 +2885,9 @@ goto("wait");
 
 @customitems
 inv = inv.new("222222222222222222222222222222222222222222222222222222", text.new("Customitems"));
-a = item.custom.getAll();
-for(i = 0; i < array.getSize(a); i++) {
-	item = item.custom.new(a[i]);
+customitems = customitem.getAll();
+for(i = 0; i < list.getSize(customitems); i++) {
+	item = list.getIndex(customitems, i);
 	item.setAmount(item, item.getMaxAmount(item));
 	inv.setItem(inv, i, item);
 	if(i > 53) {

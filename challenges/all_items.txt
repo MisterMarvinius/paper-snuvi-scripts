@@ -22,7 +22,7 @@ next_items = map.new(); //player_id -> material
 done_items = map.new(); //player_id -> set -> material
 todo_items = map.new(); //player_id -> list -> material
 
-sound = sound.get("ENTITY_EXPERIENCE_ORB_PICKUP");
+sound = sound.get("minecraft:entity.experience_orb.pickup");
 category = sound.getCategory("MASTER");
 	
 a = material.getAll();
@@ -233,7 +233,7 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	amber = item.getAmber();
+	amber = customitem.getAmber();
 	item.setAmount(amber, 4);
 	player.giveItem(player, amber);
 	resetAItems(player);
@@ -280,7 +280,7 @@ if(new_type == null) {
 	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
-	amber = item.getAmber();
+	amber = customitem.getAmber();
 	item.setAmount(amber, 4);
 	player.giveItem(player, amber);
 	resetAItems(player);

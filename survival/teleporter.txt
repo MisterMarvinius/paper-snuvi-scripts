@@ -2,7 +2,7 @@ dispenser_mat = material.get("DISPENSER");
 shroomlight_mat = material.get("SHROOMLIGHT");
 air_mat = material.getAir();
 tinted_glass_mat = material.get("TINTED_GLASS");
-gear = item.custom.get("GEAR");
+gear = customitem.getGear();
 slabs_tag = block.getTag("minecraft:slabs");
 logs_tag = block.getTag("minecraft:logs");
 planks_tag = block.getTag("minecraft:planks");
@@ -12,8 +12,8 @@ tp_list = list.new();
 tp_map = map.new();
 tp_set = set.new();
 
-piston_sound = sound.get("BLOCK_PISTON_EXTEND");
-adv_tp_sound = sound.get("BLOCK_PORTAL_TRAVEL");
+piston_sound = sound.get("block.piston.extend");
+adv_tp_sound = sound.get("block.portal.travel");
 sound_category_ambient = sound.getCategory("AMBIENT");
 
 overworld = world.getOverWorld();
@@ -45,7 +45,7 @@ if(block.getType(block) == dispenser_mat && action == "LEFT_CLICK_BLOCK") {
 	list.add(list, text.new(string.number(loc.getX(block_loc))));
 	list.add(list, text.new(string.number(loc.getY(block_loc))));
 	list.add(list, text.new(string.number(loc.getZ(block_loc))));
-	tp_item = item.custom.create("GEAR", 1, null, list);
+	tp_item = customitem.create("GEAR", 1, null, list);
 	player.giveItem(player, tp_item);
 	goto("main");
 }
@@ -97,7 +97,7 @@ if(block.getType(block) == shroomlight_mat && action == "RIGHT_CLICK_BLOCK") {
 	inv_size = inv.getSize(inv);
 	for(i = 0; i < inv_size; i++) {
 		item = inv.getItem(inv, i);
-		if(item.custom.isType(item, gear)) {
+		if(customitem.isGear(item)) {
 			temp = true;
 			break;
 		}

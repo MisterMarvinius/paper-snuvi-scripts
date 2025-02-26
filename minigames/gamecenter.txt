@@ -58,6 +58,8 @@ minigame.addSign("collsign6", true, loc.new(gamesworld, -423, 151, -79), "miniga
 minigame.addSign("collsign7", true, loc.new(gamesworld, -423, 151, -80), "minigames/collfever/collfever", "minigames/collfever/collmap7", true);
 minigame.addSign("buttonssign1", true, loc.new(gamesworld, -399, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap1", true);
 minigame.addSign("buttonssign2", true, loc.new(gamesworld, -398, 158, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap2", true);
+minigame.addSign("buttonssign1e", true, loc.new(gamesworld, -399, 157, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap1e", true);
+minigame.addSign("buttonssign2e", true, loc.new(gamesworld, -398, 157, -65), "minigames/buttons/buttons", "minigames/buttons/buttonsmap2e", true);
 minigame.addSign("spleefsign1", true, loc.new(gamesworld, -412, 158, -37), "minigames/spleef/spleef", "minigames/spleef/spleefmap1", false);
 minigame.addSign("spleefsign2", true, loc.new(gamesworld, -412, 158, -36), "minigames/spleef/spleef", "minigames/spleef/spleefmap2", false);
 minigame.addSign("spleefsign3", true, loc.new(gamesworld, -412, 158, -35), "minigames/spleef/spleef", "minigames/spleef/spleefmap3", false);
@@ -87,7 +89,7 @@ minigame.addSign("hideandseeksign2", true, loc.new(gamesworld, -419, 158, -33), 
 minigame.addSign("hideandseeksign3", true, loc.new(gamesworld, -420, 158, -33), "minigames/hideandseek/hideandseek", "minigames/hideandseek/hideandseekmap3", false);
 minigame.addSign("shoppingsign1", true, loc.new(gamesworld, -414, 156, -33), "minigames/shoppingchaos/shoppingchaos", "minigames/shoppingchaos/shopping_map1", false);
 minigame.addSign("mengersign1", true, loc.new(gamesworld, -405, 157, -75), "minigames/mengerrun/mengerrun", "minigames/mengerrun/menger_map1", false);
-minigame.addSign("leapfrogsign1", true, loc.new(gamesworld, -399, 157, -65), "minigames/leapfrog/leapfrog", "minigames/leapfrog/leapfrogmap1", true);
+minigame.addSign("leapfrogsign1", true, loc.new(gamesworld, -396, 157, -63), "minigames/leapfrog/leapfrog", "minigames/leapfrog/leapfrogmap1", true);
 minigame.addSign("snowsign1", true, loc.new(gamesworld, -412, 156, -37), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap1", false);
 minigame.addSign("snowsign2", true, loc.new(gamesworld, -412, 156, -36), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap2", false);
 minigame.addSign("snowsign3", true, loc.new(gamesworld, -412, 156, -35), "minigames/snowfight/snowfight", "minigames/snowfight/snowmap3", false);
@@ -97,13 +99,13 @@ minigame.addSign("jr_sign_4D_3", true, loc.new(gamesworld, -396, 156, -49), "min
 minigame.addSign("s_sign_4D_1", true, loc.new(gamesworld, -396, 156, -50), "minigames/jumpnrun/4d/3d_shadow/shadow_jump_core", "minigames/jumpnrun/4d/3d_shadow/3d_s_map1", true);
 minigame.addSign("portal_1", true, loc.new(gamesworld, -401, 158, -73), "minigames/puzzle/portal/portal_core", "minigames/puzzle/portal/portal_map1", true);
 minigame.addSign("gravity_1", true, loc.new(gamesworld, -401, 158, -72), "minigames/puzzle/gravity/gravity_core", "minigames/puzzle/gravity/gravity_map1", true);
-minigame.addSign("snake_1", true, loc.new(gamesworld, -398, 157, -65), "minigames/snake/snake_core", "minigames/snake/snake_map1", true);
+minigame.addSign("snake_1", true, loc.new(gamesworld, -396, 157, -62), "minigames/snake/snake_core", "minigames/snake/snake_map1", true);
 minigame.addSign("dontgetangrysign1", true, loc.new(gamesworld, -422, 157, -35), "minigames/dontgetangry/dontgetangry", "minigames/dontgetangry/dontgetangry_map1", false);
 minigame.addSign("ctfsign1", true, loc.new(gamesworld, -401, 157, -73), "minigames/capturetheflag/capturetheflag", "minigames/capturetheflag/ctf_map1", false);
 minigame.addSign("coresmaploc1", true, loc.new(gamesworld, -404, 157, -75), "minigames/cores/cores", "minigames/cores/cores_map1", false);
 minigame.addSign("coresmaploc2", true, loc.new(gamesworld, -403, 157, -75), "minigames/cores/cores", "minigames/cores/cores_map2", false);
 minigame.addSign("damesign1", true, loc.new(gamesworld, -422, 157, -36), "minigames/dame/dame", "minigames/dame/dame_map1", false);
-minigame.addSign("colorbattlesign1", false, loc.new(gamesworld, -418, 156, -33), "minigames/colorbattle/colorbattle", "minigames/colorbattle/colorbattle_map1", false);
+minigame.addSign("colorbattlesign1", true, loc.new(gamesworld, -418, 156, -33), "minigames/colorbattle/colorbattle", "minigames/colorbattle/colorbattle_map1", false);
 setScriptVar("gamesigns", gamesignsmap);
 
 amongus_head = read.item("{Count:1b,id:'minecraft:player_head',tag:{SkullOwner:{Id:[I;1974515746,1982350500,-1169583430,618614082],Properties:{textures:[{Signature:'RO9IGJ16KwIM79JS04eY82CRaWXDEkIqtz4xA8odVaP0Uk4Ox1sHRa69Hh1V2Zo5KRGJ1dDNECvf0XHmzFn9xcDwXmGsk9HC/t2Ndxe2jLebtJk7Ytl3/kFsNQgluS/TikWkF1MgPnucQ/M0ftggu4B1c6SE4Hat0HAIGuhgC8+2jwrTcgDxWeKy9uO4ibopjDR8+S89XzYAPqqqf2CZtZnUP28DNR7pa2uJIT5+/kP3y6euRN+VOOAdTKLUnlfiCZTOxanIkDnC20tVvQQz5lPIGH18rq+9YIF/jok0G3zqWXCgiWk24QogYQErRa9h040sg7ganrC5A5iHBwzHmvzN8k9T/XXu2gDyKih5mzb2EAOxV+pe9HfG1qIZHDhjH8+2vLsUzUDpUINQPorYJ+Qk/YnWPc38EwW4H6byneDGP1xSHmcd5SnTeGYuyXHgHs9I55u5wxTxhZref3/BkS4vIL7w5tkc4YWHOU5HbEmdillLnc0Pepk7JxYLBcnSCcRdhvRPZ3ajGEPKfDwx0RgeZsah4+MFOWi8lXOcpBwnaqpNUYRNgLAahMpuyAUUHZ17Urd6hEadbrWttDFuTO+oHBH45Ueu0vD4pgdXjP1SHZWyPvQVVKRph4eF7xVtobHGkQeJk0u7DFx2Yn+XiPmflQWBGa/oYfitYayO4Kw=',Value:'ewogICJ0aW1lc3RhbXAiIDogMTYwMzk4NTQxMjIxNCwKICAicHJvZmlsZUlkIiA6ICIwNjEzY2I1Y2QxYjg0M2JjYjI4OTk1NWU4N2QzMGEyYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJicmVhZGxvYWZzcyIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kNWEzNjhlNGI1MTc3NTljNTZhN2Q0ZDUxMWU1YmM5ZTNkOWVlNDA1Yzc5ZGFiNzZlY2IwMDdhYjBjYTg3ODc4IgogICAgfQogIH0KfQ=='}]}}}}");
@@ -123,12 +125,12 @@ minigame.addCompass(9, item.create("minecraft:slime_block", 1, "§fJ&R / Parcour
 minigame.addCompass(10, item.create("minecraft:lapis_block", 1, "§fInverting", null), loc.new(gamesworld, -397.5, 156, -56.5, -90, 0));
 minigame.addCompass(11, item.create("minecraft:oak_sign", 1, "§fLetters", null), loc.new(gamesworld, -397.5, 156, -62.5, -90, -20));
 minigame.addCompass(12, item.create("minecraft:oak_button", 1, "§fButtons", null), loc.new(gamesworld, -398.5, 156, -62.5, 180, -20));
-minigame.addCompass(13, item.create("minecraft:redstone_torch", 1, "§fLeapfrog", null), loc.new(gamesworld, -398.5, 156, -62.5, 180, 0));
+minigame.addCompass(13, item.create("minecraft:redstone_torch", 1, "§fLeapfrog", null), loc.new(gamesworld, -397.5, 156, -62.5, -90, 0));
 minigame.addCompass(14, item.create("minecraft:stick", 1, "§fKnockfight", null), loc.new(gamesworld, -413.5, 156, -34.5, 0, -20));
 minigame.addCompass(15, item.create("minecraft:diamond_shovel", 1, "§fSpleef", null), loc.new(gamesworld, -413.5, 156, -36.5, -90, 0));
 minigame.addCompass(16, item.create("minecraft:command_block", 1, "§f4D-Games", null), loc.new(gamesworld, -397.5, 156, -50.5, -90, 20));
 minigame.addCompass(17, item.create("minecraft:grass_block", 1, "§fSammelfieber", null), loc.new(gamesworld, -398.5, 156, -48.5, 0, 0));
-minigame.addCompass(18, item.create("minecraft:green_terracotta", 1, "§f3D-Snake", null), loc.new(gamesworld, -397.5, 156, -62.5, 180, 0));
+minigame.addCompass(18, item.create("minecraft:green_terracotta", 1, "§f3D-Snake", null), loc.new(gamesworld, -397.5, 156, -61.5, -90, 0));
 minigame.addCompass(19, item.create("minecraft:iron_block", 1, "§fPortal", null), loc.new(gamesworld, -402.5, 156, -72.5, -90, -20));
 minigame.addCompass(20, item.create("minecraft:heavy_weighted_pressure_plate", 1, "§fGravity", null), loc.new(gamesworld, -402.5, 156, -71.5, -90, -20));
 minigame.addCompass(21, item.create("minecraft:red_banner", 1, "§fDon't get angry", null), loc.new(gamesworld, -419.5, 156, -34.5, 90, 0));

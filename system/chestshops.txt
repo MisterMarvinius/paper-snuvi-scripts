@@ -17,10 +17,6 @@ if(!string.startsWith(title_string, "ChestShop", 0)) {
 	goto("main");
 }
 cancel = true;
-custom = item.getCustom(inv.getItem(inv, inv_slot));
-if(custom == null) {
-	goto("main");
-}
 inv_id = inv.getId(inv);
 if(inv_slot == 17) {
 	map.remove(invid_to_sign_block, inv_id);
@@ -164,7 +160,7 @@ if(block.isWallSign(block)) {
 	inv = inv.new("000200000000200002", text.new(string.concat("§8ChestShop of ", owner_name)));
 	shop.setBuyElement(block, inv, item.clone(item_stack));
 	shop.setSellElement(block, inv, item.clone(item_stack));
-	inv.setItem(inv, 17, item.custom.create("CROSS_RED", 1, "§fClose", null));
+	inv.setItem(inv, 17, customitem.create("CROSS_RED", 1, "§fClose", null));
 	inv.open(inv, player);
 	map.add(invid_to_sign_block, inv.getId(inv), block);
 }
@@ -191,15 +187,15 @@ function shop.setBuyElement(sign_block, inv, item_stack) {
 	bronze = a[2];
 	index = 2;
 	if(bronze != 0) {
-		inv.setItem(inv, index--, item.custom.create("COPPER_COIN", bronze, null, null));
+		inv.setItem(inv, index--, customitem.create("COPPER_COIN", bronze, "Copper Coin", null));
 	}
 	if(silver != 0) {
-		inv.setItem(inv, index--, item.custom.create("SILVER_COIN", silver, null, null));
+		inv.setItem(inv, index--, customitem.create("SILVER_COIN", silver, "Silver Coin", null));
 	}
 	if(gold != 0) {
-		inv.setItem(inv, index, item.custom.create("GOLD_COIN", gold, null, null));
+		inv.setItem(inv, index, customitem.create("GOLD_COIN", gold, "Gold Coin", null));
 	}
-	inv.setItem(inv, 3, item.custom.create("ARROW_RIGHT", 1, "§fBuy", null));
+	inv.setItem(inv, 3, customitem.create("ARROW_RIGHT", 1, "§fBuy", null));
 	inv.setItem(inv, 4, item_stack);
 }
 
@@ -225,16 +221,16 @@ function shop.setSellElement(sign_block, inv, item_stack) {
 	bronze = a[2];
 	index = 13;
 	if(bronze != 0) {
-		inv.setItem(inv, index++, item.custom.create("COPPER_COIN", bronze, null, null));
+		inv.setItem(inv, index++, customitem.create("COPPER_COIN", bronze, "Copper Coin", null));
 	}
 	if(silver != 0) {
-		inv.setItem(inv, index++, item.custom.create("SILVER_COIN", silver, null, null));
+		inv.setItem(inv, index++, customitem.create("SILVER_COIN", silver, "Silver Coin", null));
 	}
 	if(gold != 0) {
-		inv.setItem(inv, index, item.custom.create("GOLD_COIN", gold, null, null));
+		inv.setItem(inv, index, customitem.create("GOLD_COIN", gold, "Gold Coin", null));
 	}
 	inv.setItem(inv, 11, sell_stack);
-	inv.setItem(inv, 12, item.custom.create("ARROW_RIGHT", 1, "§fSell", null));
+	inv.setItem(inv, 12, customitem.create("ARROW_RIGHT", 1, "§fSell", null));
 }
 
 
@@ -270,14 +266,13 @@ function shop.getItemAmount(inv, slot) {
 	if(item == null) {
 		return 0;
 	}
-	custom = item.getCustom(item);
-	if(isGoldCoin(custom)) {
+	if(customitem.isGoldCoin(item)) {
 		return item.getAmount(item) * 64 * 64;
 	}
-	if(isSilverCoin(custom)) {
+	if(customitem.isSilverCoin(item)) {
 		return item.getAmount(item) * 64;
 	}
-	if(isCopperCoin(custom)) {
+	if(customitem.isCopperCoin(item)) {
 		return item.getAmount(item);
 	}
 	return 0;
@@ -297,16 +292,4 @@ function shop.getSellPrice(inv) {
 	snuvis += shop.getItemAmount(inv, 14);
 	snuvis += shop.getItemAmount(inv, 15);
 	return snuvis;
-}
-
-function isCopperCoin(custom_item) {
-	return string(custom_item) == "COPPER_COIN";
-}
-
-function isSilverCoin(custom_item) {
-	return string(custom_item) == "SILVER_COIN";
-}
-
-function isGoldCoin(custom_item) {
-	return string(custom_item) == "GOLD_COIN";
 }

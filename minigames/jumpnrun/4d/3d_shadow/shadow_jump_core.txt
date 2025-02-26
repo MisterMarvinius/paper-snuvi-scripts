@@ -99,8 +99,8 @@ if(event == "minigame_join"){
 	player_inv = player.getInv(player);
 	waitfor(10);
 	currently_active_dimensions = 0;
-	inv.setItem(player_inv, 0, item.custom.create("ARROW_LEFT",1,"Turn down","Interdimensionally"));
-	inv.setItem(player_inv, 1, item.custom.create("ARROW_RIGHT",1,"Turn up","Interdimensionally"));
+	inv.setItem(player_inv, 0, customitem.create("ARROW_LEFT",1,"Turn down","Interdimensionally"));
+	inv.setItem(player_inv, 1, customitem.create("ARROW_RIGHT",1,"Turn up","Interdimensionally"));
 	dim_bossbar = boss.create("XYZ", "GREEN", "SOLID");
 	boss.addPlayer(dim_bossbar, player);
 	boss.setTitle(dim_bossbar, "XYZ");

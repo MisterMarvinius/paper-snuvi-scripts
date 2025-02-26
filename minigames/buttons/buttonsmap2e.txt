@@ -1,0 +1,35 @@
+gamesignloc = minigame.getSignLoc("buttonssign2e");
+gamesworld = world.getGames();
+spawn_loc = loc.new(gamesworld, 3988.5, 79, -3010.5, 0.0001, 0.0001);
+mapname = "Wooden Theatre";
+origin_material = material.get("minecraft:oak_planks");
+mark_material = material.get("minecraft:spruce_planks");
+maxplayers = 1;
+
+tfn = 3; //timeForNext in sec
+factor = 1; //Faktor, um den tfn vermindert wird
+rankingtable = "buttoneranks";
+game_short = "buttone";
+mode = "Endless";
+
+buttons = list.new();
+list.add(buttons, loc.new(gamesworld, 3989, 81, -3005));
+list.add(buttons, loc.new(gamesworld, 3988, 81, -3005));
+list.add(buttons, loc.new(gamesworld, 3987, 81, -3005));
+list.add(buttons, loc.new(gamesworld, 3989, 80, -3005));
+list.add(buttons, loc.new(gamesworld, 3988, 80, -3005));
+list.add(buttons, loc.new(gamesworld, 3987, 80, -3005));
+list.add(buttons, loc.new(gamesworld, 3989, 79, -3005));
+list.add(buttons, loc.new(gamesworld, 3988, 79, -3005));
+list.add(buttons, loc.new(gamesworld, 3987, 79, -3005));
+
+/*
+norden  1  // -z
+osten  -1  // +x
+süden  -1  // +z
+westen  1  // -x
+*/
+
+//In welche Richtung schauen die Knöpfe?
+direction = "z"; 	//x oder z
+number = 1; 		//-1 oder 1

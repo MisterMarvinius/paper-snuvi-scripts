@@ -22,7 +22,8 @@ ranking.add("§a", "JR-Endless", "jr", "jumpranks", "Points Record", "DESC", nul
 ranking.add("§d", "Letters", "letter", "letterranks", "Time", "ASC", null);
 ranking.add("§a", "Sammelfieber", "coll", "collfever", "Points Record", "DESC", null);
 ranking.add("§a", "ItemHunt", "sfsingle", "sfsingle", "Points Record", "DESC", null);
-ranking.add("§2", "Buttons", "button", "buttonranks", "Points Record", "DESC", null);
+ranking.add("§2", "ButtonsRush", "button", "buttonranks", "Points Record", "DESC", null);
+ranking.add("§2", "ButtonsEndless", "buttone", "buttoneranks", "Points Record", "DESC", null);
 ranking.add("§9", "HideAndSeek", "hs", "fncranks", "Wins", "DESC", null);
 ranking.add("§9", "Inverting", "inv", "invertranks", "Points Record", "ASC", null);
 ranking.add("§9", "Spleef", "spleef", "spleefranks", "Wins", "DESC", null);
