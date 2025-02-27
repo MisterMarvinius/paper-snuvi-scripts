@@ -256,7 +256,7 @@ addStatsGameHelp("JR-Rooms");
 addStatsGameHelp("Letters");
 addStatsGameHelp("ItemHunt");
 addStatsGameHelp("Sammelfieber");
-addStatsGameHelp("ButtonsEndles");
+addStatsGameHelp("ButtonsEndless");
 addStatsGameHelp("ButtonsRush");
 addStatsGameHelp("HideAndSeek");
 addStatsGameHelp("Inverting");

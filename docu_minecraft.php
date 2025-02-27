@@ -592,6 +592,66 @@
             <td>vehicle<br>living_entity</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">block_shear</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/io/papermc/paper/event/block/PlayerShearBlockEvent.html" target="_blank">a player uses shears on a block</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+			<td>player<br>block<br>hand<br>*drops<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">bell_ring</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BellRingEvent.html" target="_blank">a bell is rung</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+			<td>block<br>**entity<br>direction<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">spectation_start</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerStartSpectatingEntityEvent.html" target="_blank">a player starts spectating</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+			<td>player<br>entity<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">spectation_stop</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerStopSpectatingEntityEvent.html" target="_blank">a player stops spectating</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+			<td>player<br>entity<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player_pickup_exp</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerPickupExperienceEvent.html" target="_blank">a player picks up XP</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+			<td>player<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">elytra_boost</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerElytraBoostEvent.html" target="_blank">a player boosts using elytra</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+			<td>player<br>hand<br>firework as entity<br>*consume as boolean<br>*cancel</td>
+        </tr>
+    </table>
 </section>
 
 <section id="Event">
@@ -3901,6 +3961,36 @@
     </table>
 	<table>
         <tr>
+            <th class="command">player.isSprinting</th>
+            <th class="desc">returns true if the player is sprinting</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.isSprinting(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setSprinting</th>
+            <th class="desc">sets weather the player is sprinting or not</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.setSprinting(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setSneaking</th>
+            <th class="desc">sets weather the player is sneaking or not</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.setSneaking(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
             <th class="command">player.isSneaking</th>
             <th class="desc">returns true if a player is sneaking</th>
         </tr>
@@ -3943,7 +4033,108 @@
             <td>player.resetSleep(player)</td>
         </tr>
     </table>
+	<table>
+        <tr>
+            <th class="command">player.getSpectatorTarget</th>
+            <th class="desc">gets the Targetentity the player is spectating</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.getSpectatorTarget(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setSpectatorTarget</th>
+            <th class="desc">sets the Targetentity the player is spectating, set entity to null to reset.</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.getSpectatorTarget(player, entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.getLastDeathLocation</th>
+            <th class="desc">gets the players last death location</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.getLastDeathLocation(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.showElderGuardian</th>
+            <th class="desc">if silent is true, the elder guardian animation if hidden</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.showElderGuardian(player, silent)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setExpCooldown</th>
+            <th class="desc">Sets the player's cooldown between picking up experience orbs.</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.setExpCooldown(player, ticks)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.sendHurtAnimation</th>
+            <th class="desc">Fakes incoming damage, yaw from 0-270. 0 = straight, 90 = right</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.sendHurtAnimation(player, yaw)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.lookat</th>
+            <th class="desc">sets the player to look at an entity, LookAnchor = "EYES"/"FEET"</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.lookat(player, entity, playerLookAnchor, entityLookAnchor)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.getPing</th>
+            <th class="desc">returns the ping of a player</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.getPing(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setPlayerListHeader</th>
+            <th class="desc">sets the TablistHeader for the receiver</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.setPlayerListHeader(receiver, text)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setPlayerListFooter</th>
+            <th class="desc">sets the TablistFooter for the receiver</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.setPlayerListFooter(receiver, text)</td>
+        </tr>
+    </table>
 </section>
+
 
 <section id="Inventory">
     <table>

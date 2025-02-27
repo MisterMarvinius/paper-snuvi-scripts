@@ -1,4 +1,17 @@
 event.load("snuvi_click");
+event.load("player_move");
+
+//Teleproter with Mage Assistant /at the end of Dungeon
+Teleporter_loc1 = loc.new(world.get("world"), 215, 31, -91);
+
+//Teleproter with Mage Guard / in front of Dungeon
+Teleporter_loc2 = loc.new(world.get("world"), 199, 21, -77);
+
+//Teleproter with Mage / in Mage tower
+Teleporter_loc3 = loc.new(world.get("world"), 211.5, 108.51, -69.5);
+
+Teleporter1 = event.addMoveData(Teleporter_loc1, loc.mod(Teleporter_loc1, -1, 2, 1), 25, -1);
+Teleporter2 = event.addMoveData(Teleporter_loc2, loc.mod(Teleporter_loc2, -1, 2, 1), 25, -1);
 
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 //stable_loc = loc.new(world.getStory(), -1584, 66, -57);
@@ -67,6 +80,17 @@ msg.string("dev", "§bQuests: §rAdmont loaded.");
 @main
 wait();
 ignoreGoto(event);
+goto("main");
+
+@player_move
+
+if (id == Teleporter1 || id == Teleporter2){
+	sgoto(20, "teleport");
+}
+goto("main");
+
+@teleport
+entity.teleport(player, Teleporter_loc3);
 goto("main");
 
 @snuvi_click
