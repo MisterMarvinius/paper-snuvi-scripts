@@ -187,13 +187,13 @@ function shop.setBuyElement(sign_block, inv, item_stack) {
 	bronze = a[2];
 	index = 2;
 	if(bronze != 0) {
-		inv.setItem(inv, index--, customitem.create("COPPER_COIN", bronze, "Copper Coin", null));
+		inv.setItem(inv, index--, customitem.create("COPPER_COIN", bronze, null, null));
 	}
 	if(silver != 0) {
-		inv.setItem(inv, index--, customitem.create("SILVER_COIN", silver, "Silver Coin", null));
+		inv.setItem(inv, index--, customitem.create("SILVER_COIN", silver, null, null));
 	}
 	if(gold != 0) {
-		inv.setItem(inv, index, customitem.create("GOLD_COIN", gold, "Gold Coin", null));
+		inv.setItem(inv, index, customitem.create("GOLD_COIN", gold, null, null));
 	}
 	inv.setItem(inv, 3, customitem.create("ARROW_RIGHT", 1, "§fBuy", null));
 	inv.setItem(inv, 4, item_stack);
@@ -221,13 +221,13 @@ function shop.setSellElement(sign_block, inv, item_stack) {
 	bronze = a[2];
 	index = 13;
 	if(bronze != 0) {
-		inv.setItem(inv, index++, customitem.create("COPPER_COIN", bronze, "Copper Coin", null));
+		inv.setItem(inv, index++, customitem.create("COPPER_COIN", bronze, null, null));
 	}
 	if(silver != 0) {
-		inv.setItem(inv, index++, customitem.create("SILVER_COIN", silver, "Silver Coin", null));
+		inv.setItem(inv, index++, customitem.create("SILVER_COIN", silver, null, null));
 	}
 	if(gold != 0) {
-		inv.setItem(inv, index, customitem.create("GOLD_COIN", gold, "Gold Coin", null));
+		inv.setItem(inv, index, customitem.create("GOLD_COIN", gold, null, null));
 	}
 	inv.setItem(inv, 11, sell_stack);
 	inv.setItem(inv, 12, customitem.create("ARROW_RIGHT", 1, "§fSell", null));

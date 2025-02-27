@@ -216,8 +216,7 @@ prefix_party = "§5Party";
 prefix_skill = "§2Skill";
 
 initPlotFlags();
-initAllSounds();
-allsounds_list = getAllSounds();
+allsounds_list = sound.getAll();
 allsounds_indizes = map.new();
 allsounds_uuids = list.new();
 allsounds_uuids_cross_check = list.new();
@@ -337,20 +336,7 @@ set.add(butcher_set, "zombified_piglin");
 set.add(butcher_set, "cod");
 set.add(butcher_set, "guardian");
 
-attribut_set = set.new();
-set.add(attribut_set, "generic.armor");
-set.add(attribut_set, "generic.armor_toughness");
-set.add(attribut_set, "generic.attack_damage");
-set.add(attribut_set, "generic.attack_knockback");
-set.add(attribut_set, "generic.attack_speed");
-set.add(attribut_set, "generic.flying_speed");
-set.add(attribut_set, "generic.follow_range");
-set.add(attribut_set, "generic.knockback_resistance");
-set.add(attribut_set, "generic.luck");
-set.add(attribut_set, "generic.max_health");
-set.add(attribut_set, "generic.movement_speed");
-set.add(attribut_set, "horse.jump_strength");
-set.add(attribut_set, "zombie.spawn_reinforcements");
+attributes = item.getAllAttributes();
 
 operation_set = set.new();
 set.add(operation_set, "ADD_NUMBER");
@@ -3650,9 +3636,7 @@ if(arg0 == "play") {
 		goto("wait");
 	}
 	sound_name = list.getIndex(args, 1);
-	sound_name = string.replace(sound_name, "minecraft:", "");
-	sound_name = string.replace(sound_name, "[.]", "_");
-	sound_name = string.toUpperCase(sound_name);
+	sound_name = string.toLowerCase(sound_name);
 	if(!list.contains(allsounds_list, sound_name)) {
 		msg.prefix(sender, prefix_commands, "Not a known sound.");
 		goto("wait");
@@ -4840,7 +4824,7 @@ if(arg0 == "item-attribute") {
 		goto("wait");
 	}
 	attribut = list.getIndex(args, 1);
-	if(!set.contains(attribut_set, attribut)) {
+	if(!list.contains(attributes, attribut)) {
 		msg.prefix(player, prefix_datatools, "Unknown attribute.");
 		goto("wait");
 	}

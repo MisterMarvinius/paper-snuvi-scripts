@@ -1376,19 +1376,11 @@ function addDtHelp(command) {
 	}
 	
 	//datatools item-attribute <attribute> <slot> <double> <op>
-	addDtAttributeHelp(command, "generic.armor");
-	addDtAttributeHelp(command, "generic.armor_toughness");
-	addDtAttributeHelp(command, "generic.attack_damage");
-	addDtAttributeHelp(command, "generic.attack_knockback");
-	addDtAttributeHelp(command, "generic.attack_speed");
-	addDtAttributeHelp(command, "generic.flying_speed");
-	addDtAttributeHelp(command, "generic.follow_range");
-	addDtAttributeHelp(command, "generic.knockback_resistance");
-	addDtAttributeHelp(command, "generic.luck");
-	addDtAttributeHelp(command, "generic.max_health");
-	addDtAttributeHelp(command, "generic.movement_speed");
-	addDtAttributeHelp(command, "horse.jump_strength");
-	addDtAttributeHelp(command, "zombie.spawn_reinforcements");
+	attributes = item.getAllAttributes();
+	iter = iterator(attributes);
+	while(hasNext(iter)) {
+		addDtAttributeHelp(command, next(iter));
+	}
 
 	//datatools entity-hide
 	commandhelp.addChildLiteral(command, "entity-hide");

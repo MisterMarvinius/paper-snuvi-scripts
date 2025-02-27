@@ -1642,8 +1642,53 @@ function item.isAir(itemstack) {
 	return item.getType(itemstack) == material.getAir();
 }
 
+//--------------------------------------------------
+//Customitem-Utils
+//--------------------------------------------------
+
+function customitem.getNameForModel(model) {
+	model = string.toUpperCase(model);
+	custom_item_names = map.new();
+	map.add(custom_item_names, "AMBER", "Amber");
+	map.add(custom_item_names, "SAPPHIRE", "Sapphire");
+	map.add(custom_item_names, "RUBY", "Ruby");
+	map.add(custom_item_names, "GOLD_COIN", "Gold Coin");
+	map.add(custom_item_names, "SILVER_COIN", "Silver Coin");
+	map.add(custom_item_names, "COPPER_COIN", "Copper Coin");
+	map.add(custom_item_names, "ARROW_DOWN", "Down Arrow");
+	map.add(custom_item_names, "ARROW_LEFT", "Left Arrow");
+	map.add(custom_item_names, "ARROW_RIGHT", "Right Arrow");
+	map.add(custom_item_names, "ARROW_UP", "Up Arrow");
+	map.add(custom_item_names, "CHECK_GREEN", "Green Check");
+	map.add(custom_item_names, "CHECK_RED", "Red Check");
+	map.add(custom_item_names, "DIGIT_0", "Digit 0");
+	map.add(custom_item_names, "DIGIT_1", "Digit 1");
+	map.add(custom_item_names, "DIGIT_2", "Digit 2");
+	map.add(custom_item_names, "DIGIT_3", "Digit 3");
+	map.add(custom_item_names, "DIGIT_4", "Digit 4");
+	map.add(custom_item_names, "DIGIT_5", "Digit 5");
+	map.add(custom_item_names, "DIGIT_6", "Digit 6");
+	map.add(custom_item_names, "DIGIT_7", "Digit 7");
+	map.add(custom_item_names, "DIGIT_8", "Digit 8");
+	map.add(custom_item_names, "DIGIT_9", "Digit 9");
+	map.add(custom_item_names, "PLUS_GREEN", "Green Plus");
+	map.add(custom_item_names, "PLUS_RED", "Red Plus");
+	map.add(custom_item_names, "REFRESH_GREEN", "Green Refresh");
+	map.add(custom_item_names, "REFRESH_RED", "Red Refresh");
+	map.add(custom_item_names, "RETURN_GREEN", "Green Return");
+	map.add(custom_item_names, "RETURN_RED", "Red Return");
+	map.add(custom_item_names, "CROSS_GREEN", "Green Cross");
+	map.add(custom_item_names, "CROSS_RED", "Red Cross");
+	map.add(custom_item_names, "GEAR", "Gear");
+	map.add(custom_item_names, "MINUS_GREEN", "Green Minus");
+	map.add(custom_item_names, "MINUS_RED", "Red Minus");
+	map.add(custom_item_names, "SCROLL", "Scroll");
+	return map.get(custom_item_names, model);
+}
+
 // do not use this command in other scripts
-function customitem.get(model, name) {
+function customitem.get(model) {
+	name = customitem.getNameForModel(model);
 	model = string.toLowerCase(model);
 	return read.item(string.concat("{components:{'minecraft:custom_name':'\"§f", name, "\"','minecraft:item_model':'minecraft:", model, "'},count:1,id:'minecraft:command_block'}"));
 }
@@ -1688,139 +1733,139 @@ function customitem.getAll() {
 }
 
 function customitem.getAmber() {
-	return customitem.get("AMBER", "Amber");
+	return customitem.get("AMBER");
 }
 
 function customitem.getSapphire() {
-	return customitem.get("SAPPHIRE", "Sapphire");
+	return customitem.get("SAPPHIRE");
 }
 
 function customitem.getRuby() {
-	return customitem.get("RUBY", "Ruby");
+	return customitem.get("RUBY");
 }
 
 function customitem.getGoldCoin() {
-	return customitem.get("GOLD_COIN", "Gold Coin");
+	return customitem.get("GOLD_COIN");
 }
 
 function customitem.getSilverCoin() {
-	return customitem.get("SILVER_COIN", "Silver Coin");
+	return customitem.get("SILVER_COIN");
 }
 
 function customitem.getCopperCoin() {
-	return customitem.get("COPPER_COIN", "Copper Coin");
+	return customitem.get("COPPER_COIN");
 }
 
 function customitem.getDownArrow() {
-	return customitem.get("ARROW_DOWN", "Down Arrow");
+	return customitem.get("ARROW_DOWN");
 }
 
 function customitem.getLeftArrow() {
-	return customitem.get("ARROW_LEFT", "Left Arrow");
+	return customitem.get("ARROW_LEFT");
 }
 
 function customitem.getRightArrow() {
-	return customitem.get("ARROW_RIGHT", "Right Arrow");
+	return customitem.get("ARROW_RIGHT");
 }
 
 function customitem.getUpArrow() {
-	return customitem.get("ARROW_UP", "Up Arrow");
+	return customitem.get("ARROW_UP");
 }
 
 function customitem.getGreenCheck() {
-	return customitem.get("CHECK_GREEN", "Green Check");
+	return customitem.get("CHECK_GREEN");
 }
 
 function customitem.getRedCheck() {
-	return customitem.get("CHECK_RED", "Red Check");
+	return customitem.get("CHECK_RED");
 }
 
 function customitem.getDigit0() {
-	return customitem.get("DIGIT_0", "Digit 0");
+	return customitem.get("DIGIT_0");
 }
 
 function customitem.getDigit1() {
-	return customitem.get("DIGIT_1", "Digit 1");
+	return customitem.get("DIGIT_1");
 }
 
 function customitem.getDigit2() {
-	return customitem.get("DIGIT_2", "Digit 2");
+	return customitem.get("DIGIT_2");
 }
 
 function customitem.getDigit3() {
-	return customitem.get("DIGIT_3", "Digit 3");
+	return customitem.get("DIGIT_3");
 }
 
 function customitem.getDigit4() {
-	return customitem.get("DIGIT_4", "Digit 4");
+	return customitem.get("DIGIT_4");
 }
 
 function customitem.getDigit5() {
-	return customitem.get("DIGIT_5", "Digit 5");
+	return customitem.get("DIGIT_5");
 }
 
 function customitem.getDigit6() {
-	return customitem.get("DIGIT_6", "Digit 6");
+	return customitem.get("DIGIT_6");
 }
 
 function customitem.getDigit7() {
-	return customitem.get("DIGIT_7", "Digit 7");
+	return customitem.get("DIGIT_7");
 }
 
 function customitem.getDigit8() {
-	return customitem.get("DIGIT_8", "Digit 8");
+	return customitem.get("DIGIT_8");
 }
 
 function customitem.getDigit9() {
-	return customitem.get("DIGIT_9", "Digit 9");
+	return customitem.get("DIGIT_9");
 }
 
 function customitem.getGreenPlus() {
-	return customitem.get("PLUS_GREEN", "Green Plus");
+	return customitem.get("PLUS_GREEN");
 }
 
 function customitem.getRedPlus() {
-	return customitem.get("PLUS_RED", "Red Plus");
+	return customitem.get("PLUS_RED");
 }
 
 function customitem.getGreenRefresh() {
-	return customitem.get("REFRESH_GREEN", "Green Refresh");
+	return customitem.get("REFRESH_GREEN");
 }
 
 function customitem.getRedRefresh() {
-	return customitem.get("REFRESH_RED", "Red Refresh");
+	return customitem.get("REFRESH_RED");
 }
 
 function customitem.getGreenReturn() {
-	return customitem.get("RETURN_GREEN", "Green Return");
+	return customitem.get("RETURN_GREEN");
 }
 
 function customitem.getRedReturn() {
-	return customitem.get("RETURN_RED", "Red Return");
+	return customitem.get("RETURN_RED");
 }
 
 function customitem.getGreenCross() {
-	return customitem.get("CROSS_GREEN", "Green Cross");
+	return customitem.get("CROSS_GREEN");
 }
 
 function customitem.getRedCross() {
-	return customitem.get("CROSS_RED", "Red Cross");
+	return customitem.get("CROSS_RED");
 }
 
 function customitem.getGear() {
-	return customitem.get("GEAR", "Gear");
+	return customitem.get("GEAR");
 }
 
 function customitem.getGreenMinus() {
-	return customitem.get("MINUS_GREEN", "Green Minus");
+	return customitem.get("MINUS_GREEN");
 }
 
 function customitem.getRedMinus() {
-	return customitem.get("MINUS_RED", "Red Minus");
+	return customitem.get("MINUS_RED");
 }
 
 function customitem.getScroll() {
-	return customitem.get("SCROLL", "Scroll");
+	return customitem.get("SCROLL");
 }
 
 function customitem.isType(item, custom) {
@@ -1832,7 +1877,10 @@ function customitem.isType(item, custom) {
 
 function customitem.create(type, amount, name, wusi) {
 	//wusi: lore_list or lore_string
-	item = customitem.get(type, name);
+	item = customitem.get(type);
+	if(name != null) {
+		item.setName(item, text.new(name));
+	}
 	item.setAmount(item, amount);
 	if(wusi != null) {
 		if(isString(wusi)) {

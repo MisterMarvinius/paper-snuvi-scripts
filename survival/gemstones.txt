@@ -32,9 +32,9 @@ item.addFlag(hint_11, "HIDE_ATTRIBUTES");
 item.addDefaultTags(hint_4);
 item.addDefaultTags(hint_8);
 item.addDefaultTags(hint_12);
-item.addAttribute(hint_4, "generic.max_health", slot_chest, 2, "ADD_NUMBER");
-item.addAttribute(hint_8, "generic.armor", slot_chest, 1, "ADD_NUMBER");
-item.addAttribute(hint_12, "generic.knockback_resistance", slot_chest, 0.1, "ADD_NUMBER");
+item.addAttribute(hint_4, "minecraft:max_health", slot_chest, 2, "ADD_NUMBER");
+item.addAttribute(hint_8, "minecraft:armor", slot_chest, 1, "ADD_NUMBER");
+item.addAttribute(hint_12, "minecraft:knockback_resistance", slot_chest, 0.1, "ADD_NUMBER");
 anvil_use = sound.get("block.anvil.use");
 sc_master = sound.getCategory("MASTER");
 snuvis = 4096;
@@ -149,17 +149,17 @@ if(event == "snuvi_click") {
 		//which gemstone
 		if(customitem.isRuby(item_1)) {
 			gem = ruby;
-			att_type = "generic.max_health";
+			att_type = "minecraft:max_health";
 			att_amount = 2;
 		}
 		elseif(customitem.isSapphire(item_1)) {
 			gem = sapphire;
-			att_type = "generic.armor";
+			att_type = "minecraft:armor";
 			att_amount = 1;
 		}
 		elseif(customitem.isAmber(item_1)) {
 			gem = amber;
-			att_type = "generic.knockback_resistance";
+			att_type = "minecraft:knockback_resistance";
 			att_amount =  0.1;
 		} else {
 			msg.prefix(player, prefix_commands, "Second slot needs to be one Gemstone (Amber, Ruby, ...).");
