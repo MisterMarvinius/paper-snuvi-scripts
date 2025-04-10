@@ -1506,6 +1506,157 @@
     </table>
 </section>
 
+<section id="Display">
+	<table>
+        <tr>
+            <th class="command">display.spawn</th>
+            <th class="desc">spawns and returns a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.spawn(location, text)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.setText</th>
+            <th class="desc">sets text for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.setText(TextDisplay, text)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.pivot</th>
+            <th class="desc">defines around which axis the display pivots</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.pivot(TextDisplay, "CENTER"/"FIXED"/"HORIZONTAL"/"VERTICAL")</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.backgroundColor</th>
+            <th class="desc">sets the backgroundColor for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.backgroundColor(TextDisplay, a, r, b, g)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.lineWidth</th>
+            <th class="desc">sets the lineWidth for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.lineWidth(TextDisplay, lineWidth as integer)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.alignment</th>
+            <th class="desc">sets the alignment for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.alignment(TextDisplay, "CENTER"/"LEFT"/"RIGHT")</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.seeThrough</th>
+            <th class="desc">sets the seeThrough flag for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.seeThrough(TextDisplay, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.shadowed</th>
+            <th class="desc">sets the shadowed flag for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.shadowed(TextDisplay, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.shadowed</th>
+            <th class="desc">sets the opacity for a TextDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.shadowed(TextDisplay, opacity as byte)</td>
+        </tr>
+    </table>
+	
+	<table>
+        <tr>
+            <th class="command">display.spawnBlock</th>
+            <th class="desc">spawns and returns a BlockDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.spawnBlock(location, material)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.setBlock</th>
+            <th class="desc">sets the block for a BlockDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.setBlock(BlockDisplay, material)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.transform</th>
+            <th class="desc">transforms a BlockDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.transform(BlockDisplay, translation as vector, leftrotation, scale as vector, rigtrotation)</td>
+        </tr>
+		<tr>
+			<td class="bold">Arguments</td>
+            <td>
+				<a href="https://docs.papermc.io/paper/dev/display-entities#transformation" target="_blank">https://docs.papermc.io/paper/dev/display-entities#transformation</a><br>
+				<a href="https://misode.github.io/transformation/" target="_blank">Visualizer</a><br>
+			</td>
+		</tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">vector.new</th>
+            <th class="desc">creates and returns a vector</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>vector.new(x, y, z)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">rotation.new</th>
+            <th class="desc">creates and returns a rotation</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>rotation.new(x, y, z, w)</td>
+        </tr>
+    </table>
+</section>
+
 <section id="Gamerule">
 	<table>
         <tr>
@@ -1843,6 +1994,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>item.hasAttributes(itemstack)</td>
+        </tr>
+    </table>
+	<table>
+	    <tr>
+            <th class="command">item.getAllAttributes</th>
+            <th class="desc">returns a list of all attributes as string</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>item.getAllAttributes()</td>
         </tr>
     </table>
 	<table>
@@ -5140,6 +5301,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>sound.get(<a href="https://minecraft.fandom.com/wiki/Sounds.json#Sound_events" target="_blank">name</a>)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">sound.getAll</th>
+            <th class="desc">returns a list of all sounds as string</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>sound.getAll()</td>
         </tr>
     </table>
 	<table>
