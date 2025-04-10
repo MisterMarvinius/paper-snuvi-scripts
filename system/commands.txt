@@ -4781,6 +4781,8 @@ if(size == 0) {
 	msg.string(player, "§6 - item-attribute <attribut> <slot> <double> <op> §rAdds an attribute to an item");
 	msg.string(player, "§6 - entity-hide §rHides an entity");
 	msg.string(player, "§6 - entity-show §rShows an entity");
+	msg.string(player, "§6 - entity-hidenear <radius> §rHides all entity inside the radius");
+	msg.string(player, "§6 - entity-shownear <radius> §rShows all entity inside the radius");
 	msg.string(player, "§6 - entity-name <name> §rRenames an entity");
 	msg.string(player, "§6 - entity-print §rPrint entities nbt-tag");
 	msg.string(player, "§6 - frame-hide §rHides an item frame");
@@ -4975,6 +4977,31 @@ if(arg0 == "entity-hide") {
 	msg.prefix(player, prefix_datatools, "Entity is now hidden.");
 	goto("wait");
 }
+if(arg0 == "entity-hidenear") {
+	if(size > 2) {
+		msg.prefix(player, prefix_datatools, "/datatools entity-hidenear <radius>");
+		goto("wait");
+	}
+	if (size == 1){
+		radius = 3;
+	}
+	else{
+		radius = list.getIndex(args, 1);
+	}
+	templist = living.near(player, radius);
+	list.remove(templist, player);
+	if(list.getSize(templist) == 0) {
+		msg.prefix(player, prefix_datatools, "Too far away from any entities.");
+		goto("wait");
+	}
+	while (list.getSize(templist) > 0){
+		entity = list.getIndex(templist, 0);
+		living.setInvisible(entity, true);
+		list.remove(templist, entity);
+	}
+	msg.prefix(player, prefix_datatools, "Entities are now hidden.");
+	goto("wait");
+}
 if(arg0 == "entity-show") {
 	if(size != 1) {
 		msg.prefix(player, prefix_datatools, "/datatools entity-show");
@@ -4989,6 +5016,31 @@ if(arg0 == "entity-show") {
 	entity = list.getIndex(templist, 0);
 	living.setInvisible(entity, false);
 	msg.prefix(player, prefix_datatools, "Entity is now visible.");
+	goto("wait");
+}
+if(arg0 == "entity-shownear") {
+	if(size > 2) {
+		msg.prefix(player, prefix_datatools, "/datatools entity-shownear <radius>");
+		goto("wait");
+	}
+	if (size == 1){
+		radius = 3;
+	}
+	else{
+		radius = list.getIndex(args, 1);
+	}
+	templist = living.near(player, radius);
+	list.remove(templist, player);
+	if(list.getSize(templist) == 0) {
+		msg.prefix(player, prefix_datatools, "Too far away from any entities.");
+		goto("wait");
+	}
+	while (list.getSize(templist) > 0){
+		entity = list.getIndex(templist, 0);
+		living.setInvisible(entity, false);
+		list.remove(templist, entity);
+	}
+	msg.prefix(player, prefix_datatools, "Entities are now visible.");
 	goto("wait");
 }
 goto("datatoolshelp");

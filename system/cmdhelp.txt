@@ -1382,33 +1382,45 @@ function addDtHelp(command) {
 		addDtAttributeHelp(command, next(iter));
 	}
 
-	//datatools entity-hide
+	 //datatools entity-hide
 	commandhelp.addChildLiteral(command, "entity-hide");
-	//datatools entity-show
+	 //datatools entity-show
 	commandhelp.addChildLiteral(command, "entity-show");
-	//datatools frame-hide
+	 //datatools frame-hide
 	commandhelp.addChildLiteral(command, "frame-hide");
-	//datatools frame-show
+	 //datatools frame-show
 	commandhelp.addChildLiteral(command, "frame-show");
 	
-	//datatools entity-name <name>
+	 //datatools entity-hidenear
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("entity-hidenear"));
+	command.addHelpArgument(help, command.newHelpString("radius", 3));
+	command.registerHelp(help);
+	
+	 //datatools entity-shownear
+	help = command.newHelp(command, "datatools");
+	command.addHelpArgument(help, command.newHelpLiteral("entity-shownear"));
+	command.addHelpArgument(help, command.newHelpString("radius", 3));
+	command.registerHelp(help);
+	
+	 //datatools entity-name <name>
 	help = command.newHelp(command, "datatools");
 	command.addHelpArgument(help, command.newHelpLiteral("entity-name"));
 	command.addHelpArgument(help, command.newHelpString("name", true));
 	command.registerHelp(help);
-	//datatools name-visibility <name>
+	 //datatools name-visibility <name>
 	help = command.newHelp(command, "datatools");
 	command.addHelpArgument(help, command.newHelpLiteral("name-visibility"));
 	command.addHelpArgument(help, command.newHelpBool("boolean"));
 	command.registerHelp(help);
-	//datatools item-name <name>
+	 //datatools item-name <name>
 	help = command.newHelp(command, "datatools");
 	command.addHelpArgument(help, command.newHelpLiteral("item-name"));
 	command.addHelpArgument(help, command.newHelpString("name", true));
 	command.registerHelp(help);
-	//datatools entity-print
+	 //datatools entity-print
 	commandhelp.addChildLiteral(command, "entity-print");
-	//datatools item-lore <line> <lore>
+	 //datatools item-lore <line> <lore>
 	help = command.newHelp(command, "datatools");
 	command.addHelpArgument(help, command.newHelpLiteral("item-lore"));
 	command.addHelpArgument(help, command.newHelpString("lore", true));
