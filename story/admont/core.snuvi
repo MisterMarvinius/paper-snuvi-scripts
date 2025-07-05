@@ -127,7 +127,7 @@ if(item == quest_book) {
 }
 if(title_string == "Quests: Mage Guard") {
 	if(inv_slot == 0) {
-		if(script.isActiveName("scripts/story/admont/mage.txt")) {
+		if(script.isActiveName("scripts/story/admont/mage.snuvi")) {
 			msg.prefix(player, "§dMage Guard", "Someone else is doing this quest. Please try again later.");
 			goto("main");
 		}
@@ -135,7 +135,7 @@ if(title_string == "Quests: Mage Guard") {
 		goto("main");
 	}
 	if(inv_slot == 1) {
-		if(script.isActiveName("scripts/story/admont/teleporter.txt")) {
+		if(script.isActiveName("scripts/story/admont/teleporter.snuvi")) {
 			msg.prefix(player, "§dMage Guard", "Someone else is doing this quest. Please try again later.");
 			goto("main");
 		}
@@ -179,7 +179,7 @@ if(title_string == "Quests: Priest") {
 }
 if(title_string == "Quests: Miner") {
 	if(inv_slot == 0) {
-		if(script.isActiveName("scripts/story/admont/schatz_von_admont.txt")) {
+		if(script.isActiveName("scripts/story/admont/schatz_von_admont.snuvi")) {
 			msg.prefix(player, "§dMiner", "Someone else is doing this quest. Please try again later.");
 			goto("main");
 		}
