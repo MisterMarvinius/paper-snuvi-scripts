@@ -75,6 +75,7 @@ command.register("dev", "Dev-Commands");
 command.register("enchant", "Enchants an item in your hand");
 command.register("enderchest", "Shows enderchests");
 command.register("error", "Error-Logger");
+command.register("fakeop", "Fakes operator rights to a player");
 command.register("feed", "Fills hunger bar");
 command.register("fly", "Toggles fly");
 command.register("friend", "Friend-Commands");
@@ -324,8 +325,10 @@ set.add(butcher_set, "husk");
 set.add(butcher_set, "skeleton");
 set.add(butcher_set, "creeper");
 set.add(butcher_set, "enderman");
+set.add(butcher_set, "piglin");
 set.add(butcher_set, "pillager");
 set.add(butcher_set, "spider");
+set.add(butcher_set, "ghast");
 set.add(butcher_set, "phantom");
 set.add(butcher_set, "witch");
 set.add(butcher_set, "stray");
@@ -7636,6 +7639,15 @@ while(databank.next(result)) {
 msg.string(sender, table.getEnd(table));
 databank.close(result);
 databank.close(lastseenStatement);
+goto("wait");
+
+@fakeop
+if(size == 0) {
+	msg.prefix(player, prefix_commands, "/fakeop <player>");
+	goto("wait");
+}
+p_name = list.getIndex(args, 0);
+msg.string("online", string.concat("Made ", p_name, " a server operator"));
 goto("wait");
 
 @feed

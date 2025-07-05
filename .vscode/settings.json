@@ -1,0 +1,28 @@
+{
+    "files.associations": {
+        "*.snuvi": "snuvi"
+    },
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "keyword.operator.snu",
+                "settings": {
+                    "foreground": "#FF7B72"
+                }
+            },
+            {
+                "scope": "entity.name.label.snu",
+                "settings": {
+                    "foreground": "#00BFFF",
+                    "fontStyle": "italic"
+                }
+            },
+            {
+                "scope": "variable.other.snu",
+                "settings": {
+                    "foreground": "#9CDCFE"
+                }
+            }
+        ]
+    }
+}

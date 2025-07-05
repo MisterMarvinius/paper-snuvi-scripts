@@ -67,6 +67,7 @@ commandhelp.addChildPlayer("feed");
 commandhelp.addChildPlayer("warn");
 commandhelp.addChildPlayer("jail");
 commandhelp.addChildPlayer("unjail");
+commandhelp.addChildPlayer("fakeop");
 
 commandhelp.addChildLiteral("start", "challenges");
 commandhelp.addChildLiteral("start", "chat");
@@ -1394,13 +1395,13 @@ function addDtHelp(command) {
 	 //datatools entity-hidenear
 	help = command.newHelp(command, "datatools");
 	command.addHelpArgument(help, command.newHelpLiteral("entity-hidenear"));
-	command.addHelpArgument(help, command.newHelpString("radius", 3));
+	command.addHelpArgument(help, command.newHelpInt("radius", 1, 10));
 	command.registerHelp(help);
 	
 	 //datatools entity-shownear
 	help = command.newHelp(command, "datatools");
 	command.addHelpArgument(help, command.newHelpLiteral("entity-shownear"));
-	command.addHelpArgument(help, command.newHelpString("radius", 3));
+	command.addHelpArgument(help, command.newHelpInt("radius", 1, 10));
 	command.registerHelp(help);
 	
 	 //datatools entity-name <name>

@@ -127,6 +127,7 @@ perm.addToGroup(2, "isAdmin");
 perm.addToGroup(2, "butcher");
 perm.addToGroup(2, "copyisland");
 perm.addToGroup(2, "enderchest");
+perm.addToGroup(2, "fakeop");
 perm.addToGroup(2, "gamemode.other");
 perm.addToGroup(2, "inv.loadFrom");
 perm.addToGroup(2, "inv.saveFor");

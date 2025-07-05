@@ -1,5 +1,5 @@
 <section id="Event-List">
-	<table>
+    <table>
         <tr>
             <th class="command"></th>
             <th class="desc">footnote</th>
@@ -13,231 +13,24 @@
             <td>can be null</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
-            <th class="command">entity_change_block</th>
-            <th class="desc">an entity changes a block</th>
+            <th class="command">arm_swing</th>
+            <th class="desc">a player makes an arm_swing (might be a leftclick into air)</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>block<br>change_data as blockdata for the new state<br>*cancel</td>
+            <td>player<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
     <table>
         <tr>
-            <th class="command">entity_damage</th>
-            <th class="desc">an entity gets damage</th>
+            <th class="command">bell_ring</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BellRingEvent.html" target="_blank">a bell is rung</a></th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>damage_source<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html" target="_blank">cause</a> as string<br>**damager_block<br>**damager_entity<br>damage<br>raw_damage<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">entity_heal</th>
-            <th class="desc">an entity gets healed</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>entity<br>*heal<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/EntityRegainHealthEvent.RegainReason.html" target="_blank">cause</a> as string<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">living_death</th>
-            <th class="desc">a living_entity dies</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>living_entity<br>damage_source<br>*drops as list of itemstacks<br>*experience<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">block_drop</th>
-            <th class="desc">a destroyed block drops something</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>block<br>old_material<br>*drops as list with ItemEntities</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">entity_click</th>
-            <th class="desc">an entity gets right_clicked</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>entity<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
-        </tr>
-    </table>
-	</table>
-    <table>
-        <tr>
-            <th class="command">living_spawn</th>
-            <th class="desc">a living entity spawns</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>living_entity<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html" target="_blank">cause</a> as string<br>location<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">entity_spawn</th>
-            <th class="desc">an entity spawns</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>entity<br>location<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">entity_remove</th>
-            <th class="desc">an entity is removed from a world</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>entity</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">living_tame</th>
-            <th class="desc">a living entity gets tamed</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>living_entity<br>tamer<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">entity_mount</th>
-            <th class="desc">an entity mounts another entity</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>entity<br>mount as entity<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">entity_dismount</th>
-            <th class="desc">an entity dismounts another entity</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>entity<br>mount as entity</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_login</th>
-            <th class="desc">a player tries to connect to the server</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>result</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_join</th>
-            <th class="desc">a player joins the server</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>*message as text</td>
-        </tr>
-        <tr>
-            <td class="bold">Info</td>
-            <td>message = null means no message</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_quit</th>
-            <th class="desc">a player leaves the server</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>*message as text</td>
-        </tr>
-        <tr>
-            <td class="bold">Info</td>
-            <td>message = null means no message</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_pre_respawn</th>
-            <th class="desc">a player will respawn</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player</td>
-        </tr>
-        <tr>
-            <td class="bold">Info</td>
-            <td>devs can set the spawn-location on this event</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_post_respawn</th>
-            <th class="desc">a player has respawned</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player</td>
-        </tr>
-        <tr>
-            <td class="bold">Info</td>
-            <td>devs can refill the inventory on this event</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_toggle_sneak</th>
-            <th class="desc">a player toggles sneak</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>sneak as boolean<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_drop</th>
-            <th class="desc">a player drops an item</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>item_entity<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">living_pickup</th>
-            <th class="desc">a living entity picks up an item</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>living_entity<br>item_entity<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_move</th>
-            <th class="desc">a player moves in a before defined area</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>id</td>
+            <td>block<br>**entity<br>direction<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -252,12 +45,12 @@
     </table>
     <table>
         <tr>
-            <th class="command">block_place</th>
-            <th class="desc">a block is placed by a player</th>
+            <th class="command">block_burn</th>
+            <th class="desc">a block is burned</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br>block<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>block<br>block_source<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -270,27 +63,17 @@
             <td>player<br>**block<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/block/Action.html" target="_blank">action</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
-            <th class="command">block_burn</th>
-            <th class="desc">a block is burned</th>
+            <th class="command">block_drop</th>
+            <th class="desc">a destroyed block drops something</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>block<br>block_source<br>*cancel</td>
+            <td>player<br>block<br>old_material<br>*drops as list with ItemEntities</td>
         </tr>
     </table>
-	<table>
-        <tr>
-            <th class="command">block_spread</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BlockSpreadEvent.html" target="_blank">Paper API#BlockSpreadEvent</a></th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>block<br>block_source<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
+    <table>
         <tr>
             <th class="command">block_fade</th>
             <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BlockFadeEvent.html" target="_blank">Paper API#BlockFadeEvent</a></th>
@@ -298,6 +81,36 @@
         <tr>
             <td class="bold">Variables</td>
             <td>block<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">block_place</th>
+            <th class="desc">a block is placed by a player</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>block<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">block_shear</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/io/papermc/paper/event/block/PlayerShearBlockEvent.html" target="_blank">a player uses shears on a block</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>block<br>hand<br>*drops<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">block_spread</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BlockSpreadEvent.html" target="_blank">Paper API#BlockSpreadEvent</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>block<br>block_source<br>*cancel</td>
         </tr>
     </table>
     <table>
@@ -311,6 +124,169 @@
         </tr>
     </table>
     <table>
+            <th class="command">chat</th>
+            <th class="desc">a player writes into chat</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>*message as text<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">command</th>
+            <th class="desc">a player uses a non custom-command</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>command as string<br>permission as string<br>command_class as string<br>*cancel</td>
+        </tr>
+    </table>
+	    <table>
+        <tr>
+            <th class="command">craft</th>
+            <th class="desc">a player takes the result item out of craft inventory</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>item<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">custom_command</th>
+            <th class="desc">something uses a custom-command</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>sender<br>command as string<br>args as list<br>string_args as list with strings only</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>sender can be a player, console...<br></td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">elytra_boost</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerElytraBoostEvent.html" target="_blank">a player boosts using elytra</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>hand<br>firework as entity<br>*consume as boolean<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_change_block</th>
+            <th class="desc">an entity changes a block</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>block<br>change_data as blockdata for the new state<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_click</th>
+            <th class="desc">an entity gets right_clicked</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>entity<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_damage</th>
+            <th class="desc">an entity gets damage</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>damage_source<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html" target="_blank">cause</a> as string<br>**damager_block<br>**damager_entity<br>damage<br>raw_damage<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_dismount</th>
+            <th class="desc">an entity dismounts another entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>mount as entity</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_heal</th>
+            <th class="desc">an entity gets healed</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>*heal<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/EntityRegainHealthEvent.RegainReason.html" target="_blank">cause</a> as string<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_mount</th>
+            <th class="desc">an entity mounts another entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>mount as entity<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_remove</th>
+            <th class="desc">an entity is removed from a world</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_spawn</th>
+            <th class="desc">an entity spawns</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>location<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity_unleash</th>
+            <th class="desc">an entity unleashes</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>cause<br>*dropleash<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">explosion</th>
+            <th class="desc">explosions are cancelled on default</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>entity<br>*fire as boolean<br>*radius<br>*cancel | true</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">fishing</th>
+            <th class="desc">a player fishes something</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>**entity<br>*experience<br>hook as entity<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
         <tr>
             <th class="command">inv_click</th>
             <th class="desc">a slot in an container gets clicked</th>
@@ -318,20 +294,6 @@
         <tr>
             <td class="bold">Variables</td>
             <td>player<br>inv<br>**inv_clicked<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">snuvi_click</th>
-            <th class="desc">a slot in an custom inventory gets clicked</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>inv<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string</td>
-        </tr>
-		<tr>
-            <td class="bold">Info</td>
-            <td>Custom inventories are not script-across.</td>
         </tr>
     </table>
     <table>
@@ -354,6 +316,302 @@
             <td>player<br>item<br>*cancel</td>
         </tr>
     </table>
+	    <table>
+        <tr>
+            <th class="command">living_death</th>
+            <th class="desc">a living_entity dies</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>living_entity<br>damage_source<br>*drops as list of itemstacks<br>*experience<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">living_pickup</th>
+            <th class="desc">a living entity picks up an item</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>living_entity<br>item_entity<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">living_spawn</th>
+            <th class="desc">a living entity spawns</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>living_entity<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/entity/CreatureSpawnEvent.SpawnReason.html" target="_blank">cause</a> as string<br>location<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">living_tame</th>
+            <th class="desc">a living entity gets tamed</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>living_entity<br>tamer<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">missing_command</th>
+            <th class="desc">a sender uses a non-existing command</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>sender<br>command</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">missing_perm</th>
+            <th class="desc">a sender has no permissions for a used command</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>sender<br>command<br>perm</td>
+        </tr>
+    </table>
+	<table>
+		<tr>
+			<th class="command">player_armor_change</th>
+			<th class="desc">a player changes their armor</th>
+		</tr>
+		<tr>
+			<td class="bold">Variables</td>
+			<td>player<br>new_item<br>old_item</td>
+		</tr>
+	</table>
+    <table>
+        <tr>
+            <th class="command">player_change_world</th>
+            <th class="desc">a player changes the world</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>from world as string</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_data_tick</th>
+            <th class="desc">thrown if a timer from data.setTimer reached 0</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>var</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_drop</th>
+            <th class="desc">a player drops an item</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>item_entity<br>*cancel</td>
+        </tr>
+    </table>
+	<table>
+		<tr>
+			<th class="command">player_edit_book</th>
+			<th class="desc">a player edits a book</th>
+		</tr>
+		<tr>
+			<td class="bold">Variables</td>
+			<td>player<br>signing as boolean</td>
+		</tr>
+	</table>
+    <table>
+        <tr>
+            <th class="command">player_elytra_start</th>
+            <th class="desc">thrown if a player starts using an elytra</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_elytra_stop</th>
+            <th class="desc">thrown if a player stops using an elytra</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_item_held</th>
+            <th class="desc">a player changes their hotbar slot</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>from as double<br>to as double<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_join</th>
+            <th class="desc">a player joins the server</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>*message as text</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>message = null means no message</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_jump</th>
+            <th class="desc">a player jumps</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_leash</th>
+            <th class="desc">a player leashes an entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>entity<br>hand<br>leashholder<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_login</th>
+            <th class="desc">a player tries to connect to the server</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>result</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_move</th>
+            <th class="desc">a player moves in a before defined area</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>id</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_pickup_exp</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerPickupExperienceEvent.html" target="_blank">a player picks up XP</a></th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>*cancel</td>
+        </tr>
+    </table>
+	    <table>
+        <tr>
+            <th class="command">player_post_respawn</th>
+            <th class="desc">a player has respawned</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>devs can refill the inventory on this event</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_pre_respawn</th>
+            <th class="desc">a player will respawn</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>devs can set the spawn-location on this event</td>
+        </tr>
+    </table>
+	<table>
+		<tr>
+			<th class="command">player_take_lectern_book</th>
+			<th class="desc">a player takes a book from a lectern</th>
+		</tr>
+		<tr>
+			<td class="bold">Variables</td>
+			<td>player<br>block</td>
+		</tr>
+	</table>
+    <table>
+        <tr>
+            <th class="command">player_quit</th>
+            <th class="desc">a player leaves the server</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>*message as text</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>message = null means no message</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_swap_hand_items</th>
+            <th class="desc">a player swaps their items in their hands</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_teleport</th>
+            <th class="desc">a player teleports</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>from as location<br>to as location<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html" target="_blank">cause</a> as string<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_toggle_sneak</th>
+            <th class="desc">a player toggles sneak</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>sneak as boolean<br>*cancel</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">player_unleash</th>
+            <th class="desc">a player unleashes an entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Variables</td>
+            <td>player<br>entity<br>hand<br>cause<br>*dropleash<br>*cancel</td>
+        </tr>
+    </table>
     <table>
         <tr>
             <th class="command">pre_craft</th>
@@ -370,80 +628,6 @@
     </table>
     <table>
         <tr>
-            <th class="command">craft</th>
-            <th class="desc">a player takes the result item out of craft inventory</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>item<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_change_world</th>
-            <th class="desc">a player changes the world</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>from world as string</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">player_teleport</th>
-            <th class="desc">a player teleports</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>from as location<br>to as location<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/player/PlayerTeleportEvent.TeleportCause.html" target="_blank">cause</a> as string<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">fishing</th>
-            <th class="desc">a player fishes something</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>**entity<br>*experience<br>hook as entity<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">command</th>
-            <th class="desc">a player uses a non custom-command</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>command as string<br>permission as string<br>command_class as string<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <th class="command">custom_command</th>
-            <th class="desc">something uses a custom-command</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>sender<br>command as string<br>args as list<br>string_args as list with strings only</td>
-        </tr>
-		<tr>
-            <td class="bold">Info</td>
-            <td>sender can be a player, console...<br></td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">chat</th>
-            <th class="desc">a player writes into chat</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>*message as text<br>*cancel</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
             <th class="command">projectile_hit</th>
             <th class="desc">a thrown projectile hits a block or an entity</th>
         </tr>
@@ -454,125 +638,39 @@
     </table>
     <table>
         <tr>
-            <th class="command">arm_swing</th>
-            <th class="desc">a player makes an arm_swing (might be a leftclick into air)</th>
+            <th class="command">spectation_start</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerStartSpectatingEntityEvent.html" target="_blank">a player starts spectating</a></th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>player<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/inventory/EquipmentSlot.html" target="_blank">hand</a><br>*cancel</td>
+            <td>player<br>entity<br>*cancel</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
-            <th class="command">explosion</th>
-            <th class="desc">explosions are cancelled on default</th>
+            <th class="command">spectation_stop</th>
+            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerStopSpectatingEntityEvent.html" target="_blank">a player stops spectating</a></th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>entity<br>*fire as boolean<br>*radius<br>*cancel | true</td>
+            <td>player<br>entity<br>*cancel</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
-            <th class="command">missing_command</th>
-            <th class="desc">a sender uses a non-existing command</th>
+            <th class="command">snuvi_click</th>
+            <th class="desc">a slot in an custom inventory gets clicked</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-            <td>sender<br>command</td>
+            <td>player<br>inv<br>inv_title as text<br>inv_slot as double<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/ClickType.html" target="_blank">click</a> as string<br><a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/event/inventory/InventoryAction.html" target="_blank">action</a> as string</td>
+        </tr>
+        <tr>
+            <td class="bold">Info</td>
+            <td>Custom inventories are not script-across.</td>
         </tr>
     </table>
-	<table>
-        <tr>
-            <th class="command">missing_perm</th>
-            <th class="desc">a sender has no permissions for a used command</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>sender<br>command<br>perm</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_data_tick</th>
-            <th class="desc">thrown if a timer from data.setTimer reached 0</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>var</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_elytra_start</th>
-            <th class="desc">thrown if a player starts using an elytra</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_elytra_stop</th>
-            <th class="desc">thrown if a player stops using an elytra</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_item_held</th>
-            <th class="desc">a player changes their hotbar slot</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>from as double<br>to as double<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_swap_hand_items</th>
-            <th class="desc">a player swaps their items in their hands</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_jump</th>
-            <th class="desc">a player jumps</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>player</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">world_load</th>
-            <th class="desc">a world gets loaded</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>world</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">vote</th>
-            <th class="desc">a vote gets received</th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-            <td>from as string<br>name as string<br>ip as string<br>timestamp as double</td>
-        </tr>
-    </table>
-	<table>
+    <table>
         <tr>
             <th class="command">vehicle_enter</th>
             <th class="desc">an entity enters a vehicle</th>
@@ -582,7 +680,7 @@
             <td>vehicle<br>entity</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
             <th class="command">vehicle_exit</th>
             <th class="desc">an living_entity exits a vehicle</th>
@@ -592,64 +690,24 @@
             <td>vehicle<br>living_entity</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
-            <th class="command">block_shear</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/io/papermc/paper/event/block/PlayerShearBlockEvent.html" target="_blank">a player uses shears on a block</a></th>
+            <th class="command">vote</th>
+            <th class="desc">a vote gets received</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-			<td>player<br>block<br>hand<br>*drops<br>*cancel</td>
+            <td>from as string<br>name as string<br>ip as string<br>timestamp as double</td>
         </tr>
     </table>
-	<table>
+    <table>
         <tr>
-            <th class="command">bell_ring</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/org/bukkit/event/block/BellRingEvent.html" target="_blank">a bell is rung</a></th>
+            <th class="command">world_load</th>
+            <th class="desc">a world gets loaded</th>
         </tr>
         <tr>
             <td class="bold">Variables</td>
-			<td>block<br>**entity<br>direction<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">spectation_start</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerStartSpectatingEntityEvent.html" target="_blank">a player starts spectating</a></th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-			<td>player<br>entity<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">spectation_stop</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerStopSpectatingEntityEvent.html" target="_blank">a player stops spectating</a></th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-			<td>player<br>entity<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">player_pickup_exp</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerPickupExperienceEvent.html" target="_blank">a player picks up XP</a></th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-			<td>player<br>*cancel</td>
-        </tr>
-    </table>
-	<table>
-        <tr>
-            <th class="command">elytra_boost</th>
-            <th class="desc"><a href="https://jd.papermc.io/paper/1.21.4/com/destroystokyo/paper/event/player/PlayerElytraBoostEvent.html" target="_blank">a player boosts using elytra</a></th>
-        </tr>
-        <tr>
-            <td class="bold">Variables</td>
-			<td>player<br>hand<br>firework as entity<br>*consume as boolean<br>*cancel</td>
+            <td>world</td>
         </tr>
     </table>
 </section>
@@ -4207,7 +4265,7 @@
 	<table>
         <tr>
             <th class="command">player.setSpectatorTarget</th>
-            <th class="desc">sets the Targetentity the player is spectating, set entity to null to reset.</th>
+            <th class="desc">sets the Targetentity the player is spectating, set entity to null to reset</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -4237,7 +4295,7 @@
 	<table>
         <tr>
             <th class="command">player.setExpCooldown</th>
-            <th class="desc">Sets the player's cooldown between picking up experience orbs.</th>
+            <th class="desc">Sets the player's cooldown between picking up experience orbs</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
@@ -4871,14 +4929,74 @@
             <td>entity.setGrowingAge(entity, age_int)</td>
         </tr>
     </table>
-    <table>
+	<table>
         <tr>
-            <th class="command">entity.getPotionType</th>
-            <th class="desc">returns the itemstack of a thrown potion</th>
+            <th class="command">entity.setAgeLock</th>
+            <th class="desc">locks the age of the entity</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>entity.getPotionType(potion_entity)</td>
+            <td>entity.setAgeLock(entity, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">entity.setBreed</th>
+            <th class="desc">set the breedability of the entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.setBreed(entity, boolean)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">entity.setBreed</th>
+            <th class="desc">set the breedability of the entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.setBreed(entity, boolean)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity.isBreedable</th>
+            <th class="desc">returns true if the entity is breedable</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.isBreedable(entity)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity.isAdult</th>
+            <th class="desc">returns true if the entity is an adult</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.isAdult(entity)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity.setAdult</th>
+            <th class="desc">set the entity to an adult</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.setAdult(entity)</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th class="command">entity.setBaby</th>
+            <th class="desc">set the entity to a baby</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>entity.setBaby(entity)</td>
         </tr>
     </table>
     <table>
@@ -5245,6 +5363,106 @@
         <tr>
             <td class="bold">Format</td>
             <td>living.getEffectAmplifier(entity, <a href="https://papermc.io/javadocs/paper/1.21.4/org/bukkit/potion/PotionEffectType.html" target="_blank">effect</a>)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.setLeashHolder</th>
+            <th class="desc">sets holder of leashed living_entity returns bool based on success (or throws error)</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.setLeashHolder(living_entity, entity/fence_location)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.unleash</th>
+            <th class="desc">unleashes living_entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.unleash(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.getLeashHolder</th>
+            <th class="desc">returns the holder of leashed living_entity as entity, or the location of the fence, otherwise null</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.getLeashHolder(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.isLeashed</th>
+            <th class="desc">returns bool, true if a living-entity is leashed</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.isLeashed(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.isGliding</th>
+            <th class="desc">returns bool, true if a living-entity is gliding</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.isGliding(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.isSwimming</th>
+            <th class="desc">returns bool, true if a living-entity is swimming</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.isSwimming(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.isGlowing</th>
+            <th class="desc">returns bool, true if a living-entity is glowing</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.isGlowing(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.isSleeping</th>
+            <th class="desc">dreturns bool, true if a living-entity is sleeping</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.isSleeping(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.swingMainHand</th>
+            <th class="desc">swings the mainhand of a living-entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.swingMainHand(living_entity)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">living.swingOffHand</th>
+            <th class="desc">swings the offhand of a living-entity</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>living.swingOffHand(living_entity)</td>
         </tr>
     </table>
 </section>
