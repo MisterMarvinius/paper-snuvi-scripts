@@ -1,0 +1,23 @@
+function isMaterial(anything) {
+	return string.class(anything) == "Material";
+}
+
+function material.getAir() {
+	return material.get("AIR");
+}
+
+function material.equals(type, type_string) {
+	return type == material.get(type_string);
+}
+
+function drops.containsMaterial(drops_list, material) {
+	for(i = 0; i < list.getSize(drops_list); i++) {
+		item_entity = list.getIndex(drops_list, i);
+		item = item.entity.get(item_entity);
+		item_type = item.getType(item);
+		if(item_type == material) {
+			return true;
+		}
+	}
+	return false;
+}

@@ -1,0 +1,13 @@
+function modTimer.scriptCallEvent(event, script) {
+	modTimer(-20);
+	if(script == null) {
+		script.callEvent(event);
+		return;
+	}
+	script.callEvent(event, script);
+}
+
+function modTimer.entityTeleport(entity, location) {
+	modTimer(-15);
+	entity.teleport(entity, location);
+}

@@ -1,8 +1,12 @@
+import "utils/msg";
+import "utils/odyssey";
+import "utils/generic";
+
 event.load("player_join");
 event.load("snuvi_click");
 event.load("entity_damage");
 
-prefix_challenge = "§aChallenge";
+prefix_challenge = "§aOdyssey";
 challenge_short = "adtype";
 challenge_name = "All Damage Types";
 reward = 8192;
@@ -12,8 +16,8 @@ lore_list = list.new();
 list.add(lore_list, text.new("Receive all types of damage in the given order."));
 list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(4096), " + 1 Amber")));
 list.add(lore_list, text.new(""));
-list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
-list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart odyssey"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel odyssey"));
 challenge_item = item.create("CACTUS", 1, "§cAll Damage Types", lore_list);
 
 next_damage_types = map.new(); //player_id -> material
@@ -82,7 +86,7 @@ title_string = string.text(inv_title);
 if(item == challenge_item) {
 	if(click == "LEFT") {
 		if(challenge.playerHas(player, challenge_short)) {
-			msg.prefix(player, prefix_challenge, "You already started this challenge.");
+			msg.prefix(player, prefix_challenge, "You already started this odyssey.");
 			goto("wait");
 		}
 		player_id = player.getId(player);
@@ -92,18 +96,18 @@ if(item == challenge_item) {
 		type = getRandomDamageType(player);
 		stage = setNextDamageType(player, type);
 		challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
-		msg.prefix(player, prefix_challenge, "Challenge started.");
+		msg.prefix(player, prefix_challenge, "Odyssey started.");
 		goto("wait");
 	}
 	if(click == "RIGHT") {
 		if(!challenge.playerHas(player, challenge_short)) {
-			msg.prefix(player, prefix_challenge, "Challenge not active.");
+			msg.prefix(player, prefix_challenge, "Odyssey not active.");
 			goto("wait");
 		}
 		resetDamageTypes(player);
 		challenge.removeDisplay(player, sb_id);
 		player.removeChallenge(player, challenge_short);
-		msg.prefix(player, prefix_challenge, "Challenge canceled.");
+		msg.prefix(player, prefix_challenge, "Odyssey canceled.");
 		goto("wait");
 	}
 	goto("wait");
@@ -130,7 +134,7 @@ if(!isNextDamageType(player, damage_type)) {
 sound.spawnForPlayer(player, sound, category);
 new_type = getRandomDamageType(player);
 if(new_type == null) {
-	msg.prefix(player, prefix_challenge, "All damage types received. Challenge done!");
+	msg.prefix(player, prefix_challenge, "All damage types received. Odyssey done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
 	player.giveItem(player, customitem.getAmber());
@@ -141,7 +145,7 @@ if(new_type == null) {
 	goto("wait");
 }
 saveDoneDamageType(player, entity_type);
-stage = setNextEntity(player, new_type);
+stage = setNextDamageType(player, new_type);
 msg.prefix(player, prefix_challenge, string.concat("Entity killed. Next entity: ", new_type));
 challenge.display(player, sb_id, challenge_name, new_type, stage, all_stages);
 goto("wait");

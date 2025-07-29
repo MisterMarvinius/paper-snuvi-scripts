@@ -1,0 +1,57 @@
+import "utils/material";
+
+function isBlock(anything) {
+	return string.class(anything) == "CraftBlock";
+}
+
+function block.setIfAir(block, type) {
+	if(block.isAir(block)) {
+		block.setMaterial(block, material.get(type));
+		return true;
+	}
+	return false;
+}
+
+function block.isChest(block) {
+	return block.isType(block, "minecraft:chest");
+}
+
+function block.isWallSign(block) {
+	if(block == null) {
+		return false;
+	}
+	return block.hasTag(block, block.getTag("minecraft:wall_signs"));
+}
+
+function sign.getString(block, side, row) {
+	return string.text(block.getSign(block, side, row));
+}
+
+function sign.setString(block, side, row, string) {
+	block.setSign(block, side, row, text.new(string));
+}
+
+function block.isType(block, type_string) {
+	return block.getType(block) == material.get(type_string);
+}
+
+function block.isAir(block) {
+	type = block.getType(block);
+	return type == material.getAir() || type == material.get("CAVE_AIR");
+}
+
+function block.mod(block, x, y, z) {
+	return block.get(loc.mod(block.getLocation(block), x, y, z));
+}
+
+function block.gotWater(block) {
+	if(block.canHaveWater(block)) {
+		return block.isWaterlogged(block);
+	}
+	return false;
+}
+
+function block.clearInventory(block) {
+	inv = block.getInventory(block);
+	inv.clear(inv);
+}

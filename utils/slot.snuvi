@@ -1,0 +1,47 @@
+function slot.getHand() {
+	return read.slot("HAND");
+}
+
+function slot.getOffHand() {
+	return read.slot("OFF_HAND");
+}
+
+function slot.getHead() {
+	return read.slot("HEAD");
+}
+
+function slot.getChest() {
+	return read.slot("CHEST");
+}
+
+function slot.getLegs() {
+	return read.slot("LEGS");
+}
+
+function slot.getFeet() {
+	return read.slot("FEET");
+}
+
+function slot.isHand(slot) {
+	return slot == slot.getHand();
+}
+
+function slot.isOffHand(slot) {
+	return slot == slot.getOffHand();
+}
+
+function slot.isHead(slot) {
+	return slot == slot.getHead();
+}
+
+function slot.isChest(slot) {
+	return slot == slot.getChest();
+}
+
+function slot.isLegs(slot) {
+	return slot == slot.getLegs();
+}
+
+function slot.isFeet(slot) {
+	return slot == slot.getFeet();
+}

@@ -1,0 +1,157 @@
+import "utils/minigame";
+
+@simplelobby
+ignoreGoto("checklobby");
+wait();
+if(event == "entity_damage") {
+	if(!isPlayer(entity)) {
+		goto("simplelobby");
+	}
+	player = entity;
+	if(!player.hasMinigameId(player, script_id)) {
+		goto("simplelobby");
+	}
+	cancel = true;
+	if(minigame.hasSpecificLobbyHandling()) {
+		gosub("specificLobbyHandling");
+	}
+	goto("simplelobby");
+}
+if(event == "entity_mount") {
+	if(!isPlayer(entity)) {
+		goto("simplelobby");
+	}
+	player = entity;
+}
+if(event == "custom_command") {
+	if(!isPlayer(sender)) {
+		goto("simplelobby");
+	}
+	player = sender;
+}
+if(!player.hasMinigameId(player, script_id)) {
+	goto("simplelobby");
+}
+if(minigame.hasSpecificLobbyHandling()) {
+	gosub("specificLobbyHandling");
+}
+if(event == "minigame_join") {
+	gosub("lobbycore");
+}
+elseif(event == "block_break" || event == "block_place") {
+	cancel = true;
+}
+elseif(event == "player_quit" || event == "player_giveup") {
+	gosub("leavelobbycore");
+}
+elseif(event == "custom_command") {
+	if(command == "startgame") {
+		if(minigame.hasManualStart()) {
+			if(minigame.isStarting()) {
+				msg.prefix(player, gamename, "Already started.");
+				goto("simplelobby");
+			}
+			goto("startcountdown");
+		}
+		//jumpstart
+		if(!perm.has("startgame.jump", player)) {
+			perm.no("startgame.jump", player);
+			goto("simplelobby");
+		}
+		if(minigame.isStarting()) {
+			if(noticetime > 5) {
+				noticetime = 5;
+				minigame.speakAll(gamename, "Left time reduced to §b5 §rseconds.");
+				goto("simplelobby");
+			}
+			msg.prefix(player, gamename, "Left time can't be reduced.");
+			goto("simplelobby");
+		}
+		msg.prefix(player, gamename, "Game is not starting.");
+	}
+}
+goto("simplelobby");
+
+@startcountdown
+if(!minigame.canStart()) {
+	minigame.waiting();
+	goto("simplelobby");
+}
+minigame.setStarting(true);
+if(noticetime == 5) {
+	minigame.titleAll(gamename, mapname, 20, 60, 20);
+}
+if(noticetime == 1) {
+	minigame.speakAll(gamename, string.concat("The game starts in §b", string.number(noticetime), " §rsecond."));
+} else {
+	minigame.speakAll(gamename, string.concat("The game starts in §b", string.number(noticetime), " §rseconds."));
+}
+if(noticetime == 0) {
+	sign.started(gamesignloc);
+	goto("finalstart");
+}
+
+if(noticetime > 30) {
+	s_time = 200; //10s
+} elseif(noticetime > 5) {
+	s_time = 100; //5s
+} else {
+	s_time = 20; //1s
+}
+noticetime -= s_time / 20;
+sgoto(s_time, "startcountdown");
+player_list = minigame.getPlayers(script_id);
+p_amount = list.getSize(player_list);
+for(i = 0; i < p_amount; i++) {
+	p = player.get(list.getIndex(player_list, i));
+	sound.spawnForPlayer(p, join_sound, sound_category_ambient);
+}
+goto("simplelobby");
+
+@lobbycore
+minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r joined the game."));
+if(!minigame.hasNoLobbyTeleport()) {
+	modTimer.entityTeleport(player, lobbyspawnloc);
+}
+if(minigame.doPlayerResetInCore()) {
+	resetplayer(player);
+}
+title.send(player, text.new(gamename), text.new(mapname));
+if(minigame.hasManualStart()) {
+	return;
+}
+if(!minigame.isStarting()) {
+	if(minigame.canStart()) {
+		goto("startcountdown");
+	}
+	minigame.waiting();
+}
+return;
+
+@leavelobbycore
+minigame.speakAll(gamename, string.concat("§8", player.getNickName(player), "§r left the game."));
+script = script.getFromId(script_id);
+if(player.isPartyLeader(player)) {
+	leader_uuid = player.getUuid(player);
+	player_list = minigame.getPlayers(script_id);
+	list = party.getList(player.getPartyId(player));
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p_uuid = next(iter);
+		p = player.get(p_uuid);
+		if(list.contains(player_list, p_uuid)) {
+			minigame.kickPlayer(script, p);
+		}
+	}
+} else {
+	minigame.kickPlayer(script, player);
+}
+p_amount = minigame.getPlayerAmount(script_id);
+if(p_amount == 0) {
+	minigame.term(script, gamesignloc);
+}
+if(!minigame.canStart()) {
+	minigame.waiting();
+	goto("simplelobby");
+}
+return;

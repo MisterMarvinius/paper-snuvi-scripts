@@ -1,3 +1,6 @@
+import "utils/minigame";
+import "utils/ranking";
+
 //rankingtable = "colorbattleranks";
 game_short = "cb";
 game_tab = "§bCB";

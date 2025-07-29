@@ -1,0 +1,183 @@
+import "utils/rank";
+import "utils/player";
+import "utils/text";
+import "utils/world";
+
+function msg.dev(string) {
+	msg.string("dev", string.concat("[§eDebug§r] ", string));
+}
+
+function getMessage(text_or_string) {
+	if(isString(text_or_string)) {
+		message = getMessageFromString(text_or_string);
+	} else {
+		message = text_or_string;
+	}
+	return message;
+}
+
+function getMessageFromString(string) {
+	string = string.replace(string, "&", "§");
+	message = string.getTextWithLink(string);
+	return message;
+}
+
+function msg.action(receiver, text_or_string) {
+	player.action(receiver, getMessage(text_or_string));
+}
+
+function msg.string(receiver, string) {
+	msg(receiver, text.new(string));
+}
+
+function msg.prefix(receiver, prefix, text_or_string) {
+	msg(receiver, text.merge(text.new(string.concat(string.getPrefix(prefix), " ")), getMessage(text_or_string)));
+}
+
+function msg.online(prefix, text_or_string) {
+	msg.prefix("online", prefix, text_or_string);
+}
+
+function msg.quest(player, speaker, line_now, line_max, string) {
+	msg.string(player, string.concat("[§b", string.number(line_now), "§r/§b", string.number(line_max), "§r] §a", speaker, " §r| ", string.concat("§e", string)));
+}
+
+function msg.chat(player, text_or_string) {
+	nickname = player.getNickName(player);
+	rank = getRank(player);
+	colorcode = string.subString(rank, 0, 2);
+	if(player.isLive(player)) {
+		live_tag = "§dLive §f| ";
+	} else {
+		live_tag = "";
+	}
+	online_list = players.toList();
+	iter = iterator(online_list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		if(player.hasMinigame(p) && player.isMuted(p)) {
+			continue;
+		}
+		msg(p, text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), getMessage(text_or_string)));
+	}
+	msg("SERVER", text.merge(text.new("<"), text.new(live_tag), string.getHoverText(string.concat(colorcode, nickname), rank), text.new("§r> §r"), getMessage(text_or_string)));
+}
+
+function msg.send(from_player, to_name, prefix, string_message, send_mail) {
+	p = read.player(to_name);
+	if(p == null) {
+		if(send_mail) {
+			mail.send(player.getName(from_player), to_name, string_message);
+		}
+	} else {
+		msg.prefix(p, prefix, string_message);
+	}
+}
+
+function msg.team(from, text_or_string) {
+	if(isString(from)) {
+		from_name = from;
+	} else {
+		from_name = player.getName(from);
+	}
+	pre_text = text.new(string.concat("§c", from_name, "§r: "));
+	message = getMessage(text_or_string);
+	online_list = players.toList();
+	iter = iterator(online_list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		if(perm.has("isTeam", p)) {
+			if(player.isLive(p)) {
+				msg.prefix(p, "§4Team", text.merge(pre_text, text.hover(text.new("§7§oHidden"), message)));
+			} else {
+				msg.prefix(p, "§4Team", text.merge(pre_text, message));
+			}
+		}
+	}
+	msg.prefix("SERVER", "§4Team", text.merge(pre_text, message));
+}
+
+function msg.radius(prefix, text_or_string, location, radius) {
+	list = players.near(location, radius);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		msg.prefix(next(iter), prefix, text_or_string);
+	}
+}
+
+function msg.world(world, text_or_string) {
+	if(world == null) {
+		return;
+	}
+	world_list = world.getPlayers(world);
+	iter = iterator(world_list);
+	while(hasNext(iter)) {
+		msg(next(iter), getMessage(text_or_string));
+	}
+}
+
+function msg.survival(text_or_string) {
+	msg.world(world.getOverWorld(), text_or_string);
+	msg.world(world.getTheEnd(), text_or_string);
+	msg.world(world.getTheNether(), text_or_string);
+}
+
+function msg.creative(text_or_string) {
+	msg.world(world.getCreative(), text_or_string);
+}
+
+function msg.games(text_or_string) {
+	msg.world(world.getGames(), text_or_string);
+}
+
+function mail.send(from_name, to_name, string_message) {
+	server_config = getServerConfig();
+	mail_id = config.getDouble(server_config, "mail_id", 0) + 1;
+	config.set(server_config, "mail_id", mail_id);
+	config.saveAsync(server_config);
+	
+	from_id = player.getId(player.getUuid(from_name));
+	to_id = player.getId(player.getUuid(to_name));
+	
+	stmt = databank.prepare("INSERT INTO mails (mail_id, from_id, to_id, readed, time, message) VALUES (?, ?, ?, ?, ?, ?);");
+	databank.setInt(stmt, 1, mail_id);
+	databank.setInt(stmt, 2, from_id);
+	databank.setInt(stmt, 3, to_id);
+	databank.setBool(stmt, 4, false);
+	databank.setLong(stmt, 5, time.getMillis());
+	databank.setString(stmt, 6, string_message);
+	databank.workerExecute(stmt);
+	
+	//Wenn Spieler online, dann Pushmeldung veranlassen
+	p = read.player(to_name);
+	if(p != null) {
+	msg(p, text.merge(text.new(string.concat(string.getPrefix("§bMail"), " §rYou´ve got a new mail from §b", from_name, ". ")), string.getClickText("[§cClick§r]", "/mail new")));
+	}
+}
+
+function mail.checkForNew(player) {
+	stmt = databank.prepare("SELECT mail_id, from_id, time, message FROM mails WHERE to_id = ? AND readed = false;");
+	to_id = player.getId(player);
+	databank.setInt(stmt, 1, to_id);
+	result = databank.execute(stmt);
+	nextrow = databank.next(result);
+	if(!nextrow) {
+		databank.close(result);
+		databank.close(stmt);
+		return;
+	}
+	newmails = 0;
+	while(nextrow) {
+		newmails++;
+		nextrow = databank.next(result);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	if(newmails > 0) {
+		if(newmails > 1) {
+			msg(player, text.merge(text.new(string.concat(string.getPrefix("§bMail"), " §rYou´ve got §b", string.number(newmails), "§r new mails. ")), string.getClickText("[§cClick§r]", "/mail new")));;
+		} else {
+			msg(player, text.merge(text.new(string.concat(string.getPrefix("§bMail"), " §rYou´ve got §b1 §rnew mail. ")), string.getClickText("[§cClick§r]", "/mail new")));;
+		}
+	}
+}

@@ -1,0 +1,25 @@
+import "utils/config";
+import "utils/slot";
+
+function living.setAi(bool) {
+	config = getServerConfig();
+	config.set(config, "spawnWithAi", bool);
+	config.saveAsync(config);
+}
+
+function living.getAi() {
+	config = getServerConfig();
+	return config.getBool(config, "spawnWithAi", true);
+}
+
+function living.setHand(living, item) {
+	living.setEquip(living, slot.getHand(), item);
+}
+
+function living.getHand(living) {
+	return living.getEquip(living, slot.getHand());
+}
+
+function living.getOffHand(living) {
+	return living.getEquip(living, slot.getOffHand());
+}

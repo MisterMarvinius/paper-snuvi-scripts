@@ -1,0 +1,25 @@
+import "utils/block";
+import "utils/player";
+
+function shop.getOwner(sign_block) {
+	owner_id = read.number(sign.getString(sign_block, "FRONT", 3));
+	if(owner_id == null) {
+		return null;
+	}
+	return owner_id;
+}
+
+function shop.isOwner(player, sign_block) {
+	if(player.hasBypass(player)) {
+		return true;
+	}
+	owner_id = shop.getOwner(sign_block);
+	if(owner_id == null) {
+		return false;
+	}
+	owner_name = player.getNameFromId(owner_id);
+	if(owner_name == null) {
+		return false;
+	}
+	return owner_id == player.getId(player);
+}

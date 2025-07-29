@@ -1,0 +1,357 @@
+import "utils/player";
+
+function plot.getFromId(plot_id, world) {
+	iter = plot.iterator(world);
+	while(hasNext(iter)) {
+		plot = next(iter);
+		if(plot.getId(plot) == plot_id) {
+			return plot;
+		}
+	}
+	return null;
+}
+
+function plot.calcCost(world, arg1, arg2) {
+//function plot.calcCost(world, length, width) {
+//function plot.calcCost(world, loc1, loc2) {
+	if(isDouble(arg1)) {
+		length = arg1;
+		width = arg2;
+	} else {
+		x1 = loc.getX(arg1);
+		z1 = loc.getZ(arg1);
+		x2 = loc.getX(arg2);
+		z2 = loc.getZ(arg2);
+		length = math.abs(x1 - x2) + 1;
+		width = math.abs(z1 - z2) + 1;
+	}
+	if(world.getName(world) == "creative") {
+		factor = 1;
+	} else {
+		factor = 3;
+	}
+	return length * width * factor;
+}
+
+function plot.getIdFromLocation(location) {
+	list = plot.get(location);
+	if(list.getSize(list) == 0) {
+		plot_id = null;
+	} else {
+		plot = list.getIndex(list, 0);
+		plot_id = plot.getId(plot);
+	}
+	return plot_id;
+}
+
+function plot.getIdListFromLocation(location) {
+	list = plot.get(location);
+	for(i = 0; i < list.getSize(list); i++) {
+		plot = list.getIndex(list, i);
+		list.setIndex(list, i, plot.getId(plot));
+	}
+	return list;
+}
+
+function plot.getHighestId(location) {
+	list = plot.get(location);
+	iter = iterator(list);
+	highest = -1;
+	while(hasNext(iter)) {
+		plot_id = plot.getId(next(iter));
+		if(plot_id > highest) {
+			highest = plot_id;
+		}
+	}
+	return highest;
+}
+
+function plot.addPlayer(plot, player_name) {
+	list = plot.getOwners(plot);
+	uuid = player.getUuid(player_name);
+	if(!list.contains(list, uuid)) {
+		list.add(list, uuid);
+	}
+}
+
+function plot.removePlayer(plot, player_name) {
+	list = plot.getOwners(plot);
+	uuid = player.getUuid(player_name);
+	list.remove(list, uuid);
+	player_id = player.getId(player.getUuid(player_name));
+	plot.removeRank(plot, player_id);
+}
+
+function plot.getOwnersString(plot) {
+	list = plot.getOwners(plot);
+	if(list.getSize(list) == 0) {
+		return "";
+	}
+	owners_list = list.new();
+	for(i = 0; i < list.getSize(list); i++) {
+		list.add(owners_list, player.getName(list.getIndex(list, i)));
+	}
+	return string.concatList(owners_list, " / ", 0, list.getSize(owners_list) - 1);
+}
+
+function plot.isLeader(plot, player_or_id) {
+	return plot.getRank(plot, player_or_id) == "leader";
+}
+
+function plot.getLeaderName(plot) {
+	plot_leader_id = plot.getLeaderId(plot);
+	if(plot_leader_id == null) {
+		return "";
+	}
+	p_name = player.getNameFromId(plot_leader_id);
+	if(p_name == null) {
+		return "";
+	}
+	return p_name;
+}
+
+function plot.getLeaderId(plot) {
+	map = plot.getRanksMap(plot);
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		rank = map.getValue(element);
+		if(rank == "leader") {
+			p_id = map.getKey(element);
+		}
+	}
+	return p_id;
+}
+
+function plot.setLeader(plot, player_or_id) {
+	plot.setRank(plot, player_or_id, "leader");
+}
+
+function plot.isMod(plot, player_or_id) {
+	return plot.getRank(plot, player_or_id) == "mod";
+}
+
+function plot.getMods(plot) {
+	list = list.new();
+	map = plot.getRanksMap(plot);
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		rank = map.getValue(element);
+		if(rank == "mod") {
+			list.add(list, map.getKey(element));
+		}
+	}
+	return list;
+}
+
+function plot.setMod(plot, player_or_id) {
+	plot.setRank(plot, player_or_id, "mod");
+}
+
+function plot.canOpenChests(plot, player_or_id) {
+	return plot.getRank(plot, player_or_id) == "chest";
+}
+
+function plot.setChest(plot, player_or_id) {
+	plot.setRank(plot, player_or_id, "chest");
+}
+
+function plot.getAllRanks() {
+	return getScriptVar("plot_ranks");
+}
+
+function plot.getRanksMap(plot) {
+	plot_id = plot.getId(plot);
+	plot_ranks_map = plot.getAllRanks();
+	map = map.get(plot_ranks_map, plot_id);
+	if(map == null) {
+		map = map.new();
+	}
+	return map;
+}
+
+function plot.getChestRanks(plot) {
+	list = list.new();
+	map = plot.getRanksMap(plot);
+	iter = iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		rank = map.getValue(element);
+		if(rank == "chest") {
+			list.add(list, map.getKey(element));
+		}
+	}
+	return list;
+}
+
+function plot.getRank(plot, player_or_id) {
+	map = plot.getRanksMap(plot);
+	player_id = player.getValidId(player_or_id);
+	rank = map.get(map, player_id);
+	return rank;
+}
+
+function plot.setRank(plot, player_or_id, rank) {
+	player_id = player.getValidId(player_or_id);
+	plot_id = plot.getId(plot);
+	//Cache
+	plot_ranks_map = plot.getAllRanks();
+	map = plot.getRanksMap(plot);
+	map.add(map, player_id, rank);
+	map.add(plot_ranks_map, plot_id, map);
+	//DB
+	stmt = databank.prepare("INSERT INTO new_plotranks (plot_id, player_id, rank) VALUES (?,?,?) ON DUPLICATE KEY UPDATE rank = ?");
+	databank.setInt(stmt, 1, plot_id);
+	databank.setInt(stmt, 2, player_id);
+	databank.setString(stmt, 3, rank);
+	databank.setString(stmt, 4, rank);
+	databank.workerExecute(stmt);
+}
+
+function plot.removeRank(plot, player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	plot_id = plot.getId(plot);
+	//Cache
+	plot_ranks_map = plot.getAllRanks();
+	map = plot.getRanksMap(plot);
+	map.remove(map, player_id);
+	map.add(plot_ranks_map, plot_id, map);
+	//DB
+	stmt = databank.prepare("DELETE FROM new_plotranks WHERE player_id = ? AND plot_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, plot_id);
+	databank.workerExecute(stmt);
+}
+
+function plot.removeAllPlayers(plot) {
+	list = plot.getOwners(plot);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		plot.removeRank(plot, player.getId(next(iter)));
+	}
+}
+
+function plot.setEdges(plot, location1, location2) {
+	//Alte Daten abrufen
+	plot_name = plot.getName(plot);
+	plot_id = plot.getId(plot);
+	list = plot.getOwners(plot);
+	flags = plot.getFlags(plot);
+	//Neues Plot erstellen und altes Plot löschen
+	plot.remove(plot, loc.getWorld(location1));
+	new_plot = plot.add(location1, location2, plot_id);
+	//Alte Daten auf neuem Plot setzen
+	plot.setName(new_plot, plot_name);
+	new_list = plot.getOwners(new_plot);
+	for(i = 0; i < list.getSize(list); i++) {
+		list.add(new_list, list.getIndex(list, i));
+	}
+	plot.setFlags(new_plot, flags, true);
+	return new_plot;
+}
+
+function plot.getType(plot) {
+	if(plot.isCity(plot)) {
+		type = "§4[§cCity§4]";
+	} elseif(plot.isFree(plot)) {
+		type = "§3[§bFree§3]";
+	} elseif(plot.isSub(plot)) {
+		type = "§6[§eSubPlot§6]";
+	} else {
+		type = "§6[§ePlot§6]";
+	}
+	return type;
+}
+
+function plot.isPlot(plot) {
+	return !plot.isCity(plot) && !plot.isFree(plot) && !plot.isSub(plot);
+}
+
+function plot.hasDisabledSigns(plot) {
+	return plot.hasFlags(plot, bit.leftShift(1, 26));
+}
+
+function plot.isExplosive(plot) {
+	return plot.hasFlags(plot, bit.leftShift(1, 27));
+}
+
+function plot.isCity(plot) {
+	return plot.hasFlags(plot, bit.leftShift(1, 28));
+}
+
+function plot.isFree(plot) {
+	return plot.hasFlags(plot, bit.leftShift(1, 29));
+}
+
+function plot.isSub(plot) {
+	return plot.hasFlags(plot, bit.leftShift(1, 30));
+}
+
+function plot.setDisabledSigns(plot, boolean) {
+	plot.setFlags(plot, bit.leftShift(1, 26), boolean);
+}
+
+function plot.setCity(plot, boolean) {
+	plot.setFlags(plot, bit.leftShift(1, 28), boolean);
+}
+
+function plot.setFree(plot, boolean) {
+	plot.setFlags(plot, bit.leftShift(1, 29), boolean);
+	plot.setFlags(plot, bit.leftShift(1, 30), !boolean); //Sub-Plot entfernen
+}
+
+function plot.setSub(plot, boolean) {
+	plot.setFlags(plot, bit.leftShift(1, 30), boolean);
+	plot.setFlags(plot, bit.leftShift(1, 29), !boolean); //Free-Plot entfernen
+}
+
+function initPlotFlags() {
+	list = list.new();
+	list.add(list, initPlotFlag(bit.leftShift(1, 30), "SUB_PLOT_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 29), "FREE_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 28), "CITY_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 27), "EXPLOSION_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 26), "DISABLE_SIGNS_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 5), "ENTITY_INTERACT_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 4), "BLOCK_INTERACT_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 3), "HIT_AMBIENT_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 2), "BUCKET_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 1), "BREAK_FLAG"));
+	list.add(list, initPlotFlag(bit.leftShift(1, 0), "PLACE_FLAG"));
+	setScriptVar("all_plot_flags", list);
+}
+
+function initPlotFlag(f, f_name) {
+	a = array.new(2);
+	a[0] = f;
+	a[1] = f_name;
+	return a;
+}
+
+function getAllPlotFlags() {
+	return getScriptVar("all_plot_flags");
+}
+
+function getFlagLists(plot) {
+	flags = plot.getFlags(plot);
+	all_flags = getAllPlotFlags();
+	flags_true = list.new();
+	flags_false = list.new();
+	
+	iter = iterator(all_flags);
+	while(hasNext(iter)) {
+		a = next(iter);
+		f = a[0];
+		if(flags >= f) {
+			list.add(flags_true, a);
+			flags -= f;
+		} else {
+			list.add(flags_false, a);
+		}
+	}
+	a = array.new(2);
+	a[0] = flags_true;
+	a[1] = flags_false;
+	return a;
+}

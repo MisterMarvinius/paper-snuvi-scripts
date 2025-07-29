@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 pumpkin_mat = material.get("pumpkin");
 shears_mat = material.get("shears");
 vine_mat = material.get("vine");
@@ -33,8 +37,8 @@ goto("simplelobby");
 @specificLobbyHandling
 if(event == "minigame_join") {
 	if(init_signs == null) {
-		sign.setString(sign_min_block, 2, string.number(min));
-		sign.setString(sign_amount_block, 2, string.number(amount_nextitems));
+		sign.setString(sign_min_block, "FRONT", 2, string.number(min));
+		sign.setString(sign_amount_block, "FRONT", 2, string.number(amount_nextitems));
 		init_signs = true;
 	}
 	return;
@@ -51,28 +55,28 @@ if(event == "block_click") {
 		if(min < max_mins) {
 			min++;
 		}
-		sign.setString(sign_min_block, 2, string.number(min));
+		sign.setString(sign_min_block, "FRONT", 2, string.number(min));
 		return;
 	}
 	if(block_loc == minus_min_loc) {
 		if(min > 1) {
 			min--;
 		}
-		sign.setString(sign_min_block, 2, string.number(min));
+		sign.setString(sign_min_block, "FRONT", 2, string.number(min));
 		return;
 	}
 	if(block_loc == plus_amount_loc) {
 		if(amount_nextitems < max_nextitems) {
 			amount_nextitems++;
 		}
-		sign.setString(sign_amount_block, 2, string.number(amount_nextitems));
+		sign.setString(sign_amount_block, "FRONT", 2, string.number(amount_nextitems));
 		return;
 	}
 	if(block_loc == minus_amount_loc) {
 		if(amount_nextitems > 1) {
 			amount_nextitems--;
 		}
-		sign.setString(sign_amount_block, 2, string.number(amount_nextitems));
+		sign.setString(sign_amount_block, "FRONT", 2, string.number(amount_nextitems));
 		return;
 	}
 }

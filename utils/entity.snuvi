@@ -1,0 +1,6 @@
+function entity.isArmorstand(entity) {
+	if(entity == null) {
+		return false;
+	}
+	return entity.getType(entity) == "armor_stand";
+}

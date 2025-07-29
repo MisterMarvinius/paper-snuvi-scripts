@@ -1,3 +1,9 @@
+import "utils/item";
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+import "utils/time";
+
 rankingtable = "tjrranks";
 game_short = "tjr";
 maxplayers = 1;
@@ -41,7 +47,7 @@ ench = enchantment.get("infinity");
 enchantment.add(ench, bow, 1);
 
 custom_refresh_red = customitem.getRedRefresh();
-custom_return_red = customitem.getreenRefresh();
+custom_return_red = customitem.getGreenRefresh();
 custom_gear = customitem.getGear();
 paper_mat = material.get("PAPER");
 

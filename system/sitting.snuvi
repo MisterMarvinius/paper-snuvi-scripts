@@ -1,3 +1,5 @@
+import "utils/msg";
+
 event.load("entity_dismount");
 event.load("block_click");
 event.load("server_pre_stop");

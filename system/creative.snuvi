@@ -1,3 +1,6 @@
+import "utils/loc";
+import "utils/msg";
+
 event.load("player_pre_respawn");
 event.load("player_post_respawn");
 

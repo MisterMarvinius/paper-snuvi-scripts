@@ -1,0 +1,2 @@
+// Dummy to trick the prescript function scanner
+function minigame.canStartIndiv() {}

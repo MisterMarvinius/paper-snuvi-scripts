@@ -1,3 +1,8 @@
+import "utils/minigame2";
+import "utils/msg";
+import "utils/skill";
+import "utils/world";
+
 event.load("block_break");
 
 tag_log_burn = block.getTag("minecraft:logs_that_burn");

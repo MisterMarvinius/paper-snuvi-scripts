@@ -1,0 +1,193 @@
+import "utils/icon";
+import "utils/msg";
+import "utils/player";
+import "utils/playerdata";
+
+function hasEnoughMoney(player_or_id, price) {
+	return money.get(player_or_id) >= price;
+}
+
+function money.get(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "money", 0);
+}
+
+function money.set(player_or_id, money) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "money", money);
+	config.saveAsync(config);
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	money.display(player, money);
+}
+
+function money.getBoostFactor() {
+	return getScriptVar("money_factor");
+}
+
+function money.setBoostFactor(factor) {
+	setScriptVar("money_factor", factor);
+}
+
+function money.addBoost(player_or_id, money) {
+	money *= money.getBoostFactor();
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	if(money.getBoostFactor() > 1) {
+		money.popUp(player, money, true);
+	}
+	money.add(player, money);
+}
+
+
+function money.add(player_or_id, money) {
+	if(money == 0) {
+		return;
+	}
+	config = playerdata.getSurvival(player_or_id);
+	new_money = config.getDouble(config, "money", 0) + money;
+	config.set(config, "money", new_money);
+	config.saveAsync(config);
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	money.display(player, new_money);
+	money.popUp(player, money, false);
+}
+
+function money.sub(player_or_id, money) {
+	if(money == 0) {
+		return;
+	}
+	config = playerdata.getSurvival(player_or_id);
+	new_money = config.getDouble(config, "money", 0) - money;
+	config.set(config, "money", new_money);
+	config.saveAsync(config);
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	money.display(player, new_money);
+	money.popUp(player, money * -1, false);
+}
+
+function money.subWithoutPopUp(player_or_id, money) {
+	if(money == 0) {
+		return;
+	}
+	config = playerdata.getSurvival(player_or_id);
+	new_money = config.getDouble(config, "money", 0) - money;
+	config.set(config, "money", new_money);
+	config.saveAsync(config);
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	money.display(player, new_money);
+}
+
+function money.popUp(player, money, boosted) {
+	if($boost_blocker == null) {
+		$boost_blocker = false;
+	}
+	if($boost_blocker) {
+		$boost_blocker = false;
+		return;
+	}
+	if(money == 0) {
+		return;
+	}
+	if(money > 0) {
+		pre = "+";
+	}
+	if(money < 0) {
+		pre = "-";
+		money *= -1;
+	}
+	if(boosted) {
+		$boost_blocker = true;
+		post = " §6§k#§rBoosted§6§k#";
+	} else {
+		post = "";
+	}
+	//player.action(player, string.concat(pre, "§6", string.number(money), " §rsnuvi", post));
+	player.action(player, text.new(string.concat(pre, " ", money.getString(money), " ", post)));
+}
+
+function money.display(player, money)  {
+	a = money.split(money);
+	gold = string.number(a[0]);
+	silver = string.number(a[1]);
+	copper = string.number(a[2]);
+	sb.add(player, 1, string.concat(icon.getGoldCoin(), gold, " ", icon.getSilverCoin(), silver, " ", icon.getCopperCoin(), copper));
+}
+
+function money.getString(money) {
+	return money.getStringColor(money, "§f");
+}
+
+function money.getStringColor(money, color) {
+	a = money.split(money);
+	gold = a[0];
+	silver = a[1];
+	copper = a[2];
+	if(gold == 0) {
+		gold_string = "";
+	} else {
+		gold_string = string.concat(icon.getGoldCoin(), color, string.number(gold));;
+	}
+	if(silver == 0) {
+		silver_string = "";
+	} else {
+		silver_string = string.concat(icon.getSilverCoin(), color, string.number(silver));;
+	}
+	if(copper == 0) {
+		copper_string = "";
+	} else {
+		copper_string = string.concat(icon.getCopperCoin(), color, string.number(copper));;
+	}
+	if(gold == 0 && silver == 0 && copper == 0) {
+		copper_string = string.concat(icon.getCopperCoin(), color, string.number(0));;
+	}
+	return string.concat(gold_string, silver_string, copper_string);
+}
+
+function money.split(money) {
+	array = array.new(3);
+	gold = math.roundDown(money / 4096);
+	pre_silver = money % 4096;;
+	silver = math.roundDown(pre_silver / 64);
+	bronze = pre_silver % 64;
+	array[0] = gold;
+	array[1] = silver;
+	array[2] = bronze;
+	return array;
+}
+
+function money.splitCap(money) {
+	//cap liegt bei 266304 (64 gold + 64 silver + 64 bronze)
+	if(money > 266304) {
+		msg.dev("error on money.splitCap");
+		return null;
+	}
+	gold = math.roundDown(money / 4096);
+	if(gold > 64) {
+		gold = 64;
+	}
+	money -= gold * 4096;
+	silver = math.roundDown(money / 64);
+	if(silver > 64) {
+		silver = 64;
+	}
+	money -= silver * 64;
+	array = array.new(3);
+	array[0] = gold;
+	array[1] = silver;
+	array[2] = money;
+	return array;
+}

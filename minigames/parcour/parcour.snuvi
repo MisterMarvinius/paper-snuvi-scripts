@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 gamename = "§6Parcour";
 maxplayers = 1;
 sign.started(gamesignloc);

@@ -1,0 +1,198 @@
+import "utils/player";
+
+function perm.addGroupToPlayer(player_id, perm_id) {
+	stmt = databank.prepare("INSERT INTO new_playerperms (player_id, perm_id) VALUES (?,?);");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, perm_id);
+	databank.workerExecute(stmt);
+	
+	list = player.getPerms(player_id);
+	list.add(list, perm_id);
+
+	perm.initPlayer(player_id);
+}
+
+function perm.removeGroupFromPlayer(player_id, perm_id) {
+	stmt = databank.prepare("DELETE FROM new_playerperms WHERE player_id = ? AND perm_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, perm_id);
+	databank.workerExecute(stmt);
+	
+	list = player.getPerms(player_id);
+	list.remove(list, perm_id);
+	
+	player_uuid = player.getUuidFromId(player_id);
+	player = player.get(player_uuid);
+	if(player != null) {
+		perm.unloadGroupFromPlayer(perm_id, player);
+	}
+}
+
+function perm.simUser(player) {
+	perm.clear(player);
+	perm.loadGroupToPlayer(0, player);
+	perm.loadGroupToPlayer(14, player);
+	perm.update(player);
+}
+
+function player.removeAllPerms(player_id) {
+	stmt = databank.prepare("DELETE FROM new_playerperms WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	databank.workerExecute(stmt);
+	perm.initPlayer(player_id);
+}
+
+function perm.getAll() {
+	return getScriptVar("player_perms");
+}
+
+function player.getPerms(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	map = perm.getAll();
+	list = map.get(map, player_id);
+	if(list == null) {
+		list = list.new();
+		map.add(map, player_id, list);
+	}
+	return map.getOrDefault(perm.getAll(), player_id, list.new());
+}
+
+function player.getPermsFromDatabank(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	permslist = list.new();
+	stmt = databank.prepare("SELECT perm_id FROM new_playerperms WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		list.add(permslist, databank.getInt(result, 1));
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return permslist;
+}
+
+function perm.setGroups(permgroups) {
+	setScriptVar("permgroups", permgroups);
+}
+
+function perm.getGroups() {
+	return getScriptVar("permgroups");
+}
+
+function perm.getNameFromId(permgroup_id) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(i == permgroup_id) {
+			return a[i, 0];
+		}
+	}
+	return null;
+}
+
+function perm.getRankFromId(permgroup_id) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(i == permgroup_id) {
+			return a[i, 1];
+		}
+	}
+	return null;
+}
+
+function perm.getIdFromGroupname(permgroup_name) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(a[i, 0] == permgroup_name) {
+			return i;
+		}
+	}
+	return null;
+}
+
+function perm.getRankFromGroupname(permgroup_name) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(a[i, 0] == permgroup_name) {
+			return a[i, 1];
+		}
+	}
+	return null;
+}
+
+function perm.isGroupName(permgroup_name) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(a[i, 0] == permgroup_name) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function player.hasPermGroup(player_id, perm_id) {
+	permslist = player.getPerms(player_id);
+	return list.contains(permslist, perm_id);
+}
+
+function perm.loadGroupToPlayer(group_id, player) {
+	list = perm.getGroupList(group_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		perm = next(iter);
+		perm.add(perm, player);
+	}
+}
+
+function perm.unloadGroupFromPlayer(group_id, player) {
+	list = perm.getGroupList(group_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		perm = next(iter);
+		perm.remove(perm, player);
+	}
+}
+
+function perm.getGroupList(group_id) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(i == group_id) {
+			return a[i, 2];
+		}
+	}
+	return null;
+}
+
+function perm.isAwardable(group_id) {
+	a = perm.getGroups();
+	for(i = 0; i < array.getSize(a); i++) {
+		if(i == group_id) {
+			return a[i, 3];
+		}
+	}
+	return null;
+}
+
+function perm.initPlayer(player_or_id) {
+    modTimer(-100);
+	player = player.getValid(player_or_id);
+	if(player == null) {
+		return;
+	}
+	perm.clear(player);
+	perm.loadGroupToPlayer(0, player);
+	permslist = player.getPerms(player);
+	iter = iterator(permslist);
+	while(hasNext(iter)) {
+		perm.loadGroupToPlayer(next(iter), player);
+	}
+	perm.update(player);
+	command.sendHelpWorkaround();
+}
+
+function command.sendHelpWorkaround() {
+	command.unregister("cmdsendworkaround");
+}
+
+function perm.no(perm, player) {
+	msg.prefix(player, "§6Perms", string.concat("You have no permission for §c", perm, "§r."));
+}

@@ -1,2 +1,2 @@
-script.start("startscript");
+script.startLocal("startscript");
 term();

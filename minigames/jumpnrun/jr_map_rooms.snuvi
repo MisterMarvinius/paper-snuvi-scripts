@@ -1,3 +1,8 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+import "utils/time";
+
 rankingtable = "jr_room_ranks";
 gamesignloc = minigame.getSignLoc("jr_sign_room");
 gamesworld = world.getGames();

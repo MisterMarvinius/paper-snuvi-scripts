@@ -8,6 +8,9 @@
 	Friendly Fire is canceled.
 */
 
+import "utils/minigame";
+import "utils/ranking";
+
 rankingtable = "ctfranks";
 gamename = "§3CTF";
 game_short = "ctf";

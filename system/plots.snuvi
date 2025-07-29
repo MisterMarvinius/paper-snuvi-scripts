@@ -1,3 +1,6 @@
+import "utils/msg";
+import "utils/plot";
+
 event.load("block_click");
 event.load("explosion");
 

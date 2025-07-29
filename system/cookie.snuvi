@@ -1,0 +1,31 @@
+import "utils/msg";
+
+event.load("player_join");
+
+cookie_time = 0;
+cookie = item.new(material.get("minecraft:cookie"));
+
+msg.string("dev", "§bCookie §rloaded");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+giveCookie(player);
+goto("wait");
+
+function giveCookie(player) {
+	if(players.getAmount() != 1) {
+		return;
+	}
+	if(!player.isSurvival(player)) {
+		return;
+	}
+	now_time = time.getMillis();
+	if(now_time - $cookie_time > 300000) { // 5 minutes
+		$cookie_time = now_time;
+		msg.string(player, "§dNobody was online. But now you are here. You make us smile :) So here is a cookie for you :D");
+		player.safeGiveItem(player, $cookie);
+	}
+}

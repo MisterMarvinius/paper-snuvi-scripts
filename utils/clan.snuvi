@@ -1,0 +1,302 @@
+import "utils/config";
+import "utils/item";
+import "utils/living";
+import "utils/money";
+import "utils/msg";
+import "utils/party";
+import "utils/perm";
+import "utils/player";
+import "utils/plot";
+
+function clan.getIdList() {
+	file = file.new("scripts/configs/clan_data");
+	if(file.exists(file) && file.isDirectory(file)) {
+		list = file.getList(file);
+	} else {
+		list = list.new();
+	}
+	id_list = list.new();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		element = next(iter);
+		file_name = file.getName(element);
+		file_name = string.replace(file_name, ".0.snuvic", "");
+		list.add(id_list, read.number(file_name));
+	}
+	return id_list;
+}
+
+function clan.loadData() {
+	list = clan.getIdList();
+	iter = iterator(list);
+	map = map.new();
+	while(hasNext(iter)) {
+		clan_id = next(iter);
+		config = config.new("scripts/configs/clan_data", clan_id);
+		if(config.exists(config)) {
+			config.load(config);
+		}
+		map.add(map, clan_id, config);
+	}
+	setScriptVar("clan_data", map);
+}
+
+function clan.getData(clan_id) {
+	if(clan_id == null) {
+		msg.dev("script termed. clan_id was null");
+		term();
+	}
+	map = getScriptVar("clan_data");
+	config = map.get(map, clan_id);
+	if(config == null) {
+		config = config.new("scripts/configs/clan_data", clan_id);
+		if(config.exists(config)) {
+			config.load(config);
+		}
+		map.add(map, clan_id, config);
+	}
+	return config;
+}
+
+function clan.setName(clan_id, name) {
+	config = clan.getData(clan_id);
+	config.set(config, "name", name);
+	config.saveAsync(config);
+}
+
+function clan.getName(clan_id) {
+	config = clan.getData(clan_id);
+	temp = config.getString(config, "name", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function clan.setTag(clan_id, tag) {
+	config = clan.getData(clan_id);
+	config.set(config, "tag", tag);
+	config.saveAsync(config);
+}
+
+function clan.getTag(clan_id) {
+	config = clan.getData(clan_id);
+	temp = config.getString(config, "tag", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function clan.setMoney(clan_id, money) {
+	config = clan.getData(clan_id);
+	config.set(config, "money", money);
+	config.saveAsync(config);
+}
+
+function clan.getMoney(clan_id) {
+	config = clan.getData(clan_id);
+	return config.getDouble(config, "money", 0);
+}
+
+function clan.addMoney(clan_id, money) {
+	config = clan.getData(clan_id);
+	new_money = config.getDouble(config, "money", 0) + money;
+	config.set(config, "money", new_money);
+	config.saveAsync(config);
+}
+
+function clan.subMoney(clan_id, money) {
+	config = clan.getData(clan_id);
+	new_money = config.getDouble(config, "money", 0) - money;
+	config.set(config, "money", new_money);
+	config.saveAsync(config);
+}
+
+function clan.setSpawn(clan_id, location) {
+	config = clan.getData(clan_id);
+	config.set(config, "spawn", string.location(location));
+	config.saveAsync(config);
+}
+
+function clan.getSpawn(clan_id) {
+	config = clan.getData(clan_id);
+	location = config.getString(config, "spawn", "null");
+	if(location == "null") {
+		return null;
+	}
+	return read.location(location);
+}
+
+function clan.getIdFromName(name) {
+	list = clan.getIdList();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		clan_id = next(iter);
+		if(clan.getName(clan_id) == name) {
+			return clan_id;
+		}
+	}
+	return null;
+}
+
+function clan.getIdFromTag(clan_tag) {
+	list = clan.getIdList();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		clan_id = next(iter);
+		if(clan.getTag(clan_id) == clan_tag) {
+			return clan_id;
+		}
+	}
+	return null;
+}
+
+function clan.isExistingTag(clan_tag) {
+	return !(clan.getIdFromTag(clan_tag) == null);
+}
+
+function clan.isExistingName(name) {
+	return !(clan.getIdFromName(name) == null);
+}
+
+function clan.getNextFreeId() {
+	server_config = getServerConfig();
+	id = config.getDouble(server_config, "clan.id.next", 0) + 1;
+	config.set(server_config, "clan.id.next", id);
+	config.saveAsync(server_config);
+	return id;
+}
+
+function clan.create(name, tag) {
+	clan_id = clan.getNextFreeId();
+	config = clan.getData(clan_id);
+	config.set(config, "name", name);
+	config.set(config, "tag", tag);
+	config.set(config, "members", 0);
+	config.save(config);
+	return clan_id;
+}
+
+function clan.getLeader(clan_id) {
+	list = clan.getMembersList(clan_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		player_uuid = next(iter);
+		player_id = player.getId(player_uuid);
+		if(player.isClanLeader(player_id)) {
+			return player_uuid;
+		}
+	}
+	return null;
+}
+
+function clan.getMembersAmount(clan_id) {
+	config = clan.getData(clan_id);
+	return config.getDouble(config, "members", 0);
+}
+
+function clan.setMembersAmount(clan_id, amount) {
+	config = clan.getData(clan_id);
+	config.set(config, "members", amount);
+	config.saveAsync(config);
+}
+
+function clan.addMember(clan_id, player_or_id, role) {
+	//Player
+	player.setClanId(player_or_id, clan_id);
+	player.setClanRole(player_or_id, role);
+	//Clan
+	new_amount = clan.getMembersAmount(clan_id) + 1;
+	if(isPlayer(player_or_id)) {
+		player_uuid = player.getUuid(player_or_id);
+	} else {
+		player_uuid = player.getUuidFromId(player_or_id);
+	}
+	config = clan.getData(clan_id);
+	config.set(config, string.concat("player_", new_amount), string.text(player_uuid));
+	config.set(config, "members", new_amount);
+	config.saveAsync(config);
+}
+
+function clan.removeMember(clan_id, player_or_id) {
+	//Player
+	player.setClanId(player_or_id, -1);
+	player.setClanRole(player_or_id, "null");
+	if(isPlayer(player_or_id)) {
+		player_uuid = player.getUuid(player_or_id);
+	} else {
+		player_uuid = player.getUuidFromId(player_or_id);
+	}
+	//Clan
+	config = clan.getData(clan_id);
+	amount = config.getDouble(config, "members", 0);
+	for(i = 1; i <= amount; i++) {
+		if(config.getString(config, string.concat("player_", i), "null") == string.text(player_uuid)) {
+			break;
+		}
+	}
+	if(i != amount) {
+		config.set(config, string.concat("player_", i), config.getString(config, string.concat("player_", amount), "null"));
+	}
+	config.set(config, string.concat("player_", amount), "null");
+	config.set(config, "members", amount - 1);
+	config.saveAsync(config);
+}
+
+function clan.delete(clan_id) {
+	//Members
+	list = clan.getMembersList(clan_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		player_uuid = next(iter);
+		player_id = player.getId(player_uuid);
+		player.setClanId(player_id, -1);
+		player.setClanRole(player_id, "null");
+	}
+	//Clan
+	config.delete(clan.getData(clan_id));
+	map.remove(getScriptVar("clan_data"), clan_id);
+}
+
+function clan.getMembersList(clan_id) {
+	list = list.new();
+	config = clan.getData(clan_id);
+	amount = config.getDouble(config, "members", 0);
+	for(i = 1; i <= amount; i++) {
+		player_uuid = read.uuid(config.getString(config, string.concat("player_", i), "null"));
+		list.add(list, player_uuid);
+	}
+	return list;
+}
+
+function clan.updateHeadNames(clan_id) {
+	list = clan.getMembersList(clan_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p = player.get(next(iter));
+		if(p != null) {
+			player.setHeadName(p);
+		}
+	}
+}
+
+function clan.msg(clan_id, text_or_string) {
+	list = clan.getMembersList(clan_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p = player.get(next(iter));
+		if(p != null) {
+			msg.prefix(p, "§2Clan", text_or_string);
+		}
+	}
+}
+
+function clan.mail(clan_id, from_name, string_message) {
+	list = clan.getMembersList(clan_id);
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		to_name = player.getName(next(iter));
+		mail.send(from_name, to_name, string_message);
+	}
+}

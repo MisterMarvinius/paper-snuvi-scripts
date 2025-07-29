@@ -1,0 +1,174 @@
+import "utils/player";
+
+function getRank(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getString(config, "rank", "§3User");
+}
+
+function setRank(player_or_id, rank) {
+	rank = string.replace(rank, "&", "§");
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "rank", rank);
+	config.saveAsync(config);
+}
+
+function offerRank(player, tech_name) {
+	rank = rank.getFromTechName(tech_name);
+	msg(player, text.merge(text.new(string.getPrefix("§6Commands")), text.new(" "), text.new("New rank available: "), text.getHoverText(string.getClickText(string.concat("[§", rank, "§r]"), string.concat("/setrank ", player.getName(player), " &", rank)), "Click to set")));
+}
+
+function rank.offerClan(clan_id, tech_name) {
+	leader_uuid = clan.getLeader(clan_id);
+	leader = player.get(leader_uuid);
+	if(leader == null) {
+		mail.send("marvinius", player.getName(leader_uuid), string.concat("New rank available: ", tech_name));
+	} else {
+		offerRank(leader, tech_name);
+	}
+}
+
+function rank.checkCriteria(player, tech_name) {
+	//Playtime
+	if(tech_name == "rank.newcomer") {
+		return player.getTotalPlaytime(player) >= 1200; //20 Stunden
+	}
+	if(tech_name == "rank.frequenter") {
+		return player.getTotalPlaytime(player) >= 6000; //100 Stunden
+	}
+	if(tech_name == "rank.legend") {
+		return player.getTotalPlaytime(player) >= 42000; //700 Stunden
+	}
+	//Odysseys
+	if(tech_name == "rank.gladiator") {
+		return player.getADTChallengeAmounts(player) >= 1;
+	}
+	if(tech_name == "rank.slayer") {
+		return player.getAEChallengeAmounts(player) >= 1;
+	}
+	if(tech_name == "rank.collector") {
+		return player.getAIChallengeAmounts(player) >= 1;
+	}
+	//Adventure
+	/*if(tech_name == "rank.adventurer") {
+		return player.getAdventureAmounts(player) >= 1;
+	}
+	if(tech_name == "rank.explorer") {
+		return player.getAdventureAmounts(player) >= 5;
+	}
+	if(tech_name == "rank.pioneer") {
+		return player.getAdventureAmounts(player) >= 10;
+	}*/
+	//Clans
+	/*if(tech_name == "rank.commander") {
+		if(player.isClanLeader(player)) {
+			clan_id = player.getClanId(player);
+			return clan.getMembersAmount(clan_id) >= 5;
+		}
+		return false;
+	}
+	if(tech_name == "rank.chief") {
+		if(player.isClanLeader(player)) {
+			clan_id = player.getClanId(player);
+			return clan.getMembersAmount(clan_id) >= 10;
+		}
+		return false;
+	}
+	if(tech_name == "rank.lord") {
+		if(player.isClanLeader(player)) {
+			clan_id = player.getClanId(player);
+			return clan.getMembersAmount(clan_id) >= 15;
+		}
+		return false;
+	}*/
+	//Quests
+	if(tech_name == "rank.volunteer") {
+		return quest.getCounter(player) >= 15;
+	}
+	if(tech_name == "rank.friend") {
+		return quest.getCounter(player) >= 50;
+	}
+	if(tech_name == "rank.altruist") {
+		return quest.getCounter(player) >= 500;
+	}
+	//Plots
+	if(tech_name == "rank.settler") {
+		return player.usedHisFreePlot(player);
+	}
+	if(tech_name == "rank.colonizer") {
+		return player.hasBigPlotCreated(player);
+	}
+	if(tech_name == "rank.major") {
+		return player.hasPlotRaised(player);
+	}
+	//Team
+	if(tech_name == "rank.admin") {
+		return perm.has("isAdmin", player);
+	}
+	if(tech_name == "rank.builder") {
+		return perm.has("isBuilder", player);
+	}
+	if(tech_name == "rank.dev") {
+		return perm.has("isDev", player);
+	}
+	if(tech_name == "rank.moderator") {
+		return perm.has("isMod", player);
+	}
+	if(tech_name == "rank.supporter") {
+		return perm.has("isSupporter", player);
+	}
+	//Other
+	if(tech_name == "rank.vip") {
+		return perm.has("isVIP", player);
+	}
+	if(tech_name == "rank.influencer") {
+		return perm.has("isYT", player) || perm.has("isStreamer", player);
+	}
+	if(tech_name == "rank.sponsor") {
+		return perm.has("isSponsor", player);
+	}
+	if(tech_name == "rank.user") {
+		return true;
+	}
+	return perm.has("setrank.other", player);
+}
+
+function rank.getRankArray() {
+	return getScriptVar("ranks");
+}
+function rank.getFromTechName(tech_name) {
+	a = rank.getRankArray();
+	a_size = array.getSize(a);
+	for(i = 0; i < a_size; i++) {
+		if(a[i, 0] == tech_name) {
+			return a[i, 1];
+		}
+	}
+	return null;
+}
+
+function rank.getTechName(rank) {
+	a = rank.getRankArray();
+	a_size = array.getSize(a);
+	for(i = 0; i < a_size; i++) {
+		if(a[i, 1] == rank) {
+			return a[i, 0];
+		}
+	}
+	return null;
+}
+
+function rank.choose(player, tech_name) {
+	rank = rank.getFromTechName(tech_name);
+	msg(player, string.getClickText(string.concat(" [§", rank, "§r]"), string.concat("/setrank ", player.getName(player), " &", rank)));
+}
+
+function rank.showAll(player) {
+	a = rank.getRankArray();
+	a_size = array.getSize(a);
+	for(i = 0; i < a_size; i++) {
+		tech_name = a[i, 0];
+		if(rank.checkCriteria(player, tech_name)) {
+			rank.choose(player, tech_name);
+		}
+	}
+}

@@ -1,10 +1,14 @@
+import "utils/msg";
+import "utils/odyssey";
+import "utils/generic";
+
 event.load("living_pickup");
 event.load("pre_craft");
 event.load("craft");
 event.load("player_join");
 event.load("snuvi_click");
 
-prefix_challenge = "§aChallenge";
+prefix_challenge = "§aOdyssey";
 challenge_short = "aitems";
 challenge_name = "All Items";
 reward = 32768;
@@ -14,8 +18,8 @@ lore_list = list.new();
 list.add(lore_list, text.new("Collect all items in the given order."));
 list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 4 Amber")));
 list.add(lore_list, text.new(""));
-list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
-list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart odyssey"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel odyssey"));
 aitems = item.create("CHEST_MINECART", 1, "§cAll Items", lore_list);
 
 next_items = map.new(); //player_id -> material
@@ -169,7 +173,7 @@ title_string = string.text(inv_title);
 if(item == aitems) {
 	if(click == "LEFT") {
 		if(challenge.playerHas(player, challenge_short)) {
-			msg.prefix(player, prefix_challenge, "You already started this challenge.");
+			msg.prefix(player, prefix_challenge, "You already started this odyssey.");
 			goto("wait");
 		}
 		player_id = player.getId(player);
@@ -180,20 +184,20 @@ if(item == aitems) {
 		stage = setNextItem(player, type);
 		challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
 		msg.string(player, string.getSpacer());
-		msg.prefix(player, prefix_challenge, "Challenge started.");
+		msg.prefix(player, prefix_challenge, "Odyssey started.");
 		msg.prefix(player, prefix_challenge, "Crafted and picked up items will count.");
 		msg.prefix(player, prefix_challenge, "§cCounted items will be deleted!");
 		goto("wait");
 	}
 	if(click == "RIGHT") {
 		if(!challenge.playerHas(player, challenge_short)) {
-			msg.prefix(player, prefix_challenge, "Challenge not active.");
+			msg.prefix(player, prefix_challenge, "Odyssey not active.");
 			goto("wait");
 		}
 		resetAItems(player);
 		challenge.removeDisplay(player, sb_id);
 		player.removeChallenge(player, challenge_short);
-		msg.prefix(player, prefix_challenge, "Challenge canceled.");
+		msg.prefix(player, prefix_challenge, "Odyssey canceled.");
 		goto("wait");
 	}
 	goto("wait");
@@ -230,7 +234,7 @@ player.safeGiveItem(player, item);
 sound.spawnForPlayer(player, sound, category);
 new_type = getRandomType(player);
 if(new_type == null) {
-	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
+	msg.prefix(player, prefix_challenge, "All items collected. Odyssey done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
 	amber = customitem.getAmber();
@@ -277,7 +281,7 @@ if(item_amount > 1) {
 sound.spawnForPlayer(player, sound, category);
 new_type = getRandomType(player);
 if(new_type == null) {
-	msg.prefix(player, prefix_challenge, "All items collected. Challenge done!");
+	msg.prefix(player, prefix_challenge, "All items collected. Odyssey done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
 	amber = customitem.getAmber();

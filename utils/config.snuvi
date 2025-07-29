@@ -1,0 +1,7 @@
+function getServerConfig() {
+	return getScriptVar("server_config");
+}
+
+function didServerCrash() {
+	return config.getBool(getServerConfig(), "crash", false);
+}

@@ -1,0 +1,15 @@
+function read.location(string) {
+	a = string.split(":", string);
+	w = world.get(a[0]);
+	x = read.number(a[1]);
+	y = read.number(a[2]);
+	z = read.number(a[3]);
+	if(array.getSize(a) > 4) {
+		yaw = read.number(a[4]);
+		pitch = read.number(a[5]);
+	} else {
+		yaw = 0;
+		pitch = 0;
+	}
+	return loc.new(w, x, y, z, yaw, pitch);
+}

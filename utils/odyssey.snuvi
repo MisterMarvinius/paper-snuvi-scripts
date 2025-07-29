@@ -1,0 +1,45 @@
+import "utils/playerdata";
+
+function challenge.display(player, id, challenge, string_message, stage, all_stages) {
+	sb.add(player, id, string.concat("§a", challenge, ": ", string_message, " [", string.number(stage), "/", string.number(all_stages), "]"));
+}
+
+function challenge.removeDisplay(player, id) {
+	sb.remove(player,  id);
+}
+
+function player.addChallenge(player_or_id, challenge) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "challenge", "");
+	if(string == "") {
+		config.set(config, "challenge", challenge);
+	} else {
+		config.set(config, "challenge", string.concat(string, "%", challenge));
+	}
+	config.saveAsync(config);
+}
+
+function player.removeChallenge(player_or_id, challenge) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "challenge", "");
+	string = string.replace(string, string.concat(challenge, "%"), "");
+	string = string.replace(string, string.concat("%", challenge), "");
+	string = string.replace(string, challenge, "");
+	config.set(config, "challenge", string);
+	config.saveAsync(config);
+}
+
+function player.getChallenges(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	string = config.getString(config, "challenge", "");
+	a = string.split("%", string);
+	s = set.new();
+	for(i = 0; i < array.getSize(a); i++) {
+		set.add(s, a[i]);
+	}
+	return s;
+}
+
+function challenge.playerHas(player_or_id, challenge) {
+	return set.contains(player.getChallenges(player_or_id), challenge);
+}

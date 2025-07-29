@@ -1,0 +1,25 @@
+import "utils/msg";
+import "utils/inv";
+import "utils/config";
+
+modTimer(-50);
+event.load("player_join");
+event.load("player_quit");
+
+crash = didServerCrash();
+
+msg.string("dev", "§bInventory §rloaded");
+@wait
+wait();
+ignoreGoto(event);
+goto("wait");
+
+@player_join
+if(!crash) {
+	inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
+}
+goto("wait");
+
+@player_quit
+inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
+goto("wait");

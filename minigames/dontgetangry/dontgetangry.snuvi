@@ -1,3 +1,6 @@
+import "utils/minigame";
+import "utils/ranking";
+
 rankingtable = "dgaranks";
 gamename = "§cDontGetAngry";
 game_short = "dga";
@@ -21,6 +24,9 @@ goto("simplelobby");
 
 @specificLobbyHandling
 if(event == "block_click") {
+    if(block == null) {
+        return;
+    }
 	if(block.getLocation(block) == rule_1_loc) {
 		rule_jump_over_tokens_in_target = !rule_jump_over_tokens_in_target;
 		if(rule_jump_over_tokens_in_target) {

@@ -1,3 +1,6 @@
+import "utils/item";
+import "utils/msg";
+
 dispenser_mat = material.get("DISPENSER");
 shroomlight_mat = material.get("SHROOMLIGHT");
 air_mat = material.getAir();
@@ -194,7 +197,7 @@ if(adventure) {
 				msg.prefix(p, "§5Party", "§cYou are in a game.");
 				continue;
 			}
-			if(player.hasQuest2(p)) {
+			if(player.hasQuest(p)) {
 				msg.prefix(player, "§5Party", string.concat(p_name, "§c is doing a quest."));
 				msg.prefix(p, "§5Party", "§cYou are doing a quest.");
 				continue;
@@ -218,9 +221,9 @@ if(adventure) {
 			player.setAdventure(p, true);
 			player.setAdventureStart(p, tp_loc);
 			addAdventureDisplay(p, adventure_aim_loc);
-			title.reset(p);
-			title.setSub(p, "Have fun!");
-			title.send(p, "§cAdventure");
+			//title.reset(p);
+			//title.setSub(p, "Have fun!");
+			//title.send(p, "§cAdventure");
 			msg.prefix(p, "§5Adventure", "To complete your adventure, go to the survival spawn. You cannot teleport. If you die, you start again!");
 		}
 		goto("main");

@@ -1,3 +1,8 @@
+import "utils/block";
+import "utils/msg";
+import "utils/minigame";
+import "utils/minigame2";
+
 event.load("entity_damage");
 event.load("player_join");
 event.load("player_pre_respawn");
@@ -78,8 +83,8 @@ minigame.addSign("parcoursign1", true, loc.new(gamesworld, -396, 158, -50), "min
 minigame.addSign("tjrsign", true, loc.new(gamesworld, -396, 157, -51), null, "minigames/jumpnrun/todesjumpnrun", true);
 minigame.addSign("jr_sign_ice", true, loc.new(gamesworld, -396, 157, -49), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_ice", true);
 minigame.addSign("jr_sign_room", true, loc.new(gamesworld, -396, 157, -50), "minigames/jumpnrun/jr_core", "minigames/jumpnrun/jr_map_rooms", true);
-minigame.addSign("fastbridgesign1", true, loc.new(gamesworld, -418, 157, -33), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap1", false);
-minigame.addSign("fastbridgesign2", true, loc.new(gamesworld, -419, 157, -33), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap2", false);
+minigame.addSign("fastbridgesign1", true, loc.new(gamesworld, -418, 157, -33), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap1", true);
+minigame.addSign("fastbridgesign2", true, loc.new(gamesworld, -419, 157, -33), "minigames/fastbridge/fastbridge", "minigames/fastbridge/fastbridgemap2", true);
 minigame.addSign("halmasign1", true, loc.new(gamesworld, -422, 158, -35), "minigames/halma/halma", "minigames/halma/halma_map1", false);
 minigame.addSign("halmasign2", true, loc.new(gamesworld, -422, 158, -36), "minigames/halma/halma", "minigames/halma/halma_map2", false);
 minigame.addSign("rebuildsign1", true, loc.new(gamesworld, -414, 157, -33), "minigames/rebuild/rebuild", "minigames/rebuild/rebuildmap1", false);
@@ -307,14 +312,14 @@ if(script_id == null) {
 	if(pfad2 != null) {
 		modTimer(-100);
 		if(pfad2 == "minigames/itemhunt/itemhunt" || pfad2 == "minigames/itemhunt/ihranked") {
-			script = script.start(pfad, "minigames/itemhunt/itemhuntitems", pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+			script = script.start(pfad, "minigames/itemhunt/itemhuntitems", pfad2, "handler/games", "handler/gameserror");
 		} elseif(pfad2 == "minigames/among_us/among_us") {
-			script = script.start(pfad, pfad2, "utils/u_games", "utils/u_general");
+			script = script.start(pfad, pfad2, "handler/games");
 		} else {
-			script = script.start(pfad, pfad2, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+			script = script.start(pfad, pfad2, "handler/games", "handler/gameserror");
 		}
 	} else {
-		script = script.start(pfad, "utils/u_games", "utils/u_gameserror", "utils/u_general");
+		script = script.start(pfad, "handler/games", "handler/gameserror");
 	}
 	if(script == null) {
 		msg.dev("Minigame throws error on gamestart");

@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 event.load("block_break");
 event.load("block_place");
 event.load("block_click");

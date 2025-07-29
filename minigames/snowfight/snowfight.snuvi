@@ -1,3 +1,6 @@
+import "utils/minigame";
+import "utils/ranking";
+
 rankingtable = "snowranks";
 game_short = "snow";
 game_tab = "§6SNOW";

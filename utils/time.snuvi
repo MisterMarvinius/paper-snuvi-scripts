@@ -1,0 +1,80 @@
+function time.getDateString(time) {
+	calendar = time.new(time);
+	day = time.getStringFromNumber(time.getDay(calendar));
+	month = time.getStringFromNumber(time.getMonth(calendar));
+	year = string.number(time.getYear(calendar));
+	return string.concat(day, ".", month, ".", year);
+}
+
+function time.getCal(year, month, day, hour, minute, second) {
+	second = time.getStringFromNumber(second);
+	minute = time.getStringFromNumber(minute);
+	hour = time.getStringFromNumber(hour);
+	day = time.getStringFromNumber(day);
+	month = time.getStringFromNumber(month);
+	year = string.number(year);
+	return time.parse("yyyyMMddHHmmss", string.concat(year, month, day, hour, minute, second));
+}
+
+function time.getStringFromNumber(number) {
+	if(number > 9) {
+		return string.number(number);
+	}
+	return string.concat("0", string.number(number));
+}
+
+function time.getClockString(time) { //s
+	return string.concat(string.number(math.roundDown(time / 60)), " min ", string.number(math.round(time % 60)), " s");
+}
+
+function time.getString(millis) {
+	calendar = time.new(millis);
+	day = time.getStringFromNumber(time.getDay(calendar));
+	month = time.getStringFromNumber(time.getMonth(calendar));
+	year = time.getYear(calendar);
+	hour = time.getStringFromNumber(time.getHour(calendar));
+	minute = time.getStringFromNumber(time.getMinute(calendar));
+	timestring = string.concat(day, ".", month, ".", string.number(year), " ", hour, ":", minute);
+	return timestring;
+}
+
+/*
+* returns true if a whole day is skipped. (technial: if between the timestamps are two midnights)
+* precondition: timestamp_1 < timestamp_2
+*/
+function time.hasWholeDaySkipped(timestamp_1, timestamp_2) {
+	cal_1 = time.new(timestamp_1);
+	time.nextDay(cal_1); // first midnight after timestamp_1
+	time.nextDay(cal_1); // second midnight after timestamp_1
+	midnight = time.from(cal_1); // timestamp of 2nd midnight
+	return midnight < timestamp_2;
+}
+
+/*
+* returns true if timestamp_2 is within the next day of timestamp_1
+* precondition: timestamp_1 < timestamp_2
+*/
+function isFollowingDay(timestamp_1, timestamp_2) {
+	cal_1 = time.new(timestamp_1);
+	time.nextDay(cal_1);
+	mid_1 = time.from(cal_1);
+	diff = timestamp_2 - mid_1;
+	return diff > 0 && diff < 86400000;
+}
+
+function isSameDay(timestamp_1, timestamp_2) {
+	cal_1 = time.new(timestamp_1);
+	cal_2 = time.new(timestamp_2);
+	time.nextDay(cal_1);
+	time.nextDay(cal_2);
+	mid_1 = time.from(cal_1);
+	mid_2 = time.from(cal_2);
+	return mid_1 == mid_2;
+}
+
+function correctTimeFormat(textnumber) {
+	if(string.length(textnumber) == 1) {
+		textnumber = string.concat("0", textnumber);
+	}
+	return textnumber;
+}

@@ -1,0 +1,47 @@
+function icon.getGoldCoin() {
+	return string.fromCode(63489);
+}
+
+function icon.getSilverCoin() {
+	return string.fromCode(63490);
+}
+
+function icon.getCopperCoin() {
+	return string.fromCode(63491);
+}
+
+function icon.getExp() {
+	return string.fromCode(63492);
+}
+
+function icon.getBookshelf() {
+	return string.fromCode(63493);
+}
+
+function icon.getCraftingTable() {
+	return string.fromCode(63494);
+}
+
+function icon.getCompass() {
+	return string.fromCode(63495);
+}
+
+function icon.getCake() {
+	return string.fromCode(63496);
+}
+
+function icon.getEnderpearl() {
+	return string.fromCode(63497);
+}
+
+function icon.getHeart() {
+	return string.fromCode(63498);
+}
+
+function icon.getHalfHeart() {
+	return string.fromCode(63499);
+}
+
+function icon.getEmptyHeart() {
+	return string.fromCode(63500);
+}

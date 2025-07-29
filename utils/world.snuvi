@@ -1,0 +1,77 @@
+import "utils/read";
+import "utils/player";
+import "utils/config";
+
+function world.getServerSpawn() {
+	return read.location(config.getString(getServerConfig(), "serverspawn", "world:0:0:0"));
+}
+
+function world.getGamesSpawn() {
+	return read.location(config.getString(getServerConfig(), "gamesspawn", "world:0:0:0"));
+}
+
+function world.getCreativeSpawn() {
+	return read.location(config.getString(getServerConfig(), "creativespawn", "world:0:0:0"));
+}
+
+function world.getOverWorld() {
+	return world.get("world");
+}
+
+function world.getTheEnd() {
+	return world.get("world_the_end");
+}
+
+function world.getTheNether() {
+	return world.get("world_nether");
+}
+
+function world.getGames() {
+	return world.get("games");
+}
+
+function world.getCreative() {
+	return world.get("creative");
+}
+
+function world.isCreativeName(world_name) {
+	return world_name == "creative";
+}
+
+function world.isGamesName(world_name) {
+	return world_name == "games";
+}
+
+function world.isOverworld(world_name) {
+	return world_name == "world";
+}
+
+function world.isSurvName(world_name) {
+	if(world_name == "world") {
+		return true;
+	} elseif(world_name == "world_the_end") {
+		return true;
+	} elseif(world_name == "world_nether") {
+		return true;
+	}
+	return false;
+}
+
+function world.canUsePlots(world) {
+	world_name = world.getName(world);
+	if(world.isSurvName(world_name)) {
+		return true;
+	}
+	if(world.isCreativeName(world_name)) {
+		return true;
+	}
+	return false;
+}
+
+function world.giveItem(world, item) {
+	world_list = world.getPlayers(world);
+	iter = iterator(world_list);
+	while(hasNext(iter)) {
+		player.safeGiveItem(next(iter), item);
+	}
+}

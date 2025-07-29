@@ -1,0 +1,54 @@
+function player.isInParty(player) {
+	return player.getPartyId(player) != null;
+}
+
+function party.same(player1, player2) {
+	return player.getPartyId(player1) == player.getPartyId(player2);
+}
+
+function player.isPartyLeader(player) {
+	return player.getPartyRank(player) == "Leader";
+}
+
+function player.isPartyLeaderOrMod(player) {
+	return player.getPartyRank(player) != "Player";
+}
+
+function player.getPartyId(player) {
+	return map.get(getScriptVar("party_ids"), player.getUuid(player));
+}
+
+function player.setPartyId(player, party_id) {
+	map.add(getScriptVar("party_ids"), player.getUuid(player), party_id);
+}
+
+function player.delPartyId(player) {
+	map.remove(getScriptVar("party_ids"), player.getUuid(player));
+}
+
+function player.getPartyRank(player) {
+	return map.get(getScriptVar("party_ranks"), player.getUuid(player));
+}
+
+function player.setPartyRank(player, rank) {
+	map.add(getScriptVar("party_ranks"), player.getUuid(player), rank);
+}
+
+function player.delPartyRank(player) {
+	map.remove(getScriptVar("party_ranks"), player.getUuid(player));
+}
+
+function party.getList(party_id) {
+	return map.get(getScriptVar("party_lists"), party_id);
+}
+
+function party.setList(party_id, list) {
+	map = getScriptVar("party_lists");
+	map.add(map, party_id, list);
+	setScriptVar("party_lists", map);
+}
+
+function party.addPlayer(party_id, player) {
+	list.add(party.getList(party_id), player.getUuid(player));
+	player.setPartyId(player, party_id);
+}

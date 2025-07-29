@@ -1,3 +1,6 @@
+import "utils/msg";
+import "utils/shop";
+
 event.load("snuvi_click");
 event.load("inv_close");
 event.load("block_click");

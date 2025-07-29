@@ -1,3 +1,8 @@
+import "utils/block";
+import "utils/clan";
+import "utils/msg";
+import "utils/time";
+
 event.load("entity_click");
 event.load("snuvi_click");
 event.load("player_pre_respawn");
@@ -477,7 +482,7 @@ if(string_name == "Adventure") {
 	} elseif(adventures == 1) {
 		offerRank(player, "rank.adventurer");
 	}
-	removeAdventureDisplay(player);
+	//removeAdventureDisplay(player);
 	player.safeGiveItem(player, customitem.getAmber());
 	money.addBoost(player, 4096);
 	goto("wait");
@@ -690,24 +695,6 @@ function withdrawSnuvis(player, copper, silver, gold) {
 	}
 	sum = copper + silver * 64 + gold * 4096;
 	money.sub(player, sum);
-}
-
-function fire_ring(location, block_string, radius){
-	loc_x = loc.getX(location);
-	loc_y = loc.getY(location);
-	loc_z = loc.getZ(location);
-	for(a = -radius; a < radius + 1; a++){
-		loc.setX(location, loc_x + a);
-		for(b = -radius; b < radius + 1; b++){
-			loc.setY(location, loc_y + b);
-			for(c = -radius; c < radius + 1; c++){
-				loc.setZ(location, loc_z + c);
-				if(block.isAir(location)){
-					block.set(location, block_string);
-				}
-			}
-		}
-	}
 }
 
 @block_click

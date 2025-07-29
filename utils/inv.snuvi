@@ -1,0 +1,308 @@
+import "utils/player";
+import "utils/world";
+import "utils/material";
+import "utils/item";
+
+function inv.backup(p_or_id) {
+	player_id = player.getValidId(p_or_id);
+	from_file = file.new(string.concat("scripts/configs/inv_data/survival/", player_id, ".snuvic"));
+	if(!file.exists(from_file)) {
+		return;
+	}
+	
+	dir = file.new(string.concat("scripts/configs/inv_data/backup/", player_id));
+	if(!file.exists(dir)) {
+		file.createFolder(dir);
+	}
+	
+	f_map = map.new();
+	file_list = file.getList(dir);
+	iter = iterator(file_list);
+	while(hasNext(iter)) {
+		f = next(iter);
+		f_name = file.getName(f);
+		split_array = string.split("_", f_name);
+		number = read.number(split_array[1]);
+		a = array.new(2);
+		a[0] = f;
+		a[1] = split_array[2];
+		map.add(f_map, number, a);
+	}
+	
+	number_of_backups = 10;
+	for(i = number_of_backups; i > 0; i--) {
+		a = map.get(f_map, i);
+		if(a == null) {
+			continue;
+		}
+		f = a[0];
+		timestamp = a[1];
+		if(i == number_of_backups) {
+			file.delete(f);
+			continue;
+		}
+		new_f_name = string.concat("backup_", string.number(i + 1), "_", timestamp);
+		file.rename(f, file.new(string.concat("scripts/configs/inv_data/backup/", player_id, "/", new_f_name)));
+	}
+	
+	cal = time.new(time.getMillis());
+	year = string.number(time.getYear(cal));
+	month = string.number(time.getMonth(cal));
+	day = string.number(time.getDay(cal));
+	hour = string.number(time.getHour(cal));
+	min = string.number(time.getMinute(cal));
+	sec = string.number(time.getSecond(cal));
+	new_f = file.new(string.concat(dir, "/backup_", string.number(1), "_", year, "-", month, "-", day, "-", hour, "-", min, "-", sec));
+	f_list = file.read(from_file);
+	file.write(new_f, f_list);
+}
+
+function inv.saveForPlayer(sec_player, for_player_or_id, world) {
+	if(isPlayer(for_player_or_id)) {
+		for_player_or_id = player.getId(for_player_or_id);
+	}
+	world_name = world.getName(world);
+	if(world.isSurvName(world_name)) {
+		inv.backup(for_player_or_id);
+		pfad = "scripts/configs/inv_data/survival";
+	} else {
+		pfad = string.concat("scripts/configs/inv_data/", world_name);
+	}
+	config = config.new(pfad, for_player_or_id);
+	
+	//Allgemeine Daten
+	if(for_player_or_id == player.getId(sec_player)) {
+		config.set(config, "health", living.getHealth(sec_player));
+		config.set(config, "hunger", player.getHunger(sec_player));
+		config.set(config, "saturation", player.getSaturation(sec_player));
+		config.set(config, "xp", player.getExp(sec_player));
+		config.set(config, "lvl", player.getLevel(sec_player));
+	}
+	
+	//Inventare
+	inv = player.getInv(sec_player);
+	for(i = 0; i < 36; i++) {
+		item_string = string.item(inv.getItem(inv, i));
+		config.set(config, string.concat("slot-", i), item_string);
+	}
+	ender_inv = player.getEnderInv(sec_player);
+	for(i = 0; i < 27; i++) {
+		item_string = string.item(inv.getItem(ender_inv, i));
+		config.set(config, string.concat("eslot-", i), item_string);
+	}
+	config.set(config, "offhand", string.item(living.getOffHand(sec_player)));
+	config.set(config, "head", string.item(living.getEquip(sec_player, read.slot("HEAD"))));
+	config.set(config, "chest", string.item(living.getEquip(sec_player, read.slot("CHEST"))));
+	config.set(config, "legs", string.item(living.getEquip(sec_player, read.slot("LEGS"))));
+	config.set(config, "feet", string.item(living.getEquip(sec_player, read.slot("FEET"))));
+	config.saveAsync(config);
+}
+
+function inv.loadFromPlayer(sec_player, from_player_or_id, world) {
+	if(isPlayer(from_player_or_id)) {
+		from_player_or_id = player.getId(from_player_or_id);
+	}
+	world_name = world.getName(world);
+	if(world.isSurvName(world_name)) {
+		pfad = "scripts/configs/inv_data/survival";
+	} else {
+		pfad = string.concat("scripts/configs/inv_data/", world_name);
+	}
+	config = config.new(pfad, from_player_or_id);
+	if(config.exists(config)) {
+		config.load(config);
+	}
+	
+	//Allgemeine Daten
+	if(from_player_or_id == player.getId(sec_player)) {
+		health = config.getDouble(config, "health", 20);
+		if(health > 20) {
+			health = 20;
+		}
+		living.setHealth(sec_player, health);
+		player.setHunger(sec_player, config.getDouble(config, "hunger", 20));
+		player.setSaturation(sec_player, config.getDouble(config, "saturation", 5));
+		player.setExp(sec_player, config.getDouble(config, "xp", 0));
+		player.setLevel(sec_player, config.getDouble(config, "lvl", 0));
+	}
+	
+	//Inventare
+	air_string = item.getAirString();
+	for(i = 0; i <= 35; i++) {
+		item_string = config.getString(config, string.concat("slot-", i), air_string);
+		item = read.item(item_string);
+		if(item != null) {
+			inv = player.getInv(sec_player);
+			inv.setItem(inv, i, item);
+		}
+	}
+	for(i = 0; i < 27; i++) {
+		item_string = config.getString(config, string.concat("eslot-", i), air_string);
+		item = read.item(item_string);
+		if(item != null) {
+			ender_inv = player.getEnderInv(sec_player);
+			inv.setItem(ender_inv, i, item);
+		}
+	}
+	living.setEquip(sec_player, read.slot("OFF_HAND"), read.item(config.getString(config, "offhand", air_string)));
+	living.setEquip(sec_player, read.slot("HEAD"), read.item(config.getString(config, "head", air_string)));
+	living.setEquip(sec_player, read.slot("CHEST"), read.item(config.getString(config, "chest", air_string)));
+	living.setEquip(sec_player, read.slot("LEGS"), read.item(config.getString(config, "legs", air_string)));
+	living.setEquip(sec_player, read.slot("FEET"), read.item(config.getString(config, "feet", air_string)));
+}
+
+function inv.getItemAmount(inv, wusi) {
+	//wusi: item_stack or item_type or item_tag
+	c = 0;
+	if(isMaterial(wusi)) {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.getType(item) == wusi) {
+				c += item.getAmount(item);
+			}
+		}
+	} elseif(isItemstack(wusi)) {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(isSameItem(item, wusi)) {
+				c += item.getAmount(item);
+			}
+		}
+	} else {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.hasTag(item, wusi)) {
+				c += item.getAmount(item);
+			}
+		}
+	}
+	return c;
+}
+
+function inv.addItem(inv, itemstack) {
+	//adds an item and returns the amount which could not be added
+	amount_to_add = item.getAmount(itemstack);
+	for(i = 0; i < inv.getSize(inv); i++) {
+		item = inv.getItem(inv, i);
+		if(item == null) {
+			space = item.getMaxAmount(itemstack);
+			item = item.clone(itemstack);
+			if(space <= amount_to_add) {
+				item.setAmount(item, space);
+				inv.setItem(inv, i, item);
+				amount_to_add -= space;
+				if(amount_to_add == 0) {
+					break;
+				}
+			} else {
+				item.setAmount(item, amount_to_add);
+				inv.setItem(inv, i, item);
+				amount_to_add = 0;
+				break;
+			}
+		}
+		elseif(isSameItem(item, itemstack)) {
+			a = item.getAmount(item);
+			max_a = item.getMaxAmount(item);
+			space = max_a - a;
+			if(space > 0) {
+				if(space <= amount_to_add) {
+					item.setAmount(item, max_a);
+					amount_to_add -= space;
+					if(amount_to_add == 0) {
+						break;
+					}
+				} else {
+					item.setAmount(item, a + amount_to_add);
+					amount_to_add = 0;
+					break;
+				}
+			}
+		}
+	}
+	return amount_to_add;
+}
+
+function inv.removeItem(inv, itemstack) {
+	//removes items and returns the amount which could not be removed
+	amount_to_remove = item.getAmount(itemstack);
+	for(i = 0; i < inv.getSize(inv); i++) {
+		item = inv.getItem(inv, i);
+		if(item == null) {
+			continue;
+		}
+		if(isSameItem(item, itemstack)) {
+			a = item.getAmount(item);
+			if(a <= amount_to_remove) {
+				inv.setItem(inv, i, null);
+				amount_to_remove -= a;
+				if(amount_to_remove == 0) {
+					break;
+				}
+			} else {
+				item.setAmount(item, a - amount_to_remove);
+				amount_to_remove = 0;
+				break;
+			}
+		}
+	}
+	return amount_to_remove;
+}
+
+function inv.removeItem2(inv, wusi, amount_to_remove) {
+	//wusi: item_type or item_tag
+	//removes items and returns the amount which could not be removed
+	if(isMaterial(wusi)) {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.getType(item) == wusi) {
+				a = item.getAmount(item);
+				if(a <= amount_to_remove) {
+					inv.setItem(inv, i, null);
+					amount_to_remove -= a;
+					if(amount_to_remove == 0) {
+						break;
+					}
+				} else {
+					item.setAmount(item, a - amount_to_remove);
+					amount_to_remove = 0;
+					break;
+				}
+			}
+		}
+	} else {
+		for(i = 0; i < inv.getSize(inv); i++) {
+			item = inv.getItem(inv, i);
+			if(item == null) {
+				continue;
+			}
+			if(item.hasTag(item, wusi)) {
+				a = item.getAmount(item);
+				if(a <= amount_to_remove) {
+					inv.setItem(inv, i, null);
+					amount_to_remove -= a;
+					if(amount_to_remove == 0) {
+						break;
+					}
+				} else {
+					item.setAmount(item, a - amount_to_remove);
+					amount_to_remove = 0;
+					break;
+				}
+			}
+		}
+	}
+	return c;
+}

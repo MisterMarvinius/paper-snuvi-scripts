@@ -1,7 +1,11 @@
 //TODO
 /*
-Axt trift Spieler. Axt despawnt. Spieler wird nicht gekilllt.
+Rare bug: Axt trift Spieler. Axt despawnt. Spieler wird nicht gekilllt.
 */
+
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
 
 event.load("snuvi_click");
 event.load("inv_close");

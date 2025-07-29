@@ -1,0 +1,69 @@
+import "utils/player";
+
+function friend.check(player_id, friend_id) {
+	stmt = databank.prepare("SELECT friend_id FROM friends WHERE (player_id = ? AND friend_id = ?) OR (player_id = ? AND friend_id = ?);");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, friend_id);
+	databank.setInt(stmt, 3, friend_id);
+	databank.setInt(stmt, 4, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		temp = true;
+	} else {
+		temp = false;
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return temp;
+}
+
+function friend.add(player_id, friend_id) {
+	stmt = databank.prepare("INSERT INTO friends (player_id, friend_id, time) VALUES (?, ?, ?);");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, friend_id);
+	databank.setLong(stmt, 3, time.getMillis());
+	databank.workerExecute(stmt);
+}
+
+function friend.delete(player_id, friend_id) {
+	stmt = databank.prepare("DELETE FROM friends WHERE (player_id = ? AND friend_id = ?) OR (player_id = ? AND friend_id = ?);");
+	databank.setInt(stmt, 1, player_id);
+	databank.setInt(stmt, 2, friend_id);
+	databank.workerExecute(stmt);
+}
+
+function friend.getList(player_id) {
+	list = list.new();
+	stmt = databank.prepare("SELECT friend_id FROM friends WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		list.add(list, databank.getInt(result, 1));
+	}
+	databank.close(result);
+	databank.close(stmt);
+	
+	stmt = databank.prepare("SELECT player_id FROM friends WHERE friend_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		list.add(list, databank.getInt(result, 1));
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return list;
+}
+
+function friend.getListOnline(player_id) {
+	friends = friend.getList(player_id);
+	l = list.new();
+	iter = iterator(friends);
+	while(hasNext(iter)) {
+		f_id = next(iter);
+		f_name = player.getNameFromId(f_id);
+		if(isOnline(f_name)) {
+			list.add(l, f_name);
+		}
+	}
+	return l;
+}

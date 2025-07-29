@@ -1,0 +1,1067 @@
+import "utils/clan";
+import "utils/inv";
+import "utils/loc";
+import "utils/playerdata";
+import "utils/quest";
+import "utils/scheduler";
+import "utils/world";
+
+function player.hasMinigame(player) {
+	id_set = player.getMinigameIds(player);
+	if(set.getSize(id_set) > 0)  {
+		return true;
+	}
+	return false;
+}
+
+function player.getMinigameIds(player) {
+	set = data.get(player, "minigames_set");
+	if(set == null) {
+		set = set.new();
+		data.set(player, "minigames_set", set);
+	}
+	return set;
+}
+
+function player.resetMinigames(player) {
+	id_set = player.getMinigameIds(player);
+	set.clear(id_set);
+}
+
+function player.teleport(player, location, setBackPos) {
+	player_uuid = player.getUuid(player);
+	if(player.isOnAdventure(player)) {
+		msg.string(player, "[§5Adventure§r] Teleport blocked. ", string.getClickText("[§5Cancel Adventure?§r]", string.concat("/stopadventure ", player)));
+		return false;
+	}
+	if(player.hasMinigame(player)) {
+		return false;
+	}
+	passengers = entity.getPassengers(player);
+	iter = iterator(passengers);
+	while(hasNext(iter)) {
+		entity.unmount(next(iter));
+	}
+	if(setBackPos) {
+		player.setBackPos(player);
+	}
+	player_loc = entity.getLocation(player);
+	from_world = loc.getWorld(player_loc);
+	from_world_name = world.getName(from_world);
+	to_world = loc.getWorld(location);
+	to_world_name = world.getName(to_world);
+	world_change = player.checkForWorldChange(player, location);
+	if(world_change) {
+		//Inventory
+		player.changeInv(player, from_world, to_world);
+		living.clearEffects(player);
+		//Party
+		if(player.isInParty(player) && player.isPartyLeader(player)) {
+			party_id = player.getPartyId(player);
+			party_list = party.getList(party_id);
+			iter = iterator(party_list);
+			while(hasNext(iter)) {
+				p = player.get(next(iter));
+				if(player_uuid == player.getUuid(p)) {
+					continue;
+				}
+				p_name = player.getName(p);
+				if(!loc.isSameWorld(player_loc, entity.getLocation(p))) {
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is in another world."));
+					continue;
+				}
+				if(player.hasMinigame(p)) {
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is in a game."));
+					continue;
+				}
+				if(player.hasQuest(p)) {
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is doing a quest."));
+					continue;
+				}
+				if(player.isOnAdventure(p)) {
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is on an adventure."));
+					continue;
+				}
+				if(player.isAfk(p)) {
+					msg.prefix(player, "§5Party", string.concat(p_name, "§c is afk."));
+					continue;
+				}
+				player.teleport(p, location, setBackPos);
+			}
+		}
+		//Quests
+		script_id = quest.getFromPlayer(player);
+		if(script_id != null) {
+			script = script.getFromId(script_id);
+			if(script != null) {
+				setScriptVar("player", player);
+				script.callEvent("quest_term", script);
+				quest.term(script, player);
+				msg.prefix(player, "§dQuest", "Quest termed.");
+			}
+		}
+	}
+	modTimer(-50);
+	entity.teleport(player, location);
+	player.setHeadName(player);
+	
+	if(world.isGamesName(to_world_name)) {
+		player.clearInventory(player);
+		inv = player.getInv(player);
+		inv.setItem(inv, 0, item.create("COMPASS", 1, null, null));
+	}
+	player.setTabName(player);
+	return true;
+}
+
+function player.getValidId(player_or_id) {
+	if(isPlayer(player_or_id)) {
+		return player.getId(player_or_id);
+	}
+	if(isDouble(player_or_id)) {
+		if(player.getNameFromId(player_or_id) != null) {
+			return player_or_id;
+		}
+	}
+	return null;
+}
+
+function player.getValid(player_or_id) {
+	if(isPlayer(player_or_id)) {
+		return player_or_id;
+	}
+	player = player.get(player.getUuidFromId(player_or_id));
+	if(player == null) {
+		return null;
+	}
+	return player;
+}
+
+function player.safeGiveItem(player, item) {
+	rest_amount = player.giveItem(player, item);
+	if(rest_amount > 0) {
+		item.setAmount(item, rest_amount);
+		item.drop(item, entity.getLocation(player));
+	}
+}
+
+function player.hasBypass(player) {
+	return perm.has("plot.bypass", player);
+}
+
+function player.clearInventory(player) {
+	inv = player.getInv(player);
+	inv.clear(inv);
+}
+
+function player.toggleFly(player) {
+	new_state = !player.hasFly(player);
+	player.setFly(player, new_state);
+	return new_state;
+}
+
+function player.canTeleport(player) {
+	if(player.hasMinigame(player)) {
+		return false;
+	}
+	if(player.isOnAdventure(player)) {
+		return false;
+	}
+	return true;
+}
+
+function player.hasClearInventory(player) {
+	air = item.getAir();
+	inv = player.getInv(player);
+	for(slot = 0; slot < 36; slot++) {
+		if(item.getType(inv.getItem(inv, slot)) != air) {
+			return false;
+		}
+	}
+	if(item.getType(living.getEquip(player, read.slot("HEAD"))) != air) {
+		return false;
+	}
+	if(item.getType(living.getEquip(player, read.slot("CHEST"))) != air) {
+		return false;
+	}
+	if(item.getType(living.getEquip(player, read.slot("LEGS"))) != air) {
+		return false;
+	}
+	if(item.getType(living.getEquip(player, read.slot("FEET"))) != air) {
+		return false;
+	}
+	if(item.getType(living.getOffHand(player)) != air) {
+		return false;
+	}
+	return true;
+}
+
+function player.getJoinMessage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	temp = config.getString(config, "message.join", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function player.setJoinMessage(player_or_id, message) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "message.join", message);
+	config.saveAsync(config);
+}
+
+function player.getLeaveMessage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	temp = config.getString(config, "message.leave", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function player.setLeaveMessage(player_or_id, message) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "message.leave", message);
+	config.saveAsync(config);
+}
+
+function player.getDeathMessage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	temp = config.getString(config, "message.death", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function player.setDeathMessage(player_or_id, message) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "message.death", message);
+	config.saveAsync(config);
+}
+
+function player.usesCustomMessage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "message.use", true);
+}
+
+function player.activateCustomMessage(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "message.use", boolean);
+	config.saveAsync(config);
+}
+
+function player.setLoggedIp(player_or_id, ip) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "ip", ip);
+	config.saveAsync(config);
+}
+
+function player.getLoggedIp(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getString(config, "ip", "-");
+}
+
+function player.resetDeathLoc(player) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "deathloc", "null");
+	config.saveAsync(config);
+}
+
+function player.setDeathLoc(player) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "deathloc", string.location(entity.getLocation(player)));
+	config.saveAsync(config);
+}
+
+function player.getDeathLoc(player) {
+	config = playerdata.getSurvival(player);
+	loc = config.getString(config, "deathloc", "null");
+	if(loc == "null") {
+		return null;
+	}
+	return read.location(loc);
+}
+
+function player.isLive(player) {
+    config = playerdata.getGlobal(player);
+    return config.getBool(config, "isLive", false);
+}
+
+function player.setLive(player, boolean) {
+    config = playerdata.getGlobal(player);
+    config.set(config, "isLive", boolean);
+    config.saveAsync(config);
+}
+
+function player.getFullName(player) {
+	nickname = player.getNickname(player);
+	if(player.isNicked(player)) {
+		full_name = string.concat("[§3User§r] ", nickname);
+	} else {
+		full_name = string.concat("[", getRank(player), "§r] ", nickname);
+	}
+	return full_name;
+}
+
+function player.setTabName(player) {
+	nickname = player.getNickname(player);
+	rank = getRank(player);
+	if(string.startswith(rank, "§", 0)) {
+		colorcode = string.subString(rank, 0, 2);
+		tab_name = string.concat(colorcode, nickname);
+	} else {
+		tab_name = nickname;
+	}
+	if(player.isAfk(player)) {
+		tab_name = string.concat(tab_name, " §5§o[Afk]");
+	}
+	if(player.isLive(player)) {
+		tab_name = string.concat(tab_name, " §f[§dLive§f]");
+	}
+	player.setDisplayName(player, text.new(tab_name));
+}
+
+function player.removeItemNbt(player, itemstack) { //Might be deprecated
+	//Make a copy
+	item_type = item.getType(itemstack);
+	amount = item.getAmount(itemstack);
+	my_item = item.new(item_type, amount);
+	//Loop the inventory
+	inv = player.getInv(player);
+	for(slot = 0; slot < inv.getSize(inv); slot++) {
+		item = inv.getItem(inv, slot);
+		if(item == null) {
+			continue;
+		}
+		if(item.getType(item) == item_type) {
+			diff = amount - item.getAmount(item);
+			if(diff > 0) {
+				amount = diff;
+				item.setAmount(item, 0);
+			} else {
+				item.setAmount(item, math.abs(diff));
+				air = item.getAir();
+				item.setAmount(air, 0);
+				return air;
+			}
+		}
+	}
+	item.setAmount(my_item, amount);
+	return my_item;
+}
+
+function player.removeItemTag(player, tag, amount) {
+	air = item.getAir();
+	inv = player.getInv(player);
+	for(slot = 0; slot < inv.getSize(inv); slot++) {
+		item = inv.getItem(inv, slot);
+		if(item == null) {
+			continue;
+		}
+		if(item.hasTag(item, tag)) {
+			diff = amount - item.getAmount(item);
+			if(diff > 0) {
+				item.setAmount(item, 0);
+				amount = diff;
+			} else {
+				item.setAmount(item, math.abs(diff));
+				amount = 0;
+				break;
+			}
+		}
+	}
+	item.setAmount(air, amount);
+	return air;
+}
+
+function player.setSpeed(player, speed) {
+	speed = 4/5/9 * speed + 1/9;
+	player.setWalkSpeed(player, speed);
+	player.setFlySpeed(player, speed / 2);
+}
+
+function player.hasBigPlotCreated(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "plot.big", false);
+}
+
+function player.setBigPlotCreated(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "plot.big", boolean);
+	config.saveAsync(config);
+}
+
+function player.hasPlotRaised(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "plot.raised", false);
+}
+
+function player.setPlotRaised(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "plot.raised", boolean);
+	config.saveAsync(config);
+}
+
+function player.usedHisFreePlot(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "plot.usedFree", false);
+}
+
+function player.setUsedFreePlot(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "plot.usedFree", boolean);
+	config.saveAsync(config);
+}
+
+function player.activateSitting(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "sitting", boolean);
+	config.saveAsync(config);
+}
+
+function player.hasSittingActivated(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "sitting", true);
+}
+
+function player.acceptTpaRequests(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "tptoggle", boolean);
+	config.saveAsync(config);
+}
+
+function player.doesAcceptTpaRequests(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "tptoggle", true);
+}
+
+function player.getBackPos(player) {
+	config = playerdata.getSurvival(player);
+	location = config.getString(config, "backpos", "null");
+	if(location == "null") {
+		return null;
+	}
+	return read.location(location);
+}
+
+function player.setBackPos(player) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "backpos", string.location(entity.getLocation(player)));
+	config.saveAsync(config);
+}
+
+function player.setBackPosLoc(player, location) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "backpos", string.location(location));
+	config.saveAsync(config);
+}
+
+function player.clearBackPos(player) {
+	config = playerdata.getSurvival(player);
+	config.set(config, "backpos", "null");
+	config.saveAsync(config);
+}
+
+function entity.getFromDamageSource(damage_source) {
+	entity = damage.getImmediateSource(damage_source);
+	if(entity == null) {
+		return damage.getTrueSource(damage_source);
+	}
+	return entity;
+}
+
+function player.getFromDamageSource(damage_source) {
+	entity = damage.getImmediateSource(damage_source);
+	if(isPlayer(entity)) {
+		return entity;
+	}
+	entity = damage.getTrueSource(damage_source);
+	if(isPlayer(entity)) {
+		return entity;
+	}
+	return null;
+}
+
+function player.getJoins(player_or_id) {
+	if(isPlayer(player_or_id)) {
+		player_id = player.getId(player_or_id);
+	} else {
+		player_id = player_or_id;
+	}
+	stmt = databank.prepare("SELECT COUNT(join_time) FROM playtime WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		amount = databank.getLong(result, 1);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return amount;
+}
+
+function player.getTotalPlaytime(player_or_id) {
+	if(isPlayer(player_or_id)) {
+		player_id = player.getId(player_or_id);
+	} else {
+		player_id = player_or_id;
+	}
+	//Online seit
+	since_minutes = 0;
+	if(isOnline(player.getNameFromId(player_id))) {
+		stmt = databank.prepare("SELECT join_time FROM playtime WHERE player_id = ? AND leave_time IS NULL;");
+		databank.setInt(stmt, 1, player_id);
+		result = databank.execute(stmt);
+		while(databank.next(result)) {
+			since_minutes = (time.getMillis() - databank.getLong(result, 1)) / 1000 / 60;
+		}
+		databank.close(result);
+		databank.close(stmt);
+	}
+	//Spielzeit gesamt
+	stmt2 = databank.prepare("SELECT SUM(leave_time - join_time) FROM playtime WHERE player_id = ?;");
+	databank.setInt(stmt2, 1, player_id);
+	result = databank.execute(stmt2);
+	while(databank.next(result)) {
+		minutes = databank.getLong(result, 1) / 1000 / 60 + since_minutes;
+	}
+	databank.close(result);
+	databank.close(stmt2);
+	return minutes;
+}
+
+function player.hasInvIgnore(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "invignore", false);
+}
+
+function player.invIgnore(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "invignore", boolean);
+	config.saveAsync(config);
+}
+
+function player.getClanId(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "clan_id", -1);
+}
+
+function player.setClanId(player_or_id, clan_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "clan_id", clan_id);
+	config.saveAsync(config);
+}
+
+function player.getClanRole(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	temp = config.getString(config, "clan_role", "null");
+	if(temp == "null") {
+		return null;
+	}
+	return temp;
+}
+
+function player.setClanRole(player_or_id, clan_id) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "clan_role", clan_id);
+	config.saveAsync(config);
+}
+
+function player.isInClan(player_or_id) {
+	return player.getClanId(player_or_id) >= 0;
+}
+
+function player.isClanLeader(player_or_id) {
+	return player.getClanRole(player_or_id) == "leader";
+}
+
+function player.isClanMod(player_or_id) {
+	return player.getClanRole(player_or_id) == "mod";
+}
+
+function player.isClanMember(player_or_id) {
+	return player.getClanRole(player_or_id) == "member";
+}
+
+function player.isSameClan(player_or_id_1, player_or_id_2) {
+	id_1 = player.getClanId(player_or_id_1);
+	id_2 = player.getClanId(player_or_id_2);
+	if(id_1 < 0 || id_2 < 0) {
+		return false;
+	}
+	return id_1 == id_2;
+}
+
+function player.setHeadName(player) {
+	nickname = player.getNickname(player);
+	clan_string = "";
+	if(player.isInClan(player)) {
+		clan_id = player.getClanId(player);
+		clan_string = string.concat(" [§6", clan.getTag(clan_id), "§r]");
+	}
+	live_string = "";
+	if(player.isLive(player)) {
+		live_string = "§f[§dLive§f] ";
+	}
+	entity.setName(player, text.new(string.concat(live_string, nickname, clan_string)));
+}
+
+function player.setAIChallengeAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.ai.amount", amount);
+	config.saveAsync(config);
+}
+
+function player.getAIChallengeAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "cha.ai.amount", 0);
+}
+
+function player.setAEChallengeAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.ae.amount", amount);
+	config.saveAsync(config);
+}
+
+function player.getAEChallengeAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "cha.ae.amount", 0);
+}
+
+function player.setADTChallengeAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "cha.dtype.amount", amount);
+	config.saveAsync(config);
+}
+
+function player.getADTChallengeAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "cha.dtype.amount", 0);
+}
+
+function player.setAdventureAmounts(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "adventures", amount);
+	config.saveAsync(config);
+}
+
+function player.getAdventureAmounts(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "adventures", 0);
+}
+
+function player.isOnAdventure(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "onadventure", false);
+}
+
+function player.setAdventure(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "onadventure", boolean);
+	config.saveAsync(config);
+}
+
+function player.getAdventureStart(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	location = config.getString(config, "adventureloc", "null");
+	if(location == "null") {
+		return world.getServerSpawn();
+	}
+	return read.location(location);
+}
+
+function player.setAdventureStart(player_or_id, location) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "adventureloc", string.location(location));
+	config.saveAsync(config);
+}
+
+function player.isMuted(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "muted", false);
+}
+
+function player.mute(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "muted", boolean);
+	config.saveAsync(config);
+}
+
+function player.isGameMuted(player_or_id) {
+	config = playerdata.getGames(player_or_id);
+	return config.getBool(config, "game_muted", false);
+}
+
+function player.gameMute(player_or_id, boolean) {
+	config = playerdata.getGames(player_or_id);
+	config.set(config, "game_muted", boolean);
+	config.saveAsync(config);
+}
+
+function player.getSilentJoin(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "silentjoin", false);
+}
+
+function player.setSilentJoin(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "silentjoin", boolean);
+	config.saveAsync(config);
+}
+
+function player.getAutoCloseDoor(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "door_auto_close", true);
+}
+
+function player.setAutoCloseDoor(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "door_auto_close", boolean);
+	config.saveAsync(config);
+}
+
+function player.getNoPetDamage(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "pet_damage", true);
+}
+
+function player.setNoPetDamage(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "pet_damage", boolean);
+	config.saveAsync(config);
+}
+
+function player.getTipLoop(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "tip_loop", true);
+}
+
+function player.setTipLoop(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "tip_loop", boolean);
+	config.saveAsync(config);
+}
+
+function player.setVoteStreak(player_or_id, millis) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "votestreak", millis);
+	config.saveAsync(config);
+}
+
+function player.getVoteStreak(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "votestreak", 0);
+}
+
+function player.setLastVoteTime(player_or_id, millis) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "lastvotetime", millis);
+	config.saveAsync(config);
+}
+
+function player.getLastVoteTime(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "lastvotetime", 0);
+}
+
+function player.setVotePoints(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "votepoints", amount);
+	config.saveAsync(config);
+}
+
+function player.getVotePoints(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getDouble(config, "votepoints", 0);
+}
+
+function player.addVotePoints(player_or_id, amount) {
+	config = playerdata.getSurvival(player_or_id);
+	points = config.getDouble(config, "votepoints", 0) + amount;
+	config.set(config, "votepoints", points);
+	config.saveAsync(config);
+}
+
+function player.isFirstJoin(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "firstjoin", true);
+}
+
+function player.setFirstJoin(player_or_id, boolean) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "firstjoin", !boolean);
+	config.saveAsync(config);
+}
+
+function player.getShowcoords(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "showcoords", true);
+}
+
+function player.setShowcoords(player_or_id, bool) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "showcoords", bool);
+	config.saveAsync(config);
+}
+
+function player.getFirstJoin(player_or_id) {
+	if(isPlayer(player_or_id)) {
+		player_id = player.getId(player_or_id);
+	} else {
+		player_id = player_or_id;
+	}
+	stmt = databank.prepare("SELECT MIN(join_time) FROM playtime WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		time = databank.getLong(result, 1);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return time;
+}
+
+function player.getLastJoin(player_or_id) {
+	if(isPlayer(player_or_id)) {
+		player_id = player.getId(player_or_id);
+	} else {
+		player_id = player_or_id;
+	}
+	stmt = databank.prepare("SELECT MAX(join_time) FROM playtime WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		time = databank.getLong(result, 1);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return time;
+}
+
+function player.blockCommands(player) {
+	list = getScriptVar("block_commands_list");
+	list.add(list, player.getUuid(player));
+}
+
+function player.unblockCommands(player) {
+	list = getScriptVar("block_commands_list");
+	player_uuid = player.getUuid(player);
+	while(list.contains(list, player_uuid)) {
+		list.remove(list, player_uuid);
+	}
+}
+
+function player.isCommandBlocked(player) {
+	list = getScriptVar("block_commands_list");
+	return list.contains(list, player.getUuid(player));
+}
+
+function player.checkHandForType(player, item_type) {
+	return item.getType(living.getHand(player)) == item_type;
+}
+
+function player.checkHandsForItem(player, item_or_type) {
+	if(string.class(item_or_type) != "String") {
+		item_or_type = item.getType(item_or_type);
+	}
+	hand = living.getHand(player);
+	if(item.getType(hand) == item_or_type) {
+		return true;
+	}
+	offhand = living.getOffHand(player);
+	return item.getType(offhand) == item_or_type;
+}
+
+function player.checkHandsForTag(player, tag) {
+	hand = living.getHand(player);
+	if(item.hasTag(hand, tag)) {
+		return true;
+	}
+	offhand = living.getOffHand(player);
+	return item.hasTag(offhand, tag);
+}
+
+function player.hideOnline(player) {
+	list = players.toList();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		player.hide(p, player);
+	}
+}
+
+function player.showOnline(player) {
+	list = players.toList();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		p = next(iter);
+		player.show(p, player);
+	}
+}
+
+//--------------------------------------------------
+//Nickname-Utils
+//--------------------------------------------------
+
+function player.setNickName(player, nickname) {
+	map.add(getScriptVar("nicknames"), player.getUuid(player), nickname);
+}
+
+function player.getNickName(player) {
+	return map.getOrDefault(getScriptVar("nicknames"), player.getUuid(player), player.getName(player));
+}
+
+function player.removeNickName(player) {
+	map.remove(getScriptVar("nicknames"), player.getUuid(player));
+}
+
+function player.isNicked(player) {
+	return map.contains(getScriptVar("nicknames"), player.getUuid(player));
+}
+
+function player.checkForWorldChange(player, location) {
+	from_world = loc.getWorld(entity.getLocation(player));
+	to_world = loc.getWorld(location);
+	//Wenn ignore aktiviert --> kein Wechsel
+	if(player.hasInvIgnore(player)) {
+		return false;
+	}
+	from_world_name = world.getName(from_world);
+	to_world_name = world.getName(to_world);
+	//Wenn in selber Welt --> kein Wechsel
+	if(from_world == to_world) {
+		return false;
+	}
+	//Wenn beide Welten in derselben Liste sind --> kein Wechsel
+	if(world.isSurvName(from_world_name) && world.isSurvName(to_world_name)) {
+		return false;
+	}
+	return true;
+}
+
+function player.changeInv(player, from_world, to_world) {
+	from_world_name = world.getName(from_world);
+	to_world_name = world.getName(to_world);
+	//Inventory
+	inv.saveForPlayer(player, player, from_world);
+	inv.loadFromPlayer(player, player, to_world);
+	if(perm.has("isTeam", player)) {
+		if(perm.has("isSupporter", player) && !perm.has("isAdmin", player) && !perm.has("isMod", player)) {
+			player.changeGamemode(player, to_world_name);
+		}
+	} else {
+		player.changeGamemode(player, to_world_name);
+	}
+	if(world.isSurvName(to_world_name)) {
+		if(player.hasFly(player)) {
+			scheduler.addFly(5, player, true);
+		}
+	}
+}
+
+function player.changeGamemode(player, to_world_name) {
+	if(!player.isSpectator(player)) {
+		if(to_world_name == "creative") {
+			if(perm.has("creative.gm1", player)) {
+				gm = "CREATIVE";
+			} else {
+				gm = "ADVENTURE";
+				scheduler.addFly(5, player, true);
+			}
+		} else {
+			gm = "SURVIVAL";
+		}
+		player.setGamemode(player, gm);
+		duration = data.getTimer(player, "fly");
+		if(world.isSurvName(to_world_name) && duration > 0) {
+			scheduler.addFly(5, player, true);
+		}
+	}
+}
+
+function checkIfEverOnline(player_name) {
+	return player.getUuid(player_name) != null;
+}
+
+function isOnline(player_name) {
+	return read.player(player_name) != null;
+}
+
+//--------------------------------------------------
+//Afk-Utils
+//--------------------------------------------------
+
+function getAfkMap() {
+    afk_map = getScriptVar("afk_map");
+    if(afk_map == null) {
+        afk_map = map.new();
+        setScriptVar("afk_map", afk_map);
+    }
+	return afk_map;
+}
+
+function player.isAfk(player) {
+	player_uuid = player.getUuid(player);
+	afk_map = getAfkMap();
+	return map.contains(afk_map, player_uuid);
+}
+
+function player.setAfk(player, boolean) {
+	player_uuid = player.getUuid(player);
+	afk_map = getAfkMap();
+	if(boolean) {
+		map.add(afk_map, player_uuid, loc.getYaw(entity.getLocation(player)));
+	} else {
+		map.remove(afk_map, player_uuid);
+	}
+}
+
+// Deprecated
+function hasPvpOn(player_or_id) {
+	player.hasPvpOn(player_or_id);
+}
+
+function player.hasPvpOn(player_or_id) {
+	config = playerdata.getSurvival(player_or_id);
+	return config.getBool(config, "pvp", false);
+}
+
+// Deprecated
+function setPvp(player_or_id, bool) {
+	player.setPvp(player_or_id, bool);
+}
+
+function player.setPvp(player_or_id, bool) {
+	config = playerdata.getSurvival(player_or_id);
+	config.set(config, "pvp", bool);
+	config.saveAsync(config);
+}
+
+function player.giveSingleItem(player, item) {
+	amount = inv.getItemAmount(player.getInv(player), item.getType(item));
+	if(amount == 0) {
+		player.safeGiveItem(player, item);
+	}
+}
+
+function player.splitGiveItem(player, item, safe_give) {
+	amount = item.getAmount(item);
+	max_amount = item.getMaxAmount(item);
+	max_item = item.clone(item);
+	item.setAmount(max_item, max_amount);
+	while(amount > max_amount) {
+		if(safe_give) {
+			player.safeGiveItem(player, max_item);
+		} else {
+			player.giveItem(player, max_item);
+		}
+		amount -= max_amount;
+	}
+	item.setAmount(item, amount);
+	if(safe_give) {
+		player.safeGiveItem(player, item);
+	} else {
+		player.safeGiveItem(player, item);
+	}
+}

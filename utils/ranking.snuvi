@@ -1,0 +1,168 @@
+import "utils/minigame";
+import "utils/minigame2";
+
+function ranking.getPoints(rankingtable, player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	stmt = databank.prepare(string.concat("SELECT points FROM ", rankingtable, " WHERE player_id = ?;"));
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		points = databank.getInt(result, 1);
+	} else {
+		points = 0;
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return points;
+}
+
+function ranking.getSecPoints(rankingtable, player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	stmt = databank.prepare(string.concat("SELECT sec_points FROM ", rankingtable, " WHERE player_id = ?;"));
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		sec_points = databank.getInt(result, 1);
+	} else {
+		sec_points = 0;
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return sec_points;
+}
+
+//Tabelle in Datenbank registrieren
+function ranking.register(rankingtable) {
+	databank.workerExecute(databank.prepare(string.concat("CREATE TABLE IF NOT EXISTS ", rankingtable, " (player_id INT NOT NULL PRIMARY KEY, points INT NOT NULL, sec_points INT);")));
+}
+
+//Setzt die Rekord-Punkte eines Spielers
+function ranking.setPoints(rankingtable, player_or_id, points) {
+	stmt = databank.prepare(string.concat("INSERT INTO ", rankingtable, " (points, player_id) VALUES (?,?) ON DUPLICATE KEY UPDATE points = ?;"), false);
+	databank.setInt(stmt, 1, points);
+	databank.setInt(stmt, 2, player.getValidId(player_or_id));
+	databank.setInt(stmt, 3, points);
+	databank.workerExecute(stmt);
+}
+
+//Setzt die primären und sekundären Rekord-Punkte eines Spielers
+function ranking.setSecPoints(rankingtable, player_or_id, points, sec_points) {
+	stmt = databank.prepare(string.concat("INSERT INTO ", rankingtable, " (points, sec_points, player_id) VALUES (?,?,?) ON DUPLICATE KEY UPDATE points = ?, sec_points = ?;"), false);
+	databank.setInt(stmt, 1, points);
+	databank.setInt(stmt, 2, sec_points);
+	databank.setInt(stmt, 3, player.getValidId(player_or_id));
+	databank.setInt(stmt, 4, points);
+	databank.setInt(stmt, 5, sec_points);
+	databank.workerExecute(stmt);
+}
+
+//Gibt die gesamte Rangtabelle zurück. Liste mit Arrays
+function ranking.getArray(rankingtable, order, order2) {
+	ranking_list = list.new();
+	if(order2 == null) {
+		stmt = databank.prepare(string.concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ";"));
+	} else {
+		stmt = databank.prepare(string.concat("SELECT player_id, points,sec_points FROM ", rankingtable, " ORDER BY points ", order, ", sec_points ", order2, ";"));
+	}
+	result = databank.execute(stmt);
+	while(databank.next(result)) {
+		a = array.new(3);
+		a[0] = databank.getInt(result, 1); //player_id
+		a[1] = databank.getInt(result, 2); //points
+		a[2] = databank.getInt(result, 3); //sec_points
+		list.add(ranking_list, a);
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return ranking_list;
+}
+
+//Gibt Daten des Spieler von Platz n als Array zurück
+function ranking.getArrayFromRank(rankingtable, rank, order, order2) {
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	index = rank - 1;
+	if(index >= list_size || index < 0) {
+		return null;
+	}
+	a = list.getIndex(ranking_list, index);
+	return a;
+}
+
+//Gibt den Spieler von Platz n zurück
+function ranking.getPlayerIdFromRank(rankingtable, rank, order, order2) {
+	a = ranking.getArrayFromRank(rankingtable, rank, order, order2);
+	if(a == null) {
+		return -1;
+	}
+	return a[0];
+}
+
+//Gibt die Punkte von Platz n zurück
+function ranking.getPointsFromRank(rankingtable, rank, order, order2) {
+	a = ranking.getArrayFromRank(rankingtable, rank, order, order2);
+	if(a == null) {
+		return -1;
+	}
+	return a[1];
+}
+
+//Gibt die Top 10 Spieler eines Spiels zurück
+function ranking.getTopTenList(rankingtable, order, order2) {
+	toptenlist = list.new();
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	for(i = 0; i < list_size; i++) {
+		list.add(toptenlist, list.getIndex(ranking_list, i));
+	}
+	return toptenlist;
+}
+
+//Gibt die Statistik eines Spiels zurück
+function ranking.getPlayerStats(player_id, rankingtable, order, order2) {
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	for(i = 0; i < list_size; i++) {
+		a = list.getIndex(ranking_list, i);
+		if(a[0] == player_id) {
+			return a;
+		}
+	}
+	return null;
+}
+
+//Gibt den Rang eines Spielers zurück
+function ranking.getPlayerRank(player_id, rankingtable, order, order2) {
+	ranking_list = ranking.getArray(rankingtable, order, order2);
+	list_size = list.getSize(ranking_list);
+	for(i = 0; i < list_size; i++) {
+		a = list.getIndex(ranking_list, i);
+		if(a[0] == player_id) {
+			return i + 1;
+		}
+	}
+	return -1;
+}
+
+//Entfernt einen Spieler aus der Statistik
+function ranking.removePlayer(player_id, rankingtable, game_short) {
+	stmt = databank.prepare(string.concat("DELETE FROM ", rankingtable, " WHERE player_id = ?;"));
+	databank.setInt(stmt, 1, player_id);
+	databank.workerExecute(stmt);
+	if(game_short != null) {
+		if(minigame.getWon(player_id, game_short) != 0) {
+			minigame.setWon(player_id, game_short, 0);
+		}
+		if(minigame.getPlayed(player_id, game_short) != 0) {
+			minigame.setPlayed(player_id, game_short, 0);
+		}
+	}
+}
+
+function tjr.getWholeModule(player_or_id) {
+	return ranking.getPoints("tjrranks", player_or_id);
+}
+
+function tjr.getWholeTime(player_or_id) {
+	return ranking.getSecPoints("tjrranks", player_or_id);
+}

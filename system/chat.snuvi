@@ -1,19 +1,21 @@
+import "utils/icon";
+import "utils/money";
+import "utils/msg";
+import "utils/newbie";
+import "utils/player";
+import "utils/playtime";
+import "utils/rank";
+import "utils/time";
+import "utils/world";
+
 modTimer(-50);
 event.load("chat");
 event.load("player_join");
 event.load("player_quit");
 event.load("living_death");
 
-config = config.new("scripts/configs", "server");
-if(config.exists(config)) {
-	config.load(config);
-}
-crash = config.getBool(config, "crash", false);
-
 joinNews.createTable();
 
-cookie_time = 0;
-cookie = item.new(material.get("minecraft:cookie"));
 serverspawn = world.getServerSpawn();
 
 joinmessages = list.new();
@@ -139,10 +141,10 @@ first_join = player.isFirstJoin(player);
 if(first_join) {
 	entity.teleport(player, serverspawn);
 	msg.string("online", string.getSpacer());
-	msg.string("online", string.concat(" §d§k# §eWelcome to our sick world §b", player_name, " §e!!! §d§k#"));
+	msg.string("online", string.concat(" §d§k# §eWelcome to our crassus world §b", player_name, " §e!!! §d§k#"));
 	msg.string("online", string.getSpacer());
 	player.setFirstJoin(player, true);
-	registerNewbie(player.getId(player), time.getMillis());
+	newbie.register(player.getId(player), time.getMillis());
 }
 player.setHeadName(player);
 player.setLoggedIp(player, player.getIp(player));
@@ -159,11 +161,6 @@ if(silentjoin) {
 	}
 }
 player_loc = entity.getLocation(player);
-//Inventory
-if(!crash) {
-	inv.loadFromPlayer(player, player, loc.getWorld(player_loc));
-}
-giveCookie(player);
 player.setTabName(player);
 player.greet(player);
 sb.setTitle(player, text.new(string.concat(icon.getHeart(), "§6Mundus §cCrassus§f", icon.getHeart())));
@@ -182,21 +179,6 @@ if(last_join_time != null) {
 }
 goto("wait");
 
-function giveCookie(player) {
-	if(players.getAmount() != 1) {
-		return;
-	}
-	if(!player.isSurvival(player)) {
-		return;
-	}
-	now_time = time.getMillis();
-	if(now_time - $cookie_time > 300000) {
-		$cookie_time = now_time;
-		msg.string(player, "§dNobody was online. But now you are here. You make me smile. So here is a cookie for you :D");
-		player.safeGiveItem(player, $cookie);
-	}
-}
-
 @player_quit
 own_message = player.getLeaveMessage(player);
 if(own_message == null || player.isNicked(player) || !player.usesCustomMessage(player)) {
@@ -205,7 +187,6 @@ if(own_message == null || player.isNicked(player) || !player.usesCustomMessage(p
 	own_message = string.replace(own_message, "&", "§");
 	message = text.new(string.concat("§c§l> §r", fullname, " §9", own_message));
 }
-inv.saveForPlayer(player, player, loc.getWorld(entity.getLocation(player)));
 player.clearBackPos(player);
 rank.removeTimeOffert(player);
 goto("wait");

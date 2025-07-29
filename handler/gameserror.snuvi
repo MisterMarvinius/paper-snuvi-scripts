@@ -1,3 +1,6 @@
+import "utils/msg";
+import "utils/minigame";
+
 @on_error
 msg.dev("Error Handler activated");
 if(script_id != null) {

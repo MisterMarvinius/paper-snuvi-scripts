@@ -1,3 +1,6 @@
+import "utils/msg";
+import "utils/perm";
+
 modTimer(-100);
 
 databank.workerExecute(databank.prepare("
@@ -172,6 +175,7 @@ perm.addToGroup(2, "world");
 perm.addToGroup(3, "isMod");
 perm.addToGroup(3, "ass");
 perm.addToGroup(3, "ban");
+perm.addToGroup(3, "challenge");
 perm.addToGroup(3, "coreprotect.co");
 perm.addToGroup(3, "coreprotect.core");
 perm.addToGroup(3, "coreprotect.coreprotect");
@@ -191,6 +195,33 @@ perm.addToGroup(3, "head");
 perm.addToGroup(3, "heal");
 perm.addToGroup(3, "home.other");
 perm.addToGroup(3, "human");
+perm.addToGroup(3, "imageframe.create");
+perm.addToGroup(3, "imageframe.create.animated");
+perm.addToGroup(3, "imageframe.create.others");
+perm.addToGroup(3, "imageframe.overlay");
+perm.addToGroup(3, "imageframe.clone");
+perm.addToGroup(3, "imageframe.playback");
+perm.addToGroup(3, "imageframe.select");
+perm.addToGroup(3, "imageframe.marker");
+perm.addToGroup(3, "imageframe.marker.unlimited");
+perm.addToGroup(3, "imageframe.refresh");
+perm.addToGroup(3, "imageframe.rename");
+perm.addToGroup(3, "imageframe.info");
+perm.addToGroup(3, "imageframe.list");
+perm.addToGroup(3, "imageframe.list.others");
+perm.addToGroup(3, "imageframe.delete");
+perm.addToGroup(3, "imageframe.purge");
+perm.addToGroup(3, "imageframe.purge.all");
+perm.addToGroup(3, "imageframe.get");
+perm.addToGroup(3, "imageframe.setaccess");
+perm.addToGroup(3, "imageframe.adminbypass");
+perm.addToGroup(3, "imageframe.adminsetcreator");
+perm.addToGroup(3, "imageframe.admindelete");
+perm.addToGroup(3, "imageframe.adminmigrate");
+perm.addToGroup(3, "imageframe.preference");
+perm.addToGroup(3, "imageframe.preference.others");
+perm.addToGroup(3, "imageframe.giveinvisibleframe");
+perm.addToGroup(3, "imageframe.update");
 perm.addToGroup(3, "inv.backups");
 perm.addToGroup(3, "inv.ignore");
 perm.addToGroup(3, "inv.reload");
@@ -199,6 +230,7 @@ perm.addToGroup(3, "jumpto");
 perm.addToGroup(3, "lastseen");
 perm.addToGroup(3, "loginrequests");
 perm.addToGroup(3, "mailbox.other");
+perm.addToGroup(3, "manhunt");
 perm.addToGroup(3, "memory");
 perm.addToGroup(3, "minecraft.command.ban-ip");
 perm.addToGroup(3, "minecraft.command.clear");
@@ -210,6 +242,7 @@ perm.addToGroup(3, "minecraft.command.seed");
 perm.addToGroup(3, "minecraft.command.summon");
 perm.addToGroup(3, "minecraft.command.teleport");
 perm.addToGroup(3, "minecraft.debugstick");
+perm.addToGroup(3, "missing.imageframe");
 perm.addToGroup(3, "news");
 perm.addToGroup(3, "nickname");
 perm.addToGroup(3, "nowb");
@@ -222,7 +255,9 @@ perm.addToGroup(3, "playtime.other");
 perm.addToGroup(3, "playtime.year");
 perm.addToGroup(3, "plot.other");
 perm.addToGroup(3, "plot.move");
+perm.addToGroup(3, "position");
 perm.addToGroup(3, "potion");
+perm.addToGroup(3, "reset");
 perm.addToGroup(3, "script.error");
 perm.addToGroup(3, "seen");
 perm.addToGroup(3, "shop.owner");
@@ -358,17 +393,25 @@ perm.addToGroup(7, "warp");
 perm.addToGroup(7, "warp.create");
 
 perm.addToGroup(8, "isStreamer");
+perm.addToGroup(8, "challenge");
 perm.addToGroup(8, "icon");
 perm.addToGroup(8, "joinme");
 perm.addToGroup(8, "live");
+perm.addToGroup(8, "manhunt");
 perm.addToGroup(8, "news");
+perm.addToGroup(8, "position");
+perm.addToGroup(8, "reset");
 perm.addToGroup(8, "setmessage");
 
 perm.addToGroup(9, "isYT");
+perm.addToGroup(9, "challenge");
 perm.addToGroup(9, "icon");
-perm.addToGroup(8, "joinme");
-perm.addToGroup(8, "live");
+perm.addToGroup(9, "joinme");
+perm.addToGroup(9, "live");
+perm.addToGroup(9, "manhunt");
 perm.addToGroup(9, "news");
+perm.addToGroup(9, "position");
+perm.addToGroup(9, "reset");
 perm.addToGroup(9, "setmessage");
 
 perm.addToGroup(10, "isVIP");
@@ -442,6 +485,7 @@ function perm.addToGroup(group_id, perm) {
 }
 
 function perm.initOnlinePlayers() {
+    modTimer(-100);
 	list = players.toList();
 	iter = iterator(list);
 	while(hasNext(iter)) {

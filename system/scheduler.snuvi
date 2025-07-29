@@ -1,3 +1,7 @@
+import "utils/msg";
+import "utils/quest";
+import "utils/item";
+
 setScriptVar("scheduler_list", list.new());
 list = scheduler.getList();
 

@@ -1,9 +1,13 @@
+import "utils/money";
+import "utils/msg";
+
 stock = config.new("scripts/configs", "market_prices");
 config.load(stock);
 mainHand = read.slot("HAND");
 openMarkets = set.new();
 
 resetTime = 6 * 60 * 60 * 20;
+modTimer(-200);
 
 // Miner
 miner = inv.new("222222222222222222", text.new("Miner"));

@@ -1,3 +1,5 @@
+import "utils/msg";
+
 prefix_tips = "§eTips";
 index = 0;
 sgoto(100, "tip_loop");

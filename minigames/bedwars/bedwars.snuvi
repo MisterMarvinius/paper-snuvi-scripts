@@ -1,3 +1,6 @@
+import "utils/minigame";
+import "utils/ranking";
+
 rankingtable = "bwranks";
 game_short = "bw";
 game_tab = "§bBW";

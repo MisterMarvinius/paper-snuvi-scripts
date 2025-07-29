@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 rankingtable = "fncranks";
 game_short = "hs";
 
@@ -176,7 +180,6 @@ if(offensive) {
 	entity.addEffect(player, tech_name, effecttime, amplifier, false);
 }
 setCatchLastExeTime(player, skill_name);
-status.addTimed(player, key, needed_cooldown * 20, string.concat("CD ", skill_name));
 minigame.speakAll(gamename, string.concat("§6", player.getName(player), "§r used §2", skill_name, "."));
 goto("checkgame");*/
 

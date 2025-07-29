@@ -1,3 +1,7 @@
+import "utils/msg";
+import "utils/ranking";
+import "utils/time";
+
 event.load("custom_command");
 stats_prefix = "§bStatistic";
 games = list.new();

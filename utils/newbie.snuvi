@@ -1,0 +1,6 @@
+function newbie.register(id, time) {
+	stmt = databank.prepare("INSERT INTO newbies (player_id, time) VALUES(?,?);");
+	databank.setInt(stmt, 1, id);
+	databank.setLong(stmt, 2, time);
+	databank.workerExecute(stmt);
+}

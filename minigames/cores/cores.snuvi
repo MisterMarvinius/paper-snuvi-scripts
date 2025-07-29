@@ -11,6 +11,9 @@
 	Beacons cannot be used.
 */
 
+import "utils/minigame";
+import "utils/ranking";
+
 default_inv = array.new(9, 2); // slot | item
 default_inv[0, 0] = 0;
 default_inv[0, 1] = item.new(material.get("IRON_SWORD"));

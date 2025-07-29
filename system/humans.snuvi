@@ -1,3 +1,6 @@
+import "utils/msg";
+
+modTimer(-500);
 event.load("entity_click");
 gamesworld = world.getGames();
 
@@ -7,7 +10,7 @@ list.add(lore_list, text.new("§cRightclick §f= §eSell"));
 emerald = item.create("EMERALD", 1, "§fMarket", lore_list);
 quest_book = item.create("ENCHANTED_BOOK", 1, "§eQuests", null);
 scroll = customitem.create("SCROLL", 1, "§2Skills", null);
-spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
+spyglass = item.create("SPYGLASS", 1, "§2Odysseys", null);
 
 //createMainMenu(inv_name, market, quests, skills, challenges)
 anna_inv = createMainMenu("Anna", true, true, false, false);

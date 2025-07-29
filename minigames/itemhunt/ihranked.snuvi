@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 pumpkin_mat = material.get("pumpkin");
 shears_mat = material.get("shears");
 vine_mat = material.get("vine");

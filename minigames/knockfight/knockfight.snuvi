@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 rankingtable = "knockranks";
 game_short = "knock";
 
@@ -125,15 +129,15 @@ if(diff_time < needed_cooldown) {
 	goto("checkgame");
 }
 if(key == 1) {
-	entity.addEffect(player, "speed", 200, 1);
+	living.addEffect(player, "speed", 200, 1);
 } elseif(key == 2) {
-	entity.addEffect(player, "jump_boost", 200, 2);
+	living.addEffect(player, "jump_boost", 200, 2);
 } elseif(key == 3) {
 	iter = list.iterator(player_list);
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != player) {
-			entity.addEffect(p, "slowness", 160, 1);
+			living.addEffect(p, "slowness", 160, 1);
 		}
 	}
 } elseif(key == 4) {
@@ -141,7 +145,7 @@ if(key == 1) {
 	while(hasNext(iter)) {
 		p = player.get(next(iter));
 		if(p != player) {
-			entity.addEffect(p, "blindness", 160, 1);
+			living.addEffect(p, "blindness", 160, 1);
 		}
 	}
 } elseif(key == 5) {
@@ -153,7 +157,7 @@ if(key == 1) {
 	array = entity.getLook(player);
 	x = array[0] * 2;
 	z = array[2] * 2;
-	entity.throw(opp, x, 1, z);
+	entity.setMotion(opp, x, 1, z);
 }
 setKfLastExeTime(player, skill_name);
 //status.addTimed(player, key, needed_cooldown * 20, string.concat("Cooldown ", skill_name));

@@ -1,0 +1,20 @@
+//---------- Worlds ----------
+
+world.load("creative");
+world.load("games");
+
+//---------- ScriptVars ----------
+
+setScriptVar("script_players", map.new()); // games
+setScriptVar("rmInventories", map.new()); // ragemode
+setScriptVar("quest_ids", map.new()); // quests
+setScriptVar("lobbylastpos", map.new()); // games
+
+//---------- Directories ----------
+
+dir = file.new("scripts/configs/inv_data/backup");
+if(!file.exists(dir)) {
+	file.createFolder(dir);
+}
+
+term();

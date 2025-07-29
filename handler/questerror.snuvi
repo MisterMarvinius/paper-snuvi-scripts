@@ -1,3 +1,6 @@
+import "utils/msg";
+import "utils/quest";
+
 @on_error
 msg.dev("Error Handler activated");
 if(player != null) {

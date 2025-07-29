@@ -1,3 +1,8 @@
+import "utils/msg";
+import "utils/generic";
+import "utils/item";
+import "utils/ranking";
+
 msg.string("dev", "§bCommandHelp §rloaded");
 
 commandhelp.add("brush");
@@ -69,8 +74,8 @@ commandhelp.addChildPlayer("jail");
 commandhelp.addChildPlayer("unjail");
 commandhelp.addChildPlayer("fakeop");
 
-commandhelp.addChildLiteral("start", "challenges");
 commandhelp.addChildLiteral("start", "chat");
+commandhelp.addChildLiteral("start", "cookie");
 commandhelp.addChildLiteral("start", "commands");
 commandhelp.addChildLiteral("start", "commandhelp");
 commandhelp.addChildLiteral("start", "copyisland");
@@ -81,6 +86,7 @@ commandhelp.addChildLiteral("start", "gemstones");
 commandhelp.addChildLiteral("start", "harvest");
 commandhelp.addChildLiteral("start", "herobrine");
 commandhelp.addChildLiteral("start", "humans");
+commandhelp.addChildLiteral("start", "inventory");
 commandhelp.addChildLiteral("start", "lectern");
 commandhelp.addChildLiteral("start", "loom");
 commandhelp.addChildLiteral("start", "games");
@@ -88,6 +94,7 @@ commandhelp.addChildLiteral("start", "minigames");
 commandhelp.addChildLiteral("start", "mails");
 commandhelp.addChildLiteral("start", "market");
 commandhelp.addChildLiteral("start", "mobarena");
+commandhelp.addChildLiteral("start", "odysseys");
 commandhelp.addChildLiteral("start", "perms");
 commandhelp.addChildLiteral("start", "playerdata");
 commandhelp.addChildLiteral("start", "playtime");
@@ -451,11 +458,8 @@ command.addHelpArgument(help, command.newHelpSpecial("Player", "player"));
 command.addHelpArgument(help, command.newHelpSpecial("Player", "to-player", "tp.other"));
 command.registerHelp(help);
 
-addLoginrequestsHelp("loginrequests", "ALLOWED");
-addLoginrequestsHelp("loginrequests", "KICK_FULL");
-addLoginrequestsHelp("loginrequests", "KICK_BANNED");
-addLoginrequestsHelp("loginrequests", "KICK_WHITELIST");
-addLoginrequestsHelp("loginrequests", "KICK_OTHER");
+addLoginrequestsHelp("loginrequests", "true");
+addLoginrequestsHelp("loginrequests", "false");
 
 help = command.newHelp("lastseen", "lastseen");
 command.addHelpArgument(help, command.newHelpInt("amount", 1, 100));
@@ -981,41 +985,17 @@ help = command.newHelp("clan", "clan");
 command.addHelpArgument(help, command.newHelpLiteral("list"));
 command.registerHelp(help);
 
-addGameRuleBoolean("announceAdvancements");
-addGameRuleBoolean("commandBlockOutput");
-addGameRuleBoolean("disableElytraMovementCheck");
-addGameRuleBoolean("disableRaids");
-addGameRuleBoolean("doDaylightCycle");
-addGameRuleBoolean("doEntityDrops");
-addGameRuleBoolean("doFireTick");
-addGameRuleBoolean("doInsomnia");
-addGameRuleBoolean("doImmediateRespawn");
-addGameRuleBoolean("doLimitedCrafting");
-addGameRuleBoolean("doMobLoot");
-addGameRuleBoolean("doMobSpawning");
-addGameRuleBoolean("doPatrolSpawning");
-addGameRuleBoolean("doTileDrops");
-addGameRuleBoolean("doTraderSpawning");
-addGameRuleBoolean("doWeatherCycle");
-addGameRuleBoolean("drowningDamage");
-addGameRuleBoolean("fallDamage");
-addGameRuleBoolean("fireDamage");
-addGameRuleBoolean("forgiveDeadPlayers");
-addGameRuleBoolean("freezeDamage");
-addGameRuleBoolean("keepInventory");
-addGameRuleBoolean("logAdminCommands");
-addGameRuleBoolean("mobGriefing");
-addGameRuleBoolean("reducedDebugInfo");
-addGameRuleBoolean("respawnBlocksExplode");
-addGameRuleBoolean("sendCommandFeedback");
-addGameRuleBoolean("showDeathMessages");
-addGameRuleBoolean("spawnRadius");
-addGameRuleBoolean("spectatorsGenerateChunks");
-addGameRuleBoolean("universalAnger");
-addGameRuleInt("maxCommandChainLength", 0, 100000);
-addGameRuleInt("maxEntityCramming", 0, 100);
-addGameRuleInt("playersSleepingPercentage", 0, 100);
-addGameRuleInt("randomTickSpeed", 0, 4096);
+gamerules = gamerule.getAll();
+iter = iterator(gamerules);
+while(hasNext(iter)) {
+    rule = next(iter);
+    rule_name = gamerule.getName(rule);
+    if(gamerule.isBool(rule)) {
+        addGameRuleBoolean(rule_name);
+    } else {
+        addGameRuleInt(rule_name, 0, 100000);
+    }
+}
 
 command.sendHelpWorkaround();
 

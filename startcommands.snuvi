@@ -1,3 +1,0 @@
-modTimer(-1000);
-script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_skills");
-term();

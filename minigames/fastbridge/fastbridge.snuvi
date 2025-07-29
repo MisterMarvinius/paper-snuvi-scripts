@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 placedblocks = list.new();
 points = list.new();
 spawn_locs = map.new();

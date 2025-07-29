@@ -1,3 +1,5 @@
+import "utils/msg";
+
 event.load("living_tame");
 event.load("entity_damage");
 event.load("entity_heal");

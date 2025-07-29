@@ -1,22 +1,26 @@
 /*Schema
-Unter "scripts/configs/player_data/<name>_data/<player_id>" werden Spielerdaten in Configs gespeichert.
-Configs sind dauerhaft geladen und werden z.B. in der ScriptVar "survival_data" gespeichert. map: player_id -> config
+Globally accessable for each minecraft server at "snuvics/player_data/<name>_data/<player_id>" are playerdatas stored in configs.
+Configs are permanently loaded and stored in scriptvars like "survival_data". map: player_id -> config
 */
 
-playerdata.loadAll("survival_data");
-playerdata.loadAll("games_data");
-playerdata.loadAll("story_data");
+import "utils/playerdata";
+import "utils/msg";
+
+playerdata.loadAll("snuvics/player_data/", "global_data");
+playerdata.loadAll("snuvics/player_data/", "survival_data");
+playerdata.loadAll("snuvics/player_data/", "games_data");
+playerdata.loadAll("snuvics/player_data/", "challenge_data");
 msg.string("dev", "§bPlayerdata §rloaded");
 
-function playerdata.loadAll(name) {
+function playerdata.loadAll(path, name) {
 	player_data_map = map.new();
 	setScriptVar(name, player_data_map);
-	dir = file.new(string.concat("scripts/configs/player_data/", name));
+	dir = file.new(string.concat(path, name));
 	if(!file.exists(dir)) {
 		return;
 	}
 	list = file.getList(dir);
-	iter = list.iterator(list);
+	iter = iterator(list);
 	while(hasNext(iter)) {
 		file = next(iter);
 		if(file.isFile(file)) {

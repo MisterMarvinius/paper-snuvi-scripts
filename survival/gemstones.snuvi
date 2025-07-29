@@ -1,3 +1,5 @@
+import "utils/msg";
+
 event.load("entity_click");
 event.load("snuvi_click");
 

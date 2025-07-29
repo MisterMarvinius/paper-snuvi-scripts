@@ -1,3 +1,6 @@
+import "utils/msg";
+import "utils/skill";
+
 //Hier werden alle Events abgefangen und beeinflusst, je nachdem ob ein Skill aktiv ist oder nicht
 
 //event.load("projectile_hit");
@@ -131,7 +134,7 @@ if(duration > 0) {
 	}
 	ent_loc = entity.getLocation(projectile);
 	if(block.isAir(ent_loc)){
-		block.set(ent_loc, "minecraft:fire");
+		block.setMaterial(ent_loc, material.get("minecraft:fire"));
 	}
 	fire_ring(ent_loc, "minecraft:fire", 0);
 }
@@ -257,7 +260,7 @@ if(block_type == "minecraft:cobweb") {
 	goto("wait");
 }
 if(block.isLeaves(block)) {
-	if(cancel) {
+	/*if(cancel) {
 		goto("wait");
 	}
 	hand_item = living.getHand(player);
@@ -296,7 +299,7 @@ if(block.isLeaves(block)) {
 			}
 		}
 	}
-	goto("wait");
+	goto("wait");*/
 }
 goto("wait");
 
@@ -352,17 +355,17 @@ if(skill.isActivated(player, "skill.bet_lad")){
 goto("wait");
 
 function shear_leave(block_loc, original_block_type, original_item, player, unbreaking_level){
-	if(block.getType(block_loc) != original_block_type) {
+	/*if(block.getType(block_loc) != original_block_type) {
 		return;
 	}
 	if(block.property.getValue(block_loc, $prop_persistent)) {
 		return;
 	}
-	block.set(block_loc, "minecraft:air");
+	block.setMaterial(block_loc, material.get("minecraft:air"));
 	item.drop(block_loc, original_item);
 	if(player.isSurvival(player)) {
 		player.damageItem(player, 1);
-	}
+	}*/
 }
 
 function shear_cobweb(block_loc, original_block_type, player, unbreaking_level) {

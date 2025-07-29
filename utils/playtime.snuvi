@@ -1,0 +1,31 @@
+import "utils/player";
+
+//Gesamte Spielzeit eines Spielers inkl. der Online-Spielzeit
+function playtime.getPlayerTotal(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	minutes = playtime.getPlayerOnlineMinutes(player_id);
+	stmt = databank.prepare("SELECT SUM(leave_time - join_time) FROM playtime WHERE player_id = ?;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		minutes += databank.getLong(result, 1) / 1000 / 60;
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return minutes;
+}
+
+//Spielzeit eines Online-Spielers
+function playtime.getPlayerOnlineMinutes(player_id) {
+	stmt = databank.prepare("SELECT join_time FROM playtime WHERE player_id = ? AND leave_time IS NULL;");
+	databank.setInt(stmt, 1, player_id);
+	result = databank.execute(stmt);
+	if(databank.next(result)) {
+		minutes = (time.getMillis() - databank.getLong(result, 1)) / 1000 / 60;
+	} else {
+		minutes = 0;
+	}
+	databank.close(result);
+	databank.close(stmt);
+	return minutes;
+}

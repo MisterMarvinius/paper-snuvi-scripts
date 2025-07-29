@@ -1,0 +1,108 @@
+function scheduler.add(data_array) {
+	list.add(scheduler.getList(), data_array);
+}
+
+function scheduler.getList() {
+	return getScriptVar("scheduler_list");
+}
+
+function scheduler.addFly(ticks, player, bool) {
+	a = array.new(4);
+	a[0] = 0;
+	a[1] = ticks;
+	a[2] = player;
+	a[3] = bool;
+	scheduler.add(a);
+}
+
+function scheduler.msgPrefix(ticks, player, prefix, text_or_string) {
+	a = array.new(5);
+	a[0] = 1;
+	a[1] = ticks;
+	a[2] = player;
+	a[3] = prefix;
+	a[4] = text_or_string;
+	scheduler.add(a);
+}
+
+function scheduler.msg(ticks, player, text_or_string) {
+	a = array.new(4);
+	a[0] = 2;
+	a[1] = ticks;
+	a[2] = player;
+	a[3] = text_or_string;
+	scheduler.add(a);
+}
+
+function scheduler.setBlockMaterial(ticks, block, material, block_update) {
+	a = array.new(5);
+	a[0] = 3;
+	a[1] = ticks;
+	a[2] = block;
+	a[3] = material;
+	a[4] = block_update;
+	scheduler.add(a);
+}
+
+function scheduler.questFinish(ticks, script, player) {
+	a = array.new(4);
+	a[0] = 4;
+	a[1] = ticks;
+	a[2] = script;
+	a[3] = player;
+	scheduler.add(a);
+}
+
+function scheduler.setBurning(ticks, entity, seconds) {
+	a = array.new(4);
+	a[0] = 5;
+	a[1] = ticks;
+	a[2] = entity;
+	a[3] = seconds;
+	scheduler.add(a);
+}
+
+function scheduler.spawnEntity(ticks, type, location) {
+	a = array.new(4);
+	a[0] = 6;
+	a[1] = ticks;
+	a[2] = type;
+	a[3] = location;
+	scheduler.add(a);
+}
+
+function scheduler.removeEntity(ticks, entity) {
+	a = array.new(3);
+	a[0] = 7;
+	a[1] = ticks;
+	a[2] = entity;
+	scheduler.add(a);
+}
+
+function scheduler.giveItem(ticks, player, item) {
+	a = array.new(4);
+	a[0] = 8;
+	a[1] = ticks;
+	a[2] = player;
+	a[3] = item;
+	scheduler.add(a);
+}
+
+function scheduler.giveSingleItem(ticks, player, item) {
+	a = array.new(4);
+	a[0] = 9;
+	a[1] = ticks;
+	a[2] = player;
+	a[3] = item;
+	scheduler.add(a);
+}
+
+function scheduler.setBlockData(ticks, block, blockdata, block_update) {
+	a = array.new(5);
+	a[0] = 10;
+	a[1] = ticks;
+	a[2] = block;
+	a[3] = blockdata;
+	a[4] = block_update;
+	scheduler.add(a);
+}

@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 event.load("entity_damage");
 event.load("player_move");
 event.load("player_quit");

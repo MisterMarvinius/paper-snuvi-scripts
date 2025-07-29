@@ -1,0 +1,77 @@
+import "utils/player";
+
+function playerdata.getGlobal(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	if(player_id == null) {
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.getGlobal"));
+		return;
+	}
+	map = getScriptVar("global_data");
+	config = map.get(map, player_id);
+	if(config == null) {
+		playerdata.load(player_id, map, "global_data");
+		config = map.get(map, player_id);
+	}
+	return config;
+}
+
+function playerdata.getChallenge(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	if(player_id == null) {
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.getChallenge"));
+		return;
+	}
+	map = getScriptVar("challenge_data");
+	config = map.get(map, player_id);
+	if(config == null) {
+		playerdata.load(player_id, map, "challenge_data");
+		config = map.get(map, player_id);
+	}
+	return config;
+}
+
+function playerdata.getSurvival(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	if(player_id == null) {
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.getSurvival"));
+		return;
+	}
+	map = getScriptVar("survival_data");
+	config = map.get(map, player_id);
+	if(config == null) {
+		playerdata.load(player_id, map, "survival_data");
+		config = map.get(map, player_id);
+	}
+	return config;
+}
+
+function playerdata.getGames(player_or_id) {
+	player_id = player.getValidId(player_or_id);
+	if(player_id == null) {
+		msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.getGames"));
+		return;
+	}
+	map = getScriptVar("games_data");
+	config = map.get(map, player_id);
+	if(config == null) {
+		playerdata.load(player_id, map, "games_data");
+		config = map.get(map, player_id);
+	}
+	return config;
+}
+
+function playerdata.load(player_or_id, map, name) {
+	player_id = player.getValidId(player_or_id);
+	if(player_id == null) {
+		//msg.dev(string.concat("invalid player_id ", player_id, " on playerdata.load"));
+		return;
+	}
+	config = map.get(map, player_id);
+	if(config == null) {
+		config = config.new(string.concat("../snuvics/player_data/", name), player_id);
+		if(config.exists(config)) {
+			config.load(config);
+		}
+		map.add(map, player_id, config);
+	}
+}

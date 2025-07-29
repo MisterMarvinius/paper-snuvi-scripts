@@ -1,3 +1,5 @@
+import "utils/msg";
+
 event.load("player_login");
 
 databank.workerExecute(databank.prepare("
@@ -12,7 +14,7 @@ databank.workerExecute(databank.prepare("
 msg.string("dev", "§bLoginRequests §rloaded.");
 @wait
 wait();
-player_id = player.getId(player);
+player_id = player.getId(uuid);
 ignoreGoto(event);
 goto("wait");
 

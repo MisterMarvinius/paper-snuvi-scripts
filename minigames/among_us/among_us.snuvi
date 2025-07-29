@@ -11,6 +11,9 @@ setting: full vision/blindness (darkness effect? 1.19)
 
 */
 
+import "utils/minigame";
+import "utils/ranking";
+
 @game_core
 event.load("entity_dismount");
 event.load("snuvi_click");

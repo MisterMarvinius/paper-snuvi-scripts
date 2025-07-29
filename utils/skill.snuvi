@@ -1,3 +1,9 @@
+import "utils/generic";
+import "utils/item";
+import "utils/minigame2";
+import "utils/msg";
+import "utils/ranking";
+
 /*
 Rückgabewerte:
 0 ...... skill executed
@@ -21,7 +27,6 @@ function executeSkill(player, tech_name) {
 		skill_time = skill.getTime(tech_name) * 20;
 		skill_name = skill.getTime(tech_name);
 		id = 50 + skill.getIndex(tech_name);
-		status.addTimed(player, id, skill_time, skill_name);
 		data.setTimer(player, tech_name, skill_time);
 	}
 	skill.subAmount(player, tech_name, 1);
@@ -384,4 +389,36 @@ function skill.showAll(from_player_or_id, to_player) {
 		}
 	}
 	inv.open(inv, to_player);
+}
+
+function fire_ring(location, block_string, radius){
+	loc_x = loc.getX(location);
+	loc_y = loc.getY(location);
+	loc_z = loc.getZ(location);
+	for(a = -radius; a < radius + 1; a++){
+		loc.setX(location, loc_x + a);
+		for(b = -radius; b < radius + 1; b++){
+			loc.setY(location, loc_y + b);
+			for(c = -radius; c < radius + 1; c++){
+				loc.setZ(location, loc_z + c);
+				if(block.isAir(location)){
+					block.setMaterial(location, material.get(block_string));
+				}
+			}
+		}
+	}
+}
+
+function tpBottom(player) {
+	player_loc = entity.getLocation(player);
+	y = loc.getY(player_loc);
+	while(y > -64 && block.isAir(block.get(player_loc))) {
+		loc.setY(player_loc, y);
+		y--;
+	}
+	if(y <= 0) {
+		return;
+	}
+	loc.addY(player_loc, 1);
+	entity.teleport(player, player_loc);
 }

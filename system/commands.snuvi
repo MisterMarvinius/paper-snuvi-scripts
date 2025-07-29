@@ -1,3 +1,30 @@
+import "utils/block";
+import "utils/clan";
+import "utils/config";
+import "utils/friend";
+import "utils/generic";
+import "utils/entity";
+import "utils/icon";
+import "utils/inv";
+import "utils/item";
+import "utils/living";
+import "utils/loc";
+import "utils/material";
+import "utils/minigame2";
+import "utils/modtimer"
+import "utils/money";
+import "utils/msg";
+import "utils/player";
+import "utils/playtime";
+import "utils/plot";
+import "utils/ranking";
+import "utils/shop"
+import "utils/skill";
+import "utils/sound";
+import "utils/text";
+import "utils/time";
+import "utils/inv";
+
 error_counter = 0;
 last_error_message = null;
 
@@ -255,37 +282,10 @@ if(list == null) {
 	setScriptVar("block_commands_list", list);
 }
 
-live_set = getScriptVar("live_set");
-if(live_set == null) {
-	live_set = set.new();
-	setScriptVar("live_set", live_set);
-} else {
-	//Register all Live-Players again
-	iter = iterator(live_set);
-	while(hasNext(iter)) {
-		player = player.get(next(iter));
-		if(player != null) {
-			player.setLive(player, true);
-		}
-	}
-}
-
 afk_loop_active = false;
-afk_map = getScriptVar("afk_map");
-if(afk_map == null) {
-	afk_map = map.new();
-	setScriptVar("afk_map", afk_map);
-} else {
-	//Alle Spieler, die AFK waren, wieder als AFK registrieren
-	iter = map.iterator(afk_map);
-	while(hasNext(iter)) {
-		element = next(iter);
-		player = player.get(map.getKey(element));
-		if(player != null) {
-			player.setAfk(player, true);
-			afk_loop_active = true;
-		}
-	}
+afk_map = getAfkMap();
+if(map.getSize(afk_map) > 0) {
+    afk_loop_active = true;
 }
 if(afk_loop_active) {
 	sgoto(30, "afk_loop");
@@ -387,8 +387,8 @@ rank.add(20, "rank.commander", "eCommander");
 rank.add(21, "rank.volunteer", "eVolunteer");
 rank.add(22, "rank.settler", "eSettler");
 rank.add(23, "rank.user", "3User");
-rank.add(24, "rank.challenger", "5Challenger");
-rank.add(25, "rank.mobhunter", "6Mobhunter");
+rank.add(24, "rank.gladiator", "5Gladiator");
+rank.add(25, "rank.slayer", "6Slayer");
 rank.add(26, "rank.collector", "2Collector");
 setScriptVar("ranks", rank_array);
 
@@ -999,7 +999,6 @@ if(event == "snuvi_click") {
 		}
 		if(!skip_night_started) {
 			skip_night_yes_list = list.new();
-			world.addTimedStatus(world, 49, 300, "Skip night?");
 			msg("online", text.merge(text.new(string.getPrefix(prefix_commands)), text.new(" Skip night? Vote within 15 seconds. "), string.getClickText("[§cClick§r]", "/skipnight")));
 			skip_night_counter = 15;
 			skip_night_yes = 0;
@@ -1066,7 +1065,6 @@ if(event == "snuvi_click") {
 				}
 				amount = skill.getAmount(player, tech_name);
 				if(amount > 0) {
-					status.addTimed(player, 54, 1200, skill_name);
 					data.setTimer(player, tech_name, 1200);
 					new_amount = amount - 1;
 					skill.setAmount(player, tech_name, new_amount);
@@ -1082,7 +1080,6 @@ if(event == "snuvi_click") {
 				}
 				amount = skill.getAmount(player, "skill.fly10min");
 				if(amount > 0) {
-					status.addTimed(player, 50, 12000, "Fly");
 					data.setTimer(player, "fly", 12000);
 					player.setFly(player, true);
 					new_amount = amount - 1;
@@ -1095,7 +1092,7 @@ if(event == "snuvi_click") {
 				amount = skill.getAmount(player, "skill.grow");
 				if(amount > 0) {
 					grow(player_loc, 5);
-					particle.spawnCircle(loc.mod(entity.getLocation(player), 0, 0.8, 0), composter_par, 50, 5, 1, 0, 0, 0.2, 0);
+					//particle.spawnCircle(loc.mod(entity.getLocation(player), 0, 0.8, 0), composter_par, 50, 5, 1, 0, 0, 0.2, 0);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.grow", new_amount);
 					msg.prefix(player, prefix_skill, string.concat("Used Grow. New amount: ", string.number(new_amount)));
@@ -1105,7 +1102,7 @@ if(event == "snuvi_click") {
 			if(tech_name == "skill.haste") {
 				amount = skill.getAmount(player, "skill.haste");
 				if(amount > 0) {
-					entity.addEffect(player, "haste", 2400, 0);
+					living.addEffect(player, "haste", 2400, 0);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.haste", new_amount);
 					msg.prefix(player, prefix_skill, string.concat("Used Haste. New amount: ", string.number(new_amount)));
@@ -1115,7 +1112,7 @@ if(event == "snuvi_click") {
 			if(tech_name == "skill.speed") {
 				amount = skill.getAmount(player, "skill.speed");
 				if(amount > 0) {
-					entity.addEffect(player, "speed", 2400, 0);
+					living.addEffect(player, "speed", 2400, 0);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.speed", new_amount);
 					msg.prefix(player, prefix_skill, string.concat("Used Speed. New amount: ", string.number(new_amount)));
@@ -1125,7 +1122,7 @@ if(event == "snuvi_click") {
 			if(tech_name == "skill.jump_boost") {
 				amount = skill.getAmount(player, "skill.jump_boost");
 				if(amount > 0) {
-					entity.addEffect(player, "jump_boost", 2400, 1);
+					living.addEffect(player, "jump_boost", 2400, 1);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.jump_boost", new_amount);
 					msg.prefix(player, prefix_skill, string.concat("Used Jump Boost. New amount: ", string.number(new_amount)));
@@ -1135,7 +1132,7 @@ if(event == "snuvi_click") {
 			if(tech_name == "skill.dolphin") {
 				amount = skill.getAmount(player, "skill.dolphin");
 				if(amount > 0) {
-					entity.addEffect(player, "dolphins_grace", 1200, 0);
+					living.addEffect(player, "dolphins_grace", 1200, 0);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.dolphin", new_amount);
 					msg.prefix(player, prefix_skill, string.concat("Used Dolphin. New amount: ", string.number(new_amount)));
@@ -1150,7 +1147,6 @@ if(event == "snuvi_click") {
 				}
 				amount = skill.getAmount(player, "skill.block_up");
 				if(amount > 0) {
-					status.addTimed(player, 51, 1200, "Block Up");
 					data.setTimer(player, "block_up", 1200);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.block_up", new_amount);
@@ -1166,7 +1162,6 @@ if(event == "snuvi_click") {
 				}
 				amount = skill.getAmount(player, "skill.block_down");
 				if(amount > 0) {
-					status.addTimed(player, 52, 1200, "Block Down");
 					data.setTimer(player, "block_down", 1200);
 					new_amount = amount - 1;
 					skill.setAmount(player, "skill.block_down", new_amount);
@@ -1203,8 +1198,8 @@ if(event == "snuvi_click") {
 			inv.setItem(inv, inv_slot, item.create("minecraft:oak_stairs", 1, "§fStair-Sitting", item.createLore(new_value)));
 		}
 		elseif(inv_slot == 4) {
-			new_value = !hasPvpOn(player);
-			setPvp(player, new_value);
+			new_value = !player.hasPvpOn(player);
+			player.setPvp(player, new_value);
 			inv.setItem(inv, inv_slot, item.create("minecraft:iron_sword", 1, "§fPvP", item.createLore(new_value)));
 		}
 		elseif(inv_slot == 5) {
@@ -1333,7 +1328,7 @@ inv.setItem(inv, 0, item.create("minecraft:oak_door", 1, "§fAutomatic Doors", i
 inv.setItem(inv, 1, item.create("minecraft:ender_pearl", 1, "§fAccept TPA-Requests", item.createLore(player.doesAcceptTpaRequests(player))));
 inv.setItem(inv, 2, item.create("minecraft:compass", 1, "§fShow Coords", item.createLore(player.getShowcoords(player))));
 inv.setItem(inv, 3, item.create("minecraft:oak_stairs", 1, "§fStair-Sitting", item.createLore(player.hasSittingActivated(player))));
-inv.setItem(inv, 4, item.create("minecraft:iron_sword", 1, "§fPvP", item.createLore(hasPvpOn(player))));
+inv.setItem(inv, 4, item.create("minecraft:iron_sword", 1, "§fPvP", item.createLore(player.hasPvpOn(player))));
 inv.setItem(inv, 5, item.create("minecraft:bone", 1, "§fNo Pet Damage", item.createLore(player.getNoPetDamage(player))));
 inv.setItem(inv, 6, item.create("minecraft:oak_sign", 1, "§fShow tip loop", item.createLore(player.getTipLoop(player))));
 inv.setItem(inv, 7, item.create("minecraft:oak_sign", 1, "§fUse custom messages", item.createLore(player.usesCustomMessage(player))));
@@ -1342,7 +1337,7 @@ goto("wait");
 
 @loginrequests
 if(size < 2) {
-	msg.prefix(sender, prefix_commands, "/loginrequests <player/all> <amount> [result]");
+	msg.prefix(sender, prefix_commands, "/loginrequests <player/all> <amount> true/false");
 	goto("wait");
 }
 amount = list.getIndex(args, 1);
@@ -1354,11 +1349,7 @@ if(!isDouble(amount) || amount < 0) {
 result = null;
 if(size == 3) {
 	result = list.getIndex(args, 2);
-	if(result != "ALLOWED" &&
-	result != "KICK_FULL" &&
-	result != "KICK_BANNED" &&
-	result != "KICK_WHITELIST" &&
-	result != "KICK_OTHER") {
+	if(result != true && result != false) {
 		msg.prefix(player, prefix_shop, "No valid result.");
 		goto("wait");
 	}
@@ -2308,7 +2299,7 @@ if(arg0 == "info") {
 		msg.string(sender, table.get(table, "Money", string.concat(money.getString(snuvis), " (",string.number(snuvis), ")")));
 	}
 	msg.string(sender, table.get(table, "Rank", getRank(p_or_id)));
-	msg.string(sender, table.get(table, "PvP", hasPvpOn(p_or_id)));
+	msg.string(sender, table.get(table, "PvP", player.hasPvpOn(p_or_id)));
 	msg.string(sender, table.get(table, "Quests", string.number(quest.getCounter(p_or_id))));
 	msg.string(sender, table.get(table, "Adventures", string.number(player.getAdventureAmounts(p_or_id))));
 	msg.string(sender, table.getEnd(table));
@@ -2360,7 +2351,7 @@ if(arg0 == "setmoney") {
 	}
 	p_uuid = player.getUuid(p_name);
 	p_id = player.getId(p_uuid);
-	setMoney(p_id, money);
+	money.set(p_id, money);
 	msg.prefix(sender, prefix_commands, string.concat("Set ", string.number(money), " snuvis for ", player.getName(p_uuid), "."));
 	goto("wait");
 }
@@ -2891,7 +2882,7 @@ goto("wait");
 if(!afk_loop_active) {
 	goto("wait");
 }
-afk_map = getScriptVar("afk_map");
+afk_map = getAfkMap();
 iter = map.iterator(afk_map);
 while(hasNext(iter)) {
 	element = next(iter);
@@ -2905,7 +2896,10 @@ while(hasNext(iter)) {
 			player.setAfk(player, false);
 			player.setTabName(player);
 		}
-	}
+	} else {
+        remove(iter);
+		player.setAfk(player, false);
+    }
 }
 size = map.getSize(afk_map);
 if(size > 0) {
@@ -3318,7 +3312,7 @@ goto("wait");
 
 @pvp
 if(size == 0) {
-	if(hasPvpOn(player)) {
+	if(player.hasPvpOn(player)) {
 		mode = "off";
 	} else {
 		mode = "on";
@@ -3359,13 +3353,13 @@ if(size == 0) {
 	goto("wait");
 }
 if(mode == "on") {
-	setPvp(p, true);
+	player.setPvp(p, true);
 	msg.prefix(p, prefix_commands, "You have enabled PvP!");
 	if(p != player) {
 		msg.prefix(player, prefix_commands, string.concat(player.getName(p), " has now enabled PvP!"));
 	}
 } else {
-	setPvp(p, false);
+	player.setPvp(p, false);
 	msg.prefix(p, prefix_commands, "You have PvP disabled!");
 	if(p != player) {
 		msg.prefix(player, prefix_commands, string.concat(player.getName(p), " has now disabled PvP!"));
@@ -4077,35 +4071,35 @@ if(arg0 == "chat") {
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Chat", "utils/u_error", "system/chat", "utils/u_general");
+	script.startNamed("Chat", "handler/error", "system/chat");
 }
-elseif(arg0 == "challenges") {
-	script = script.get("Challenges");
+elseif(arg0 == "odysseys") {
+	script = script.get("Odysseys");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Challenges", "utils/u_error", "survival/challenges", "utils/u_general");
+	script.startNamed("Odysseys", "handler/error", "survival/odyssey");
 	
 	script = script.get("AllDamageTypes");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("AllDamageTypes", "utils/u_error", "challenges/all_damage_types", "utils/u_general");
+	script.startNamed("AllDamageTypes", "handler/error", "odysseys/all_damage_types");
 	
 	script = script.get("AllEntities");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("AllEntities", "utils/u_error", "challenges/all_entities", "utils/u_general");
+	script.startNamed("AllEntities", "handler/error", "odysseys/all_entities");
 	
 	script = script.get("AllItems");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("AllItems", "utils/u_error", "challenges/all_items", "utils/u_general");
+	script.startNamed("AllItems", "handler/error", "odysseys/all_items");
 }
 elseif(arg0 == "commands") {
-	script = script.startNamed("Commands", "system/commands", "utils/u_general", "utils/u_commands", "utils/u_skills");
+	script = script.startNamed("Commands", "system/commands");
 	if(script == null) {
 		msg.dev("Old commands script still active due to error in new script");
 		goto("wait");
@@ -4117,119 +4111,133 @@ elseif(arg0 == "commandhelp") {
 		msg.prefix(player, prefix_commands, "There are players online. Do /stop to restart the server.");
 		goto("wait");
 	}
-	script.startNamed("Commandhelp", "system/cmdhelp", "utils/u_general");
+	script.startNamed("Commandhelp", "system/cmdhelp");
+}
+elseif(arg0 == "cookie") {
+	script = script.get("Cookie");
+	if(script != null) {
+		script.term(script);
+	}
+    script.startNamed("Cookie", "handler/error", "system/cookie");
 }
 elseif(arg0 == "copyisland") {
 	script = script.get("Copyisland");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Copyisland", "system/copyisland", "utils/u_general");
+	script.startNamed("Copyisland", "system/copyisland");
 }
 elseif(arg0 == "creative") {
 	script = script.get("Creative");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Creative", "utils/u_error", "system/creative", "utils/u_general");
+	script.startNamed("Creative", "handler/error", "system/creative");
 }
 elseif(arg0 == "damage") {
 	script = script.get("Damage");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Damage", "utils/u_error", "system/damage", "utils/u_general");
+	script.startNamed("Damage", "handler/error", "system/damage");
 }
 elseif(arg0 == "doors") {
 	script = script.get("Doors");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Doors", "utils/u_error", "system/doors", "utils/u_general");
+	script.startNamed("Doors", "handler/error", "system/doors");
 }
 elseif(arg0 == "games") {
 	script = script.get("Gamecenter");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Gamecenter", "utils/u_error", "minigames/gamecenter", "utils/u_general", "utils/u_games");
+	script.startNamed("Gamecenter", "handler/error", "minigames/gamecenter");
 }
 elseif(arg0 == "gemstones") {
 	script = script.get("Gemstones");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Gemstones", "utils/u_error", "survival/gemstones", "utils/u_general");
+	script.startNamed("Gemstones", "handler/error", "survival/gemstones");
 }
 elseif(arg0 == "harvest") {
 	script = script.get("Harvest");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Harvest", "utils/u_error", "survival/harvest", "utils/u_general");
+	script.startNamed("Harvest", "handler/error", "survival/harvest");
 }
 elseif(arg0 == "herobrine") {
 	script = script.get("Herobrine");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Herobrine", "utils/u_error", "survival/herobrine", "utils/u_general");
+	script.startNamed("Herobrine", "handler/error", "survival/herobrine");
 }
 elseif(arg0 == "humans") {
 	script = script.get("Humans");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Humans", "utils/u_error", "system/humans", "utils/u_general");
+	script.startNamed("Humans", "handler/error", "system/humans");
+}
+elseif(arg0 == "inventory") {
+	script = script.get("Inventory");
+	if(script != null) {
+		script.term(script);
+	}
+    script.startNamed("Inventory", "handler/error", "system/inventory");
 }
 elseif(arg0 == "lectern") {
 	script = script.get("Lectern");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Lectern", "utils/u_error", "survival/lectern", "utils/u_general");
+	script.startNamed("Lectern", "handler/error", "survival/lectern");
 }
 elseif(arg0 == "loginrequests") {
 	script = script.get("loginrequests");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("LoginRequests", "system/login_requests", "utils/u_general");
+	script.startNamed("LoginRequests", "system/login_requests");
 }
 elseif(arg0 == "loom") {
 	script = script.get("Loom");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Loom", "utils/u_error", "survival/loom", "utils/u_general");
+	script.startNamed("Loom", "handler/error", "survival/loom");
 }
 elseif(arg0 == "perms") {
 	script = script.get("Perms");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Perms", "utils/u_error", "system/perms", "utils/u_general");
+	script.startNamed("Perms", "handler/error", "system/perms");
 }
 elseif(arg0 == "playerdata") {
 	script = script.get("Playerdata");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Playerdata", "utils/u_error", "system/player_data", "utils/u_general");
+    script.startNamed("Playerdata", "handler/error", "system/player_data");
 }
 elseif(arg0 == "playtime") {
 	script = script.get("Playtime");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Playtime", "system/playtime", "utils/u_general");
+	script.startNamed("Playtime", "system/playtime");
 }
 elseif(arg0 == "pumpkin") {
 	script = script.get("Pumpkin");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Pumpkin", "utils/u_error", "survival/pumpkin", "utils/u_general");
+	script.startNamed("Pumpkin", "handler/error", "survival/pumpkin");
 }
 elseif(arg0 == "recipes") {
 	script = script.get("Recipes");
@@ -4243,122 +4251,122 @@ elseif(arg0 == "stats") {
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Ranklist", "utils/u_error", "system/ranklist", "utils/u_general", "utils/u_games");
+	script.startNamed("Ranklist", "handler/error", "system/ranklist");
 }
 elseif(arg0 == "scheduler") {
 	script = script.get("Scheduler");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Scheduler", "utils/u_error", "system/scheduler", "utils/u_general");
+	script.startNamed("Scheduler", "handler/error", "system/scheduler");
 }
 elseif(arg0 == "shop") {
 	script = script.get("ChestShops");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("ChestShops", "utils/u_error", "system/chestshops", "utils/u_general");
+	script.startNamed("ChestShops", "handler/error", "system/chestshops");
 }
 elseif(arg0 == "teleporter") {
 	script = script.get("Teleporter");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Teleporter", "utils/u_error", "survival/teleporter", "utils/u_general");
+	script.startNamed("Teleporter", "handler/error", "survival/teleporter");
 }
 elseif(arg0 == "mails") {
 	script = script.get("Mails");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Mails", "utils/u_error", "system/mailsystem", "utils/u_general");
+	script.startNamed("Mails", "handler/error", "system/mailsystem");
 }
 elseif(arg0 == "market") {
 	script = script.get("Market");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Market", "utils/u_error", "system/market", "utils/u_general");
+	script.startNamed("Market", "handler/error", "system/market");
 }
 elseif(arg0 == "mobarena") {
 	script = script.get("Mobarena");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Mobarena", "utils/u_error", "survival/mobarena", "utils/u_general");
+	script.startNamed("Mobarena", "handler/error", "survival/mobarena");
 }
 elseif(arg0 == "ticket") {
 	script = script.get("Ticket");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Ticket", "utils/u_error", "system/tickets", "utils/u_general");
+	script.startNamed("Ticket", "handler/error", "system/tickets");
 }
 elseif(arg0 == "timber") {
 	script = script.get("Timber");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Timber", "utils/u_error", "survival/timber", "utils/u_general", "utils/u_skills");
+	script.startNamed("Timber", "handler/error", "survival/timber");
 }
 elseif(arg0 == "tiploop") {
 	script = script.get("tiploop");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("tiploop", "utils/u_error", "system/tiploop", "utils/u_general");
+	script.startNamed("tiploop", "handler/error", "system/tiploop");
 }
 elseif(arg0 == "trader") {
 	script = script.get("Trader");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Trader", "utils/u_error", "survival/trader", "utils/u_general");
+	script.startNamed("Trader", "handler/error", "survival/trader");
 }
 elseif(arg0 == "skills") {
 	script = script.get("Skills");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Skills", "utils/u_error", "survival/skills", "utils/u_general", "utils/u_skills", "utils/u_quest");
+	script.startNamed("Skills", "handler/error", "survival/skills");
 }
 elseif(arg0 == "story") {
 	/*script = script.get("Story");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Story", "utils/u_error", "story/story", "utils/u_general");*/
+	script.startNamed("Story", "handler/error", "story/story");*/
 	script = script.get("QuestsAdmont");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("QuestsAdmont", "utils/u_error", "story/admont/core", "utils/u_general", "utils/u_quest");
+	script.startNamed("QuestsAdmont", "handler/error", "story/admont/core");
 	/*script = script.get("QuestsSchiffbruch");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("QuestsSchiffbruch", "utils/u_error", "story/schiffbruch/core", "utils/u_general", "utils/u_quest");*/
+	script.startNamed("QuestsSchiffbruch", "handler/error", "story/schiffbruch/core");*/
 }
 elseif(arg0 == "sitting") {
 	script = script.get("Sitting");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Sitting", "utils/u_error", "system/sitting", "utils/u_general");
+	script.startNamed("Sitting", "handler/error", "system/sitting");
 }
 elseif(arg0 == "survival") {
 	script = script.get("Survival");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Survival", "utils/u_error", "survival/survival", "utils/u_general", "utils/u_skills");
+	script.startNamed("Survival", "handler/error", "survival/survival");
 }
 elseif(arg0 == "plots") {
 	script = script.get("Plots");
 	if(script != null) {
 		script.term(script);
 	}
-	script.startNamed("Plots", "utils/u_error", "system/plots", "utils/u_general");
+	script.startNamed("Plots", "handler/error", "system/plots");
 }
 else {
 	goto("starthelp");
@@ -6892,7 +6900,7 @@ if(arg0 == "info" || arg0 == "i") {
 goto("plothelp");
 
 @stopadventure
-removeAdventureDisplay(player);
+//removeAdventureDisplay(player);
 player.setAdventure(player, false);
 msg.prefix(player, "§5Adventure", "Adventure canceled!");
 goto("wait");
@@ -7705,7 +7713,6 @@ msg.prefix(p, prefix_commands, string.concat("You can now fly for ", string.numb
 player.setFly(p, true);
 duration = sec * 20;
 data.setTimer(p, "fly", duration);
-//status.addTimed(player, 55, duration, "Fly");
 goto("wait");
 
 @fly
@@ -9913,20 +9920,6 @@ if(list.getSize(plot_list) == 0) {
 	sgoto(100, "checkForPlot");
 }
 goto("wait");
-
-function tpBottom(player) {
-	player_loc = entity.getLocation(player);
-	y = loc.getY(player_loc);
-	while(y > -64 && block.isAir(block.get(player_loc))) {
-		loc.setY(player_loc, y);
-		y--;
-	}
-	if(y <= 0) {
-		return;
-	}
-	loc.addY(player_loc, 1);
-	entity.teleport(player, player_loc);
-}
 
 //--------------------------------------------------
 //Mailbox-Utils

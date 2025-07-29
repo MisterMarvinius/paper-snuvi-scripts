@@ -1,3 +1,4 @@
+modtimer(-500);
 gamesworld = world.getGames();
 lobbyspawnloc = loc.new(gamesworld, 906, 84, 945);
 mapname = "The Skeld";

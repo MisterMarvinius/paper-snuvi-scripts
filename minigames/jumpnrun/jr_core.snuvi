@@ -1,3 +1,7 @@
+import "utils/minigame";
+import "utils/minigame2";
+import "utils/ranking";
+
 @core_start
 maxplayers = 1;
 sign.started(gamesignloc);

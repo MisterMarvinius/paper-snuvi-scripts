@@ -1,21 +1,23 @@
+import "utils/msg";
+
 event.load("snuvi_click");
 
-spyglass = item.create("SPYGLASS", 1, "§2Challenges", null);
+spyglass = item.create("SPYGLASS", 1, "§2Odysseys", null);
 
 lore_list = list.new();
 list.add(lore_list, text.new("Receive all types of damage in the given order."));
 list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(4096), " + 1 Amber")));
 list.add(lore_list, text.new(""));
-list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
-list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart odyssey"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel odyssey"));
 all_damage_types = item.create("CACTUS", 1, "§cAll Damage Types", lore_list);
 
 lore_list = list.new();
 list.add(lore_list, text.new("Kill all entities in the given order."));
 list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(8192), " + 2 Amber")));
 list.add(lore_list, text.new(""));
-list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
-list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart odyssey"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel odyssey"));
 all_entities = item.create("NETHERITE_SWORD", 1, "§cAll Entities", lore_list);
 item.addFlag(all_entities, "HIDE_ATTRIBUTES");
 
@@ -23,20 +25,20 @@ lore_list = list.new();
 list.add(lore_list, text.new("Collect all items in the given order."));
 list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(32768), " + 4 Amber")));
 list.add(lore_list, text.new(""));
-list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
-list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart odyssey"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel odyssey"));
 all_items = item.create("CHEST_MINECART", 1, "§cAll Items", lore_list);
 
-lumberjack_inv = inv.new("200000000", text.new("Challenges: Lumberjack"));
+lumberjack_inv = inv.new("200000000", text.new("Odysseys: Lumberjack"));
 inv.setItem(lumberjack_inv, 0, all_damage_types);
 
-butcher_inv = inv.new("200000000", text.new("Challenges: Butcher"));
+butcher_inv = inv.new("200000000", text.new("Odysseys: Butcher"));
 inv.setItem(butcher_inv, 0, all_entities);
 
-librarian_inv = inv.new("200000000", text.new("Challenges: Librarian"));
+librarian_inv = inv.new("200000000", text.new("Odysseys: Librarian"));
 inv.setItem(librarian_inv, 0, all_items);
 
-msg("dev", text.new("§bChallenges §rloaded."));
+msg("dev", text.new("§bOdysseys §rloaded."));
 @wait
 wait();
 ignoreGoto(event);

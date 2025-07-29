@@ -1,8 +1,12 @@
+import "utils/msg";
+import "utils/odyssey";
+import "utils/generic";
+
 event.load("living_death");
 event.load("player_join");
 event.load("snuvi_click");
 
-prefix_challenge = "§aChallenge";
+prefix_challenge = "§aOdyssey";
 challenge_short = "ae";
 challenge_name = "All Entities";
 reward = 8192;
@@ -12,8 +16,8 @@ lore_list = list.new();
 list.add(lore_list, text.new("Kill all entities in the given order."));
 list.add(lore_list, text.new(string.concat("§fReward: ", money.getString(reward), " + 2 Amber")));
 list.add(lore_list, text.new(""));
-list.add(lore_list, text.new("§aLeftclick §f= §eStart challenge"));
-list.add(lore_list, text.new("§cRightclick §f= §eCancel challenge"));
+list.add(lore_list, text.new("§aLeftclick §f= §eStart odyssey"));
+list.add(lore_list, text.new("§cRightclick §f= §eCancel odyssey"));
 ae_item = item.create("NETHERITE_SWORD", 1, "§cAll Entities", lore_list);
 item.addFlag(ae_item, "HIDE_ATTRIBUTES");
 
@@ -130,7 +134,7 @@ title_string = string.text(inv_title);
 if(item == ae_item) {
 	if(click == "LEFT") {
 		if(challenge.playerHas(player, challenge_short)) {
-			msg.prefix(player, prefix_challenge, "You already started this challenge.");
+			msg.prefix(player, prefix_challenge, "You already started this odyssey.");
 			goto("wait");
 		}
 		player_id = player.getId(player);
@@ -140,18 +144,18 @@ if(item == ae_item) {
 		type = getRandomType(player);
 		stage = setNextEntity(player, type);
 		challenge.display(player, sb_id, challenge_name, type, stage, all_stages);
-		msg.prefix(player, prefix_challenge, "Challenge started.");
+		msg.prefix(player, prefix_challenge, "Odyssey started.");
 		goto("wait");
 	}
 	if(click == "RIGHT") {
 		if(!challenge.playerHas(player, challenge_short)) {
-			msg.prefix(player, prefix_challenge, "Challenge not active.");
+			msg.prefix(player, prefix_challenge, "Odyssey not active.");
 			goto("wait");
 		}
 		resetAE(player);
 		challenge.removeDisplay(player, sb_id);
 		player.removeChallenge(player, challenge_short);
-		msg.prefix(player, prefix_challenge, "Challenge canceled.");
+		msg.prefix(player, prefix_challenge, "Odyssey canceled.");
 		goto("wait");
 	}
 	goto("wait");
@@ -178,7 +182,7 @@ if(!isNextEntity(player, entity_type)) {
 sound.spawnForPlayer(player, sound, category);
 new_type = getRandomType(player);
 if(new_type == null) {
-	msg.prefix(player, prefix_challenge, "All entities killed. Challenge done!");
+	msg.prefix(player, prefix_challenge, "All entities killed. Odyssey done!");
 	msg.prefix(player, prefix_challenge, string.concat("Reward: ", money.getString(reward)));
 	money.add(player, reward);
 	amber = customitem.getAmber();

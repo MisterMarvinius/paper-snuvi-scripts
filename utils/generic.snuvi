@@ -1,0 +1,157 @@
+import "utils/block";
+
+function sb.getSpacer() {
+	return("§0------------------");
+}
+
+function list.copy(list) {
+	list_new = list.new();
+	iter = iterator(list);
+	while(hasNext(iter)) {
+		list.add(list_new, next(iter));
+	}
+	return list_new;
+}
+
+function list.transfer(from_list, to_list) {
+	iter = iterator(from_list);
+	while(hasNext(iter)) {
+		list.add(to_list, next(iter));
+	}
+}
+
+function array.sort(my_array, ascending) {
+	size = array.getSize(my_array);
+	if(ascending) {
+		for(i = 0; i < size - 1; i++) {
+			for(j = i + 1; j < size; j++) {
+				if(my_array[j] < my_array[i]) {
+					temp = my_array[i];
+					my_array[i] = my_array[j];
+					my_array[j] = temp;
+				}
+			}
+		}
+	} else {
+		for(i = 0; i < size - 1; i++) {
+			for(j = i + 1; j < size; j++) {
+				if(my_array[j] > my_array[i]) {
+					temp = my_array[i];
+					my_array[i] = my_array[j];
+					my_array[j] = temp;
+				}
+			}
+		}
+	}
+	return my_array;
+}
+
+function array.contains(array, element) {
+	for(i = 0; i < array.getSize(array); i++) {
+		if(array[i] == element) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function array.getIndexOf(array, element) {
+	for(i = 0; i < array.getSize(array); i++) {
+		if(array[i] == element) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+function map.sort(map, ascending) {
+	size = map.getSize(map);
+	my_array = array.new(size, 2);
+	//Map in Array umwandeln
+	i = 0;
+	iter = map.iterator(map);
+	while(hasNext(iter)) {
+		element = next(iter);
+		key = map.getKey(element);
+		value = map.getValue(element);
+		my_array[i, 0] = key;
+		my_array[i, 1] = value;
+		i++;
+	}
+	//Array sortieren
+	if(ascending) {
+		for(i = 0; i < size - 1; i++) {
+			for(j = i + 1; j < size; j++) {
+				if(my_array[j, 1] < my_array[i, 1]) {
+					g = my_array[i, 0];
+					h = my_array[i, 1];
+					my_array[i, 0] = my_array[j, 0];
+					my_array[i, 1] = my_array[j, 1];
+					my_array[j, 0] = g;
+					my_array[j, 1] = h;
+				}
+			}
+		}
+	} else {
+		for(i = 0; i < size - 1; i++) {
+			for(j = i + 1; j < size; j++) {
+				if(my_array[j, 1] > my_array[i, 1]) {
+					g = my_array[i, 0];
+					h = my_array[i, 1];
+					my_array[i, 0] = my_array[j, 0];
+					my_array[i, 1] = my_array[j, 1];
+					my_array[j, 0] = g;
+					my_array[j, 1] = h;
+				}
+			}
+		}
+	}
+	return my_array;
+}
+
+function getPotionTypes() {
+	potion = list.new();
+	list.add(potion, "night_vision");
+	list.add(potion, "invisibility");
+	list.add(potion, "leaping");
+	list.add(potion, "fire_resistance");
+	list.add(potion, "swiftness");
+	list.add(potion, "slowness");
+	list.add(potion, "water_breathing");
+	list.add(potion, "healing");
+	list.add(potion, "harming");
+	list.add(potion, "poison");
+	list.add(potion, "regeneration");
+	list.add(potion, "strength");
+	list.add(potion, "weakness");
+	list.add(potion, "levitation");
+	list.add(potion, "luck");
+	list.add(potion, "turtle_master");
+	list.add(potion, "slow_falling");
+	list.add(potion, "infested");
+	list.add(potion, "oozing");
+	list.add(potion, "weaving");
+	list.add(potion, "wind_charged");
+	return potion;
+}
+
+function grow(center_loc, radius) {
+	crops_tag = block.getTag("minecraft:crops");
+	for(x = radius * -1; x <= radius; x++) {
+		for(z = radius * -1; z <= radius; z++) {
+			for(y = radius * -1; y <= radius; y++) {
+				length = math.hypot(x, math.hypot(y, z));
+				if(length <= radius) {
+					block = block.get(loc.mod(center_loc, x, y, z));
+					if(block.hasTag(block, crops_tag)) {
+						if(block.isType(block, "minecraft:beetroots")) {
+							block.setData(block, read.blockData(string.replace(string.blockData(block.getData(block)), "age=.", "age=3")));
+						} else {
+							block.setData(block, read.blockData(string.replace(string.blockData(block.getData(block)), "age=.", "age=7")));
+						}
+					}
+				}
+			}
+		}
+	}
+}
