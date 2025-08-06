@@ -1,6 +1,7 @@
 import "utils/block";
 import "utils/clan";
 import "utils/config";
+import "utils/display";
 import "utils/friend";
 import "utils/generic";
 import "utils/entity";
@@ -9291,47 +9292,6 @@ if(sub == "text") {
 	goto("wait");
 }
 goto("displayhelp");
-
-function getDisplay(player) {
-    disp = player.getTargetEntity(player, 5);
-    if(!isDisplay(disp)) {
-        loc = entity.getLocation(player);
-        disp = entity.get(loc, 3, "org.bukkit.entity.Display");
-    }
-    return disp;
-}
-
-function isDisplay(entity) {
-    if(entity == null) {
-        return false;
-    }
-    disp_type = entity.getType(entity);
-    return string.contains(disp_type, "display");
-}
-
-function isTextDisplay(entity) {
-    if(entity == null) {
-        return false;
-    }
-    disp_type = entity.getType(entity);
-    return disp_type == "text_display";
-}
-
-function isItemDisplay(entity) {
-    if(entity == null) {
-        return false;
-    }
-    disp_type = entity.getType(entity);
-    return disp_type == "item_display";
-}
-
-function isBlockDisplay(entity) {
-    if(entity == null) {
-        return false;
-    }
-    disp_type = entity.getType(entity);
-    return disp_type == "block_display";
-}
 
 @giveup
 script_id = quest.getFromPlayer(player);

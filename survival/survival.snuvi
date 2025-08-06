@@ -1,5 +1,6 @@
 import "utils/block";
 import "utils/clan";
+import "utils/display";
 import "utils/msg";
 import "utils/time";
 
@@ -869,8 +870,12 @@ function itemhunter.decreaseSecondsAndProcess() {
 }
 
 function itemhunter.updateName() {
-	itemhunter_ass = entity.get($itemhunter_ass_loc, 1, "org.bukkit.entity.ArmorStand");
-	entity.setName(itemhunter_ass, text.new(string.number($itemhunter_seconds)), true);
+    itemhunter_disp = getDisplayAtLoc($itemhunter_ass_loc, 1);
+    if(itemhunter_disp == null) {
+        return;
+    }
+    t = string.replace(t, "&", "§");
+    display.setText(itemhunter_disp, text.new(string.number($itemhunter_seconds)));
 }
 
 function itemhunter.resetTimer() {

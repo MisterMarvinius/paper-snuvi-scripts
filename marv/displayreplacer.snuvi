@@ -1,0 +1,11 @@
+player = read.player("marvinius");
+loc = entity.getLocation(player);
+
+as = entity.get(loc, 3, "org.bukkit.entity.ArmorStand");
+name = entity.getName(as);
+loc2 = entity.getLocation(as);
+loc.addY(loc2, 0.3);
+entity.remove(as);
+
+d = display.spawn(loc2, name);
+display.pivot(d, "CENTER");

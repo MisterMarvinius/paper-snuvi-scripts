@@ -1,0 +1,46 @@
+import "utils/player"; 
+
+function getDisplay(player) {
+    disp = player.getTargetEntity(player, 5);
+    if(!isDisplay(disp)) {
+        loc = entity.getLocation(player);
+        disp = entity.get(loc, 3, "org.bukkit.entity.Display");
+    }
+    return disp;
+}
+
+function getDisplayAtLoc(loc, radius) {
+    return entity.get(loc, radius, "org.bukkit.entity.Display");
+}
+
+function isDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return string.contains(disp_type, "display");
+}
+
+function isTextDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return disp_type == "text_display";
+}
+
+function isItemDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return disp_type == "item_display";
+}
+
+function isBlockDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return disp_type == "block_display";
+}
