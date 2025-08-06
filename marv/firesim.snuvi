@@ -1,0 +1,66 @@
+event.load("projectile_hit");
+event.load("block_break");
+event.load("block_spread");
+event.load("block_fade");
+event.load("block_burn");
+
+fire_locs = list.new();
+
+msg("dev", text.new("Fire simulator started"));
+
+@wait
+wait();
+if(event == "block_fade") {
+	block_loc = block.getLocation(block);
+	list.remove(fire_locs, block_loc);
+}
+if(event == "block_spread") {
+	block_loc = block.getLocation(block);
+	list.add(fire_locs, block_loc);
+}
+if(event == "block_break") {
+	block_loc = block.getLocation(block);
+	list.remove(fire_locs, block_loc);
+}
+if(event == "projectile_hit") {
+	block_loc = block.getLocation(block_hit);
+	list.remove(fire_locs, block_loc);
+	sgoto(20, "checkFireLocs");
+}
+if(event == "block_burn") {
+	sgoto(20, "checkFireLocs");
+}
+x = list.getSize(fire_locs);
+msg("dev", text.new(string.concat(event, ": ", x, " fires left")));
+goto("wait");
+
+@checkFireLocs
+checkFireLocs();
+goto("wait");
+
+function checkFireLocs() {
+	toRemove = getExtFireLocs();
+	removeExtFireLocs(toRemove);
+	x = list.getSize($fire_locs);
+	msg("dev", text.new(string.concat("checkFireLocs: ", x, " fires left")));
+}
+
+function getExtFireLocs() {
+	toRemove = list.new();
+	iter = iterator($fire_locs);
+	while(hasNext(iter)) {
+		loc = next(iter);
+		if(block.getType(block.get(loc)) != material.get("FIRE")) {
+			list.add(toRemove, loc);
+		}
+	}
+	return toRemove;
+}
+
+function removeExtFireLocs(toRemove) {
+	iter = iterator(toRemove);
+	while(hasNext(iter)) {
+		loc = next(iter);
+		list.remove($fire_locs, loc);
+	}
+}

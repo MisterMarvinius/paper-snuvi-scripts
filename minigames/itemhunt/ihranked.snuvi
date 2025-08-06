@@ -20,6 +20,7 @@ sign.started(gamesignloc);
 event.load("bucket_use");
 event.load("living_pickup");
 event.load("craft");
+event.load("furnace_extract");
 
 min = 16;
 sec = 0;
@@ -133,13 +134,21 @@ if(action == "RIGHT_CLICK_BLOCK") {
 		goto("wait");
 	}
 	if(slot.isHand(hand)) {
-		item_type = item.getType(living.getHand(player));
+		item = living.getHand(player);
 	} else {
-		item_type = item.getType(living.getOffHand(player));
+        item = living.getOffHand(player);
 	}
+    item_type = item.getType(item);
 	if(set.contains(player_blocks, item_type)) {
 		goto("wait");
 	}
+    if(block.isDoor(block)) {
+        goto("wait");
+    }
+    mat = item.getType(item);
+    if(material.isEdible(mat)) {
+        goto("wait");
+    }
 	cancel = true;
 	if(block_type == pumpkin_mat && item_type == shears_mat) {
 		block_loc = block.getLocation(block);
@@ -279,6 +288,12 @@ goto("wait");
 
 @living_pickup
 item = item.entity.get(item_entity);
+goto("craft");
+
+@furnace_extract
+item = item.new(material);
+goto("craft");
+
 @craft
 itype = item.getType(item);
 if(list.contains(nextitems, itype)) {

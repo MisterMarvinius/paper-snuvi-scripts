@@ -11,7 +11,7 @@ glass_pane_mat = material.get("GLASS_PANE");
 air_mat = material.get("AIR");
 
 end_part = particle.get("REVERSE_PORTAL");
-green_part = particle.get("VILLAGER_HAPPY");
+green_part = particle.get("HAPPY_VILLAGER");
 laser_particle = end_part;
 
 max_length = 30; //amount of blocks a laser travels from last redirection

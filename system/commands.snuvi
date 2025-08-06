@@ -692,7 +692,7 @@ if(event == "player_move") {
 	} else {
 		color_code = "§e";
 	}
-	title.send(player, text.new(""), text.new(string.concat("You entered ", color_code, plot.getName(new_plot), ".")));
+	title.send(player, text.new(""), text.new(string.concat("You have entered ", color_code, plot.getName(new_plot), ".")));
 	map.add(actual_move_id, player_uuid, id);
 	list.add(check_for_plot_list, player_uuid);
 	sgoto(100, "checkForPlot");

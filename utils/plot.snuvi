@@ -174,7 +174,7 @@ function plot.getRanksMap(plot) {
 function plot.getChestRanks(plot) {
 	list = list.new();
 	map = plot.getRanksMap(plot);
-	iter = iterator(map);
+	iter = map.iterator(map);
 	while(hasNext(iter)) {
 		element = next(iter);
 		rank = map.getValue(element);

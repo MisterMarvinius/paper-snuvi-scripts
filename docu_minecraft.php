@@ -1696,14 +1696,36 @@
             <td>display.setBlock(BlockDisplay, material)</td>
         </tr>
     </table>
-	<table>
+
+    <table>
         <tr>
-            <th class="command">display.transform</th>
-            <th class="desc">transforms a BlockDisplay</th>
+            <th class="command">display.spawnItem</th>
+            <th class="desc">spawns and returns an ItemDisplay</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>display.transform(BlockDisplay, translation as vector, leftrotation, scale as vector, rigtrotation)</td>
+            <td>display.spawnItem(location, itemstack)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">display.setItem</th>
+            <th class="desc">sets the itemstack for an ItemDisplay</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.setItem(ItemDisplay, itemstack)</td>
+        </tr>
+    </table>
+
+	<table>
+        <tr>
+            <th class="command">display.transform</th>
+            <th class="desc">transforms a Display</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>display.transform(Display, translation as vector, leftrotation, scale as vector, rigtrotation)</td>
         </tr>
 		<tr>
 			<td class="bold">Arguments</td>
@@ -1895,6 +1917,16 @@
         <tr>
             <td class="bold">Format</td>
             <td>material.isBlock(material)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">material.isEdible</th>
+            <th class="desc">returns true if a material is edible</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>material.isEdible(material)</td>
         </tr>
     </table>
 	<table>
@@ -4360,6 +4392,46 @@
         <tr>
             <td class="bold">Format</td>
             <td>player.getPing(player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.setWorldBorder</th>
+            <th class="desc">sets a square WorldBorder visible to player for the player's current world</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.setWorldBorder(player, location, radius)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.removeWorldBorder</th>
+            <th class="desc">removes the WorldBorder visible to player for the player's current world</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.removeWorldBorder(player, location, radius)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.listTabPlayer</th>
+            <th class="desc">list other_player in the tablist of player</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.listTabPlayer(player, other_player)</td>
+        </tr>
+    </table>
+	<table>
+        <tr>
+            <th class="command">player.unlistTabPlayer</th>
+            <th class="desc">unlist other_player in the tablist of player</th>
+        </tr>
+        <tr>
+            <td class="bold">Format</td>
+            <td>player.unlistTabPlayer(player, other_player)</td>
         </tr>
     </table>
 	<table>

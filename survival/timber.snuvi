@@ -96,10 +96,7 @@ function block.isTree(break_loc) {
 		mod_block = block.mod(mod_block, 0, 1, 0);
 	}
 	if(block.isLeaves(mod_block)) {
-		if(!block.isPersistent(mod_block)){
-			return true;
-		}
-		return false;
+        return !block.isPersistent(mod_block);
 	}
 	else{
 		if($tree_type == "minecraft:acacia_log" || $tree_type == "minecraft:mangrove_log") {

@@ -272,7 +272,6 @@ if(event == "block_click") {
 		list.add(newteamlist, player_uuid);
 		map.add(players, player_uuid, newteam);
 		msg.prefix(player, gamename, string.concat("You joined the ", map.get(teamcolortext, newteam), " §rteam."));
-		//entity.setName(player, string.concat(map.get(colorcodes, newteam), player.getName(player)));
 	}
 }
 return;
@@ -291,7 +290,6 @@ while(list.getSize(waiters) != 0) {
 	map.add(players, p_uuid, team);
 	color = map.get(colorcodes, team);
 	p = player.get(p_uuid);
-	//entity.setName(p, string.concat(color, player.getName(p_uuid)));
 	minigame.setTabName(p, game_tab, color);
 }
 
@@ -899,6 +897,7 @@ function getAllEntites() {
 		location = loc.mod(location, 0, 2.05, 0);
 		as = entity.get(location, 1, $armor_stand_class);
 		map.add($as_map, human, as);
+        entity.setName(as, text.new(""), true);
 	}
 	return humans_list;
 }

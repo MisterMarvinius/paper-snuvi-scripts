@@ -1,0 +1,266 @@
+event.load("player_toggle_sneak"); //plot_border
+
+//air_mat = material.get("AIR");
+//todo: only spawn particle if block not full and not seethrough
+//only spawn particles that are visible (by distance) to the player
+
+plot_border_particle_list = list.new();
+list.add(plot_border_particle_list, particle.get("HAPPY_VILLAGER"));
+list.add(plot_border_particle_list, particle.get("END_ROD"));
+list.add(plot_border_particle_list, particle.get("REVERSE_PORTAL"));
+//list.add(plot_border_particle_list, particle.get("ELECTRIC_SPARK")); //too fast, slow particles are better
+
+plot_border_particle_list_size = list.getSize(plot_border_particle_list);
+
+plot_id_to_border_map = map.new();
+//elements are: player_set, coords_set
+
+loop_is_active = false;
+
+@wait
+wait();
+
+if(player.getName(player) == "SirTerence7" || player.getName(player) == "marvinius"){
+    if (sneak){
+        goto("wait");
+    }
+    //name is obv placeholder (also bc its not a command yet)
+    plot.border_command(player, 50);
+    msg("dev", text.merge(text.new("Size: "), text.new(map.getSize(plot_id_to_border_map))));
+
+    //only goto loop if it is not already active anyway
+    if (!loop_is_active){
+        loop_is_active = true;
+        sgoto(5,"Show_Border");
+    }
+    goto("wait");
+    //sgoto(5, "start");
+}
+goto("wait");
+
+@Show_Border
+// spawn particles
+
+plot_id_to_border_map = plot.show_border(plot_id_to_border_map);
+
+if (map.getSize(plot_id_to_border_map) > 0){
+    sgoto(20,"Show_Border");
+}
+else{
+    loop_is_active = false;
+}
+goto("wait");
+
+/*
+For each plot that the player is currently on, create a border (if not already done)
+and add the player to the list (map) of players to whom the border is shown
+then go to @Show_border to craete the particles
+*/
+function plot.border_command(player, max_iter){
+    location = entity.getLocation(player);
+    world = loc.getWorld(location);
+    player_y_add50 = loc.getY(location)+50;
+    player_y_sub50 = loc.getY(location)-50;
+
+    plots_coords_list = list.new();
+    temp_list = plot.get(location);
+
+    t_it = iterator(temp_list);
+    while (hasnext(t_it)){
+        plot = next(t_it);
+        plotId = plot.getId(plot);
+
+        //if the plot already has an entry in plot_id_to_border_map. only add the player
+        if(map.contains($plot_id_to_border_map, plotId)){
+            temp_array = map.get($plot_id_to_border_map, plotId);
+            map.add(temp_array[0], player, 0);
+            continue;
+        }
+        //else compute the border
+        //i currently don't spare computation on x and z axis by distance (bc of different players on same plot, but I could do that)
+        x_max = plot.getMaxX(plot);
+        x_min = plot.getMinX(plot);
+
+        y_max = plot.getMaxY(plot);
+        y_min = plot.getMinY(plot);
+
+        z_max = plot.getMaxZ(plot);
+        z_min = plot.getMinZ(plot);
+
+        no_ceil = false;
+        if (y_min <= -64){
+            y_max = player_y_add50;
+            y_min = player_y_sub50;
+            no_ceil = true;
+        }
+        /*
+        msg("dev", text.merge(text.new("X: "), text.new(x_min), text.new(", "), text.new(x_max), 
+                            text.new("; Y: "), text.new(y_min), text.new(", "), text.new(y_max),
+                            text.new("; Z: "), text.new(z_min), text.new(", "), text.new(z_max)));
+        */
+        
+        coords_set = plot.get_grid_border(x_max, x_min, y_max, y_min, z_max, z_min, no_ceil, world);
+
+        player_map = map.new();
+        
+        map.add(player_map, player, 0);
+
+        map_value = array.new(2);
+        map_value[0] = player_map;
+        map_value[1] = coords_set;
+        map.add($plot_id_to_border_map, plotId, map_value);
+
+        //list.add(plots_coords_list, coords_set);
+
+    //old code:
+    /*
+    plot_show_data_for_one_player = array.new(3);
+    plot_show_data_for_one_player[0] = 0;
+    plot_show_data_for_one_player[1] = player;
+    plot_show_data_for_one_player[2] = plots_coords_list;
+    list.add(show_plots_list, plot_show_data_for_one_player);
+    */
+    }
+
+}
+
+function plot.show_border(plot_id_to_border_map){
+    j = 0;
+    plotId_toremove_set = set.new();
+    spl_it = map.iterator(plot_id_to_border_map);
+    //iterating over the plots
+    while (hasnext(spl_it)){
+        map_iterated_el = next(spl_it);
+        plotId = map.getKey(map_iterated_el);
+        
+        particle = list.getIndex($plot_border_particle_list, j%$plot_border_particle_list_size);
+        j++;
+
+        map_value = map.getValue(map_iterated_el);
+        player_map = map_value[0];
+        coords_set = map_value[1];
+
+        //alternativ ein Set mit Liste: (Player, i)
+        player_set = set.new();
+        player_it = map.iterator(player_map);
+        //iterating over the players that want to see this plot
+        while (hasnext(player_it)){
+            player = map.getKey(next(player_it));
+            p_loc = entity.getLocation(player);
+            set.add(player_set, player);
+            cit = iterator(coords_set);
+            //iterating over the border_coords to show the particles
+            if (hasnext(cit)){
+                location = next(cit);
+                if (loc.getWorld(location) != loc.getWorld(p_loc)){
+                    continue;
+                }
+                particle.spawnPlayer(location, particle, player, 1, 0, 0, 0, 0);
+            }
+            while (hasnext(cit)){
+                location = next(cit);
+                //do we need this?
+                if (loc.distance(p_loc, location) < 50){
+                    particle.spawnPlayer(location, particle, player, 1, 0, 0, 0, 0);
+                }
+            }
+        }
+        player_it = iterator(player_set);
+        while (hasnext(player_it)){
+            player = next(player_it);
+
+            i = map.get(player_map, player);
+            if (i<50){
+                map.add(player_map, player, i+1);
+            }
+            else{
+                map.remove(player_map, player);
+                if (map.getSize(player_map) == 0){
+                    set.add(plotId_toremove_set, plotId);
+                }
+            }
+        }
+    }
+
+    remove_it = iterator(plotId_toremove_set);
+    while (hasnext(remove_it)){
+        plotId = next(remove_it);
+        map.remove(plot_id_to_border_map, plotId);
+    }
+    return plot_id_to_border_map;
+}
+
+// returns the border of the border of the box defined by x_max, x_min, y_max, y_min, z_max, z_min
+function plot.get_line_border(x_max, x_min, y_max, y_min, z_max, z_min, no_ceil, world){
+    blocks_set = set.new();
+    for (x = x_min; x<=x_max; x++){
+        set.add(blocks_set, loc.new(world, x, y_min, z_min));
+        set.add(blocks_set, loc.new(world, x, y_min, z_max));
+        set.add(blocks_set, loc.new(world, x, y_max, z_min));
+        set.add(blocks_set, loc.new(world, x, y_max, z_max));
+    }
+    for (y = y_min+1; y<y_max; y++){
+        set.add(blocks_set, loc.new(world, x_min, y, z_min));
+        set.add(blocks_set, loc.new(world, x_min, y, z_max));
+        set.add(blocks_set, loc.new(world, x_max, y, z_min));
+        set.add(blocks_set, loc.new(world, x_max, y, z_max));
+    }
+    for (z = z_min+1; z<z_max; z++){
+        set.add(blocks_set, loc.new(world, x_min, y_min, z));
+        set.add(blocks_set, loc.new(world, x_min, y_max, z));
+        set.add(blocks_set, loc.new(world, x_max, y_min, z));
+        set.add(blocks_set, loc.new(world, x_max, y_max, z));
+    }
+    return blocks_set;
+}
+
+// returns the grid border of the box defined by x_max, x_min, y_max, y_min, z_max, z_min
+function plot.get_grid_border(x_max, x_min, y_max, y_min, z_max, z_min, no_ceil, world){
+    blocks_set = plot.get_line_border(x_max, x_min, y_max, y_min, z_max, z_min, no_ceil, world);
+
+    step = 4;
+
+    for (y = y_min+step; y<y_max; y = y+step){
+        for (x = x_min; x<=x_max; x++){
+            set.add(blocks_set, loc.new(world, x, y, z_min));
+            set.add(blocks_set, loc.new(world, x, y, z_max));
+        }
+    }
+    for (x = x_min+step; x<x_max; x = x+step){
+        for (y = y_min+1; y<y_max; y++){
+            set.add(blocks_set, loc.new(world, x, y, z_min));
+            set.add(blocks_set, loc.new(world, x, y, z_max));
+        }
+    }
+    for (z = z_min+step; z<z_max; z = z+step){
+        for (y = y_min+1; y<y_max; y++){
+            set.add(blocks_set, loc.new(world, x_min, y, z));
+            set.add(blocks_set, loc.new(world, x_max, y, z));
+        }
+    }
+    for (y = y_min+step; y<y_max; y = y+step){
+        for (z = z_min+1; z<z_max; z++){
+            set.add(blocks_set, loc.new(world, x_min, y, z));
+            set.add(blocks_set, loc.new(world, x_max, y, z));
+        }
+    }
+    if (no_ceil){
+        return blocks_set;
+    }
+    for (z = z_min+step; z<z_max; z = z+step){
+        for (x = x_min; x<=x_max; x++){
+            set.add(blocks_set, loc.new(world, x, y_min, z));
+            set.add(blocks_set, loc.new(world, x, y_max, z));
+        }
+    }
+    for (x = x_min+step; x<x_max; x = x+step){
+        for (z = z_min+1; z<z_max; z++){
+            set.add(blocks_set, loc.new(world, x, y_min, z));
+            set.add(blocks_set, loc.new(world, x, y_max, z));
+        }
+    }
+
+    return blocks_set;
+}
+
+goto("wait");
