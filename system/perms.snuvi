@@ -183,6 +183,7 @@ perm.addToGroup(3, "coreprotect.*");
 perm.addToGroup(3, "customitems.*");
 perm.addToGroup(3, "datatools");
 perm.addToGroup(3, "dev");
+perm.addToGroup(3, "display");
 perm.addToGroup(3, "enchant");
 perm.addToGroup(3, "feed");
 perm.addToGroup(3, "fly");

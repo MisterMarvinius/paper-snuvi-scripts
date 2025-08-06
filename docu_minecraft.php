@@ -1622,7 +1622,7 @@
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>display.backgroundColor(TextDisplay, a, r, b, g)</td>
+            <td>display.backgroundColor(TextDisplay, a, r, g, b)</td>
         </tr>
     </table>
 	<table>
@@ -1667,12 +1667,12 @@
     </table>
 	<table>
         <tr>
-            <th class="command">display.shadowed</th>
+            <th class="command">display.opacity</th>
             <th class="desc">sets the opacity for a TextDisplay</th>
         </tr>
         <tr>
             <td class="bold">Format</td>
-            <td>display.shadowed(TextDisplay, opacity as byte)</td>
+            <td>display.opacity(TextDisplay, opacity as byte)</td>
         </tr>
     </table>
 	
@@ -3439,7 +3439,7 @@
         </tr>
         <tr>
             <td class="bold">Arguments</td>
-            <td>type = "Item", "Particle", "Potion", "Sound", "Enchantment", "Player"</td>
+            <td>type = "Item", "Block", "Particle", "Potion", "Sound", "Enchantment", "Player"</td>
         </tr>
     </table>
     <table>

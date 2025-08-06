@@ -985,6 +985,132 @@ help = command.newHelp("clan", "clan");
 command.addHelpArgument(help, command.newHelpLiteral("list"));
 command.registerHelp(help);
 
+//display text <text>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("text"));
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+//display block <block>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("block"));
+command.addHelpArgument(help, command.newHelpSpecial("Block", "block"));
+command.registerHelp(help);
+//display item <item>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("item"));
+command.addHelpArgument(help, command.newHelpSpecial("Item", "item"));
+command.registerHelp(help);
+//display set text <text>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("text"));
+command.addHelpArgument(help, command.newHelpString("text", true));
+command.registerHelp(help);
+//display set block <block>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("block"));
+command.addHelpArgument(help, command.newHelpSpecial("Block", "block"));
+command.registerHelp(help);
+//display set item <item>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("item"));
+command.addHelpArgument(help, command.newHelpSpecial("Item", "item"));
+command.registerHelp(help);
+//display set pivot <"CENTER"/"FIXED"/"HORIZONTAL"/"VERTICAL">
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("pivot"));
+command.addHelpArgument(help, command.newHelpLiteral("CENTER"));
+command.registerHelp(help);
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("pivot"));
+command.addHelpArgument(help, command.newHelpLiteral("FIXED"));
+command.registerHelp(help);
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("pivot"));
+command.addHelpArgument(help, command.newHelpLiteral("HORIZONTAL"));
+command.registerHelp(help);
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("pivot"));
+command.addHelpArgument(help, command.newHelpLiteral("VERTICAL"));
+command.registerHelp(help);
+//display set backgroundcolor <a> <r> <g> <b>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("backgroundcolor"));
+command.addHelpArgument(help, command.newHelpInt("a", 0, 255));
+command.addHelpArgument(help, command.newHelpInt("r", 0, 255));
+command.addHelpArgument(help, command.newHelpInt("g", 0, 255));
+command.addHelpArgument(help, command.newHelpInt("b", 0, 255));
+command.registerHelp(help);
+//display set linewidth <linewidth>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("linewidth"));
+command.addHelpArgument(help, command.newHelpInt("linewidth", 0, 10000));
+command.registerHelp(help);
+//display set alignment <"CENTER"/"LEFT"/"RIGHT">
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("alignment"));
+command.addHelpArgument(help, command.newHelpLiteral("CENTER"));
+command.registerHelp(help);
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("alignment"));
+command.addHelpArgument(help, command.newHelpLiteral("LEFT"));
+command.registerHelp(help);
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("alignment"));
+command.addHelpArgument(help, command.newHelpLiteral("RIGHT"));
+command.registerHelp(help);
+//display set seethrough <boolean>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("seethrough"));
+command.addHelpArgument(help, command.newHelpBool("boolean"));
+command.registerHelp(help);
+//display set shadowed <boolean>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("shadowed"));
+command.addHelpArgument(help, command.newHelpBool("boolean"));
+command.registerHelp(help);
+//display set opacity <opacity>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("set"));
+command.addHelpArgument(help, command.newHelpLiteral("opacity"));
+command.addHelpArgument(help, command.newHelpInt("opacity", 0, 10000));
+command.registerHelp(help);
+//display transform <tx> <ty> <tz> <rx> <ry> <rz> <rw> <sx> <sy> <sz> <rx2> <ry2> <rz2> <rw2>
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("transform"));
+command.addHelpArgument(help, command.newHelpFloat("tx", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("ty", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("tz", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("rx", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("ry", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("rz", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("rw", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("sx", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("sy", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("sz", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("rx2", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("ry2", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("rz2", -10000, 10000));
+command.addHelpArgument(help, command.newHelpFloat("rw2", -10000, 10000));
+command.registerHelp(help);
+//display remove
+help = command.newHelp("display", "display");
+command.addHelpArgument(help, command.newHelpLiteral("remove"));
+command.registerHelp(help);
+
 gamerules = gamerule.getAll();
 iter = iterator(gamerules);
 while(hasNext(iter)) {

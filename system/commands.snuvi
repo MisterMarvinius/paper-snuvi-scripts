@@ -9087,10 +9087,11 @@ goto("world_syntax");
 
 @display
 if(size == 0) {
+    @displayhelp
 	msg.prefix(player, prefix_commands, "/display ...");
-	msg.string(player, "§6 - text <name> <text> §rSpawn TextDisplay");
-	msg.string(player, "§6 - block <name> <material> §rSpawn BlockDisplay");
-	msg.string(player, "§6 - item <name> <item> §rSpawn ItemDisplay");
+	msg.string(player, "§6 - text <text> §rSpawn TextDisplay");
+	msg.string(player, "§6 - block <material> §rSpawn BlockDisplay");
+	msg.string(player, "§6 - item <item> §rSpawn ItemDisplay");
 	msg.string(player, "§6 - set <property> <value> §rSet display property");
 	msg.string(player, "§6 - transform <tx> <ty> <tz> <rx> <ry> <rz> <rw> <sx> <sy> <sz> <rx2> <ry2> <rz2> <rw2> §rTransform display");
 	msg.string(player, "§6 - remove §rRemove display");
@@ -9098,24 +9099,23 @@ if(size == 0) {
 }
 sub = string.toLowerCase(list.getIndex(args, 0));
 if(sub == "text") {
-	if(size < 3) {
-		msg.prefix(player, prefix_commands, "/display text <name> <text>");
+	if(size < 2) {
+		msg.prefix(player, prefix_commands, "/display text <text>");
 		goto("wait");
 	}
-	name = list.getIndex(args, 1);
-	text_string = string.concatList(args, " ", 2, size - 1);
+	text_string = string.concatList(args, " ", 1, size - 1);
+    text_string = string.replace(text_string, "&", "§");
 	loc = entity.getLocation(player);
 	d = display.spawn(loc, text.new(text_string));
-	entity.setName(d, text.new(name), true);
+    display.pivot(d, "CENTER");
 	msg.prefix(player, prefix_commands, "Text display spawned.");
 	goto("wait");
 } elseif(sub == "block") {
-	if(size != 3) {
-		msg.prefix(player, prefix_commands, "/display block <name> <material>");
+	if(size != 2) {
+		msg.prefix(player, prefix_commands, "/display block <material>");
 		goto("wait");
 	}
-	name = list.getIndex(args, 1);
-	mat_name = list.getIndex(args, 2);
+	mat_name = list.getIndex(args, 1);
 	mat = material.get(mat_name);
 	if(mat == null) {
 		msg.prefix(player, prefix_commands, "Unknown material.");
@@ -9123,20 +9123,17 @@ if(sub == "text") {
 	}
 	loc = entity.getLocation(player);
 	d = display.spawnBlock(loc, mat);
-	entity.setName(d, text.new(name), true);
 	msg.prefix(player, prefix_commands, "Block display spawned.");
 	goto("wait");
 } elseif(sub == "item") {
-	if(size != 3) {
-		msg.prefix(player, prefix_commands, "/display item <name> <item>");
+	if(size != 2) {
+		msg.prefix(player, prefix_commands, "/display item <item>");
 		goto("wait");
 	}
-	name = list.getIndex(args, 1);
-	item_name = list.getIndex(args, 2);
+	item_name = list.getIndex(args, 1);
 	itemstack = item.create(item_name, 1, null, null);
 	loc = entity.getLocation(player);
 	d = display.spawnItem(loc, itemstack);
-	entity.setName(d, text.new(name), true);
 	msg.prefix(player, prefix_commands, "Item display spawned.");
 	goto("wait");
 } elseif(sub == "set") {
@@ -9144,18 +9141,19 @@ if(sub == "text") {
 		msg.prefix(player, prefix_commands, "/display set <property> <value>");
 		goto("wait");
 	}
-	disp = player.getTargetEntity(player, 5);
-	if(disp == null || !string.contains(entity.getType(disp), "display")) {
-		loc = entity.getLocation(player);
-		disp = entity.get(loc, 3, "org.bukkit.entity.Display");
-		if(disp == null) {
-			msg.action(player, "No display found.");
-			goto("wait");
-		}
-	}
+    disp = getDisplay(player);
+    if(disp == null) {
+        msg.action(player, "No display found.");
+        goto("wait");
+    }
 	prop = string.toLowerCase(list.getIndex(args, 1));
 	if(prop == "text") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		t = string.concatList(args, " ", 2, size - 1);
+        t = string.replace(t, "&", "§");
 		display.setText(disp, text.new(t));
 	} elseif(prop == "block") {
 		mat_name = list.getIndex(args, 2);
@@ -9164,12 +9162,24 @@ if(sub == "text") {
 			msg.prefix(player, prefix_commands, "Unknown material.");
 			goto("wait");
 		}
+        if(!isBlockDisplay(disp)) {
+            msg.action(player, "No block display found.");
+            goto("wait");
+        }
 		display.setBlock(disp, mat);
 	} elseif(prop == "item") {
 		item_name = list.getIndex(args, 2);
 		itemstack = item.create(item_name, 1, null, null);
+        if(!isItemDisplay(disp)) {
+            msg.action(player, "No item display found.");
+            goto("wait");
+        }
 		display.setItem(disp, itemstack);
 	} elseif(prop == "pivot") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		pv = list.getIndex(args, 2);
 		display.pivot(disp, string.toUpperCase(pv));
 	} elseif(prop == "backgroundcolor") {
@@ -9177,18 +9187,34 @@ if(sub == "text") {
 			msg.prefix(player, prefix_commands, "/display set backgroundColor <a> <r> <b> <g>");
 			goto("wait");
 		}
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		a = read.number(list.getIndex(args, 2));
 		r = read.number(list.getIndex(args, 3));
-		b = read.number(list.getIndex(args, 4));
-		g = read.number(list.getIndex(args, 5));
+		g = read.number(list.getIndex(args, 4));
+		b = read.number(list.getIndex(args, 5));
 		display.backgroundColor(disp, a, r, b, g);
 	} elseif(prop == "linewidth") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		width = read.number(list.getIndex(args, 2));
 		display.lineWidth(disp, width);
 	} elseif(prop == "alignment") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		align = list.getIndex(args, 2);
 		display.alignment(disp, string.toUpperCase(align));
 	} elseif(prop == "seethrough") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		bool = list.getIndex(args, 2);
 		if(!(bool == true || bool == false)) {
 			msg.prefix(player, prefix_commands, "Boolean expected.");
@@ -9196,6 +9222,10 @@ if(sub == "text") {
 		}
 		display.seeThrough(disp, bool);
 	} elseif(prop == "shadowed") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		bool = list.getIndex(args, 2);
 		if(!(bool == true || bool == false)) {
 			msg.prefix(player, prefix_commands, "Boolean expected.");
@@ -9203,6 +9233,10 @@ if(sub == "text") {
 		}
 		display.shadowed(disp, bool);
 	} elseif(prop == "opacity") {
+        if(!isTextDisplay(disp)) {
+            msg.action(player, "No text display found.");
+            goto("wait");
+        }
 		op = read.number(list.getIndex(args, 2));
 		display.opacity(disp, op);
 	} else {
@@ -9216,15 +9250,11 @@ if(sub == "text") {
 		msg.prefix(player, prefix_commands, "/display transform <tx> <ty> <tz> <rx> <ry> <rz> <rw> <sx> <sy> <sz> <rx2> <ry2> <rz2> <rw2>");
 		goto("wait");
 	}
-	disp = player.getTargetEntity(player, 5);
-	if(disp == null || !string.contains(entity.getType(disp), "display")) {
-		loc = entity.getLocation(player);
-		disp = entity.get(loc, 3, "org.bukkit.entity.Display");
-		if(disp == null) {
-			msg.action(player, "No display found.");
-			goto("wait");
-		}
-	}
+    disp = getDisplay(player);
+    if(disp == null) {
+        msg.action(player, "No display found.");
+        goto("wait");
+    }
 	tx = read.number(list.getIndex(args, 1));
 	ty = read.number(list.getIndex(args, 2));
 	tz = read.number(list.getIndex(args, 3));
@@ -9251,22 +9281,58 @@ if(sub == "text") {
 		msg.prefix(player, prefix_commands, "/display remove");
 		goto("wait");
 	}
-	disp = player.getTargetEntity(player, 5);
-	if(disp == null || !string.contains(entity.getType(disp), "display")) {
-		loc = entity.getLocation(player);
-		disp = entity.get(loc, 3, "org.bukkit.entity.Display");
-		if(disp == null) {
-			msg.action(player, "No display found.");
-			goto("wait");
-		}
-	}
+    disp = getDisplay(player);
+    if(disp == null) {
+        msg.action(player, "No display found.");
+        goto("wait");
+    }
 	entity.remove(disp);
 	msg.prefix(player, prefix_commands, "Display removed.");
 	goto("wait");
-} else {
-	msg.prefix(player, prefix_commands, "Unknown subcommand.");
-	goto("wait");
 }
+goto("displayhelp");
+
+function getDisplay(player) {
+    disp = player.getTargetEntity(player, 5);
+    if(!isDisplay(disp)) {
+        loc = entity.getLocation(player);
+        disp = entity.get(loc, 3, "org.bukkit.entity.Display");
+    }
+    return disp;
+}
+
+function isDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return string.contains(disp_type, "display");
+}
+
+function isTextDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return disp_type == "text_display";
+}
+
+function isItemDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return disp_type == "item_display";
+}
+
+function isBlockDisplay(entity) {
+    if(entity == null) {
+        return false;
+    }
+    disp_type = entity.getType(entity);
+    return disp_type == "block_display";
+}
+
 @giveup
 script_id = quest.getFromPlayer(player);
 if(script_id == null) {
